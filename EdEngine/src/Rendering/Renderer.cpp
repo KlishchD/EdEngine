@@ -18,7 +18,6 @@ void Renderer::Initialize(Engine* engine)
 
     m_ShadowMapsFramebuffer = std::make_shared<CubeFramebuffer>(1.0f);
     m_ShadowMapsFramebuffer->Bind();
-    m_ShadowMapsFramebuffer->CreateAttachment(FramebufferAttachmentType::Distance);
     m_ShadowMapsFramebuffer->CreateAttachment(FramebufferAttachmentType::Depth);
     m_ShadowMapsFramebuffer->Unbind();
     
@@ -52,7 +51,7 @@ void Renderer::Update()
 		m_ShadowMapsFramebuffer->Resize(std::min(m_ViewportSize.x, 1024.0f));
 		m_LightPassFramebuffer->Resize(m_ViewportSize.x, m_ViewportSize.y);
 		m_ViewportFramebuffer->Resize(m_ViewportSize.x, m_ViewportSize.y);
-		m_Engine->GetCamera()->SetProjection(90.0f, 1.0f * m_ViewportSize.x / m_ViewportSize.y, 1.0f, 15000.0f);
+		m_Engine->GetCamera()->SetProjection(90.0f, 1.0f * m_ViewportSize.x / m_ViewportSize.y, 1.0f, m_FarPlane);
 	}
 
     std::shared_ptr<Scene> scene = m_Engine->GetLoadedScene();
@@ -138,31 +137,39 @@ void Renderer::LightPass(const std::vector<std::shared_ptr<Component>>& componen
     {
         if (std::shared_ptr<PointLightComponent> light = std::dynamic_pointer_cast<PointLightComponent>(outerComponent))
         {
+			m_RendererAPI->BeginRenderPass("shadow maps", m_ShadowMapsFramebuffer, m_ShadowPassShader, glm::mat4(1), light->GetPosition());
+			m_RendererAPI->DisableBlending();
+
             if (light->IsShadowCasting())
             {
-                m_RendererAPI->BeginRenderPass("shadow maps", m_ShadowMapsFramebuffer, m_ShadowPassShader, glm::mat4(1), glm::vec3(0.0f));
-                m_RendererAPI->DisableBlending();
+                m_ShadowPassShader->SetFloat("u_FarPlane", m_FarPlane);
+                for (int32_t i = 0; i < 6; ++i) {
+					m_ShadowPassShader->SetMat4("u_ViewProjection[" + std::to_string(i) + "]", m_LightPerspective * light->GetShadowMapPassCameraTransformation(i));
+				}
+                
+				m_ShadowMapsFramebuffer->AttachLayers();
 
+				m_RendererAPI->ClearDepthTarget();
+
+				for (const std::shared_ptr<Component>& component : components)
+				{
+					if (std::shared_ptr<StaticMeshComponent> meshComponent = std::dynamic_pointer_cast<StaticMeshComponent>(component))
+					{
+						if (std::shared_ptr<StaticMesh> mesh = meshComponent->GetStaticMesh()) {
+							m_RendererAPI->SubmitMeshRaw(mesh, meshComponent->GetTransform()); // TODO: Need a hierarchical Transform
+						}
+					}
+				}
+            }
+            else
+            {
                 for (int32_t i = 0; i < 6; ++i) {
                     m_ShadowMapsFramebuffer->AttachFace(i);
-                    m_RendererAPI->SetNewCameraInformation(m_LightPerspective * light->GetShadowMapPassCameraTransformation(i), light->GetPosition());
-
-                    m_RendererAPI->ClearColorTarget();
                     m_RendererAPI->ClearDepthTarget();
-
-                    for (const std::shared_ptr<Component>& component : components)
-                    {
-                        if (std::shared_ptr<StaticMeshComponent> meshComponent = std::dynamic_pointer_cast<StaticMeshComponent>(component))
-                        {
-                            if (std::shared_ptr<StaticMesh> mesh = meshComponent->GetStaticMesh()) {
-                                m_RendererAPI->SubmitMeshRaw(mesh, meshComponent->GetTransform()); // TODO: Need a hierarchical Transform
-                            }
-                        }
-                    }
                 }
-
-                m_RendererAPI->EndRenderPass();
             }
+
+			m_RendererAPI->EndRenderPass();
 
             m_RendererAPI->BeginRenderPass("lighting pass", m_LightPassFramebuffer, m_LightPassShader, camera->GetMatrix(), camera->GetPosition());
 
@@ -173,9 +180,10 @@ void Renderer::LightPass(const std::vector<std::shared_ptr<Component>>& componen
             m_LightPassShader->SetInt("u_Position", 11);
             m_LightPassShader->SetInt("u_Normal", 12);
             m_LightPassShader->SetInt("u_RoughnessMetalic", 13);
+            m_LightPassShader->SetFloat("u_FarPlane", m_FarPlane);
 
             m_RendererAPI->EnableFaceCulling();
-            m_RendererAPI->SubmitLightMesh(light, m_ShadowMapsFramebuffer->GetAttachment(0));
+            m_RendererAPI->SubmitLightMesh(light, m_ShadowMapsFramebuffer->GetDepthAttachment());
             m_RendererAPI->DisableFaceCulling();
 
             m_RendererAPI->EndRenderPass();

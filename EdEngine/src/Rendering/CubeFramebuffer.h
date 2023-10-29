@@ -10,6 +10,7 @@ public:
     virtual void CreateAttachment(FramebufferAttachmentType type) override;
 
     void AttachFace(int32_t face) const;
+    void AttachLayers() const;
 
     void Resize(int32_t size);
 

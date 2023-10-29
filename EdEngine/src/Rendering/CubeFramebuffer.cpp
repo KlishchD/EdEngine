@@ -110,6 +110,27 @@ void CubeFramebuffer::AttachFace(int32_t face) const
     }
 }
 
+void CubeFramebuffer::AttachLayers() const
+{
+	for (int32_t i = 0; i < m_Attachments.size(); ++i)
+	{
+		if (std::shared_ptr<Texture3D> texture3D = std::static_pointer_cast<Texture3D>(m_Attachments[i]))
+		{
+			glFramebufferTexture(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0 + i, texture3D->GetID(), 0);
+		}
+	}
+
+	glDrawBuffers(m_AttachmentsNames.size(), (GLenum*)m_AttachmentsNames.data());
+
+	if (m_DepthAttachment) {
+		glFramebufferTexture(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, m_DepthAttachment->GetID(), 0);
+	}
+
+	if (m_DepthStencilAttachment) {
+		glFramebufferTexture(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, m_DepthStencilAttachment->GetID(), 0);
+	}
+}
+
 void CubeFramebuffer::Resize(int32_t size)
 {
     m_Size = size;

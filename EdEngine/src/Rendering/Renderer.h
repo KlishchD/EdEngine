@@ -24,12 +24,14 @@ public:
     std::shared_ptr<Framebuffer> LightPassFramebuffer() const;
     std::shared_ptr<Framebuffer> GetViewport() const;
 private:
+	float m_FarPlane = 15000.0f;
+
     std::shared_ptr<Shader> m_GeometryPassShader;
     std::shared_ptr<Framebuffer> m_GeometryFramebuffer;
     
     std::shared_ptr<Shader> m_ShadowPassShader;
     std::shared_ptr<CubeFramebuffer> m_ShadowMapsFramebuffer;
-    glm::mat4 m_LightPerspective = glm::perspective(glm::radians(90.0f), 1.0f, 1.0f, 15000.0f);
+    glm::mat4 m_LightPerspective = glm::perspective(glm::radians(90.0f), 1.0f, 1.0f, m_FarPlane);
     
     std::shared_ptr<Shader> m_LightPassShader;
     std::shared_ptr<Framebuffer> m_LightPassFramebuffer;
