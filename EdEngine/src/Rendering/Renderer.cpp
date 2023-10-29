@@ -46,6 +46,15 @@ void Renderer::Deinitialize()
 
 void Renderer::Update()
 {
+	if (m_ViewportFramebuffer->GetWidth() != m_ViewportSize.x || m_ViewportFramebuffer->GetHeight() != m_ViewportSize.y)
+	{
+		m_GeometryFramebuffer->Resize(m_ViewportSize.x, m_ViewportSize.y);
+		m_ShadowMapsFramebuffer->Resize(std::min(m_ViewportSize.x, 1024.0f));
+		m_LightPassFramebuffer->Resize(m_ViewportSize.x, m_ViewportSize.y);
+		m_ViewportFramebuffer->Resize(m_ViewportSize.x, m_ViewportSize.y);
+		m_Engine->GetCamera()->SetProjection(90.0f, 1.0f * m_ViewportSize.x / m_ViewportSize.y, 1.0f, 15000.0f);
+	}
+
     std::shared_ptr<Scene> scene = m_Engine->GetLoadedScene();
     Camera* camera = m_Engine->GetCamera();
     
@@ -65,14 +74,7 @@ void Renderer::Update()
 
 void Renderer::ResizeViewport(glm::vec2 size)
 {
-    if (m_ViewportFramebuffer->GetWidth() != size.x || m_ViewportFramebuffer->GetHeight() != size.y)
-    {
-        m_GeometryFramebuffer->Resize(size.x, size.y);
-        m_ShadowMapsFramebuffer->Resize(std::min(size.x, 1024.0f));
-        m_LightPassFramebuffer->Resize(size.x, size.y);
-        m_ViewportFramebuffer->Resize(size.x, size.y);
-        m_Engine->GetCamera()->SetProjection(90.0f, 1.0f * size.x / size.y, 1.0f, 15000.0f);
-    }
+    m_ViewportSize = size;
 }
 
 void Renderer::SubmitRenderCommand(const std::function<void(RendererAPI* renderAPI)>& command)

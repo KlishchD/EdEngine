@@ -43,6 +43,8 @@ private:
     RendererAPI* m_RendererAPI = nullptr;
     Engine* m_Engine = nullptr;
 
+    glm::vec2 m_ViewportSize = glm::vec2(1.0f);
+
     void GeometryPass(const std::vector<std::shared_ptr<Component>>& components, Camera* camera);
     void LightPass(const std::vector<std::shared_ptr<Component>>& components, Camera* camera);
     void CombinationPass(const std::vector<std::shared_ptr<Component>>& components, Camera* camera);

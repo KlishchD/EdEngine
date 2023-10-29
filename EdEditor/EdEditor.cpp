@@ -25,8 +25,6 @@ int main(int argc, char* argv[])
         }
     }
 
-    editor->Deinitialize();
-
     Engine::Delete();
 
     return 0;
