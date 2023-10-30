@@ -15,10 +15,7 @@ Transform::Transform(glm::vec3 translation, glm::quat rotation): m_Translation(t
 glm::mat4 Transform::GetMatrix() const
 {
     glm::mat4 mat = glm::translate(glm::mat4(1.0f), m_Translation);
-    if (m_Rotation.x != 0.0f || m_Rotation.y != 0.0f || m_Rotation.z != 0.0f || m_Rotation.w != 0.0f)
-    {
-        mat = glm::rotate(mat, glm::angle(m_Rotation), glm::axis(m_Rotation));
-    }
+    mat = glm::rotate(mat, glm::angle(m_Rotation), glm::axis(m_Rotation));
     mat = glm::scale(mat, m_Scale);
     return mat;
 }

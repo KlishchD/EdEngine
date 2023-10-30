@@ -24,7 +24,8 @@ void Texture3D::Resize(uint32_t width, uint32_t height)
         m_Height = size;
 
         Texture3DImportParameters& parameters = std::static_pointer_cast<Texture3DDescriptor>(m_Descriptor)->ImportParameters;
-	
+		// TODO: Add descriptor size update if needed
+
         glBindTexture(GL_TEXTURE_CUBE_MAP, m_Id);
         for (int32_t i = 0; i < 6; ++i)
         {

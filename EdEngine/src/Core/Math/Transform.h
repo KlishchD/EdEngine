@@ -35,7 +35,7 @@ public:
     void SetScale(const glm::vec3& scale) { m_Scale = scale; }
     void SetScale(float x, float y, float z) { m_Scale = glm::vec3(x, y, z); }
 
-    glm::mat4 GetMatrix() const;
+    inline glm::mat4 GetMatrix() const;
     glm::mat4 GetMatrixWithOutScale() const;
 
     glm::mat4 GetInversedTransposedMatrix() const;

@@ -85,6 +85,7 @@ void Texture2D::Resize(uint32_t width, uint32_t height)
 		m_Height = height;
 
 		Texture2DImportParameters& parameters = std::static_pointer_cast<Texture2DDescriptor>(m_Descriptor)->ImportParameters;
+		// TODO: Add descriptor size update if needed
 	
 		glBindTexture(m_TextureType, m_Id);
 		glTexImage2D(m_TextureType, 0, parameters.InternalFormat, width, height, 0, parameters.ExternalFormat, parameters.DataType, nullptr);
