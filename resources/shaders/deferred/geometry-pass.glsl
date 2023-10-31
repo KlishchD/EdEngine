@@ -1,6 +1,6 @@
 ﻿// type vertex
 
-#version 430 core
+#version 460 core
 
 uniform mat4 u_ProjectionViewMatrix;
 uniform vec3 u_ViewPosition;
@@ -44,7 +44,7 @@ void main() {
 
 // type fragment
 
-#version 430 
+#version 460 core
 
 struct Material {
     vec4 BaseColor;

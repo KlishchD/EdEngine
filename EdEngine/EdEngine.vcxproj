@@ -157,6 +157,7 @@
     <ClCompile Include="src\Core\Assets\Font.cpp" />
     <ClCompile Include="src\Core\Assets\FontManager.cpp" />
     <ClCompile Include="src\Core\Assets\Material.cpp" />
+    <ClCompile Include="src\Core\Assets\Sampler.cpp" />
     <ClCompile Include="src\Core\Assets\Shader.cpp" />
     <ClCompile Include="src\Core\Assets\StaticMesh.cpp" />
     <ClCompile Include="src\Core\Assets\Texture.cpp" />
@@ -209,6 +210,7 @@
     <ClInclude Include="src\Core\Assets\Font.h" />
     <ClInclude Include="src\Core\Assets\FontManager.h" />
     <ClInclude Include="src\Core\Assets\Material.h" />
+    <ClInclude Include="src\Core\Assets\Sampler.h" />
     <ClInclude Include="src\Core\Assets\Shader.h" />
     <ClInclude Include="src\Core\Assets\StaticMesh.h" />
     <ClInclude Include="src\Core\Assets\Texture.h" />

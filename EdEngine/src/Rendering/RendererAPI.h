@@ -50,6 +50,9 @@ public:
 	void EnableFaceCulling();
 	void DisableFaceCulling();
 
+	void CullFrontFace();
+	void CullBackFace();
+
 	void EnableBlending();
 	void DisableBlending();
 	void SetBlendFunction(BlendFactor sourceFactor, BlendFactor destinationFactor);

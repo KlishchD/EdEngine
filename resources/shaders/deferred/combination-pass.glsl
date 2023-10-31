@@ -1,6 +1,6 @@
 ﻿// type vertex
 
-#version 430 core
+#version 460 core
 
 layout(location = 0) in vec2 position;
 
@@ -10,7 +10,7 @@ void main() {
 
 // type fragment
 
-#version 430 core
+#version 460 core
 
 #define M_PI 3.1415926535897932384626433832795
 #define MAX_POINT_LIGHTS_COUNT 100
@@ -22,6 +22,7 @@ uniform vec3 u_ViewPosition;
 uniform sampler2D u_Albedo;
 uniform sampler2D u_RoughnessMetalic;
 uniform sampler2D u_Light;
+uniform sampler2D u_Bloom;
 
 layout(location = 0) out vec4 color;
 
@@ -43,7 +44,7 @@ void main() {
     
     if (roughnessMetalic.a == 1.0f) 
     {
-        vec3 rColor = 0.03f * albedo + texture(u_Light, pos).xyz;
+        vec3 rColor = 0.03f * albedo + texture(u_Light, pos).xyz + texture(u_Bloom, pos).xyz;
 
         // HDR tone-mapping
         //totalColor = totalColor / (totalColor + vec3(1.0f));

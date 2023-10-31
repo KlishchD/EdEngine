@@ -1,6 +1,6 @@
 // type vertex
 
-#version 430 core
+#version 460 core
 
 uniform mat4 u_ModelMatrix;
 
@@ -12,7 +12,7 @@ void main() {
 
 // type geometry
 
-#version 430 
+#version 460 core
 
 uniform mat4 u_ViewProjection[6];
 
@@ -36,7 +36,7 @@ void main() {
 
 // type fragment
 
-#version 430 
+#version 460 core
 
 uniform vec3 u_ViewPosition;
 

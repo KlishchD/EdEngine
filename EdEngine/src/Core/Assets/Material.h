@@ -60,6 +60,11 @@ public:
     void SetNormalTexture(const std::shared_ptr<Texture2D>& texture);
     void SetRoughnessTexture(const std::shared_ptr<Texture2D>& texture);
     void SetMetalicTexture(const std::shared_ptr<Texture2D>& texture);
+
+    std::shared_ptr<Texture2D> GetBaseColorTexture() const;
+    std::shared_ptr<Texture2D> GetNormalTexture() const;
+    std::shared_ptr<Texture2D> GetRoughnessTexture() const;
+    std::shared_ptr<Texture2D> GetMetalicTexture() const;
 private:
 
     std::shared_ptr<Texture2D> m_BaseColorTexture;

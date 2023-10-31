@@ -1,6 +1,6 @@
 ﻿// type vertex
 
-#version 430 core
+#version 460 core
 
 uniform mat4 u_ProjectionViewMatrix;
 uniform mat4 u_ModelMatrix;
@@ -13,7 +13,7 @@ void main() {
 
 // type fragment
 
-#version 430 core
+#version 460 core
 
 #define M_PI 3.1415926535897932384626433832795
 #define MAX_POINT_LIGHTS_COUNT 100
@@ -93,13 +93,14 @@ void main() {
         vec3 diffuse = (vec3(1.0f) - F) * albedo / M_PI;
 
         float distance = length(u_PointLight.Position - position);
-        vec3 radiance = u_PointLight.Intensity * u_PointLight.Color / (distance * distance);
+        vec3 radiance = 10 * u_PointLight.Intensity * u_PointLight.Color / (distance * distance);
 
         if (distance > u_PointLight.Radius) {
             discard;
         }
         
-        float intensity = 1.0f, bias = 0.5f;
+        float intensity = 1.0f;
+        float bias = max(5.0f * (1.0f - NdotL), 0.005f);
         if (u_PointLight.UseShadowMap) {
             float nearest = texture(u_PointLight.ShadowMap, -light.xyz).r * u_FarPlane; 
             if (nearest + bias < distance) {

@@ -23,8 +23,18 @@ void Renderer::Initialize(Engine* engine)
     
     m_LightPassFramebuffer = std::make_shared<Framebuffer>(1.0f, 1.0f);
     m_LightPassFramebuffer->Bind();
-    m_LightPassFramebuffer->CreateAttachment(FramebufferAttachmentType::Color);
+    m_LightPassFramebuffer->CreateAttachment(FramebufferAttachmentType::Color16);
     m_LightPassFramebuffer->Unbind();
+
+	m_BlurFramebuffer1 = std::make_shared<Framebuffer>(1.0f, 1.0f);
+	m_BlurFramebuffer1->Bind();
+	m_BlurFramebuffer1->CreateAttachment(FramebufferAttachmentType::Color16);
+	m_BlurFramebuffer1->Unbind();
+
+	m_BlurFramebuffer2 = std::make_shared<Framebuffer>(1.0f, 1.0f);
+	m_BlurFramebuffer2->Bind();
+	m_BlurFramebuffer2->CreateAttachment(FramebufferAttachmentType::Color16);
+	m_BlurFramebuffer2->Unbind();
 
     m_ViewportFramebuffer = std::make_shared<Framebuffer>(1.0f, 1.0f);
     m_ViewportFramebuffer->Bind();
@@ -35,6 +45,8 @@ void Renderer::Initialize(Engine* engine)
     m_GeometryPassShader = std::make_shared<Shader>(Files::ContentFolderPath + R"(\shaders\deferred\geometry-pass.glsl)");
     m_CombinationPassShader = std::make_shared<Shader>(Files::ContentFolderPath + R"(\shaders\deferred\combination-pass.glsl)");
     m_LightPassShader = std::make_shared<Shader>(Files::ContentFolderPath + R"(\shaders\deferred\light-pass-mesh.glsl)");
+    m_BrighnessFilterShader = std::make_shared<Shader>(Files::ContentFolderPath + R"(\shaders\brightness-filter.glsl)");
+    m_BlurShader = std::make_shared<Shader>(Files::ContentFolderPath + R"(\shaders\blur.glsl)");
     m_ShadowPassShader = std::make_shared<Shader>(Files::ContentFolderPath + R"(\shaders\shadow-pass.glsl)");
 }
 
@@ -51,6 +63,8 @@ void Renderer::Update()
 		m_ShadowMapsFramebuffer->Resize(std::min(m_ViewportSize.x, 1024.0f));
 		m_LightPassFramebuffer->Resize(m_ViewportSize.x, m_ViewportSize.y);
 		m_ViewportFramebuffer->Resize(m_ViewportSize.x, m_ViewportSize.y);
+		m_BlurFramebuffer1->Resize(m_ViewportSize.x, m_ViewportSize.y);
+        m_BlurFramebuffer2->Resize(m_ViewportSize.x, m_ViewportSize.y);
 		m_Engine->GetCamera()->SetProjection(90.0f, 1.0f * m_ViewportSize.x / m_ViewportSize.y, 1.0f, m_FarPlane);
 	}
 
@@ -63,6 +77,7 @@ void Renderer::Update()
 
     GeometryPass(components, camera);
     LightPass(components, camera);
+    BloomPass();
     CombinationPass(components, camera);
 
     while (m_Commands.size()) {
@@ -73,7 +88,7 @@ void Renderer::Update()
 
 void Renderer::ResizeViewport(glm::vec2 size)
 {
-    m_ViewportSize = size;
+    m_ViewportSize = 2.0f * size;
 }
 
 void Renderer::SubmitRenderCommand(const std::function<void(RendererAPI* renderAPI)>& command)
@@ -110,13 +125,59 @@ void Renderer::GeometryPass(const std::vector<std::shared_ptr<Component>>& compo
     {
         if (std::shared_ptr<StaticMeshComponent> meshComponent = std::dynamic_pointer_cast<StaticMeshComponent>(component))
         {
-            if (std::shared_ptr<StaticMesh> mesh = meshComponent->GetStaticMesh()) {
+            if (std::shared_ptr<StaticMesh> mesh = meshComponent->GetStaticMesh()) 
+            {
                 m_RendererAPI->SubmitMesh(mesh, meshComponent->GetTransform()); // TODO: Need a hierarchical Transform
             }
         }
     }
 
     m_RendererAPI->EndRenderPass();
+}
+
+void Renderer::BloomPass() 
+{
+    m_RendererAPI->BeginRenderPass("Blur filter", m_BlurFramebuffer1, m_BrighnessFilterShader, glm::mat4(1.0f), glm::vec3(0.0f)); // Temporary step, may be removed after PBR bloom will be added :)
+
+    m_RendererAPI->ClearColorTarget();
+
+    m_BrighnessFilterShader->SetInt("u_Image", 10);
+    m_LightPassFramebuffer->GetAttachment(0)->Bind(10);
+
+	m_RendererAPI->SubmitQuad(-1.0f, -1.0f, -1.0f, 1.0f, 1.0f, 1.0f, 1.0f, -1.0f);
+
+    m_RendererAPI->EndRenderPass();
+
+    std::shared_ptr<Framebuffer> read;
+    std::shared_ptr<Framebuffer> write;
+
+    for (int32_t i = 0; i < m_BlurPassCount; ++i) {
+		if (i % 2)
+		{
+			read = m_BlurFramebuffer2;
+			write = m_BlurFramebuffer1;
+		}
+		else
+		{
+			read = m_BlurFramebuffer1;
+			write = m_BlurFramebuffer2;
+		}
+
+		m_RendererAPI->BeginRenderPass("Blur pass", write, m_BlurShader, glm::mat4(1.0f), glm::vec3(0.0f));
+
+		m_RendererAPI->ClearColorTarget();
+
+		m_BlurShader->SetBool("u_HorizontalPass", i % 2 == 0);
+		m_BlurShader->SetFloat("u_PixelWidth", 1.0f / read->GetWidth());
+		m_BlurShader->SetFloat("u_PixelHeight", 1.0f / read->GetHeight());
+		m_BlurShader->SetFloat2("u_ScreenSize", write->GetWidth(), write->GetHeight());
+		m_BlurShader->SetInt("u_Image", 15);
+		read->GetAttachment(0)->Bind(15);
+
+		m_RendererAPI->SubmitQuad(-1.0f, -1.0f, -1.0f, 1.0f, 1.0f, 1.0f, 1.0f, -1.0f);
+
+		m_RendererAPI->EndRenderPass();
+    }
 }
 
 void Renderer::LightPass(const std::vector<std::shared_ptr<Component>>& components, Camera* camera)
@@ -193,7 +254,18 @@ void Renderer::LightPass(const std::vector<std::shared_ptr<Component>>& componen
 
 void Renderer::CombinationPass(const std::vector<std::shared_ptr<Component>>& components, Camera* camera)
 {
-    m_LightPassFramebuffer->GetAttachment(0)->Bind(14);
+	m_GeometryFramebuffer->GetAttachment(0)->Bind(10);
+	m_GeometryFramebuffer->GetAttachment(3)->Bind(11);
+
+    m_LightPassFramebuffer->GetAttachment(0)->Bind(12);
+    if (m_BlurPassCount % 2) 
+    {
+		m_BlurFramebuffer2->GetAttachment(0)->Bind(13);
+    }
+    else
+    {
+		m_BlurFramebuffer1->GetAttachment(0)->Bind(13);
+    }
 
     m_RendererAPI->BeginRenderPass("combination pass", m_ViewportFramebuffer, m_CombinationPassShader, camera->GetMatrix(), camera->GetPosition());
 
@@ -202,8 +274,9 @@ void Renderer::CombinationPass(const std::vector<std::shared_ptr<Component>>& co
     m_RendererAPI->ClearDepthTarget();
 
     m_CombinationPassShader->SetInt("u_Albedo", 10);
-    m_CombinationPassShader->SetInt("u_RoughnessMetalic", 13);
-    m_CombinationPassShader->SetInt("u_Light", 14);
+    m_CombinationPassShader->SetInt("u_RoughnessMetalic", 11);
+    m_CombinationPassShader->SetInt("u_Light", 12);
+    m_CombinationPassShader->SetInt("u_Bloom", 13);
 
     m_RendererAPI->SubmitQuad(-1.0f, -1.0f, -1.0f, 1.0f, 1.0f, 1.0f, 1.0f, -1.0f);
 

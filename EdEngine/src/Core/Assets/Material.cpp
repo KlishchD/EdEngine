@@ -80,6 +80,26 @@ void Material::SetMetalicTexture(const std::shared_ptr<Texture2D>& texture)
     }
 }
 
+std::shared_ptr<Texture2D> Material::GetBaseColorTexture() const
+{
+    return m_BaseColorTexture;
+}
+
+std::shared_ptr<Texture2D> Material::GetNormalTexture() const
+{
+    return m_NormalTexture;
+}
+
+std::shared_ptr<Texture2D> Material::GetRoughnessTexture() const
+{
+    return m_RoughnessTexture;
+}
+
+std::shared_ptr<Texture2D> Material::GetMetalicTexture() const
+{
+    return m_MetalicTexture;
+}
+
 void Material::SetBaseColorTexture(const std::shared_ptr<Texture2D>& texture)
 {
     m_BaseColorTexture = texture;

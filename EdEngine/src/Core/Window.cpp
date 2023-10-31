@@ -156,10 +156,13 @@ Window::Window(const std::string& name, uint32_t width, uint32_t height): m_Name
         return;
     }
         
-    glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
-    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
+    glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
+    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 6);
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+//  glfwWindowHint(GLFW_SAMPLES, 4);
+//  glEnable(GL_MULTISAMPLE);
         
+
     m_Window = glfwCreateWindow(640, 480, "Hello World", NULL, NULL);
     if (!m_Window)
     {
@@ -204,5 +207,5 @@ Window::Window(const std::string& name, uint32_t width, uint32_t height): m_Name
     ImGui::StyleColorsClassic();
 
     ImGui_ImplGlfw_InitForOpenGL(m_Window, true);
-    ImGui_ImplOpenGL3_Init("#version 430 core");
+    ImGui_ImplOpenGL3_Init("#version 460 core");
 }

@@ -6,6 +6,7 @@
 enum class FramebufferAttachmentType
 {
     Color,
+    Color16,
     Depth,
     DepthStencil,
     Position,

@@ -51,7 +51,7 @@ void Framebuffer::AttachDepthTexture(const std::shared_ptr<Texture3D>& texture, 
 }
 */
 
-void Framebuffer::CreateAttachment(FramebufferAttachmentType type)
+void Framebuffer::CreateAttachment(FramebufferAttachmentType type) // TODO: Add specification of sorts
 {
     Texture2DData data;
     data.Width = m_Width;
@@ -72,6 +72,18 @@ void Framebuffer::CreateAttachment(FramebufferAttachmentType type)
             m_Attachments.push_back(attachment);
         }
         break;
+	case FramebufferAttachmentType::Color16:
+	{
+		data.Channels = 4;
+		Texture2DImportParameters parameters = { "", GL_MIRRORED_REPEAT, GL_MIRRORED_REPEAT, GL_RGBA16F, GL_RGBA, GL_LINEAR, GL_FLOAT };
+		std::shared_ptr<Texture2D> attachment = std::make_shared<Texture2D>(parameters, data);
+
+		glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0 + m_Attachments.size(), GL_TEXTURE_2D, attachment->GetID(), 0);
+
+		m_AttachmentsNames.push_back(GL_COLOR_ATTACHMENT0 + m_Attachments.size());
+		m_Attachments.push_back(attachment);
+	}
+	break;
     case FramebufferAttachmentType::Depth:
         {
             data.Channels = 1;

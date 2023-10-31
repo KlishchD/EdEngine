@@ -184,6 +184,16 @@ void RendererAPI::DisableFaceCulling()
 	glDisable(GL_CULL_FACE);
 }
 
+void RendererAPI::CullFrontFace()
+{
+	glCullFace(GL_FRONT);
+}
+
+void RendererAPI::CullBackFace()
+{
+	glCullFace(GL_BACK);
+}
+
 void RendererAPI::EnableBlending()
 {
 	glEnable(GL_BLEND);

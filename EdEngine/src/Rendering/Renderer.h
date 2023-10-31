@@ -3,6 +3,7 @@
 #include "Core/BaseManager.h"
 #include "CubeFramebuffer.h"
 #include "RendererAPI.h"
+#include "Core/Assets/Sampler.h"
 #include <queue>
 
 class Engine;
@@ -36,6 +37,13 @@ private:
     std::shared_ptr<Shader> m_LightPassShader;
     std::shared_ptr<Framebuffer> m_LightPassFramebuffer;
 
+    std::shared_ptr<Framebuffer> m_BlurFramebuffer1;
+    std::shared_ptr<Framebuffer> m_BlurFramebuffer2;
+    std::shared_ptr<Shader> m_BlurShader;
+    std::shared_ptr<Shader> m_BrighnessFilterShader;
+
+    int32_t m_BlurPassCount = 20;
+
     std::shared_ptr<Shader> m_CombinationPassShader;
 
     std::shared_ptr<Framebuffer> m_ViewportFramebuffer;
@@ -49,5 +57,6 @@ private:
 
     void GeometryPass(const std::vector<std::shared_ptr<Component>>& components, Camera* camera);
     void LightPass(const std::vector<std::shared_ptr<Component>>& components, Camera* camera);
+    void BloomPass();
     void CombinationPass(const std::vector<std::shared_ptr<Component>>& components, Camera* camera);
 };
