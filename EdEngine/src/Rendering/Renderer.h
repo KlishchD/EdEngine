@@ -25,6 +25,19 @@ public:
     std::shared_ptr<Framebuffer> LightPassFramebuffer() const;
     std::shared_ptr<Framebuffer> GetViewport() const;
 private:
+    constexpr static int32_t BrightnessFilterTextureSlot = 10;
+    constexpr static int32_t BlurReadTextreSlot = 10;
+
+    constexpr static int32_t AlbedoTextureSlot = 10;
+    constexpr static int32_t PositionTextureSlot = 11;
+    constexpr static int32_t NormalTextureSlot = 12;
+    constexpr static int32_t RoughnessMetalicTextureSlot = 13;
+    constexpr static int32_t ShadowMapRandomSamplesTextureSlot = 14;
+
+    constexpr static int32_t LightPassTextureSlot = 15;
+
+    constexpr static int32_t BloomPassTextureSlot = 16;
+
 	float m_FarPlane = 15000.0f;
 
     std::shared_ptr<Shader> m_GeometryPassShader;
@@ -41,6 +54,10 @@ private:
     std::shared_ptr<Framebuffer> m_BlurFramebuffer2;
     std::shared_ptr<Shader> m_BlurShader;
     std::shared_ptr<Shader> m_BrighnessFilterShader;
+
+    int32_t m_ShadowMapFiltersCount = 10;
+    int32_t m_FilterSize = 5;
+    std::shared_ptr<Texture2D> m_ShadowMapRandomSamples;
 
     int32_t m_BlurPassCount = 20;
 
@@ -59,4 +76,6 @@ private:
     void LightPass(const std::vector<std::shared_ptr<Component>>& components, Camera* camera);
     void BloomPass();
     void CombinationPass(const std::vector<std::shared_ptr<Component>>& components, Camera* camera);
+
+    void CreateRandomShadowMapSamples();
 };

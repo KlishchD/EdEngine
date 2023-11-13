@@ -38,8 +38,20 @@ uniform sampler2D u_Position;
 uniform sampler2D u_Normal;
 uniform sampler2D u_RoughnessMetalic;
 
+uniform sampler2D u_RandomSamples;
+uniform float u_FilterSize;
+uniform float u_ShadowMapPixelSize;
 
 uniform PointLight u_PointLight;
+
+vec3 sampleOffsetDirections[20] = vec3[]
+(
+   vec3( 1,  1,  1), vec3( 1, -1,  1), vec3(-1, -1,  1), vec3(-1,  1,  1), 
+   vec3( 1,  1, -1), vec3( 1, -1, -1), vec3(-1, -1, -1), vec3(-1,  1, -1),
+   vec3( 1,  1,  0), vec3( 1, -1,  0), vec3(-1, -1,  0), vec3(-1,  1,  0),
+   vec3( 1,  0,  1), vec3(-1,  0,  1), vec3( 1,  0, -1), vec3(-1,  0, -1),
+   vec3( 0,  1,  1), vec3( 0, -1,  1), vec3( 0, -1, -1), vec3( 0,  1, -1)
+);   
 
 layout(location = 0) out vec4 color;
 
@@ -98,17 +110,65 @@ void main() {
         if (distance > u_PointLight.Radius) {
             discard;
         }
-        
-        float intensity = 1.0f;
-        float bias = max(5.0f * (1.0f - NdotL), 0.005f);
-        if (u_PointLight.UseShadowMap) {
-            float nearest = texture(u_PointLight.ShadowMap, -light.xyz).r * u_FarPlane; 
-            if (nearest + bias < distance) {
-                intensity = 0.0f;
+
+        float bias = max(5.0f * (1.0f - NdotL), 1.0f);
+        float shadowIntensity = 0;
+
+        /*
+
+        float diskRadius = 0.005f;// (1.0f + (length(u_ViewPosition - position) / u_FarPlane)) / 25.0f;
+
+        for (int i = 0; i < 20; ++i) 
+        {
+            float nearest = texture(u_PointLight.ShadowMap, -light.xyz + sampleOffsetDirections[i] * diskRadius).r * u_FarPlane;
+            if (nearest + bias < distance)  
+            {
+                shadowIntensity += 1;
             }
         }
 
-        color = vec4(intensity * (diffuse + specular) * radiance * NdotL, 1.0f);
+        shadowIntensity /= 20;
+        */
+
+        float offset = 0.01f;
+        float delta = (2.0f * offset) / u_FilterSize;
+
+        for (float i = -offset; i < offset; i += delta)
+        {
+            for (float j = -offset; j < offset; j += delta)
+            {
+                for (float k = -offset; k < offset; k += delta)
+                {
+                    float nearest = texture(u_PointLight.ShadowMap, -light.xyz + vec3(i, j, k)).r * u_FarPlane;
+                    if (nearest + bias < distance)  
+                    {
+                        shadowIntensity += 1;
+                    }
+                }
+            }
+        }
+        
+        shadowIntensity /= u_FilterSize * u_FilterSize * u_FilterSize;
+        /*
+        float fsize2 = u_FilterSize * u_FilterSize;
+        for (float j = 0; j < 3; ++j) 
+        {
+            for (float i = 0; i < fsize2; ++i) 
+            {
+                vec3 offset = texture2D(u_RandomSamples, vec2(j / 10, i / fsize2)).xyz * u_ShadowMapPixelSize / 2;
+                float nearest = texture(u_PointLight.ShadowMap, -light.xyz + offset).r * u_FarPlane;
+                if (nearest + bias < distance)  
+                {
+                    shadowIntensity += 1;
+                }
+            }
+        }
+
+        shadowIntensity /= fsize2 * 3;
+        */
+
+        color = vec4((1.0f - shadowIntensity) * (diffuse + specular) * radiance * NdotL, 1.0f);
+        //color = vec4((1.0f - shadowIntensity), (1.0f - shadowIntensity), shadowIntensity, 1.0f);
     }
     else
     {
