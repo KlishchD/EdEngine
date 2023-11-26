@@ -13,6 +13,7 @@
 #include "Core/Window.h"
 #include "Core/Assets/AssetManager.h"
 #include "Core/Assets/Shader.h"
+#include "Core/Scene.h"
 
 void Editor::Deinitialize()
 {
@@ -32,7 +33,6 @@ void Editor::Initialize(Engine* engine)
 
     m_MousePosition = m_Window->GetMousePosition();
 
-    m_IconShader = std::make_shared<Shader>(Files::ContentFolderPath + R"(Editor\shaders\IconShader.glsl)");
     m_LightIcon = m_AssetManager->LoadTexture(Texture2DImportParameters::GetDefaultBaseColorTextureImportParameters(Files::ContentFolderPath + R"(Editor\icons\light-bulb.png)"));
 
     m_Engine->AddWidget<OptionsMenuWidget>();
@@ -42,6 +42,10 @@ void Editor::Initialize(Engine* engine)
     m_Engine->AddWidget<ViewportWidget>();
     m_Engine->AddWidget<ContentBrowserWidget>();
     m_Engine->AddWidget<AssetDescriptorDetails>();
+
+    m_IconsPassSpecification.name = "Editor icons";
+    m_IconsPassSpecification.framebuffer = m_Renderer->GetViewport();
+    m_IconsPassSpecification.shader = std::make_shared<Shader>(Files::ContentFolderPath + R"(Editor\shaders\IconShader.glsl)");
 }
 
 void Editor::Update(float DeltaTime)
@@ -61,12 +65,12 @@ void Editor::Update(float DeltaTime)
         std::vector<std::shared_ptr<Component>> components = m_Engine->GetLoadedScene()->GetAllComponents();
         std::shared_ptr<Framebuffer> viewportFramebuffer = m_Renderer->GetViewport();
 
-        renderAPI->BeginRenderPass("Icons", viewportFramebuffer, m_IconShader, camera->GetMatrix(), camera->GetPosition());
+        m_IconsPassSpecification.projectionViewMatrix = camera->GetMatrix();
+        m_IconsPassSpecification.viewPosition = camera->GetPosition();
+
+        renderAPI->BeginRenderPass(m_IconsPassSpecification);
         m_Renderer->GetViewport()->CopyDepthAttachment(m_Renderer->GetGeometryPassFramebuffer());
         
-        renderAPI->EnableBlending();
-        renderAPI->SetBlendFunction(BlendFactor::SourceAlpha, BlendFactor::OneMinusSourceAlpha);
-
         glm::vec3 viewPosition = camera->GetPosition();
         for (const std::shared_ptr<Component>& component : components)
         {

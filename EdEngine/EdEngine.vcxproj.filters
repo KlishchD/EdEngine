@@ -326,12 +326,16 @@
     <ClInclude Include="src\Core\Assets\Sampler.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="src\Core\Macros.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="Dependencies\ImGui\.editorconfig" />
     <None Include="Dependencies\ImGui\.git" />
     <None Include="Dependencies\ImGui\.gitattributes" />
     <None Include="Dependencies\ImGui\.gitignore" />
+    <None Include="src\Rendering\RenderPassSpecification.h" />
   </ItemGroup>
   <ItemGroup>
     <Text Include="Dependencies\ImGui\LICENSE.txt" />

@@ -10,6 +10,7 @@
 #include "Rendering/Framebuffer.h"
 #include "Rendering/CubeFramebuffer.h"
 #include "Utils/Files.h"
+#include "Macros.h"
 
 Engine* engine = nullptr;
 
@@ -55,23 +56,29 @@ void Engine::PushUpdate(float DeltaTime)
 
 void Engine::Initialize()
 {
+    ED_LOG(Engine, info, "Started initializing")
+
     Window::Create("Window", 1024, 960);
+
+    m_RenderAPI = &RendererAPI::Get();
+    m_RenderAPI->Initialize();
 
     m_Renderer = std::make_shared<Renderer>();
     m_Renderer->Initialize(this);
     
     std::shared_ptr<AssetManager> assetManager = std::make_shared<AssetManager>();
     m_Managers.push_back(assetManager);
-    m_Managers.push_back(std::make_shared<LogManager>());
 
     for (std::shared_ptr<BaseManager>& manager: m_Managers)
     {
         manager->Initialize(this);
     }
 
-    m_Scene = assetManager->CreateOrLoadScene(Files::ContentFolderPath + R"(scenes\main_test.edscene)");
+    m_Scene = assetManager->LoadScene(Files::ContentFolderPath + R"(scenes\main_test.edscene)");
 
     m_Camera = Camera(90.0f, 1240.0f / 960.0f, 1.0f, 15000.0f);
+
+	ED_LOG(Engine, info, "Finished initializing")
 }
 
 void Engine::Deinitialize()
@@ -101,23 +108,19 @@ void Engine::Update()
 
     PushUpdate(DeltaTime);
     
-    Window& window = Window::Get();
-    
-    window.Clear();
-
     m_Renderer->Update();
    
-    window.BeginUIFrame();
+    m_RenderAPI->BeginUIFrame();
     
     for (std::shared_ptr<Widget>& widget: m_Widgets)
     {
         widget->Tick(DeltaTime);
     }
     
-    window.EndUIFrame();
+    m_RenderAPI->EndUIFrame();
 
+    Window& window = Window::Get();
     window.Update();
-
     m_IsRunning = window.IsRunning();
 }
 
@@ -131,7 +134,6 @@ void Engine::InputAction(Key key, Action action)
         }
     }
 }
-
 
 void Engine::SubscribeToInput(const InputEvent& inputEvent)
 {

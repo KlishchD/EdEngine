@@ -7,10 +7,15 @@
 #include "Core/Assets/StaticMesh.h"
 #include "Core/Components/PointLightComponent.h"
 #include "Core/Components/StaticMeshComponent.h"
+#include "RenderPassSpecification.h"
 
 class RendererAPI {
 public:
+	void Initialize();
+
 	void BeginRenderPass(const std::string& name, const std::shared_ptr<BaseFramebuffer>& framebuffer, const std::shared_ptr<Shader>& shader, const glm::mat4& projectionViewMatrix, glm::vec3 viewPosition);
+	void BeginRenderPass(RenderPassSpecification& specification);
+	
 	void BindShader(const std::shared_ptr<Shader>& shared);
 	void SetNewCameraInformation(const glm::mat4& projectionViewMatrix, glm::vec3 viewPosition);
 
@@ -57,17 +62,26 @@ public:
 	void DisableBlending();
 	void SetBlendFunction(BlendFactor sourceFactor, BlendFactor destinationFactor);
 	
+	void EnableDepthTest();
+	void DisableDepthTest();
+
+	GLFWwindow* CreateContext();
+
+	void BeginUIFrame();
+	void EndUIFrame();
 	
-	static RendererAPI& GetRendererAPI();
+	void SwapBuffers(GLFWwindow* window);
+
+	static RendererAPI& Get();
 private:
-	std::string m_RenderPassName;
-	std::shared_ptr<Framebuffer> m_RenderPassFramebuffer;
+	RenderPassSpecification* m_Specification;
+
+	RenderPassSpecification m_TemporarySpecification;
+
 	std::shared_ptr<Shader> m_Shader;
 
 	int32_t m_LightCount = 0;
 	
-	glm::mat4 m_ProjectionViewMatrix;
-	glm::vec3 m_ViewPosition;
 	glm::vec4 m_Up;
 
 	std::shared_ptr<VertexArray> m_QuadVAO;
@@ -76,15 +90,11 @@ private:
 	std::shared_ptr<VertexBuffer> m_LightMeshVBO;
 	std::shared_ptr<VertexArray> m_LightMeshVAO;
 
-	VertexArray m_TextVAO;
+	std::unique_ptr<VertexArray> m_TextVAO;
 
-	VertexArray m_IconVertexArray;
+	std::unique_ptr<VertexArray> m_IconVertexArray;
 
-
-	std::shared_ptr<BaseFramebuffer> m_Framebuffer;
-
-		
-	RendererAPI();
+	RendererAPI() = default;
 
 	//void SubmitComponent(const std::shared_ptr<Component>& component, const glm::mat4& Transform);
 };

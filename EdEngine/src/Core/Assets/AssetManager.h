@@ -57,7 +57,8 @@ public:
     
     void RefreshMaterial(const std::shared_ptr<MaterialDescriptor>& descriptor);
 
-    std::shared_ptr<Scene> CreateOrLoadScene(const std::string& path);
+    std::shared_ptr<Scene> CreateScene(const std::string& path);
+    std::shared_ptr<Scene> LoadScene(const std::string& path);
 
     bool IsAssetExtension(const std::string& extension);
 private:

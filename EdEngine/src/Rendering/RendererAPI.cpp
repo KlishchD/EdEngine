@@ -8,16 +8,115 @@
 #include <glm/ext/matrix_transform.hpp>
 #include "Utils/GeometryBuilder.h"
 
+#include "backends/imgui_impl_glfw.h"
+#include "backends/imgui_impl_opengl3.h"
+
+#include "Core/Macros.h"
+
+void RendererAPI::Initialize()
+{
+	ED_LOG(RendererAPI, info, "Started initalizing RendererAPI")
+
+	m_TextVAO = std::make_unique<VertexArray>();
+
+	m_TextVAO->AddBuffer(
+		nullptr,
+		20 * sizeof(float),
+		{
+			{ "vertex", 1, ShaderDataType::Float3 },
+			{ "textureCoordinates", 1, ShaderDataType::Float2 }
+		},
+		0
+	);
+
+	float square[5 * 6] = {
+		0.0f, 0.0f, 0.0f, 0.0f, 0.0f,
+		0.0f, 1.0f, 0.0f, 0.0f, 1.0f,
+		1.0f, 1.0f, 0.0f, 1.0f, 1.0f,
+
+		1.0f, 1.0f, 0.0f, 1.0f, 1.0f,
+		1.0f, 0.0f, 0.0f, 1.0f, 0.0f,
+		0.0f, 0.0f, 0.0f, 0.0f, 0.0f,
+	};
+
+	//TODO: Maybe use xy of position as texture coordinates ?)
+
+	m_IconVertexArray = std::make_unique<VertexArray>();
+	m_IconVertexArray->AddBuffer(
+		square,
+		5 * 6 * sizeof(float),
+		{
+			{ "position", 1, ShaderDataType::Float3 },
+			{ "textureCoordinates", 1, ShaderDataType::Float2 }
+		},
+		0
+	);
+
+	m_QuadVAO = std::make_shared<VertexArray>();
+	m_QuadVBO = std::make_shared<VertexBuffer>(nullptr, 16 * sizeof(float));
+	m_QuadVBO->SetLayout({ VertexBufferLayoutElement { "position", 1, ShaderDataType::Float2 } });
+	m_QuadVAO->AddBuffer(m_QuadVBO, 0);
+
+	auto [vertices, indices] = GeometryBuilder::MakeSphere(1, 50, 50);
+
+	m_LightMeshVAO = std::make_shared<VertexArray>();
+	m_LightMeshVBO = std::make_shared<VertexBuffer>(vertices.data(), sizeof(float) * vertices.size());
+	m_LightMeshVBO->SetLayout({ VertexBufferLayoutElement { "position", 1, ShaderDataType::Float3 } });
+	m_LightMeshVAO->AddBuffer(m_LightMeshVBO, 0);
+	m_LightMeshVAO->SetIndexBuffer(indices.data(), sizeof(int32_t) * indices.size());
+
+	ED_LOG(RendererAPI, info, "Finished initalizing RendererAPI")
+}
+
 void RendererAPI::BeginRenderPass(const std::string& name, const std::shared_ptr<BaseFramebuffer>& framebuffer, const std::shared_ptr<Shader>& shader, const glm::mat4& projectionViewMatrix, glm::vec3 viewPosition)
 {
-	m_RenderPassName = name;
-	m_Framebuffer = framebuffer;
-	m_ProjectionViewMatrix = projectionViewMatrix;
-	m_ViewPosition = viewPosition;
+	m_TemporarySpecification = RenderPassSpecification();
 
-	m_Framebuffer->Bind();
+	m_TemporarySpecification.name = name;
+	m_TemporarySpecification.framebuffer = framebuffer;
+	m_TemporarySpecification.shader = shader;
+	m_TemporarySpecification.projectionViewMatrix = projectionViewMatrix;
+	m_TemporarySpecification.viewPosition = viewPosition;
 
-	BindShader(shader);
+	BeginRenderPass(m_TemporarySpecification);
+}
+
+void RendererAPI::BeginRenderPass(RenderPassSpecification& specification)
+{
+	m_Specification = &specification;
+
+	specification.framebuffer->Bind();
+
+	BindShader(specification.shader);
+
+	if (specification.blending) 
+	{
+		EnableBlending();
+		SetBlendFunction(specification.sourceFactor, specification.destinationFactor);
+	}
+	else
+	{
+		DisableBlending();
+	}
+
+	if (specification.depthTest)
+	{
+		EnableDepthTest();
+	}
+	else
+	{
+		DisableDepthTest();
+	}
+
+	if (specification.clearColors)
+	{
+		ClearColorTarget();
+	}
+
+	if (specification.clearDepth)
+	{
+		ClearDepthTarget();
+	}
 }
 
 void RendererAPI::BindShader(const std::shared_ptr<Shader>& shader)
@@ -25,18 +124,18 @@ void RendererAPI::BindShader(const std::shared_ptr<Shader>& shader)
 	m_Shader = shader;
 	
 	m_Shader->Bind();
-	m_Shader->SetMat4("u_ProjectionViewMatrix", m_ProjectionViewMatrix);
-	m_Shader->SetFloat3("u_ViewPosition", m_ViewPosition);
-	m_Shader->SetFloat2("u_ScreenSize", m_Framebuffer->GetWidth(), m_Framebuffer->GetHeight());
+	m_Shader->SetMat4("u_ProjectionViewMatrix", m_Specification->projectionViewMatrix);
+	m_Shader->SetFloat3("u_ViewPosition", m_Specification->viewPosition);
+	m_Shader->SetFloat2("u_ScreenSize", m_Specification->framebuffer->GetWidth(), m_Specification->framebuffer->GetHeight());
 }
 
 void RendererAPI::SetNewCameraInformation(const glm::mat4& projectionViewMatrix, glm::vec3 viewPosition)
 {
-	m_ProjectionViewMatrix = projectionViewMatrix;
-	m_ViewPosition = viewPosition;
+	m_Specification->projectionViewMatrix = projectionViewMatrix;
+	m_Specification->viewPosition = viewPosition;
 
-	m_Shader->SetMat4("u_ProjectionViewMatrix", m_ProjectionViewMatrix);
-	m_Shader->SetFloat3("u_ViewPosition", m_ViewPosition);
+	m_Shader->SetMat4("u_ProjectionViewMatrix", projectionViewMatrix);
+	m_Shader->SetFloat3("u_ViewPosition", viewPosition);
 }
 
 void RendererAPI::SubmitLightMesh(const std::shared_ptr<PointLightComponent>& light, const std::shared_ptr<Texture>& shadowMap)
@@ -45,7 +144,7 @@ void RendererAPI::SubmitLightMesh(const std::shared_ptr<PointLightComponent>& li
 	float Imax = std::max(color.x, std::max(color.y, color.z));
 	float radius = std::sqrt(light->GetIntensity() * Imax) * 16.0f;
 
-	if (glm::length(m_ViewPosition - light->GetPosition()) * 0.9f > radius)
+	if (glm::length(m_Specification->viewPosition - light->GetPosition()) * 0.9f > radius)
 	{
 		glCullFace(GL_BACK);
 	}
@@ -148,14 +247,11 @@ void RendererAPI::SubmitQuad(float x1, float y1, float x2, float y2, float x3, f
 
 void RendererAPI::EndRenderPass()
 {
+	m_Specification->framebuffer->Unbind();
 	m_Shader->Unbind();
-	m_Framebuffer->Unbind();
-	
-	m_RenderPassName.clear();
-	m_Framebuffer = nullptr;
+
+	m_Specification = nullptr;
 	m_Shader = nullptr;
-	m_ProjectionViewMatrix = glm::mat4(1);
-	m_ViewPosition = glm::vec3(0);
 	m_LightCount = 0;
 }
 
@@ -207,6 +303,89 @@ void RendererAPI::DisableBlending()
 void RendererAPI::SetBlendFunction(BlendFactor sourceFactor, BlendFactor destinationFactor)
 {
 	glBlendFunc(RenderAPIUtils::GetBlendFactorOpenGL(sourceFactor), RenderAPIUtils::GetBlendFactorOpenGL(destinationFactor));
+}
+
+void RendererAPI::EnableDepthTest()
+{
+	glEnable(GL_DEPTH_TEST);
+}
+
+void RendererAPI::DisableDepthTest()
+{
+	glDisable(GL_DEPTH_TEST);
+}
+
+GLFWwindow* RendererAPI::CreateContext()
+{
+	ED_LOG(RenderAPI, info, "Started creating contex")
+
+	if (!glfwInit()) {
+		ED_LOG(Context, err, "FAILED TO INITIALIZE GLFW")
+		
+		return nullptr;
+	}
+
+	GLFWwindow* window = glfwCreateWindow(640, 480, "Hello World", NULL, NULL);
+	if (!window)
+	{
+		ED_LOG(Context, err, "FAILED TO INITIALIZE WINDOW")
+		glfwTerminate();
+
+		return nullptr;
+	}
+
+	glfwMakeContextCurrent(window);
+
+	if (glewInit() != GLEW_OK) {
+		ED_LOG(CONTEXT, err, "FAILED TO INITIALIZE GLEW")
+		glfwTerminate();
+
+		return nullptr;
+	}
+
+	IMGUI_CHECKVERSION();
+	ImGui::CreateContext();
+
+	ImGuiIO& io = ImGui::GetIO();
+	io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;     // Enable Keyboard Controls
+	io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;      // Enable Gamepad Controls
+	io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;         // Enable Docking
+	io.ConfigFlags |= ImGuiConfigFlags_ViewportsEnable;       // Enable Multi-Viewport / Platform Windows
+	//io.ConfigViewportsNoAutoMerge = true;
+	//io.ConfigViewportsNoTaskBarIcon = true;
+
+	ED_LOG(RenderAPI, info, "Finished creating contex")
+
+	return window;
+}
+
+void RendererAPI::BeginUIFrame()
+{
+	ImGui_ImplOpenGL3_NewFrame();
+	ImGui_ImplGlfw_NewFrame();
+	ImGui::NewFrame();
+	ImGui::DockSpaceOverViewport(ImGui::GetMainViewport());
+}
+
+void RendererAPI::EndUIFrame()
+{
+	ImGui::Render();
+
+	ImGuiIO& io = ImGui::GetIO();
+	if (io.ConfigFlags & ImGuiConfigFlags_ViewportsEnable)
+	{
+		GLFWwindow* backup_current_context = glfwGetCurrentContext();
+		ImGui::UpdatePlatformWindows();
+		ImGui::RenderPlatformWindowsDefault();
+		glfwMakeContextCurrent(backup_current_context);
+	}
+
+	ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
+}
+
+void RendererAPI::SwapBuffers(GLFWwindow* window)
+{
+	glfwSwapBuffers(window);
 }
 
 /*
@@ -333,7 +512,7 @@ void RendererAPI::Submit(const std::string& text, const Font& font, float x, flo
 
 void RendererAPI::SubmitIcon(const std::shared_ptr<Texture2D>& texture, const glm::mat4& transform)
 {
-	m_IconVertexArray.Bind();
+	m_IconVertexArray->Bind();
 	
 	m_Shader->SetMat4("u_ModelTransform", transform);
 	m_Shader->SetInt("u_IconTexture", 0);
@@ -342,56 +521,7 @@ void RendererAPI::SubmitIcon(const std::shared_ptr<Texture2D>& texture, const gl
 	glDrawArrays(GL_TRIANGLES, 0, 6);
 }
 
-RendererAPI& RendererAPI::GetRendererAPI() {
+RendererAPI& RendererAPI::Get() {
 	static RendererAPI s_RendererAPI;
 	return s_RendererAPI;
-}
-
-RendererAPI::RendererAPI()
-{
-	m_TextVAO.AddBuffer(
-		nullptr,
-		20 * sizeof(float),
-		{
-			{ "vertex", 1, ShaderDataType::Float3 },
-			{ "textureCoordinates", 1, ShaderDataType::Float2 }
-		},
-		0
-	);
-
-	float square[5 * 6] = {
-		0.0f, 0.0f, 0.0f, 0.0f, 0.0f,
-		0.0f, 1.0f, 0.0f, 0.0f, 1.0f,
-		1.0f, 1.0f, 0.0f, 1.0f, 1.0f,
-
-		1.0f, 1.0f, 0.0f, 1.0f, 1.0f,
-		1.0f, 0.0f, 0.0f, 1.0f, 0.0f,
-		0.0f, 0.0f, 0.0f, 0.0f, 0.0f,
-	};
-
-	//TODO: Maybe use xy of position as texture coordinates ?)
-
-
-	m_IconVertexArray.AddBuffer(
-		square,
-		5 * 6 * sizeof(float),
-		{
-			{ "position", 1, ShaderDataType::Float3 },
-			{ "textureCoordinates", 1, ShaderDataType::Float2 }		
-		},
-		0
-	);
-
-	m_QuadVAO = std::make_shared<VertexArray>();
-	m_QuadVBO = std::make_shared<VertexBuffer>(nullptr, 16 * sizeof(float));
-	m_QuadVBO->SetLayout({ VertexBufferLayoutElement { "position", 1, ShaderDataType::Float2 }});
-	m_QuadVAO->AddBuffer(m_QuadVBO, 0);
-
-	auto [vertices, indices] = GeometryBuilder::MakeSphere(1, 50, 50); 
-
-	m_LightMeshVAO = std::make_shared<VertexArray>();
-	m_LightMeshVBO = std::make_shared<VertexBuffer>(vertices.data(), sizeof(float) * vertices.size());
-	m_LightMeshVBO->SetLayout({ VertexBufferLayoutElement { "position", 1, ShaderDataType::Float3 } });
-	m_LightMeshVAO->AddBuffer(m_LightMeshVBO, 0);
-	m_LightMeshVAO->SetIndexBuffer(indices.data(), sizeof(int32_t) * indices.size());
 }

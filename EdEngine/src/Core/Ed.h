@@ -32,9 +32,4 @@
 
 #include "../Utils/SerializationUtils.h"
 
-#include <format>
-
-#define ED_LOG(...) 
-#define ED_ASSERT(condition, ...) if (!(condition)) { ED_LOG(__VA_ARGS__) __debugbreak(); }
-
 //assert( (std::format( __VA_ARGS__ ), (condition)) );

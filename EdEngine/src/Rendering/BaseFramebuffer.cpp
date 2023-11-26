@@ -1,4 +1,5 @@
 ﻿#include "BaseFramebuffer.h"
+#include "Core/Macros.h"
 
 BaseFramebuffer::BaseFramebuffer()
 {
@@ -44,4 +45,13 @@ void BaseFramebuffer::Unbind()
 int32_t BaseFramebuffer::GetId() const
 {
     return m_Id;
+}
+
+void BaseFramebuffer::Resize(uint32_t size)
+{
+    Resize(size, size);
+}
+
+void BaseFramebuffer::Resize(uint32_t width, uint32_t height)
+{
 }

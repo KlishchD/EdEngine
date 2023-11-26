@@ -1,4 +1,5 @@
 ﻿#include "FontManager.h"
+#include "Core/Macros.h"
 #include "Font.h"
 
 Font FontManager::LoadFont(const char* path, uint32_t width, uint32_t height) const
@@ -21,7 +22,7 @@ FontManager::FontManager()
 {
     if (FT_Init_FreeType(&m_Ft))
     {
-        std::cout << "ERROR::FREETYPE: Could not init FreeType Library" << std::endl;
+		ED_LOG(FontManager, err, "Failed to initialize FreeType library")
         return;
     }
 }

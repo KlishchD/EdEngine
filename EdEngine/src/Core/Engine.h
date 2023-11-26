@@ -6,10 +6,10 @@
 
 #include "BaseManager.h"
 #include "Input.h"
-#include "Scene.h"
 #include "Widget.h"
 #include "Math/Camera.h"
 
+class Scene;
 class Renderer;
 
 class Engine
@@ -83,6 +83,7 @@ private:
     std::vector<std::shared_ptr<Widget>> m_Widgets;
 
     std::shared_ptr<Renderer> m_Renderer;
+    class RendererAPI* m_RenderAPI;
     
     bool m_IsRunning = true;
 

@@ -1,6 +1,7 @@
 ﻿#pragma once
 
 #include "Core/Engine.h"
+#include "Rendering/RenderPassSpecification.h"
 
 class Actor;
 class Component;
@@ -36,6 +37,8 @@ public:
     void SetViewportIsActive(bool state);
 private:
     std::shared_ptr<class AssetManager> m_AssetManager;
+
+    RenderPassSpecification m_IconsPassSpecification;
     
     glm::vec3 m_MovementDirection = glm::vec3(0.0f);
     
@@ -53,8 +56,6 @@ private:
     
     std::shared_ptr<Actor> m_SelectedActor;
     std::shared_ptr<Component> m_SelectedComponent;
-    
-    std::shared_ptr<Shader> m_IconShader;
 
     glm::i32vec2 m_ViewportSize = { 1.0f, 1.0f };
     bool m_IsViewportActive = false;

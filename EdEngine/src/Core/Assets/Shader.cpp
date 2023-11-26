@@ -1,8 +1,7 @@
 #include "Shader.h"
-
 #include <fstream>
-#include <iostream>
 
+#include "Core/Macros.h"
 #include <glm/gtc/type_ptr.hpp>
 
 Shader::Shader(const std::string& path)
@@ -30,7 +29,7 @@ Shader::Shader(const std::string& path)
 			{
 				currentShaderType = GL_GEOMETRY_SHADER;
 			} else {
-				std::cout << "ERROR: NOT A SUPPORTED SHADER TYPE" << std::endl;
+				ED_LOG(Shader, err, "Shader {}: {} is not suppoerted type of shaders", m_Id, currentShaderType);
 				currentShaderType = UINT32_MAX;
 			}
 		} else {
@@ -65,6 +64,66 @@ void Shader::Unbind() const
 void Shader::SetInt(const std::string& name, int32_t value) const
 {
 	const int32_t location = glGetUniformLocation(m_Id, name.c_str());
+	glUniform1i(location, value);
+}
+
+void Shader::SetInt(const char* name, int32_t value) const
+{
+	const int32_t location = glGetUniformLocation(m_Id, name);
+	glUniform1i(location, value);
+}
+
+void Shader::SetFloat(const char* name, float value) const
+{
+	const int32_t location = glGetUniformLocation(m_Id, name);
+	glUniform1f(location, value);
+}
+
+void Shader::SetFloat2(const char* name, float x, float y)
+{
+	const int32_t location = glGetUniformLocation(m_Id, name);
+	glUniform2f(location, x, y);
+}
+
+void Shader::SetFloat3(const char* name, float x, float y, float z) const
+{
+	const int32_t location = glGetUniformLocation(m_Id, name);
+	glUniform3f(location, x, y, z);
+}
+
+void Shader::SetFloat3(const char* name, glm::vec3 vector) const
+{
+	const int32_t location = glGetUniformLocation(m_Id, name);
+	glUniform3f(location, vector.x, vector.y, vector.z);
+}
+
+void Shader::SetFloat4(const char* name, float r, float g, float b, float a) const
+{
+	const int32_t location = glGetUniformLocation(m_Id, name);
+	glUniform4f(location, r, g, b, a);
+}
+
+void Shader::SetFloat4(const char* name, glm::vec4 vector) const
+{
+	const int32_t location = glGetUniformLocation(m_Id, name);
+	glUniform4f(location, vector.x, vector.y, vector.z, vector.w);
+}
+
+void Shader::SetMat4(const char* name, const glm::mat4& matrix) const
+{
+	const int32_t location = glGetUniformLocation(m_Id, name);
+	glUniformMatrix4fv(location, 1, GL_FALSE, glm::value_ptr(matrix));
+}
+
+void Shader::SetMat3(const char* name, const glm::mat3& matrix) const
+{
+	const int32_t location = glGetUniformLocation(m_Id, name);
+	glUniformMatrix3fv(location, 1, GL_FALSE, glm::value_ptr(matrix));
+}
+
+void Shader::SetBool(const char* name, bool value)
+{
+	const int32_t location = glGetUniformLocation(m_Id, name);
 	glUniform1i(location, value);
 }
 
@@ -136,7 +195,7 @@ uint32_t Shader::CreateShader(uint32_t shaderType, const std::string& shaderSour
 		char message[1024];
 		int32_t messageLength;
 		glGetShaderInfoLog(shaderId, 1024, &messageLength, message);
-		std::cout << shaderType << "::" << message;
+		ED_LOG(Shader, err, "Shader {}: faild to compile shader: {}", m_Id, message);
 	}
 
 	return shaderId;
@@ -161,7 +220,7 @@ void Shader::CreateProgram(const std::unordered_map<uint32_t, std::string>& sour
 		char message[1024];
 		int32_t messageLength;
 		glGetProgramInfoLog(m_Id, 1024, &messageLength, message);
-		std::cout << message << std::endl;						
+		ED_LOG(Shader, err, "Shader {}: faild to link shaders: {}", m_Id, message);
 	}
 			
 	glValidateProgram(m_Id);

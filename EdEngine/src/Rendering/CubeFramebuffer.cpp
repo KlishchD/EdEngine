@@ -2,6 +2,8 @@
 
 #include "Core/Assets/Texture3D.h"
 
+#include "Core/Macros.h"
+
 CubeFramebuffer::CubeFramebuffer(int32_t size): BaseFramebuffer(), m_Size(size)
 {
 }
@@ -131,7 +133,7 @@ void CubeFramebuffer::AttachLayers() const
 	}
 }
 
-void CubeFramebuffer::Resize(int32_t size)
+void CubeFramebuffer::Resize(uint32_t size)
 {
     m_Size = size;
     

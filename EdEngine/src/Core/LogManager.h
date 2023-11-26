@@ -1,9 +1,13 @@
 ﻿#pragma once
-#include "BaseManager.h"
+#include "spdlog/spdlog.h"
 
-class LogManager: public BaseManager
+class LogManager
 {
 public:
-    virtual void Initialize(Engine* engine) override;
-    virtual void Deinitialize() override;
+    static LogManager& Get();
+    std::shared_ptr<spdlog::logger> GetLogger();
+private:
+    std::shared_ptr<spdlog::logger> m_Logger;
+
+    LogManager();
 };

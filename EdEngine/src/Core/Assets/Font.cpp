@@ -1,14 +1,12 @@
 ﻿#include "Font.h"
-
-#include <iostream>
-
+#include "Core/Macros.h"
 #include "Character.h"
 
 Font::Font(const FT_Library& library, const char* path, uint32_t width, uint32_t height): m_Library(library), m_Width(width), m_Height(height)
 {
     if (FT_New_Face(library, path, 0, &m_Face))
     {
-        std::cout << "ERROR::FREETYPE: Failed to load font" << std::endl;  
+        ED_LOG(Font, err, "Failed to load font {}", path)
     }
         
     FT_Set_Pixel_Sizes(m_Face, width, height);
@@ -17,7 +15,7 @@ Font::Font(const FT_Library& library, const char* path, uint32_t width, uint32_t
     {
         if (FT_Load_Char(m_Face, i, FT_LOAD_RENDER))
         {
-            std::cout << "ERROR::FREETYTPE: Failed to load Glyph" << std::endl;
+			ED_LOG(Font, err, "FREETYTPE: Failed to load Glyph for char {}", (char) i)
             continue;
         }
 

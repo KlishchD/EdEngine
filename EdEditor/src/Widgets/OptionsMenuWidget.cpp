@@ -4,7 +4,7 @@
 #include "Core/Assets/AssetManager.h"
 #include "Core/Assets/StaticMesh.h"
 #include "Core/Assets/Texture2D.h"
-
+#include "Core/Scene.h"
 #include <imgui.h>
 
 void OptionsMenuWidget::Initialize()

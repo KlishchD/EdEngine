@@ -11,6 +11,18 @@ class Camera;
 
 class Renderer: public BaseManager
 {
+	constexpr static int32_t BrightnessFilterTextureSlot = 10;
+	constexpr static int32_t BlurReadTextreSlot = 10;
+
+	constexpr static int32_t AlbedoTextureSlot = 10;
+	constexpr static int32_t PositionTextureSlot = 11;
+	constexpr static int32_t NormalTextureSlot = 12;
+	constexpr static int32_t RoughnessMetalicTextureSlot = 13;
+	constexpr static int32_t ShadowMapRandomSamplesTextureSlot = 14;
+
+	constexpr static int32_t LightPassTextureSlot = 15;
+
+	constexpr static int32_t BloomPassTextureSlot = 16;
 public:
     virtual void Initialize(Engine* engine) override;
     virtual void Deinitialize() override;
@@ -25,45 +37,27 @@ public:
     std::shared_ptr<Framebuffer> LightPassFramebuffer() const;
     std::shared_ptr<Framebuffer> GetViewport() const;
 private:
-    constexpr static int32_t BrightnessFilterTextureSlot = 10;
-    constexpr static int32_t BlurReadTextreSlot = 10;
-
-    constexpr static int32_t AlbedoTextureSlot = 10;
-    constexpr static int32_t PositionTextureSlot = 11;
-    constexpr static int32_t NormalTextureSlot = 12;
-    constexpr static int32_t RoughnessMetalicTextureSlot = 13;
-    constexpr static int32_t ShadowMapRandomSamplesTextureSlot = 14;
-
-    constexpr static int32_t LightPassTextureSlot = 15;
-
-    constexpr static int32_t BloomPassTextureSlot = 16;
-
 	float m_FarPlane = 15000.0f;
 
-    std::shared_ptr<Shader> m_GeometryPassShader;
-    std::shared_ptr<Framebuffer> m_GeometryFramebuffer;
-    
-    std::shared_ptr<Shader> m_ShadowPassShader;
-    std::shared_ptr<CubeFramebuffer> m_ShadowMapsFramebuffer;
+    RenderPassSpecification m_GeometryPassSpecification;
+    RenderPassSpecification m_LightPassSpecification;
+    RenderPassSpecification m_CombinationPassSpecification;
+
+    RenderPassSpecification m_ShadowPassSpecification;
+    RenderPassSpecification m_BrighnessFilterPassSpecification;
+
     glm::mat4 m_LightPerspective = glm::perspective(glm::radians(90.0f), 1.0f, 1.0f, m_FarPlane);
     
-    std::shared_ptr<Shader> m_LightPassShader;
-    std::shared_ptr<Framebuffer> m_LightPassFramebuffer;
-
+    // Bloom
     std::shared_ptr<Framebuffer> m_BlurFramebuffer1;
     std::shared_ptr<Framebuffer> m_BlurFramebuffer2;
     std::shared_ptr<Shader> m_BlurShader;
-    std::shared_ptr<Shader> m_BrighnessFilterShader;
+    int32_t m_BlurPassCount = 20;
 
+    //Shadows
     int32_t m_ShadowMapFiltersCount = 10;
     int32_t m_FilterSize = 5;
     std::shared_ptr<Texture2D> m_ShadowMapRandomSamples;
-
-    int32_t m_BlurPassCount = 20;
-
-    std::shared_ptr<Shader> m_CombinationPassShader;
-
-    std::shared_ptr<Framebuffer> m_ViewportFramebuffer;
 
     std::queue<std::function<void(RendererAPI* renderAPI)>> m_Commands;
 
@@ -78,4 +72,12 @@ private:
     void CombinationPass(const std::vector<std::shared_ptr<Component>>& components, Camera* camera);
 
     void CreateRandomShadowMapSamples();
+
+private:
+    void SetupGeometryRenderPass();
+    void SetupLightRenderPass();
+    void SetupCombinationRenderPass();
+
+    void SetupShadowRenderPass();
+    void SetupBrightnessFilterPass();
 };

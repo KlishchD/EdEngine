@@ -11,14 +11,6 @@ public:
     static Window& Get();
     static void Delete();
     
-    void Clear();
-
-    void BeginUIFrame();
-    void EndUIFrame();
-
-    virtual void Initialize();
-    virtual void Deinitialize();
-    
     virtual void Update();
 
     bool IsRunning();
@@ -39,6 +31,8 @@ private:
 	std::string m_Name;
 	uint32_t m_Width;
 	uint32_t m_Height;
+
+    class RendererAPI* m_RenderAPI;
 
     Window(const std::string& name, uint32_t width, uint32_t height);
 };

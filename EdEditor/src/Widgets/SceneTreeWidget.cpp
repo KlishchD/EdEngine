@@ -2,6 +2,7 @@
 #include "Editor.h"
 #include "Core/Engine.h"
 #include "Core/Objects/Actor.h"
+#include "Core/Scene.h"
 
 #include <imgui.h>
 

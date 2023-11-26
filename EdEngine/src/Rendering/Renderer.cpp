@@ -1,33 +1,19 @@
 ﻿#include "Renderer.h"
 #include "Core/Engine.h"
+#include "Core/Scene.h"
 #include "Utils/Files.h"
+#include "Core/Macros.h"
+
 #include <random>
 
 void Renderer::Initialize(Engine* engine)
 {
+	ED_LOG(Renderer, info, "Started initalizing Renderer")
+
     m_Engine = engine;
-    m_RendererAPI = &RendererAPI::GetRendererAPI();
+    m_RendererAPI = &RendererAPI::Get();
 
-    m_GeometryFramebuffer = std::make_shared<Framebuffer>(1.0f, 1.0f);
-    m_GeometryFramebuffer->Bind();
-    m_GeometryFramebuffer->CreateAttachment(FramebufferAttachmentType::Color);
-    m_GeometryFramebuffer->CreateAttachment(FramebufferAttachmentType::Position);
-    m_GeometryFramebuffer->CreateAttachment(FramebufferAttachmentType::Direction);
-    m_GeometryFramebuffer->CreateAttachment(FramebufferAttachmentType::Color);
-    m_GeometryFramebuffer->CreateAttachment(FramebufferAttachmentType::Depth);
-    m_GeometryFramebuffer->Unbind();
-
-    m_ShadowMapsFramebuffer = std::make_shared<CubeFramebuffer>(1.0f);
-    m_ShadowMapsFramebuffer->Bind();
-    m_ShadowMapsFramebuffer->CreateAttachment(FramebufferAttachmentType::Depth);
-    m_ShadowMapsFramebuffer->Unbind();
-    
-    m_LightPassFramebuffer = std::make_shared<Framebuffer>(1.0f, 1.0f);
-    m_LightPassFramebuffer->Bind();
-    m_LightPassFramebuffer->CreateAttachment(FramebufferAttachmentType::Color16);
-    m_LightPassFramebuffer->Unbind();
-
-	m_BlurFramebuffer1 = std::make_shared<Framebuffer>(1.0f, 1.0f);
+    m_BlurFramebuffer1 = std::make_shared<Framebuffer>(1.0f, 1.0f);
 	m_BlurFramebuffer1->Bind();
 	m_BlurFramebuffer1->CreateAttachment(FramebufferAttachmentType::Color16);
 	m_BlurFramebuffer1->Unbind();
@@ -37,20 +23,18 @@ void Renderer::Initialize(Engine* engine)
 	m_BlurFramebuffer2->CreateAttachment(FramebufferAttachmentType::Color16);
 	m_BlurFramebuffer2->Unbind();
 
-    m_ViewportFramebuffer = std::make_shared<Framebuffer>(1.0f, 1.0f);
-    m_ViewportFramebuffer->Bind();
-    m_ViewportFramebuffer->CreateAttachment(FramebufferAttachmentType::Color);
-    m_ViewportFramebuffer->CreateAttachment(FramebufferAttachmentType::Depth);
-    m_ViewportFramebuffer->Unbind();
-    
-    m_GeometryPassShader = std::make_shared<Shader>(Files::ContentFolderPath + R"(\shaders\deferred\geometry-pass.glsl)");
-    m_CombinationPassShader = std::make_shared<Shader>(Files::ContentFolderPath + R"(\shaders\deferred\combination-pass.glsl)");
-    m_LightPassShader = std::make_shared<Shader>(Files::ContentFolderPath + R"(\shaders\deferred\light-pass-mesh.glsl)");
-    m_BrighnessFilterShader = std::make_shared<Shader>(Files::ContentFolderPath + R"(\shaders\brightness-filter.glsl)");
     m_BlurShader = std::make_shared<Shader>(Files::ContentFolderPath + R"(\shaders\blur.glsl)");
-    m_ShadowPassShader = std::make_shared<Shader>(Files::ContentFolderPath + R"(\shaders\shadow-pass.glsl)");
+    
+    SetupGeometryRenderPass();
+    SetupLightRenderPass();
+    SetupCombinationRenderPass();
+
+    SetupShadowRenderPass();
+    SetupBrightnessFilterPass();
 
     CreateRandomShadowMapSamples();
+
+	ED_LOG(Renderer, info, "Finished initalizing Renderer")
 }
 
 void Renderer::Deinitialize()
@@ -60,22 +44,23 @@ void Renderer::Deinitialize()
 
 void Renderer::Update()
 {
-	if (m_ViewportFramebuffer->GetWidth() != m_ViewportSize.x || m_ViewportFramebuffer->GetHeight() != m_ViewportSize.y)
+	if (m_GeometryPassSpecification.framebuffer->GetWidth() != m_ViewportSize.x || m_GeometryPassSpecification.framebuffer->GetHeight() != m_ViewportSize.y)
 	{
-		m_GeometryFramebuffer->Resize(m_ViewportSize.x, m_ViewportSize.y);
-		m_ShadowMapsFramebuffer->Resize(m_ViewportSize.y);
-		m_LightPassFramebuffer->Resize(m_ViewportSize.x, m_ViewportSize.y);
-		m_ViewportFramebuffer->Resize(m_ViewportSize.x, m_ViewportSize.y);
+        m_GeometryPassSpecification.framebuffer->Resize(m_ViewportSize.x, m_ViewportSize.y);
+		m_LightPassSpecification.framebuffer->Resize(m_ViewportSize.x, m_ViewportSize.y);
+		m_CombinationPassSpecification.framebuffer->Resize(m_ViewportSize.x, m_ViewportSize.y);
+
+		m_ShadowPassSpecification.framebuffer->Resize(m_ViewportSize.y);
+
 		m_BlurFramebuffer1->Resize(m_ViewportSize.x, m_ViewportSize.y);
         m_BlurFramebuffer2->Resize(m_ViewportSize.x, m_ViewportSize.y);
-		m_Engine->GetCamera()->SetProjection(90.0f, 1.0f * m_ViewportSize.x / m_ViewportSize.y, 1.0f, m_FarPlane);
+
+        m_Engine->GetCamera()->SetProjection(90.0f, 1.0f * m_ViewportSize.x / m_ViewportSize.y, 1.0f, m_FarPlane);
 	}
 
     std::shared_ptr<Scene> scene = m_Engine->GetLoadedScene();
     Camera* camera = m_Engine->GetCamera();
-    
-    m_RendererAPI->SetClearColor(0.0f, 0.0f, 0.0f, 1.0f);
-
+  
     std::vector<std::shared_ptr<Component>> components = scene->GetAllComponents();
 
     GeometryPass(components, camera);
@@ -101,28 +86,25 @@ void Renderer::SubmitRenderCommand(const std::function<void(RendererAPI* renderA
 
 std::shared_ptr<Framebuffer> Renderer::GetGeometryPassFramebuffer() const
 {
-    return m_GeometryFramebuffer;
+    return std::static_pointer_cast<Framebuffer>(m_GeometryPassSpecification.framebuffer);
 }
 
 std::shared_ptr<Framebuffer> Renderer::LightPassFramebuffer() const
 {
-    return m_LightPassFramebuffer;
+    return std::static_pointer_cast<Framebuffer>(m_LightPassSpecification.framebuffer);
 }
 
 std::shared_ptr<Framebuffer> Renderer::GetViewport() const
 {
-    return m_ViewportFramebuffer;
+    return std::static_pointer_cast<Framebuffer>(m_CombinationPassSpecification.framebuffer);
 }
 
 void Renderer::GeometryPass(const std::vector<std::shared_ptr<Component>>& components, Camera* camera)
 {
-    m_RendererAPI->BeginRenderPass("geometry pass", m_GeometryFramebuffer, m_GeometryPassShader, camera->GetMatrix(), camera->GetPosition());
+    m_GeometryPassSpecification.projectionViewMatrix = camera->GetMatrix();
+    m_GeometryPassSpecification.viewPosition = camera->GetPosition();
 
-    m_RendererAPI->EnableBlending();
-    m_RendererAPI->SetBlendFunction(BlendFactor::SourceAlpha, BlendFactor::OneMinusSourceAlpha);
-
-    m_RendererAPI->ClearColorTarget();
-    m_RendererAPI->ClearDepthTarget();
+    m_RendererAPI->BeginRenderPass(m_GeometryPassSpecification);
 
     for (const std::shared_ptr<Component>& component : components)
     {
@@ -140,12 +122,11 @@ void Renderer::GeometryPass(const std::vector<std::shared_ptr<Component>>& compo
 
 void Renderer::BloomPass() 
 {
-    m_RendererAPI->BeginRenderPass("Blur filter", m_BlurFramebuffer1, m_BrighnessFilterShader, glm::mat4(1.0f), glm::vec3(0.0f)); // Temporary step, may be removed after PBR bloom will be added :)
+    m_RendererAPI->BeginRenderPass(m_BrighnessFilterPassSpecification); // Temporary step, may be removed after PBR bloom will be added :)
 
-    m_RendererAPI->ClearColorTarget();
 
-    m_BrighnessFilterShader->SetInt("u_Image", BrightnessFilterTextureSlot);
-    m_LightPassFramebuffer->GetAttachment(0)->Bind(BrightnessFilterTextureSlot);
+    m_BrighnessFilterPassSpecification.shader->SetInt("u_Image", BrightnessFilterTextureSlot);
+    m_LightPassSpecification.framebuffer->GetAttachment(0)->Bind(BrightnessFilterTextureSlot);
 
 	m_RendererAPI->SubmitQuad(-1.0f, -1.0f, -1.0f, 1.0f, 1.0f, 1.0f, 1.0f, -1.0f);
 
@@ -186,13 +167,16 @@ void Renderer::BloomPass()
 
 void Renderer::LightPass(const std::vector<std::shared_ptr<Component>>& components, Camera* camera)
 {
-    m_GeometryFramebuffer->GetAttachment(0)->Bind(AlbedoTextureSlot);
-    m_GeometryFramebuffer->GetAttachment(1)->Bind(PositionTextureSlot);
-    m_GeometryFramebuffer->GetAttachment(2)->Bind(NormalTextureSlot);
-    m_GeometryFramebuffer->GetAttachment(3)->Bind(RoughnessMetalicTextureSlot);
+    m_GeometryPassSpecification.framebuffer->GetAttachment(0)->Bind(AlbedoTextureSlot);
+    m_GeometryPassSpecification.framebuffer->GetAttachment(1)->Bind(PositionTextureSlot);
+    m_GeometryPassSpecification.framebuffer->GetAttachment(2)->Bind(NormalTextureSlot);
+    m_GeometryPassSpecification.framebuffer->GetAttachment(3)->Bind(RoughnessMetalicTextureSlot);
     m_ShadowMapRandomSamples->Bind(ShadowMapRandomSamplesTextureSlot);
 
-    m_RendererAPI->BeginRenderPass("lighting pass", m_LightPassFramebuffer, m_LightPassShader, camera->GetMatrix(), camera->GetPosition());
+    m_LightPassSpecification.projectionViewMatrix = camera->GetMatrix();
+    m_LightPassSpecification.viewPosition = camera->GetPosition();
+
+    m_RendererAPI->BeginRenderPass(m_LightPassSpecification);
     m_RendererAPI->ClearColorTarget();
     m_RendererAPI->ClearDepthTarget();
     m_RendererAPI->EndRenderPass();
@@ -202,19 +186,20 @@ void Renderer::LightPass(const std::vector<std::shared_ptr<Component>>& componen
     {
         if (std::shared_ptr<PointLightComponent> light = std::dynamic_pointer_cast<PointLightComponent>(outerComponent))
         {
-			m_RendererAPI->BeginRenderPass("shadow maps", m_ShadowMapsFramebuffer, m_ShadowPassShader, glm::mat4(1), light->GetPosition());
-			m_RendererAPI->DisableBlending();
+            m_ShadowPassSpecification.viewPosition = light->GetPosition();
+
+			m_RendererAPI->BeginRenderPass(m_ShadowPassSpecification);
+            m_ShadowPassSpecification.shader->SetFloat("u_FarPlane", m_FarPlane);
+
+            std::shared_ptr<CubeFramebuffer> frambuffer = std::static_pointer_cast<CubeFramebuffer>(m_ShadowPassSpecification.framebuffer);
 
             if (light->IsShadowCasting())
             {
-                m_ShadowPassShader->SetFloat("u_FarPlane", m_FarPlane);
                 for (int32_t i = 0; i < 6; ++i) {
-					m_ShadowPassShader->SetMat4("u_ViewProjection[" + std::to_string(i) + "]", m_LightPerspective * light->GetShadowMapPassCameraTransformation(i));
+                    m_ShadowPassSpecification.shader->SetMat4("u_ViewProjection[" + std::to_string(i) + "]", m_LightPerspective * light->GetShadowMapPassCameraTransformation(i));
 				}
                 
-				m_ShadowMapsFramebuffer->AttachLayers();
-
-				m_RendererAPI->ClearDepthTarget();
+                frambuffer->AttachLayers();
 
 				for (const std::shared_ptr<Component>& component : components)
 				{
@@ -226,33 +211,35 @@ void Renderer::LightPass(const std::vector<std::shared_ptr<Component>>& componen
 					}
 				}
             }
-            else
-            {
-                for (int32_t i = 0; i < 6; ++i) {
-                    m_ShadowMapsFramebuffer->AttachFace(i);
-                    m_RendererAPI->ClearDepthTarget();
-                }
-            }
+			else
+			{
+				for (int32_t i = 0; i < 6; ++i) {
+                    frambuffer->AttachFace(i);
+					m_RendererAPI->ClearDepthTarget();
+				}
+			}
 
 			m_RendererAPI->EndRenderPass();
 
-            m_RendererAPI->BeginRenderPass("lighting pass", m_LightPassFramebuffer, m_LightPassShader, camera->GetMatrix(), camera->GetPosition());
+            m_LightPassSpecification.projectionViewMatrix = camera->GetMatrix();
+            m_LightPassSpecification.viewPosition = camera->GetPosition();
 
-            m_RendererAPI->EnableBlending();
-            m_RendererAPI->SetBlendFunction(BlendFactor::One, BlendFactor::One);
+            m_RendererAPI->BeginRenderPass(m_LightPassSpecification);
 
-            m_LightPassShader->SetInt("u_Albedo", AlbedoTextureSlot);
-            m_LightPassShader->SetInt("u_Position", PositionTextureSlot);
-            m_LightPassShader->SetInt("u_Normal", NormalTextureSlot);
-            m_LightPassShader->SetInt("u_RoughnessMetalic", RoughnessMetalicTextureSlot);
-            m_LightPassShader->SetFloat("u_FarPlane", m_FarPlane);
+            std::shared_ptr<Shader> shader = m_LightPassSpecification.shader;
 
-            m_LightPassShader->SetInt("u_RandomSamples", ShadowMapRandomSamplesTextureSlot);
-            m_LightPassShader->SetFloat("u_FilterSize", m_FilterSize);
-            m_LightPassShader->SetFloat("u_ShadowMapPixelSize", 1.0f / m_ShadowMapsFramebuffer->GetSize());
+            shader->SetInt("u_Albedo", AlbedoTextureSlot);
+            shader->SetInt("u_Position", PositionTextureSlot);
+            shader->SetInt("u_Normal", NormalTextureSlot);
+            shader->SetInt("u_RoughnessMetalic", RoughnessMetalicTextureSlot);
+            shader->SetFloat("u_FarPlane", m_FarPlane);
+            
+            shader->SetInt("u_RandomSamples", ShadowMapRandomSamplesTextureSlot);
+            shader->SetFloat("u_FilterSize", m_FilterSize);
+            shader->SetFloat("u_ShadowMapPixelSize", 1.0f / m_ShadowPassSpecification.framebuffer->GetWidth());
 
             m_RendererAPI->EnableFaceCulling();
-            m_RendererAPI->SubmitLightMesh(light, m_ShadowMapsFramebuffer->GetDepthAttachment());
+            m_RendererAPI->SubmitLightMesh(light, m_ShadowPassSpecification.framebuffer->GetDepthAttachment());
             m_RendererAPI->DisableFaceCulling();
 
             m_RendererAPI->EndRenderPass();
@@ -305,12 +292,101 @@ void Renderer::CreateRandomShadowMapSamples()
 	m_ShadowMapRandomSamples = std::make_shared<Texture2D>(parameters, data);
 }
 
+void Renderer::SetupLightRenderPass()
+{
+    m_LightPassSpecification.name = "Light pass";
+
+	std::shared_ptr<Framebuffer> framebuffer = std::make_shared<Framebuffer>(1.0f, 1.0f);
+    framebuffer->Bind();
+    framebuffer->CreateAttachment(FramebufferAttachmentType::Color16);
+    framebuffer->Unbind();
+
+    m_LightPassSpecification.framebuffer = framebuffer;
+
+    m_LightPassSpecification.shader = std::make_shared<Shader>(Files::ContentFolderPath + R"(\shaders\deferred\light-pass-mesh.glsl)");
+
+    m_LightPassSpecification.sourceFactor = BlendFactor::One;
+    m_LightPassSpecification.destinationFactor = BlendFactor::One;
+}
+
+void Renderer::SetupBrightnessFilterPass()
+{
+    m_BrighnessFilterPassSpecification.name = "Brighness filter";
+
+    m_BrighnessFilterPassSpecification.framebuffer = m_BlurFramebuffer1;
+
+    m_BrighnessFilterPassSpecification.shader = std::make_shared<Shader>(Files::ContentFolderPath + R"(\shaders\brightness-filter.glsl)");
+
+    m_BrighnessFilterPassSpecification.clearColors = true;
+}
+
+void Renderer::SetupShadowRenderPass()
+{
+    m_ShadowPassSpecification.name = "Shadow pass";
+
+	std::shared_ptr<CubeFramebuffer> framebuffer = std::make_shared<CubeFramebuffer>(1.0f);
+    framebuffer->Bind();
+    framebuffer->CreateAttachment(FramebufferAttachmentType::Depth);
+    framebuffer->Unbind();
+
+    m_ShadowPassSpecification.framebuffer = framebuffer;
+
+    m_ShadowPassSpecification.shader = std::make_shared<Shader>(Files::ContentFolderPath + R"(\shaders\shadow-pass.glsl)");
+
+    m_ShadowPassSpecification.blending = false;
+
+    m_ShadowPassSpecification.clearDepth = true;
+}
+
+void Renderer::SetupCombinationRenderPass()
+{
+    m_CombinationPassSpecification.name = "Combination pass";
+
+	std::shared_ptr<Framebuffer> framebuffer = std::make_shared<Framebuffer>(1.0f, 1.0f);
+    framebuffer->Bind();
+    framebuffer->CreateAttachment(FramebufferAttachmentType::Color);
+    framebuffer->CreateAttachment(FramebufferAttachmentType::Depth);
+    framebuffer->Unbind();
+
+    m_CombinationPassSpecification.framebuffer = framebuffer;
+
+    m_CombinationPassSpecification.shader = std::make_shared<Shader>(Files::ContentFolderPath + R"(\shaders\deferred\combination-pass.glsl)");
+
+    m_CombinationPassSpecification.blending = false;
+
+    m_CombinationPassSpecification.clearColors = true;
+    m_CombinationPassSpecification.clearDepth = true;
+}
+
+void Renderer::SetupGeometryRenderPass()
+{
+	m_GeometryPassSpecification.name = "Geometry pass";
+
+	std::shared_ptr<Framebuffer> framebuffer = std::make_shared<Framebuffer>(1.0f, 1.0f);
+    framebuffer->Bind();
+    framebuffer->CreateAttachment(FramebufferAttachmentType::Color);
+    framebuffer->CreateAttachment(FramebufferAttachmentType::Position);
+    framebuffer->CreateAttachment(FramebufferAttachmentType::Direction);
+    framebuffer->CreateAttachment(FramebufferAttachmentType::Color);
+    framebuffer->CreateAttachment(FramebufferAttachmentType::Depth);
+    framebuffer->Unbind();
+
+	m_GeometryPassSpecification.framebuffer = framebuffer;
+
+    m_GeometryPassSpecification.shader = std::make_shared<Shader>(Files::ContentFolderPath + R"(\shaders\deferred\geometry-pass.glsl)");
+
+    m_GeometryPassSpecification.blending = false;
+
+    m_GeometryPassSpecification.clearColors = true;
+    m_GeometryPassSpecification.clearDepth = true;
+}
+
 void Renderer::CombinationPass(const std::vector<std::shared_ptr<Component>>& components, Camera* camera)
 {
-	m_GeometryFramebuffer->GetAttachment(0)->Bind(AlbedoTextureSlot);
-	m_GeometryFramebuffer->GetAttachment(3)->Bind(RoughnessMetalicTextureSlot);
+    m_GeometryPassSpecification.framebuffer->GetAttachment(0)->Bind(AlbedoTextureSlot);
+    m_GeometryPassSpecification.framebuffer->GetAttachment(3)->Bind(RoughnessMetalicTextureSlot);
 
-    m_LightPassFramebuffer->GetAttachment(0)->Bind(LightPassTextureSlot);
+    m_LightPassSpecification.framebuffer->GetAttachment(0)->Bind(LightPassTextureSlot);
     if (m_BlurPassCount % 2) 
     {
 		m_BlurFramebuffer2->GetAttachment(0)->Bind(BloomPassTextureSlot);
@@ -320,16 +396,18 @@ void Renderer::CombinationPass(const std::vector<std::shared_ptr<Component>>& co
 		m_BlurFramebuffer1->GetAttachment(0)->Bind(BloomPassTextureSlot);
     }
 
-    m_RendererAPI->BeginRenderPass("combination pass", m_ViewportFramebuffer, m_CombinationPassShader, camera->GetMatrix(), camera->GetPosition());
 
-    m_RendererAPI->DisableBlending();
-    m_RendererAPI->ClearColorTarget();
-    m_RendererAPI->ClearDepthTarget();
+    m_CombinationPassSpecification.projectionViewMatrix = camera->GetMatrix();
+    m_CombinationPassSpecification.viewPosition = camera->GetPosition();
 
-    m_CombinationPassShader->SetInt("u_Albedo", AlbedoTextureSlot);
-    m_CombinationPassShader->SetInt("u_RoughnessMetalic", RoughnessMetalicTextureSlot);
-    m_CombinationPassShader->SetInt("u_Light", LightPassTextureSlot);
-    m_CombinationPassShader->SetInt("u_Bloom", BloomPassTextureSlot);
+    m_RendererAPI->BeginRenderPass(m_CombinationPassSpecification);
+
+    std::shared_ptr<Shader> shader = m_CombinationPassSpecification.shader;
+
+    shader->SetInt("u_Albedo", AlbedoTextureSlot);
+    shader->SetInt("u_RoughnessMetalic", RoughnessMetalicTextureSlot);
+    shader->SetInt("u_Light", LightPassTextureSlot);
+    shader->SetInt("u_Bloom", BloomPassTextureSlot);
 
     m_RendererAPI->SubmitQuad(-1.0f, -1.0f, -1.0f, 1.0f, 1.0f, 1.0f, 1.0f, -1.0f);
 

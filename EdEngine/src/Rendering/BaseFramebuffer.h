@@ -32,6 +32,9 @@ public:
 
     int32_t GetId() const;
 
+    virtual void Resize(uint32_t size);
+    virtual void Resize(uint32_t width, uint32_t height);
+
     virtual int32_t GetWidth() const = 0;
     virtual int32_t GetHeight() const = 0;
 protected:

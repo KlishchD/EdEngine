@@ -223,6 +223,7 @@
     <ClInclude Include="src\Core\Ed.h" />
     <ClInclude Include="src\Core\Engine.h" />
     <ClInclude Include="src\Core\Input.h" />
+    <ClInclude Include="src\Core\Macros.h" />
     <ClInclude Include="src\Core\LogManager.h" />
     <ClInclude Include="src\Core\Math\Camera.h" />
     <ClInclude Include="src\Core\Math\Transform.h" />
@@ -254,6 +255,7 @@
     <None Include="Dependencies\ImGui\.git" />
     <None Include="Dependencies\ImGui\.gitattributes" />
     <None Include="Dependencies\ImGui\.gitignore" />
+    <None Include="src\Rendering\RenderPassSpecification.h" />
   </ItemGroup>
   <ItemGroup>
     <Text Include="Dependencies\ImGui\LICENSE.txt" />

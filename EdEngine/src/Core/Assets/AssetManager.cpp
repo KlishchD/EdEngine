@@ -20,15 +20,20 @@
 #include "Utils/Files.h"
 #include "Utils/stb_image.h"
 
+#include "Core/Macros.h"
+
 void AssetManager::Initialize(Engine* engine)
 {
+	ED_LOG(AssetManager, info, "Started initalizing")
+
     m_DescriptorsByType[AssetType::Texture2D] = std::vector<std::shared_ptr<AssetDescriptor>>();
     m_DescriptorsByType[AssetType::Texture3D] = std::vector<std::shared_ptr<AssetDescriptor>>();
     m_DescriptorsByType[AssetType::Material] = std::vector<std::shared_ptr<AssetDescriptor>>();
     m_DescriptorsByType[AssetType::StaticMesh] = std::vector<std::shared_ptr<AssetDescriptor>>();
 
-
     LoadDescriptors(Files::ContentFolderPath);
+
+    ED_LOG(AssetManager, info, "Finished initalizing")
 }
 
 void AssetManager::Deinitialize()
@@ -235,12 +240,12 @@ std::shared_ptr<MaterialDescriptor> AssetManager::CreateMaterial(const std::stri
 std::shared_ptr<StaticMesh> AssetManager::LoadMesh(const std::shared_ptr<StaticMeshDescriptor>& descriptor)
 {
     if (!descriptor) return nullptr;
-        
-    std::cout << "[AssetManager] Started loading mesh" << std::endl;
+    
+    ED_LOG(AssetManager, info, "Started loading mesh: {}", descriptor->AssetName)
     
     if (m_Assets.count(descriptor->AssetId)) // TODO : may be change to find ? 
     {
-        std::cout << "[AssetManager] Finished loading mesh" << std::endl;
+        ED_LOG(AssetManager, info, "Finished loading mesh: {}", descriptor->AssetName)
         return std::static_pointer_cast<StaticMesh>(m_Assets[descriptor->AssetId]);
     }
     
@@ -260,8 +265,7 @@ std::shared_ptr<StaticMesh> AssetManager::LoadMesh(const std::shared_ptr<StaticM
     
     m_Assets[descriptor->AssetId] = mesh;
 
-    std::cout << "[AssetManager] Finished loading mesh" << std::endl;
-    
+	ED_LOG(AssetManager, info, "Finished loading mesh: {}", descriptor->AssetName)
     return mesh;
 }
 
@@ -269,10 +273,10 @@ std::shared_ptr<Texture2D> AssetManager::LoadTexture(const std::shared_ptr<Textu
 {
     if (!descriptor) return nullptr;
     
-    std::cout << "[AssetManager] Started loading texture: " << descriptor->ImportParameters.ImagePath << std::endl;
+    ED_LOG(AssetManager, info, "Started loading texture: {}", descriptor->AssetName)
     if (m_Assets.count(descriptor->AssetId)) // TODO : may be change to find ? 
     {
-        std::cout << "[AssetManager] Finished loading texture" << std::endl;
+		ED_LOG(AssetManager, info, "Finished loading texture: {}", descriptor->AssetName)
         return std::static_pointer_cast<Texture2D>(m_Assets[descriptor->AssetId]);
     }
     
@@ -292,7 +296,7 @@ std::shared_ptr<Texture2D> AssetManager::LoadTexture(const std::shared_ptr<Textu
     std::shared_ptr<Texture2D> texture = std::make_shared<Texture2D>(descriptor);
     m_Assets[descriptor->AssetId] = texture;
     
-    std::cout << "[AssetManager] Finished loading texture" << std::endl;
+	ED_LOG(AssetManager, info, "Finished loading texture: {}", descriptor->AssetName)
     return texture;
 }
 
@@ -306,11 +310,11 @@ std::shared_ptr<Material> AssetManager::LoadMaterial(const std::shared_ptr<Mater
 {
     if (!descriptor) return nullptr;
 
-    std::cout << "[AssetManager] Started loading material" << std::endl;
+	ED_LOG(AssetManager, info, "Started loading material: {}", descriptor->AssetName)
 
     if (m_Assets.count(descriptor->AssetId))
     {
-        std::cout << "[AssetManager] Finished loading material" << std::endl;
+		ED_LOG(AssetManager, info, "Finished loading material: {}", descriptor->AssetName)
         return std::static_pointer_cast<Material>(m_Assets[descriptor->AssetId]);
     }
 
@@ -327,7 +331,7 @@ std::shared_ptr<Material> AssetManager::LoadMaterial(const std::shared_ptr<Mater
     material->SetRoughnessTexture(LoadTexture(descriptor->RoughnessTextureID));
     material->SetMetalicTexture(LoadTexture(descriptor->MetalicTextureID));
 
-    std::cout << "[AssetManager] Finished loading material" << std::endl;
+	ED_LOG(AssetManager, info, "Finished loading material: {}", descriptor->AssetName)
     return material;
 }
 
@@ -404,13 +408,24 @@ void AssetManager::RefreshMaterial(const std::shared_ptr<MaterialDescriptor>& de
     }
 }
 
-std::shared_ptr<Scene> AssetManager::CreateOrLoadScene(const std::string& path)
+std::shared_ptr<Scene> AssetManager::CreateScene(const std::string& path)
 {
+    ED_LOG(AssetManager, info, "Started creating scene: {}", path)
+	std::shared_ptr<Scene> scene = std::make_shared<Scene>();
+	m_ScenesPaths.emplace_back(path, scene);
+	ED_LOG(AssetManager, info, "Finished creating scene: {}", path)
+	return scene;
+}
+
+std::shared_ptr<Scene> AssetManager::LoadScene(const std::string& path)
+{
+    ED_LOG(AssetManager, info, "Started loading scene: {}", path)
     std::shared_ptr<Scene> scene = std::make_shared<Scene>();
 
     std::filesystem::directory_entry entry(path);
 
-    if (entry.exists() && !entry.is_directory())
+    ED_ASSERT(entry.exists() && !entry.is_directory(), "Couldn't find the scene: {}", path)
+
     {
         std::ifstream file(path, std::ios_base::binary);
         boost::archive::text_iarchive ia(file);
@@ -419,6 +434,7 @@ std::shared_ptr<Scene> AssetManager::CreateOrLoadScene(const std::string& path)
     
     m_ScenesPaths.emplace_back(path, scene);
     
+    ED_LOG(AssetManager, info, "Finished loading scene: {}", path)
     return scene;
 }
 
@@ -429,6 +445,8 @@ bool AssetManager::IsAssetExtension(const std::string& extension)
 
 void AssetManager::SaveDescriptor(const std::string& path, const std::shared_ptr<AssetDescriptor>& descriptor, bool bAddDescriptor)
 {
+    ED_LOG(AssetManager, info, "Started saving descriptor: {}", path)
+
     std::ofstream file(path, std::ios_base::binary);
     boost::archive::binary_oarchive oa(file);
     AssetUtils::SetUseFullDescriptor(true); // TODO: remove this ;)
@@ -438,17 +456,25 @@ void AssetManager::SaveDescriptor(const std::string& path, const std::shared_ptr
     {
         AddDescriptor(descriptor, path);
     }
+
+	ED_LOG(AssetManager, info, "Finished saving descriptor: {}", path)
 }
     
 void AssetManager::SaveScene(const std::string& path, const std::shared_ptr<Scene>& scene)
 {
+	ED_LOG(AssetManager, info, "Started saving scene: {}", path)
+
     std::ofstream file(path, std::ios_base::binary);
     boost::archive::text_oarchive oa(file);
     oa << *scene;
+
+	ED_LOG(AssetManager, info, "Finished saving scene: {}", path)
 }
     
 std::shared_ptr<AssetDescriptor> AssetManager::LoadDescriptor(const std::filesystem::path& filepath, bool loadFull)
 {
+    ED_LOG(AssetManager, info, "Started loading descriptor {}", filepath.string())
+
     std::string extension = filepath.extension().string();
     std::string path = filepath.string().c_str();
     
@@ -464,6 +490,8 @@ std::shared_ptr<AssetDescriptor> AssetManager::LoadDescriptor(const std::filesys
     AddDescriptor(descriptorSharedPtr, path);
 
     m_FreeAssetId = std::max(m_FreeAssetId, descriptor->AssetId + 1);
+
+	ED_LOG(AssetManager, info, "Finished loading descriptor {}", filepath.string())
 
     return descriptorSharedPtr;
 }

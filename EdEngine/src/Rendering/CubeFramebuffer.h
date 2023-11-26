@@ -12,7 +12,7 @@ public:
     void AttachFace(int32_t face) const;
     void AttachLayers() const;
 
-    void Resize(int32_t size);
+    virtual void Resize(uint32_t size) override;
 
     int32_t GetSize() const;
     virtual int32_t GetWidth() const override;
