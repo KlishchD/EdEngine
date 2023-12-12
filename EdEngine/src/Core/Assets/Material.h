@@ -1,7 +1,6 @@
 ﻿#pragma once
 
 #include "Asset.h"
-#include "Shader.h"
 
 struct MaterialDescriptor: public AssetDescriptor
 {
@@ -50,7 +49,7 @@ public:
     Material(const Material& material);
     Material();
 
-    void SetShaderData(const std::shared_ptr<Shader>& shared);
+    void SetShaderData(const std::shared_ptr<class RenderingContext>& context);
     
     void SetBaseColor(glm::vec4 color) { m_BaseColor = color; }
     void SetRoughness(float roughness) { m_Roughness = roughness; }

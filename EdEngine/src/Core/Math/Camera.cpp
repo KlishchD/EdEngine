@@ -92,7 +92,17 @@ void Camera::AddPositionOffset(glm::vec3 offset)
     m_Position += offset;
 }
 
-glm::mat4 Camera::GetMatrix() const
+glm::mat4 Camera::GetView() const
+{
+    return glm::lookAt(m_Position, m_Position + m_Orientation, m_Up);
+}
+
+glm::mat4 Camera::GetProjection() const
+{
+    return m_Projection;
+}
+
+glm::mat4 Camera::GetViewPojection() const
 {
     return m_Projection * glm::lookAt(m_Position, m_Position + m_Orientation, m_Up); // TODO: May be add some checks here ;)
 }

@@ -3,8 +3,8 @@
 #include "Core/Engine.h"
 #include "Core/Assets/Asset.h"
 #include "Core/Assets/AssetManager.h"
-#include "Core/Assets/Texture2D.h"
-#include "Core/Assets/Texture3D.h"
+#include "Core/Rendering/Textures/Texture2D.h"
+#include "Core/Rendering/Textures/CubeTexture.h"
 #include "Core/Assets/Material.h"
 #include "Core/Assets/StaticMesh.h"
 
@@ -31,7 +31,7 @@ void AssetDescriptorDetails::Tick(float DeltaTime)
         {
         case AssetType::StaticMesh: StaticMeshDescriptorDetails(std::static_pointer_cast<StaticMeshDescriptor>(selectedDescriptor)); break;
         case AssetType::Texture2D: Texture2DDescriptorDetails(std::static_pointer_cast<Texture2DDescriptor>(selectedDescriptor)); break;
-        case AssetType::Texture3D: Texture3DDescriptorDetails(std::static_pointer_cast<Texture3DDescriptor>(selectedDescriptor)); break;
+        case AssetType::CubeTexture: CubeTextureDescriptorDetails(std::static_pointer_cast<CubeTextureDescriptor>(selectedDescriptor)); break;
         case AssetType::Material: MaterialDescriptorDetails(std::static_pointer_cast<MaterialDescriptor>(selectedDescriptor)); break;
         }
     
@@ -55,7 +55,7 @@ void AssetDescriptorDetails::Texture2DDescriptorDetails(const std::shared_ptr<Te
     BaseDescriptorDetails(descriptor);
 }
 
-void AssetDescriptorDetails::Texture3DDescriptorDetails(const std::shared_ptr<Texture3DDescriptor>& descriptor)
+void AssetDescriptorDetails::CubeTextureDescriptorDetails(const std::shared_ptr<CubeTextureDescriptor>& descriptor)
 {
     BaseDescriptorDetails(descriptor);
 }

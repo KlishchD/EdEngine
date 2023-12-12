@@ -8,14 +8,19 @@
 #include <assimp/scene.h>
 #include <assimp/material.h>
 
-#include "Shader.h"
+#include "Descriptors/TextureDescriptor.h"
+
+#include "Core/Rendering/Shader.h"
+#include "Core/Rendering/Textures/Texture.h"
+#include "Core/Rendering/Textures/Texture2D.h"
+
 #include "StaticMesh.h"
-#include "Texture2D.h"
 #include "Core/Scene.h"
 #include <glm/detail/type_quat.hpp>
 #include <glm/gtc/quaternion.hpp>
 #include <glm/gtx/matrix_transform_2d.hpp>
 
+#include "Utils/RenderingHelper.h"
 #include "Utils/AssetUtils.h"
 #include "Utils/Files.h"
 #include "Utils/stb_image.h"
@@ -27,7 +32,7 @@ void AssetManager::Initialize(Engine* engine)
 	ED_LOG(AssetManager, info, "Started initalizing")
 
     m_DescriptorsByType[AssetType::Texture2D] = std::vector<std::shared_ptr<AssetDescriptor>>();
-    m_DescriptorsByType[AssetType::Texture3D] = std::vector<std::shared_ptr<AssetDescriptor>>();
+    m_DescriptorsByType[AssetType::CubeTexture] = std::vector<std::shared_ptr<AssetDescriptor>>();
     m_DescriptorsByType[AssetType::Material] = std::vector<std::shared_ptr<AssetDescriptor>>();
     m_DescriptorsByType[AssetType::StaticMesh] = std::vector<std::shared_ptr<AssetDescriptor>>();
 
@@ -122,7 +127,7 @@ std::vector<std::shared_ptr<StaticMeshDescriptor>> AssetManager::ImportMesh(cons
 
 std::shared_ptr<Texture2DDescriptor> AssetManager::ImportTexture(const Texture2DImportParameters& parameters)
 {
-    const std::string& texturePath = parameters.ImagePath; 
+    const std::string& texturePath = parameters.Path;
     if (texturePath.empty()) return nullptr;
 
     std::shared_ptr<Texture2DDescriptor> descriptor = std::make_shared<Texture2DDescriptor>();
@@ -134,8 +139,9 @@ std::shared_ptr<Texture2DDescriptor> AssetManager::ImportTexture(const Texture2D
 
     stbi_set_flip_vertically_on_load(true);
     
-    Texture2DData& data = descriptor->TextureData;
-    data.Data = stbi_load(texturePath.c_str(), &data.Width, &data.Height, &data.Channels, 4);
+    int32_t channals;
+    Texture2DData& data = descriptor->Data;
+    data.Data = stbi_load(texturePath.c_str(), &data.Width, &data.Height, &channals, 4);
 
     std::string savePath = Files::GetSavePath(texturePath, AssetType::Texture2D);
     SaveDescriptor(savePath, descriptor);
@@ -176,27 +182,27 @@ std::vector<std::shared_ptr<MaterialDescriptor>> AssetManager::ImportMaterialInt
         aiString path;
         if (material->GetTexture(aiTextureType_BASE_COLOR, 0, &path) == aiReturn_SUCCESS)
         {
-            descriptor->BaseColorTextureID = ImportTexture(Texture2DImportParameters::GetDefaultBaseColorTextureImportParameters(path.data))->AssetId;
+            descriptor->BaseColorTextureID = ImportTexture(RenderingHelper::GetDefaultBaseColorTexture2DImportParameters(path.data))->AssetId;
         }
         
         if (material->GetTexture(aiTextureType_DIFFUSE, 0, &path) == aiReturn_SUCCESS)
         {
-            descriptor->BaseColorTextureID = ImportTexture(Texture2DImportParameters::GetDefaultBaseColorTextureImportParameters(path.C_Str()))->AssetId;
+            descriptor->BaseColorTextureID = ImportTexture(RenderingHelper::GetDefaultBaseColorTexture2DImportParameters(path.C_Str()))->AssetId;
         }
 
         if (material->GetTexture(aiTextureType_HEIGHT, 0, &path) == aiReturn_SUCCESS)
         {
-            descriptor->NormalTextureID = ImportTexture(Texture2DImportParameters::GetDefaultNormalTextureImportParameters(path.C_Str()))->AssetId;
+            descriptor->NormalTextureID = ImportTexture(RenderingHelper::GetDefaultNormalTexture2DImportParameters(path.C_Str()))->AssetId;
         }
 
         if (material->GetTexture(aiTextureType_DIFFUSE_ROUGHNESS, 0, &path) == aiReturn_SUCCESS)
         {
-            descriptor->RoughnessTextureID = ImportTexture(Texture2DImportParameters::GetDefaultRoughnessTextureImportParameters(path.C_Str()))->AssetId;
+            descriptor->RoughnessTextureID = ImportTexture(RenderingHelper::GetDefaultRoughnessTexture2DImportParameters(path.C_Str()))->AssetId;
         }
 
         if (material->GetTexture(aiTextureType_METALNESS, 0, &path) == aiReturn_SUCCESS)
         {
-            descriptor->MetalicTextureID = ImportTexture(Texture2DImportParameters::GetDefaultMetalicTextureImportParameters(path.C_Str()))->AssetId;
+            descriptor->MetalicTextureID = ImportTexture(RenderingHelper::GetDefaultMetalicTexture2DImportParameters(path.C_Str()))->AssetId;
         }
         
         material->Get(AI_MATKEY_BASE_COLOR, descriptor->BaseColor);
@@ -288,12 +294,12 @@ std::shared_ptr<Texture2D> AssetManager::LoadTexture(const std::shared_ptr<Textu
         ia >> descriptorPtr;
     }
 
-    descriptor->TextureData = std::move(static_cast<Texture2DDescriptor*>(descriptorPtr)->TextureData);
+    descriptor->Data = std::move(static_cast<Texture2DDescriptor*>(descriptorPtr)->Data);
     
     delete descriptorPtr;
     descriptorPtr = nullptr;
     
-    std::shared_ptr<Texture2D> texture = std::make_shared<Texture2D>(descriptor);
+    std::shared_ptr<Texture2D> texture = RenderingHelper::CreateTexture2D(descriptor);
     m_Assets[descriptor->AssetId] = texture;
     
 	ED_LOG(AssetManager, info, "Finished loading texture: {}", descriptor->AssetName)
@@ -545,7 +551,7 @@ void AssetManager::ParseMeshesSeparately(aiNode* node, const aiScene* scene, con
     for (uint32_t i = 0; i < node->mNumMeshes; ++i)
     {
         aiMesh* mesh = scene->mMeshes[node->mMeshes[i]];
-        datas.push_back(ParseMesh(mesh, Transform(), materials, true));
+        datas.push_back(ParseMesh(mesh, Transform(), materials, false));
     }
     
     for (uint32_t i = 0; i < node->mNumChildren; ++i)
@@ -558,78 +564,48 @@ StaticSubmeshData AssetManager::ParseMesh(aiMesh* mesh, const Transform& transfo
 {
     StaticSubmeshData data;
     
-    data.Vertices = new glm::vec3[mesh->mNumVertices];
-    data.VerticesSize = mesh->mNumVertices * sizeof(glm::vec3);
-
-    if (mesh->mColors[0])
-    {
-        data.Colors = new glm::vec4[mesh->mNumVertices];
-        data.ColorsSize = mesh->mNumVertices * sizeof(glm::vec4);
-    }
-    if (mesh->mTextureCoords[0])
-    {
-        data.TextureCoordinates = new glm::vec3[mesh->mNumVertices];
-        data.TextureCoordinatesSize = mesh->mNumVertices * sizeof(glm::vec3);
-    }
-    if (mesh->mNormals)
-    {
-        data.Normals = new glm::vec3[mesh->mNumVertices];
-        data.NormalsSize = mesh->mNumVertices * sizeof(glm::vec3);
-    }
-    if (mesh->mTangents)
-    {
-        data.Tangents = new glm::vec3[mesh->mNumVertices];
-        data.TangentsSize = mesh->mNumVertices * sizeof(glm::vec3);
-    }
-    if (mesh->mBitangents)
-    {
-        data.Bitangents = new glm::vec3[mesh->mNumVertices];
-        data.BitangentsSize = mesh->mNumVertices * sizeof(glm::vec3);
-    }
-    if (mesh->mFaces)
-    {
-        data.Indices = new int32_t[3 * mesh->mNumFaces];
-        data.IndicesSize = 3 * mesh->mNumFaces * sizeof(int32_t);
-    }
-
     glm::mat4 world = transform.GetMatrix();
     glm::mat4 normal = transform.GetInversedTransposedMatrix();
     
     for (uint32_t i = 0; i < mesh->mNumVertices; ++i)
     {
-        aiVector3D& vertex = mesh->mVertices[i];
-        data.Vertices[i] = world * glm::vec4(vertex.x, vertex.y, vertex.z, !dropTranslation);
+        Vertex vertex;
+
+        aiVector3D& position = mesh->mVertices[i];
+        vertex.Position = world * glm::vec4(position.x, position.y, position.z, !dropTranslation);
         
         if (mesh->mColors[0]) {
-            data.Colors[i] = *(glm::vec4*)&mesh->mColors[0][i];
+            vertex.Color = *(glm::vec4*)&mesh->mColors[0][i];
         }
 
         if (mesh->mTextureCoords[0])
         {
-            data.TextureCoordinates[i] = *(glm::vec3*)&mesh->mTextureCoords[0][i];
+            vertex.TextureCoordinates = *(glm::vec3*)&mesh->mTextureCoords[0][i];
         }
 
         if (mesh->mNormals)
         {
-            data.Normals[i] = normal * glm::vec4(*(glm::vec3*)&mesh->mNormals[i], 0.0f);
+            vertex.Normal = normal * glm::vec4(*(glm::vec3*)&mesh->mNormals[i], 0.0f);
         }
 
         if (mesh->mTangents)
         {
-            data.Tangents[i] = normal * glm::vec4(*(glm::vec3*)&mesh->mTangents[i], 0.0f);
+            vertex.Tangent = normal * glm::vec4(*(glm::vec3*)&mesh->mTangents[i], 0.0f);
         }
 
         if (mesh->mBitangents)
         {
-            data.Bitangents[i] = normal * glm::vec4(*(glm::vec3*)&mesh->mBitangents[i], 0.0f);
+            vertex.Bitangent = normal * glm::vec4(*(glm::vec3*)&mesh->mBitangents[i], 0.0f);
         }
+
+        data.Vertices.push_back(vertex);
     }
 
     for (uint32_t i = 0; i < mesh->mNumFaces; ++i)
     {
         for (int32_t k = 0; k < 3; ++k)
         {
-            data.Indices[i * 3 + k] = mesh->mFaces[i].mIndices[k];
+            data.Indices.push_back(mesh->mFaces[i].mIndices[k]);
         }
     }
 

@@ -4,13 +4,14 @@
 #include <functional>
 #include <vector>
 
-#include "BaseManager.h"
 #include "Input.h"
-#include "Widget.h"
+#include "BaseManager.h"
 #include "Math/Camera.h"
 
 class Scene;
 class Renderer;
+class Widget;
+class Window;
 
 class Engine
 {
@@ -69,8 +70,12 @@ public:
 
     Camera* GetCamera();
     
+	std::shared_ptr<Window> GetWindow() const;
+
     std::shared_ptr<Renderer> GetRenderer();
 private:
+    std::shared_ptr<Window> m_Window;
+    
     std::chrono::time_point<std::chrono::system_clock> m_PreviousFrameTime = std::chrono::system_clock::now();
     
     std::vector<InputEvent> m_InputEvents;
@@ -83,17 +88,11 @@ private:
     std::vector<std::shared_ptr<Widget>> m_Widgets;
 
     std::shared_ptr<Renderer> m_Renderer;
-    class RendererAPI* m_RenderAPI;
     
     bool m_IsRunning = true;
 
-
     Camera m_Camera = Camera(glm::radians(90.0f), 1240.0f / 960.0f, 1.0f, 1500.0f);
 
-// Rendering
-   
-// 
-    
     Engine() = default;
 
     void PushUpdate(float DeltaTime);

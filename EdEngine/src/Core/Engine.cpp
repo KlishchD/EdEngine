@@ -1,15 +1,12 @@
 ﻿#include "Engine.h"
-
 #include "imgui.h"
-
-#include "LogManager.h"
 #include "Window.h"
-#include "Assets/AssetManager.h"
-
-#include "Rendering/Renderer.h"
-#include "Rendering/Framebuffer.h"
-#include "Rendering/CubeFramebuffer.h"
+#include "Utils/RenderingHelper.h"
 #include "Utils/Files.h"
+#include "Widget.h"
+#include "LogManager.h"
+#include "Assets/AssetManager.h"
+#include "Rendering/Renderer.h"
 #include "Macros.h"
 
 Engine* engine = nullptr;
@@ -56,12 +53,11 @@ void Engine::PushUpdate(float DeltaTime)
 
 void Engine::Initialize()
 {
-    ED_LOG(Engine, info, "Started initializing")
+    ED_LOG(Engine, info, "Started initializing");
 
-    Window::Create("Window", 1024, 960);
-
-    m_RenderAPI = &RendererAPI::Get();
-    m_RenderAPI->Initialize();
+#undef CreateWindow // TODO: REMOVE IT :)
+    m_Window = RenderingHelper::CreateWindow({ "EdEngine", 1024, 960 });
+#define CreateWindow CreateWindowW
 
     m_Renderer = std::make_shared<Renderer>();
     m_Renderer->Initialize(this);
@@ -83,8 +79,8 @@ void Engine::Initialize()
 
 void Engine::Deinitialize()
 {
-    Window::Delete();
-    
+    m_Window->Close();
+
     for (std::shared_ptr<BaseManager>& manager: m_Managers)
     {
         manager->Deinitialize();
@@ -110,18 +106,17 @@ void Engine::Update()
     
     m_Renderer->Update();
    
-    m_RenderAPI->BeginUIFrame();
+    m_Renderer->BeginUIFrame();
     
     for (std::shared_ptr<Widget>& widget: m_Widgets)
     {
         widget->Tick(DeltaTime);
     }
     
-    m_RenderAPI->EndUIFrame();
+    m_Renderer->EndUIFrame();
 
-    Window& window = Window::Get();
-    window.Update();
-    m_IsRunning = window.IsRunning();
+    m_Window->Update();
+    m_IsRunning = m_Window->IsRunning();
 }
 
 void Engine::InputAction(Key key, Action action)
@@ -178,6 +173,11 @@ std::shared_ptr<Scene> Engine::GetLoadedScene() const
 Camera* Engine::GetCamera()
 {
     return &m_Camera;
+}
+
+std::shared_ptr<Window> Engine::GetWindow() const
+{
+    return m_Window;
 }
 
 std::shared_ptr<Renderer> Engine::GetRenderer()

@@ -13,6 +13,7 @@ enum class Key: uint32_t
     D,
     E,
     Q,
+    U,
     LeftArrow,
     RightArrow,
     UpArrow,
@@ -47,6 +48,7 @@ public:
         case GLFW_KEY_D:     return Key::D;
         case GLFW_KEY_E:     return Key::E;
         case GLFW_KEY_Q:     return Key::Q;
+        case GLFW_KEY_U:     return Key::U;
         case GLFW_KEY_LEFT:  return Key::LeftArrow;
         case GLFW_KEY_RIGHT: return Key::RightArrow;
         case GLFW_KEY_UP:    return Key::UpArrow;

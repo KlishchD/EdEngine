@@ -1,10 +1,10 @@
 ﻿#include "Utils/PlatformUtils.h"
 #include <windows.h>
 #include <string>
-#include <Commdlg.h>
+#include "Core/Ed.h"
 
 #define GLFW_EXPOSE_NATIVE_WIN32
-#include "GLFW/glfw3native.h"
+#include <GLFW/glfw3native.h>
 
 std::string PlatformUtils::OpenFileWindow(const char* filter, Window& window, const char* title)
 {
@@ -13,7 +13,7 @@ std::string PlatformUtils::OpenFileWindow(const char* filter, Window& window, co
     ZeroMemory(&ofn, sizeof(OPENFILENAMEA));
 
     ofn.lStructSize = sizeof(OPENFILENAMEA);
-    ofn.hwndOwner = glfwGetWin32Window(window.GetWindow());
+    ofn.hwndOwner = glfwGetWin32Window((GLFWwindow*) window.GetNativeWindow());
     
     char filepath[512];
     ofn.lpstrFile = filepath;
@@ -35,8 +35,8 @@ std::string PlatformUtils::SaveFileWindow(const char* filter, Window& window, co
     ZeroMemory(&ofn, sizeof(OPENFILENAMEA));
 
     ofn.lStructSize = sizeof(OPENFILENAMEA);
-    ofn.hwndOwner = glfwGetWin32Window(window.GetWindow());
-    
+	ofn.hwndOwner = glfwGetWin32Window((GLFWwindow*)window.GetNativeWindow());
+
     char filepath[512];
     ofn.lpstrFile = filepath;
     ofn.lpstrFile[0] = '\0';    

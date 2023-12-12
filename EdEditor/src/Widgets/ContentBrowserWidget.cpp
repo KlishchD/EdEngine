@@ -1,10 +1,10 @@
 ﻿#include "ContentBrowserWidget.h"
 #include "Core/Engine.h"
 #include "Utils/Files.h"
+#include "Utils/RenderingHelper.h"
 #include "Editor.h"
 #include "Core/Assets/AssetManager.h"
-#include "Core/Assets/Texture2D.h"
-
+#include "Core/Rendering/Textures/Texture2D.h"
 #include <filesystem>
 #include <imgui.h>
 
@@ -16,10 +16,10 @@ void ContentBrowserWidget::Initialize()
     m_Editor = engine.GetManager<Editor>();
     m_AssetManager = engine.GetManager<AssetManager>();
 
-    m_DirectoryIcon = m_AssetManager->LoadTexture(Texture2DImportParameters::GetDefaultBaseColorTextureImportParameters(Files::ContentFolderPath + R"(Editor\icons\directory.png)"));
-    m_TextureIcon = m_AssetManager->LoadTexture(Texture2DImportParameters::GetDefaultBaseColorTextureImportParameters(Files::ContentFolderPath + R"(Editor\icons\texture.png)"));
-    m_MaterialIcon = m_AssetManager->LoadTexture(Texture2DImportParameters::GetDefaultBaseColorTextureImportParameters(Files::ContentFolderPath + R"(Editor\icons\material.png)"));
-    m_MeshIcon = m_AssetManager->LoadTexture(Texture2DImportParameters::GetDefaultBaseColorTextureImportParameters(Files::ContentFolderPath + R"(Editor\icons\mesh.png)"));
+    m_DirectoryIcon = m_AssetManager->LoadTexture(RenderingHelper::GetDefaultBaseColorTexture2DImportParameters(Files::ContentFolderPath + R"(Editor\icons\directory.png)"));
+    m_TextureIcon = m_AssetManager->LoadTexture(RenderingHelper::GetDefaultBaseColorTexture2DImportParameters(Files::ContentFolderPath + R"(Editor\icons\texture.png)"));
+    m_MaterialIcon = m_AssetManager->LoadTexture(RenderingHelper::GetDefaultBaseColorTexture2DImportParameters(Files::ContentFolderPath + R"(Editor\icons\material.png)"));
+    m_MeshIcon = m_AssetManager->LoadTexture(RenderingHelper::GetDefaultBaseColorTexture2DImportParameters(Files::ContentFolderPath + R"(Editor\icons\mesh.png)"));
 
     m_CurrentFolder = Files::ContentFolderPath;
 }

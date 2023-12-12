@@ -2,7 +2,7 @@
 
 #include <memory>
 #include "Core/Widget.h"
-#include "Core/Assets/Texture2D.h"
+#include "Core/Rendering/Textures/Texture2D.h"
 #include "Core/Assets/StaticMesh.h"
 
 class OptionsMenuWidget: public Widget
@@ -11,8 +11,8 @@ public:
     virtual void Initialize() override;
     virtual void Tick(float DeltaTime) override;
 private:
-    class Window* m_Window = nullptr;
     class Engine* m_Engine = nullptr;
+    std::shared_ptr<class Window> m_Window;
     std::shared_ptr<class AssetManager> m_AssetManager;
     
     StaticMeshImportParameters m_StaticMeshImportParameters;

@@ -2,6 +2,9 @@
 #include "Core/Engine.h"
 #include "Core/Assets/AssetManager.h"
 #include "Core/Assets/StaticMesh.h"
+#include "Core/Rendering/Types.h"
+#include "Core/Rendering/Buffers/VertexBufferLayout.h"
+#include "RenderingHelper.h"
 
 void AssetUtils::SetUseFullDescriptor(bool state)
 {
@@ -37,71 +40,23 @@ std::shared_ptr<StaticSubmesh> AssetUtils::CreateStaticSubmesh(const StaticSubme
 {
     std::shared_ptr<StaticSubmesh> submesh = std::make_shared<StaticSubmesh>(data.Name);
     
-    std::shared_ptr<VertexArray> vao = std::make_shared<VertexArray>();
+    VertexBufferLayout layout = {
+        { "Position",            ShaderDataType::Float3 },
+        { "Color",               ShaderDataType::Float4 },
+        { "TextureCoordinates",  ShaderDataType::Float3 },
+        { "Normal",              ShaderDataType::Float3 },
+        { "Tangent",             ShaderDataType::Float3 },
+        { "Bitangent",           ShaderDataType::Float3 }
+    };
 
-    vao->AddBuffer(
-        data.Vertices,
-        data.VerticesSize,
-        VertexBufferLayout {{ "vertex", 1, ShaderDataType::Float3 }},
-        0
-    );
-
-    if (data.Colors)
-    {
-        vao->AddBuffer(
-            data.Colors,
-            data.ColorsSize,
-            VertexBufferLayout {{ "color", 1, ShaderDataType::Float4 }},
-            1
-        );
-    }
-    
-    if (data.TextureCoordinates)
-    {
-        vao->AddBuffer(
-            data.TextureCoordinates,
-            data.TextureCoordinatesSize,
-            VertexBufferLayout {{ "textureCoords", 1, ShaderDataType::Float3 }},
-            2
-        );
-    }
-
-    if (data.Normals)
-    {
-        vao->AddBuffer(
-            data.Normals,
-            data.NormalsSize,
-            VertexBufferLayout {{ "normals", 1, ShaderDataType::Float3 }},
-            3
-        );
-    }
-
-    if (data.Tangents)
-    {
-        vao->AddBuffer(
-            data.Tangents,
-            data.TangentsSize,
-            VertexBufferLayout {{ "tangent", 1, ShaderDataType::Float3 }},
-            4
-        );
-    }
-    
-    if (data.Bitangents) // TODO: Use in shader ;)
-        {
-        vao->AddBuffer(
-            data.Bitangents,
-            data.BitangentsSize,
-            VertexBufferLayout {{ "bitangent", 1, ShaderDataType::Float3 }},
-            5
-        );
-        }
-
-    vao->SetIndexBuffer(data.Indices, data.IndicesSize);
+    std::shared_ptr<VertexBuffer> vbo = RenderingHelper::CreateVertexBuffer((void*) data.Vertices.data(), data.Vertices.size() * sizeof(Vertex), layout, BufferUsage::StaticDraw);
+    std::shared_ptr<IndexBuffer> ibo = RenderingHelper::CreateIndexBuffer((void*)data.Indices.data(), data.Indices.size() * sizeof(int32_t), BufferUsage::StaticDraw);
 
     std::shared_ptr<Material> material = Engine::Get().GetManager<AssetManager>()->LoadMaterial(data.Material);
 
     submesh->SetMaterial(material);
-    submesh->SetVertexArray(vao);
+    submesh->SetVertexBuffer(vbo);
+    submesh->SetIndexBuffer(ibo);
     
     return submesh;
 }

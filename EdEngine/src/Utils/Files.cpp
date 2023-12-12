@@ -7,7 +7,7 @@ std::string Files::GetSaveExtensions(AssetType type)
     switch (type)
     {
     case AssetType::Texture2D:
-    case AssetType::Texture3D: return ".edtexture";
+    case AssetType::CubeTexture: return ".edtexture";
     case AssetType::Material: return ".edmaterial";
     case AssetType::StaticMesh: return ".edmesh";
     }

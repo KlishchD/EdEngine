@@ -24,7 +24,9 @@ public:
     
     void AddPositionOffset(glm::vec3 offset);
 
-    glm::mat4 GetMatrix() const;
+	glm::mat4 GetView() const;
+	glm::mat4 GetProjection() const;
+	glm::mat4 GetViewPojection() const;
 
     glm::vec3 GetForward() const;
     glm::vec3 GetRight() const;

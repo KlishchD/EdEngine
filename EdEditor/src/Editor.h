@@ -1,7 +1,7 @@
 ﻿#pragma once
 
 #include "Core/Engine.h"
-#include "Rendering/RenderPassSpecification.h"
+#include "Core/Rendering/RenderPassSpecification.h"
 
 class Actor;
 class Component;
@@ -61,7 +61,7 @@ private:
     bool m_IsViewportActive = false;
 
     std::shared_ptr<class Renderer> m_Renderer;
-    class Window* m_Window = nullptr;
+    std::shared_ptr<class Window> m_Window;
     Engine* m_Engine = nullptr;
     
     void UpdateMousePosition(float DeltaTime);

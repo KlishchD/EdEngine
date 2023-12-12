@@ -15,7 +15,7 @@ layout(location = 1) in vec4 BaseColor;
 layout(location = 2) in vec3 textureCoordinates;
 layout(location = 3) in vec3 normal;
 layout(location = 4) in vec3 tangent;
-layout(location = 5) in vec3 bitangent;
+layout(location = 5) in vec3 bitangent; // TODO: Remove as it is reducing quality of the normals because it of high inacuracy ;)
 
 out vec3 v_Position;
 out vec3 v_Normal;
@@ -45,6 +45,7 @@ void main() {
 // type fragment
 
 #version 460 core
+#extension GL_ARB_bindless_texture : require
 
 struct Material {
     vec4 BaseColor;

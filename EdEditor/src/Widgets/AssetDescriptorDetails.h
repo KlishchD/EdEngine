@@ -15,6 +15,6 @@ private:
     void BaseDescriptorDetails(const std::shared_ptr<struct AssetDescriptor>& descriptor);
     void StaticMeshDescriptorDetails(const std::shared_ptr<struct StaticMeshDescriptor>& descriptor);
     void Texture2DDescriptorDetails(const std::shared_ptr<struct Texture2DDescriptor>& descriptor);
-    void Texture3DDescriptorDetails(const std::shared_ptr<struct Texture3DDescriptor>& descriptor);
+    void CubeTextureDescriptorDetails(const std::shared_ptr<struct CubeTextureDescriptor>& descriptor);
     void MaterialDescriptorDetails(const std::shared_ptr<struct MaterialDescriptor>& descriptor);
 };

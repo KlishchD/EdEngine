@@ -1,25 +1,7 @@
 ﻿#pragma once
 
 #include "Core/Ed.h"
-
-enum class AssetType : uint8_t
-{
-    Texture2D,
-    Texture3D,
-    Material,
-    StaticMesh
-};
-
-struct AssetDescriptor
-{
-    virtual ~AssetDescriptor() = default;
-
-    int32_t AssetId;
-    std::string AssetName;
-    AssetType AssetType;
-
-    virtual int32_t GetAssetId() const; // Just for boost to recognize it as polymorphic
-};
+#include "Descriptors/AssetDescriptor.h"
 
 namespace boost
 {
@@ -39,13 +21,13 @@ class Asset
 {
 public:
     void SetDescriptor(const std::shared_ptr<AssetDescriptor>& descriptor);
+
     template <class T>
     std::shared_ptr<T> GetDescriptor() const;
 
     std::shared_ptr<AssetDescriptor> GetDescriptor() const;
 
     std::string GetAssetName() const;
-
 protected:
     std::shared_ptr<AssetDescriptor> m_Descriptor;
 };

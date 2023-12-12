@@ -1,38 +1,41 @@
 #pragma once
 
-#include "Ed.h"
-
+#include <memory>
 #include <string>
 #include <glm/vec2.hpp>
 
+struct WindowSpecification
+{
+    std::string Title;
+    uint32_t Width;
+    uint32_t Height;
+};
+
 class Window {
 public:
-    static Window& Create(const std::string& name, uint32_t width, uint32_t height);
-    static Window& Get();
-    static void Delete();
-    
-    virtual void Update();
+    Window(WindowSpecification specification);
 
-    bool IsRunning();
+    virtual void Update() = 0;
 
-    void Close();
+    virtual bool IsRunning() = 0;
 
-    void Resize(int32_t width, int32_t height);
+    virtual void Resize(int32_t width, int32_t height) = 0;
 
-    glm::vec2 GetMousePosition();
-    glm::vec2 GetMousePositionNormalized();
+    virtual glm::vec2 GetMousePosition() = 0;
+    virtual glm::vec2 GetMousePositionNormalized() = 0;
 
+    std::string GetTitle() const;
     uint32_t GetWidth() const;
     uint32_t GetHeight() const;
     
-    GLFWwindow* GetWindow() const;
-private:
-    GLFWwindow* m_Window;
-	std::string m_Name;
+    virtual void* GetNativeWindow() = 0;
+
+    virtual std::shared_ptr<class RenderingContext> GetContext() = 0;
+
+    virtual void Close() = 0;
+    virtual ~Window() = default;
+protected:
+	std::string m_Title;
 	uint32_t m_Width;
 	uint32_t m_Height;
-
-    class RendererAPI* m_RenderAPI;
-
-    Window(const std::string& name, uint32_t width, uint32_t height);
 };

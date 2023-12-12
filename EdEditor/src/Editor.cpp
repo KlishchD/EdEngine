@@ -1,5 +1,4 @@
 ﻿#include "Editor.h"
-
 #include "Widgets/ActorDetailsWidget.h"
 #include "Widgets/AssetDescriptorDetails.h"
 #include "Widgets/CameraDetailsWidget.h"
@@ -7,13 +6,16 @@
 #include "Widgets/OptionsMenuWidget.h"
 #include "Widgets/SceneTreeWidget.h"
 #include "Widgets/ViewportWidget.h"
-#include "Core/Assets/Texture2D.h"
 #include "Utils/Files.h"
-#include "Rendering/Renderer.h"
+#include "Core/Rendering/Framebuffers/Framebuffer.h"
+#include "Core/Rendering/Textures/Texture2D.h"
+#include "Core/Rendering/Renderer.h"
+#include "Core/Rendering/Shader.h"
 #include "Core/Window.h"
 #include "Core/Assets/AssetManager.h"
-#include "Core/Assets/Shader.h"
 #include "Core/Scene.h"
+#include "Utils/RenderingHelper.h"
+#include "Core/Components/PointLightComponent.h"
 
 void Editor::Deinitialize()
 {
@@ -23,7 +25,7 @@ void Editor::Initialize(Engine* engine)
 {
     m_Engine = engine;
     m_Renderer = engine->GetRenderer();
-    m_Window = &Window::Get();
+    m_Window = engine->GetWindow();
 
     m_AssetManager = engine->GetManager<AssetManager>();
 
@@ -33,7 +35,7 @@ void Editor::Initialize(Engine* engine)
 
     m_MousePosition = m_Window->GetMousePosition();
 
-    m_LightIcon = m_AssetManager->LoadTexture(Texture2DImportParameters::GetDefaultBaseColorTextureImportParameters(Files::ContentFolderPath + R"(Editor\icons\light-bulb.png)"));
+    m_LightIcon = m_AssetManager->LoadTexture(RenderingHelper::GetDefaultBaseColorTexture2DImportParameters(Files::ContentFolderPath + R"(Editor\icons\light-bulb.png)"));
 
     m_Engine->AddWidget<OptionsMenuWidget>();
     m_Engine->AddWidget<SceneTreeWidget>();
@@ -43,9 +45,9 @@ void Editor::Initialize(Engine* engine)
     m_Engine->AddWidget<ContentBrowserWidget>();
     m_Engine->AddWidget<AssetDescriptorDetails>();
 
-    m_IconsPassSpecification.name = "Editor icons";
-    m_IconsPassSpecification.framebuffer = m_Renderer->GetViewport();
-    m_IconsPassSpecification.shader = std::make_shared<Shader>(Files::ContentFolderPath + R"(Editor\shaders\IconShader.glsl)");
+    m_IconsPassSpecification.Name = "Editor icons";
+    m_IconsPassSpecification.Framebuffer = m_Renderer->GetViewport();
+    m_IconsPassSpecification.Shader = RenderingHelper::CreateShader(Files::ContentFolderPath + R"(Editor\shaders\IconShader.glsl)");
 }
 
 void Editor::Update(float DeltaTime)
@@ -61,15 +63,15 @@ void Editor::Update(float DeltaTime)
     }
 
 
-    m_Renderer->SubmitRenderCommand([this, camera](RendererAPI* renderAPI) {
+    m_Renderer->SubmitRenderCommand([this, camera](RenderingContext* context) {
         std::vector<std::shared_ptr<Component>> components = m_Engine->GetLoadedScene()->GetAllComponents();
         std::shared_ptr<Framebuffer> viewportFramebuffer = m_Renderer->GetViewport();
 
-        m_IconsPassSpecification.projectionViewMatrix = camera->GetMatrix();
-        m_IconsPassSpecification.viewPosition = camera->GetPosition();
+        m_IconsPassSpecification.ViewPosition = camera->GetPosition();
 
-        renderAPI->BeginRenderPass(m_IconsPassSpecification);
         m_Renderer->GetViewport()->CopyDepthAttachment(m_Renderer->GetGeometryPassFramebuffer());
+        
+        m_Renderer->BeginRenderPass(m_IconsPassSpecification, camera->GetView(), camera->GetProjection());
         
         glm::vec3 viewPosition = camera->GetPosition();
         for (const std::shared_ptr<Component>& component : components)
@@ -77,11 +79,11 @@ void Editor::Update(float DeltaTime)
             if (std::shared_ptr<PointLightComponent> light = std::dynamic_pointer_cast<PointLightComponent>(component))
             {
                 glm::mat4 view = glm::lookAt(light->GetTransform().GetTranslation(), viewPosition, glm::vec3(0.0f, 1.0f, 0.0f));
-                renderAPI->SubmitIcon(m_LightIcon, glm::scale(glm::inverse(view), light->GetTransform().GetScale()));
+                m_Renderer->SubmitIcon(m_LightIcon, glm::scale(glm::inverse(view), light->GetTransform().GetScale()));
             }
         }
 
-        renderAPI->EndRenderPass();
+        m_Renderer->EndRenderPass();
     });
 }
 
@@ -110,6 +112,8 @@ void Editor::SetUpInputs(Engine* engine)
     
     engine->SubscribeToInput(Key::RightMouseClick, Action::Press, [this]() { if (m_IsViewportActive) m_IsRightMouseButtonClicked = true; });
     engine->SubscribeToInput(Key::RightMouseClick, Action::Release, [this]() { m_IsRightMouseButtonClicked = false; });
+
+    engine->SubscribeToInput(Key::U, Action::Press, [this]() { m_Renderer->SetSSAOEnabled(!m_Renderer->IsSSAOEnabled()); });
 }
 
 void Editor::SetSelectedActor(const std::shared_ptr<Actor>& actor)
@@ -185,7 +189,7 @@ void Editor::SetViewportIsActive(bool state)
 
 void Editor::UpdateMousePosition(float DeltaTime)
 {
-    glm::vec2 newMousePosition = Window::Get().GetMousePosition() / static_cast<glm::vec2>(m_ViewportSize);
+    glm::vec2 newMousePosition = m_Window->GetMousePosition() / static_cast<glm::vec2>(m_ViewportSize);
 
     if (m_MousePosition != newMousePosition && m_IsRightMouseButtonClicked) //TODO: create transform class ;)
     {

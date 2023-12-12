@@ -3,7 +3,7 @@
 #include "Core/Engine.h"
 #include "Core/Assets/AssetManager.h"
 #include "Core/Assets/StaticMesh.h"
-#include "Core/Assets/Texture2D.h"
+#include "Core/Rendering/Textures/Texture2D.h"
 #include "Core/Scene.h"
 #include <imgui.h>
 
@@ -11,8 +11,8 @@ void OptionsMenuWidget::Initialize()
 {
     Widget::Initialize();
     
-    m_Window = &Window::Get();
     m_Engine = &Engine::Get();
+    m_Window = m_Engine->GetWindow();
     m_AssetManager = m_Engine->GetManager<AssetManager>();
 }
 
@@ -38,7 +38,7 @@ void OptionsMenuWidget::Tick(float DeltaTime)
             if (ImGui::MenuItem("Import texture"))
             {
                 m_TextureImportParameters = Texture2DImportParameters();
-                m_TextureImportParameters.ImagePath = PlatformUtils::OpenFileWindow("Texture\0", *m_Window, "Texture");
+                m_TextureImportParameters.Path = PlatformUtils::OpenFileWindow("Texture\0", *m_Window, "Texture");
                 m_TextureImportPopupIsOpened = true;
             }
 
@@ -94,78 +94,70 @@ void OptionsMenuWidget::TextureImportPopup()
     ImGui::OpenPopup("Texture import parameters");
 
     if (ImGui::BeginPopup("Texture import parameters"))
-    {
-        if (ImGui::BeginCombo("WrapS", m_TextureImportParameters.WrapS == GL_CLAMP_TO_EDGE ? "Clamp to border" : "Repeat"))
+	{
+        if (ImGui::BeginCombo("WrapS", m_TextureImportParameters.WrapS == WrapMode::ClampToEdge ? "Clamp to border" : "Repeat"))
         {
-            if (ImGui::Selectable("Clamp to border", m_TextureImportParameters.WrapS == GL_CLAMP_TO_EDGE))
+            if (ImGui::Selectable("Clamp to border", m_TextureImportParameters.WrapS == WrapMode::ClampToEdge))
             {
-                m_TextureImportParameters.WrapS = GL_CLAMP_TO_EDGE;
+                m_TextureImportParameters.WrapS = WrapMode::ClampToEdge;
             }
             
             
-            if (ImGui::Selectable("Repeat", m_TextureImportParameters.WrapS == GL_REPEAT))
+            if (ImGui::Selectable("Repeat", m_TextureImportParameters.WrapS == WrapMode::Repeat))
             {
-                m_TextureImportParameters.WrapS = GL_REPEAT;
+                m_TextureImportParameters.WrapS = WrapMode::Repeat;
             }
             ImGui::EndCombo();
         }
-        if (ImGui::BeginCombo("WrapT", m_TextureImportParameters.WrapT == GL_CLAMP_TO_EDGE ? "Clamp to border" : "Repeat"))
+        if (ImGui::BeginCombo("WrapT", m_TextureImportParameters.WrapT == WrapMode::ClampToEdge ? "Clamp to border" : "Repeat"))
         {
-            if (ImGui::Selectable("Clamp to border", m_TextureImportParameters.WrapT == GL_CLAMP_TO_EDGE))
+            if (ImGui::Selectable("Clamp to border", m_TextureImportParameters.WrapT == WrapMode::ClampToEdge))
             {
-                m_TextureImportParameters.WrapT = GL_CLAMP_TO_EDGE;
+                m_TextureImportParameters.WrapT = WrapMode::ClampToEdge;
             }
             
-            if (ImGui::Selectable("Repeat", m_TextureImportParameters.WrapT == GL_REPEAT))
+            if (ImGui::Selectable("Repeat", m_TextureImportParameters.WrapT == WrapMode::Repeat))
             {
-                m_TextureImportParameters.WrapT = GL_REPEAT;
+                m_TextureImportParameters.WrapT = WrapMode::Repeat;
             }
             ImGui::EndCombo();
         }
-        if (ImGui::BeginCombo("Internal format", m_TextureImportParameters.InternalFormat == GL_RGBA ? "RGBA8" : "SRGBA8"))
+        if (ImGui::BeginCombo("Internal format", m_TextureImportParameters.Format == PixelFormat::RGBA8F ? "RGBA8" : "SRGBA8"))
         {
-            if (ImGui::Selectable("RGBA8", m_TextureImportParameters.InternalFormat == GL_RGBA))
+            if (ImGui::Selectable("RGBA8", m_TextureImportParameters.Format == PixelFormat::RGBA8F))
             {
-                m_TextureImportParameters.InternalFormat = GL_RGBA;
+                m_TextureImportParameters.Format = PixelFormat::RGBA8F;
             }
             
-            if (ImGui::Selectable("SRGBA8", m_TextureImportParameters.InternalFormat == GL_SRGB_ALPHA))
+            if (ImGui::Selectable("SRGBA8", m_TextureImportParameters.Format == PixelFormat::SRGBA8F))
             {
-                m_TextureImportParameters.InternalFormat = GL_SRGB_ALPHA;
+                m_TextureImportParameters.Format = PixelFormat::SRGBA8F;
             }
             ImGui::EndCombo();
         }
-        if (ImGui::BeginCombo("External format", m_TextureImportParameters.ExternalFormat == GL_RGBA ? "RGBA8" : "SRGBA8"))
+        if (ImGui::BeginCombo("External format", m_TextureImportParameters.Format == PixelFormat::RGBA8F ? "RGBA8" : "SRGBA8"))
         {
-            if (ImGui::Selectable("RGBA8", m_TextureImportParameters.ExternalFormat == GL_RGBA))
+            if (ImGui::Selectable("RGBA8", m_TextureImportParameters.Format == PixelFormat::RGBA8F))
             {
-                m_TextureImportParameters.ExternalFormat = GL_RGBA;
+                m_TextureImportParameters.Format = PixelFormat::RGBA8F;
             }
             
-            if (ImGui::Selectable("SRGBA8", m_TextureImportParameters.ExternalFormat == GL_SRGB_ALPHA))
+            if (ImGui::Selectable("SRGBA8", m_TextureImportParameters.Format == PixelFormat::SRGBA8F))
             {
-                m_TextureImportParameters.ExternalFormat = GL_SRGB_ALPHA;
+                m_TextureImportParameters.Format = PixelFormat::SRGBA8F;
             }
             ImGui::EndCombo();
         }
-        if (ImGui::BeginCombo("Filtering", m_TextureImportParameters.Filtering == GL_LINEAR ? "Linear" : "Nearest"))
+        if (ImGui::BeginCombo("Filtering", m_TextureImportParameters.Filtering == FilteringMode::Linear ? "Linear" : "Nearest"))
         {
-            if (ImGui::Selectable("Linear", m_TextureImportParameters.Filtering == GL_LINEAR))
+            if (ImGui::Selectable("Linear", m_TextureImportParameters.Filtering == FilteringMode::Linear))
             {
-                m_TextureImportParameters.Filtering = GL_LINEAR;
+                m_TextureImportParameters.Filtering = FilteringMode::Linear;
             }
             
-            if (ImGui::Selectable("Nearest", m_TextureImportParameters.Filtering == GL_NEAREST))
+            if (ImGui::Selectable("Nearest", m_TextureImportParameters.Filtering == FilteringMode::Nearest))
             {
-                m_TextureImportParameters.Filtering = GL_NEAREST;
-            }
-            ImGui::EndCombo();
-        }
-        if (ImGui::BeginCombo("Data type", m_TextureImportParameters.DataType == GL_UNSIGNED_BYTE ? "Unsigned byte" : ""))
-        {
-            if (ImGui::Selectable("Unsigned byte", m_TextureImportParameters.DataType == GL_UNSIGNED_BYTE))
-            {
-                m_TextureImportParameters.DataType = GL_UNSIGNED_BYTE;
+                m_TextureImportParameters.Filtering = FilteringMode::Nearest;
             }
             ImGui::EndCombo();
         }

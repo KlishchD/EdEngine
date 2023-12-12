@@ -1,8 +1,13 @@
 ﻿#pragma once
 
 #include "Material.h"
-#include "Rendering/VertexArray.h"
+#include <boost/serialization/vector.hpp>
+#include <boost/serialization/string.hpp>
+#include "Utils/SerializationUtils.h"
 #include "Utils/AssetUtils.h"
+
+class VertexBuffer;
+class IndexBuffer;
 
 struct StaticMeshImportParameters
 {
@@ -17,29 +22,24 @@ struct StaticMeshImportParameters
     bool ImportMaterials = true;
 };
 
+struct Vertex {
+    glm::vec3 Position;
+    glm::vec4 Color;
+    glm::vec3 TextureCoordinates;
+    glm::vec3 Normal;
+    glm::vec3 Tangent;
+    glm::vec3 Bitangent;
+};
+
 struct StaticSubmeshData
 {
-    ~StaticSubmeshData();
     StaticSubmeshData(StaticSubmeshData&& data) noexcept;
     StaticSubmeshData();
 
     std::string Name;
     
-    int32_t VerticesSize;
-    int32_t ColorsSize;
-    int32_t TextureCoordinatesSize;
-    int32_t NormalsSize;
-    int32_t TangentsSize;
-    int32_t BitangentsSize;
-    int32_t IndicesSize;
-
-    glm::vec3* Vertices;
-    glm::vec4* Colors;
-    glm::vec3* TextureCoordinates;
-    glm::vec3* Normals;
-    glm::vec3* Tangents;
-    glm::vec3* Bitangents;
-    int32_t* Indices;
+    std::vector<Vertex> Vertices;
+    std::vector<int32_t> Indices;
     
     int32_t Material;
 };
@@ -54,77 +54,23 @@ namespace boost
 {
     namespace serialization
     {
+		template <class Archive>
+		void serialize(Archive& ar, Vertex& vertex, uint32_t version)
+		{
+			ar & vertex.Position;
+			ar & vertex.Color;
+			ar & vertex.TextureCoordinates;
+			ar & vertex.Normal;
+			ar & vertex.Tangent;
+			ar & vertex.Bitangent;
+		}
+
         template <class Archive>
         void serialize(Archive& ar, StaticSubmeshData& data, uint32_t version)
         {
             ar & data.Name;
-
-            ar & data.VerticesSize;
-            ar & data.ColorsSize;
-            ar & data.TextureCoordinatesSize;
-            ar & data.NormalsSize;
-            ar & data.TangentsSize;
-            ar & data.BitangentsSize;
-            ar & data.IndicesSize;
-
-            if (data.VerticesSize)
-            {
-                if (!data.Vertices)
-                {
-                    data.Vertices = static_cast<glm::vec3*>(std::malloc(data.VerticesSize));
-                }
-                ar & make_binary_object(data.Vertices, data.VerticesSize);
-            }
-            if (data.ColorsSize)
-            {
-                if (!data.Colors)
-                {
-                    data.Colors = static_cast<glm::vec4*>(std::malloc(data.ColorsSize));
-                }
-                ar & make_binary_object(data.Colors, data.ColorsSize);
-            }
-            if (data.TextureCoordinatesSize)
-            {
-                if (!data.TextureCoordinates)
-                {
-                    data.TextureCoordinates = static_cast<glm::vec3*>(std::malloc(data.TextureCoordinatesSize));
-                }
-                ar & make_binary_object(data.TextureCoordinates, data.TextureCoordinatesSize);
-            }
-            if (data.NormalsSize)
-            {
-                if (!data.Normals)
-                {
-                    data.Normals = static_cast<glm::vec3*>(std::malloc(data.NormalsSize));
-                }
-                ar & make_binary_object(data.Normals, data.NormalsSize);
-            }
-            if (data.TangentsSize)
-            {
-                if (!data.Tangents)
-                {
-                    data.Tangents = static_cast<glm::vec3*>(std::malloc(data.TangentsSize));
-                }
-                ar & make_binary_object(data.Tangents, data.TangentsSize);
-            }
-            if (data.BitangentsSize)
-            {
-                if (!data.Bitangents)
-                {
-                    data.Bitangents = static_cast<glm::vec3*>(std::malloc(data.BitangentsSize));
-                }
-                ar & make_binary_object(data.Bitangents, data.BitangentsSize);
-            }
-            if (data.IndicesSize)
-            {
-                if (!data.Indices)
-                {
-                    data.Indices = static_cast<int32_t*>(std::malloc(data.IndicesSize));
-                }
-                ar & make_binary_object(data.Indices, data.IndicesSize);
-            }
-            
-            
+            ar & data.Vertices;
+            ar & data.Indices;
             ar & data.Material;
         }
 
@@ -155,6 +101,8 @@ namespace boost
     }
 }
 
+class VertexBuffer;
+
 class StaticSubmesh
 {
 public:
@@ -165,15 +113,18 @@ public:
     std::string GetName() const;
     void SetName(const std::string& name);
     
-    void SetVertexArray(const std::shared_ptr<VertexArray>& vertexArray);
+    void SetVertexBuffer(const std::shared_ptr<VertexBuffer>& buffer);
+    void SetIndexBuffer(const std::shared_ptr<IndexBuffer>& buffer);
     void SetMaterial(const std::shared_ptr<Material>& material);
     
-    std::shared_ptr<VertexArray> GetVertexArray() const { return m_VertexArray; }
+    std::shared_ptr<VertexBuffer> GetVertexBuffer() const { return m_VertexBuffer; }
+    std::shared_ptr<IndexBuffer> GetIndexBuffer() const { return m_IndexBuffer; }
     std::shared_ptr<Material> GetMaterial() const { return m_Material; }
     
 private:
     std::string m_Name;
-    std::shared_ptr<VertexArray> m_VertexArray;
+    std::shared_ptr<VertexBuffer> m_VertexBuffer;
+    std::shared_ptr<IndexBuffer> m_IndexBuffer;
     std::shared_ptr<Material> m_Material;
 };
 

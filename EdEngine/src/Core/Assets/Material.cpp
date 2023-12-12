@@ -1,7 +1,8 @@
 ﻿#include "Material.h"
-
-#include "Texture2D.h"
+#include "Core/Rendering/RenderingContex.h"
+#include "Core/Rendering/Textures/Texture2D.h"
 #include "Core/Ed.h"
+#include "Utils/RenderingHelper.h"
 
 BOOST_CLASS_EXPORT_IMPLEMENT(MaterialDescriptor)
 
@@ -16,60 +17,25 @@ Material::Material()
 {
 }
 
-void Material::SetShaderData(const std::shared_ptr<Shader>& shared)
+void Material::SetShaderData(const std::shared_ptr<RenderingContext>& context)
 {
-    shared->SetFloat4("u_Material.BaseColor", m_BaseColor);
+    context->SetShaderDataFloat4("u_Material.BaseColor", m_BaseColor);
     
-    shared->SetFloat("u_Material.Roughness", m_Roughness);
-    shared->SetFloat("u_Material.Metalic", m_Metalic);
+    context->SetShaderDataFloat("u_Material.Roughness", m_Roughness);
+    context->SetShaderDataFloat("u_Material.Metalic", m_Metalic);
     
-    shared->SetInt("u_Material.NormalTexture", 1);
+    context->SetShaderDataInt("u_Material.NormalTexture", 1);
 
-    Texture2D::GetWhiteTexture()->Bind(0);
-
-    if (m_BaseColorTexture)
-    {
-        m_BaseColorTexture->Bind(1);
-        shared->SetInt("u_Material.BaseColorTexture", 1);
-    }
-    else
-    {
-        shared->SetInt("u_Material.BaseColorTexture", 0);
-    }
+    std::shared_ptr<Texture2D> white = RenderingHelper::GetWhiteTexture();
     
-    if (m_NormalTexture)
-    {
-        m_NormalTexture->Bind(2);
-        shared->SetInt("u_Material.NormalTexture", 2);
-        shared->SetBool("u_Material.HasNormalTexture", true);
-        shared->SetBool("u_PerformNormalMapping", true);
-    }
-    else
-    {
-        shared->SetInt("u_Material.NormalTexture", 0);
-        shared->SetBool("u_Material.HasNormalTexture", false);
-        shared->SetBool("u_PerformNormalMapping", false);
-    }
+    context->SetShaderDataTexture("u_Material.BaseColorTexture", m_BaseColorTexture ? m_BaseColorTexture : white);
 
-    if (m_RoughnessTexture)
-    {
-        m_RoughnessTexture->Bind(3);
-        shared->SetInt("u_Material.RoughnessTexture", 3);
-    }
-    else
-    {
-        shared->SetInt("u_Material.RoughnessTexture", 0);
-    }
+    context->SetShaderDataTexture("u_Material.NormalTexture", m_NormalTexture ? m_NormalTexture : white);
+    context->SetShaderDataBool("u_Material.HasNormalTexture", m_NormalTexture != nullptr);
+    context->SetShaderDataBool("u_PerformNormalMapping", m_NormalTexture != nullptr);
 
-    if (m_MetalicTexture)
-    {
-        m_MetalicTexture->Bind(4);
-        shared->SetInt("u_Material.MetalicTexture", 4);
-    }
-    else
-    {
-        shared->SetInt("u_Material.MetalicTexture", 0);
-    }
+    context->SetShaderDataTexture("u_Material.RoughnessTexture", m_RoughnessTexture ? m_RoughnessTexture : white);
+    context->SetShaderDataTexture("u_Material.MetalicTexture", m_MetalicTexture ? m_MetalicTexture : white);
 }
 
 void Material::SetMetalicTexture(const std::shared_ptr<Texture2D>& texture)

@@ -20,12 +20,21 @@ namespace boost
         }
 
         template <class Archive>
-        void serialize(Archive& ar, glm::vec3& vec3, uint32_t version)
+        void serialize(Archive& ar, glm::vec3& vec, uint32_t version)
         {
-            ar & vec3.x;
-            ar & vec3.y;
-            ar & vec3.z;
+            ar & vec.x;
+            ar & vec.y;
+            ar & vec.z;
         }
+
+		template <class Archive>
+		void serialize(Archive& ar, glm::vec4& vec, uint32_t version)
+		{
+			ar& vec.x;
+			ar& vec.y;
+			ar& vec.z;
+			ar& vec.w;
+		}
 
         template <class Archive>
         void serialize(Archive& ar, glm::quat& q, uint32_t version)
@@ -35,5 +44,6 @@ namespace boost
             ar & q.z;
             ar & q.w;
         }
+
     }
 }
