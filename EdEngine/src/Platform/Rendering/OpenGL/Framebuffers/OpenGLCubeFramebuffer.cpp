@@ -64,8 +64,6 @@ void OpenGLCubeFramebuffer::CreateAttachment(FramebufferAttachmentType type)
 
 void OpenGLCubeFramebuffer::AttachFace(int32_t face)
 {
-	glBindFramebuffer(GL_FRAMEBUFFER, m_Id);
-
 	for (int32_t i = 0; i < m_Attachments.size(); ++i)
 	{
 		if (std::shared_ptr<CubeTexture> texture3D = std::static_pointer_cast<CubeTexture>(m_Attachments[i]))
@@ -81,14 +79,10 @@ void OpenGLCubeFramebuffer::AttachFace(int32_t face)
 	if (m_DepthStencilAttachment) {
 		glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_TEXTURE_CUBE_MAP_POSITIVE_X + face, m_DepthStencilAttachment->GetID(), 0);
 	}
-
-	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 }
 
 void OpenGLCubeFramebuffer::AttachLayers()
 {
-	glBindFramebuffer(GL_FRAMEBUFFER, m_Id);
-
 	for (int32_t i = 0; i < m_Attachments.size(); ++i)
 	{
 		if (std::shared_ptr<CubeTexture> texture3D = std::static_pointer_cast<CubeTexture>(m_Attachments[i]))
@@ -104,8 +98,6 @@ void OpenGLCubeFramebuffer::AttachLayers()
 	if (m_DepthStencilAttachment) {
 		glFramebufferTexture(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, m_DepthStencilAttachment->GetID(), 0);
 	}
-
-	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 }
 
 uint32_t OpenGLCubeFramebuffer::GetWidth() const
