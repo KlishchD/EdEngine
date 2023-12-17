@@ -14,7 +14,9 @@ private:
     class Engine* m_Engine = nullptr;
     std::shared_ptr<class Window> m_Window;
     std::shared_ptr<class AssetManager> m_AssetManager;
-    
+
+    std::shared_ptr<class Texture2D> m_Icon;
+
     StaticMeshImportParameters m_StaticMeshImportParameters;
     bool m_StaticMeshImportPopupIsOpened = false;
 

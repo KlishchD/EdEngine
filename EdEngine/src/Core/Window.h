@@ -24,6 +24,8 @@ public:
     virtual glm::vec2 GetMousePosition() = 0;
     virtual glm::vec2 GetMousePositionNormalized() = 0;
 
+    virtual void Move(glm::vec2 delta) = 0;
+
     std::string GetTitle() const;
     uint32_t GetWidth() const;
     uint32_t GetHeight() const;

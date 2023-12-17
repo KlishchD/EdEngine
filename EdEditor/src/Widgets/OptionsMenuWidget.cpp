@@ -5,7 +5,10 @@
 #include "Core/Assets/StaticMesh.h"
 #include "Core/Rendering/Textures/Texture2D.h"
 #include "Core/Scene.h"
+#include "Utils/Files.h"
+#include "Utils/RenderingHelper.h"
 #include <imgui.h>
+#include "Core/Macros.h"
 
 void OptionsMenuWidget::Initialize()
 {
@@ -14,6 +17,8 @@ void OptionsMenuWidget::Initialize()
     m_Engine = &Engine::Get();
     m_Window = m_Engine->GetWindow();
     m_AssetManager = m_Engine->GetManager<AssetManager>();
+
+    m_Icon = m_AssetManager->LoadTexture(RenderingHelper::GetDefaultBaseColorTexture2DImportParameters(Files::ContentFolderPath + R"(Editor\icons\icon.png)"));
 }
 
 void OptionsMenuWidget::Tick(float DeltaTime)
@@ -23,9 +28,20 @@ void OptionsMenuWidget::Tick(float DeltaTime)
     if (m_StaticMeshImportPopupIsOpened) StaticMeshImportPopup();
     if (m_TextureImportPopupIsOpened) TextureImportPopup();
 
-        
+    ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, { 0, 10 });
+
     if (ImGui::BeginMainMenuBar())
     {
+        if (ImGui::IsMouseDoubleClicked(0))
+        {
+			ED_LOG(Widget, info, "Double cliked")
+		}
+
+        if (ImGui::ImageButton((ImTextureID)m_Icon->GetID(), { ImGui::GetWindowHeight(), ImGui::GetWindowHeight() }, { 0, 1 }, { 1, 0 }, 0, ImVec4(0.14f, 0.14f, 0.14f, 1.00f), {1, 1, 1, 1}))
+        {
+
+        }
+
         if (ImGui::BeginMenu("File"))
         {
             if (ImGui::MenuItem("Import mesh"))
@@ -64,6 +80,8 @@ void OptionsMenuWidget::Tick(float DeltaTime)
         
         ImGui::EndMainMenuBar();
     }
+
+	ImGui::PopStyleVar();
 }
 
 void OptionsMenuWidget::StaticMeshImportPopup()
