@@ -13,6 +13,8 @@
 #include "Core/Math/Transform.h"
 
 struct Texture2DImportParameters;
+struct StaticMeshImportParameters;
+
 struct DescriptorStaticMeshData;
 struct StaticMeshImportParameters;
 class VertexArray;
@@ -43,42 +45,39 @@ public:
     std::shared_ptr<Texture2D> LoadTexture(const Texture2DImportParameters& parameters);
     std::shared_ptr<Material> LoadMaterial(const std::shared_ptr<MaterialDescriptor>& descriptor);
 
-    std::shared_ptr<StaticMesh> LoadMesh(int32_t assetId);
-    std::shared_ptr<Texture2D> LoadTexture(int32_t assetId);
-    std::shared_ptr<Material> LoadMaterial(int32_t assetId);
+    std::shared_ptr<StaticMesh> LoadMesh(UUID assetId);
+    std::shared_ptr<Texture2D> LoadTexture(UUID assetId);
+    std::shared_ptr<Material> LoadMaterial(UUID assetId);
 
-    const std::vector<std::shared_ptr<AssetDescriptor>>& GetDescriptors(AssetType type) const;
-    const std::vector<std::shared_ptr<StaticMeshDescriptor>>& GetMeshDescriptors() const;
-    const std::vector<std::shared_ptr<Texture2DDescriptor>>& GetTexture2DDescriptors() const;
-    const std::vector<std::shared_ptr<MaterialDescriptor>>& GetMaterialDescriptors() const;
+    template<class T>
+    const std::vector<std::shared_ptr<T>>& GetDescriptors(AssetType type) const;
 
     std::shared_ptr<AssetDescriptor> GetAssetDescriptor(const std::string& path) const;
-    std::shared_ptr<AssetDescriptor> GetAssetDescriptor(int32_t assetId);
+    std::shared_ptr<AssetDescriptor> GetAssetDescriptor(UUID assetId);
     
-    void RefreshMaterial(const std::shared_ptr<MaterialDescriptor>& descriptor);
-
     std::shared_ptr<Scene> CreateScene(const std::string& path);
     std::shared_ptr<Scene> LoadScene(const std::string& path);
-
-    bool IsAssetExtension(const std::string& extension);
 private:
     Assimp::Importer m_Importer;
 
-    int32_t m_FreeAssetId = 1; // TODO: Make it some GUID or similar ;)
-    std::map<int32_t, std::shared_ptr<AssetDescriptor>> m_Descriptors;
-    std::map<int32_t, std::shared_ptr<Asset>> m_Assets;
+    std::map<UUID, std::shared_ptr<AssetDescriptor>> m_Descriptors;
+    std::map<UUID, std::shared_ptr<Asset>> m_Assets;
     
     std::map<AssetType, std::vector<std::shared_ptr<AssetDescriptor>>> m_DescriptorsByType;
     
-    std::map<int32_t, std::string> m_AssetIdToDescriptorPath;
-    std::map<std::string, int32_t> m_DescriptorPathToAssetId;
+    std::map<UUID, std::string> m_AssetIdToDescriptorPath;
+    std::map<std::string, UUID> m_DescriptorPathToAssetId;
 
     std::vector<std::pair<std::string, std::shared_ptr<Scene>>> m_ScenesPaths;
 
     std::vector<std::shared_ptr<MaterialDescriptor>> ImportMaterialInternal(const aiScene* scene, const std::string& materialPath);
     
-    void SaveDescriptor(const std::string& path, const std::shared_ptr<AssetDescriptor>& descriptor, bool bAddDescriptor = true);
-    std::shared_ptr<AssetDescriptor> LoadDescriptor(const std::filesystem::path& filepath, bool loadFull);
+    std::vector<std::shared_ptr<Material>> GetAllMaterials() const;
+    
+    void SaveAsset(const std::shared_ptr<Asset>& asset);
+    
+    template<class T>
+    std::shared_ptr<AssetDescriptor> LoadDescriptor(const std::string& path, bool bLoadData);
     
     void AddDescriptor(const std::shared_ptr<AssetDescriptor>& descriptor, const std::string& path);
     
@@ -90,3 +89,9 @@ private:
     Transform ParseSubmeshTransformation(aiNode* node);
     int32_t GetImportParametersIntegerRepresentation(const StaticMeshImportParameters& parameters);
 };
+
+template<class T>
+const std::vector<std::shared_ptr<T>>& AssetManager::GetDescriptors(AssetType type) const
+{
+	return *reinterpret_cast<const std::vector<std::shared_ptr<T>>*>(&m_DescriptorsByType.at(type));
+}

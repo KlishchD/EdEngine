@@ -73,6 +73,8 @@ public:
 	std::shared_ptr<Window> GetWindow() const;
 
     std::shared_ptr<Renderer> GetRenderer();
+
+    ~Engine();
 private:
     std::shared_ptr<Window> m_Window;
     

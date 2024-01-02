@@ -1,21 +1,6 @@
 ﻿#include "StaticMesh.h"
 #include "Core/Ed.h"
 
-BOOST_CLASS_EXPORT_IMPLEMENT(StaticMeshDescriptor)
-
-StaticSubmeshData::StaticSubmeshData(StaticSubmeshData&& data) noexcept
-{
-    Name = std::move(data.Name);
-	Vertices = std::move(data.Vertices);
-    Indices = std::move(data.Indices);
-
-    Material = data.Material;
-}
-
-StaticSubmeshData::StaticSubmeshData()
-{
-}
-
 StaticSubmesh::StaticSubmesh(const std::string& name): m_Name(name)
 {
 }
@@ -56,5 +41,17 @@ StaticMesh::StaticMesh(const StaticMesh& mesh)
     for (const std::shared_ptr<StaticSubmesh> submesh: mesh.m_Submeshes)
     {
         m_Submeshes.push_back(std::make_shared<StaticSubmesh>(*submesh));
+    }
+}
+
+void StaticMesh::SyncDescriptor()
+{
+    Asset::SyncDescriptor();
+
+    std::shared_ptr<StaticMeshDescriptor> descriptor = GetDescriptor<StaticMeshDescriptor>();
+
+    for (int32_t i = 0; i < m_Submeshes.size(); ++i)
+    {
+        descriptor->MeshData[i].MaterialID = m_Submeshes[i]->GetMaterial()->GetDescriptor()->AssetId;
     }
 }

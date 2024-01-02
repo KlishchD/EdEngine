@@ -9,12 +9,14 @@
 #include <assimp/material.h>
 
 #include "Descriptors/TextureDescriptor.h"
-
-#include "Core/Rendering/Shader.h"
-#include "Core/Rendering/Textures/Texture.h"
-#include "Core/Rendering/Textures/Texture2D.h"
+#include "Core/Assets/Descriptors/MaterialDescriptor.h"
 
 #include "StaticMesh.h"
+#include "Material.h"
+#include "Core/Rendering/Textures/Texture.h"
+#include "Core/Rendering/Textures/Texture2D.h"
+#include "Core/Rendering/Shader.h"
+
 #include "Core/Scene.h"
 #include <glm/detail/type_quat.hpp>
 #include <glm/gtc/quaternion.hpp>
@@ -43,13 +45,11 @@ void AssetManager::Initialize(Engine* engine)
 
 void AssetManager::Deinitialize()
 {
-    // TODO: Add dirty descriptors save logic
-                                 
-    for (const std::shared_ptr<MaterialDescriptor>& descriptor: GetMaterialDescriptors())
+    for (auto& [id, asset] : m_Assets)
     {
-        SaveDescriptor(m_AssetIdToDescriptorPath[descriptor->AssetId], descriptor, false);
+        SaveAsset(asset);
     }
-    
+
     for (const auto& [path, scene]: m_ScenesPaths)
     {
         SaveScene(path, scene);
@@ -62,9 +62,17 @@ void AssetManager::LoadDescriptors(const std::string& contentPath)
     for (const std::filesystem::directory_entry& entry: iterator)
     {
         if (entry.is_directory()) continue;
-        if (IsAssetExtension(entry.path().extension().string()))
+        if (std::string extension = entry.path().extension().string(); AssetUtils::IsAssetExtension(extension))
         {
-            LoadDescriptor(entry.path(), false);
+            std::string path = entry.path().string();
+            switch (AssetUtils::GetAssetTypeFromExtension(extension))
+            {
+            case AssetType::Material:    LoadDescriptor<MaterialDescriptor>(path, false); break;
+            case AssetType::Texture2D:   LoadDescriptor<Texture2DDescriptor>(path, false); break;
+            case AssetType::StaticMesh:  LoadDescriptor<StaticMeshDescriptor>(path, false); break;
+            default:
+                break;
+            }
         }
     }
 }
@@ -81,7 +89,7 @@ std::vector<std::shared_ptr<StaticMeshDescriptor>> AssetManager::ImportMesh(cons
         if (parameters.ImportAsOneMesh)
         {
             std::shared_ptr<StaticMeshDescriptor> descriptor = std::make_shared<StaticMeshDescriptor>();
-            descriptor->AssetId = m_FreeAssetId++;
+            descriptor->AssetId = UUIDs::random_generator()();
             descriptor->AssetName = std::filesystem::path(meshPath).filename().string();
             descriptor->AssetType = AssetType::StaticMesh;
     
@@ -90,7 +98,8 @@ std::vector<std::shared_ptr<StaticMeshDescriptor>> AssetManager::ImportMesh(cons
             descriptor->ImportParameters = parameters;
 
             std::string savePath = Files::GetSavePath(meshPath, AssetType::StaticMesh);
-            SaveDescriptor(savePath, descriptor);
+            Serialization::SaveDescriptor(savePath, descriptor);
+			AddDescriptor(descriptor, savePath);
 
             descriptors.push_back(descriptor);
         }
@@ -102,7 +111,7 @@ std::vector<std::shared_ptr<StaticMeshDescriptor>> AssetManager::ImportMesh(cons
             for (StaticSubmeshData& data: datas)
             {
                 std::shared_ptr<StaticMeshDescriptor> descriptor = std::make_shared<StaticMeshDescriptor>();
-                descriptor->AssetId = m_FreeAssetId++;
+                descriptor->AssetId = UUIDs::random_generator()();
                 descriptor->AssetName = std::filesystem::path(meshPath).filename().string();
                 descriptor->AssetType = AssetType::StaticMesh;
     
@@ -110,7 +119,8 @@ std::vector<std::shared_ptr<StaticMeshDescriptor>> AssetManager::ImportMesh(cons
                 descriptor->MeshData.push_back(std::move(data));
 
                 std::string savePath = Files::GetSavePath(meshPath, AssetType::StaticMesh, data.Name);
-                SaveDescriptor(savePath, descriptor);
+                Serialization::SaveDescriptor(savePath, descriptor);
+				AddDescriptor(descriptor, savePath);
 
                 descriptors.push_back(descriptor);
             }
@@ -121,7 +131,7 @@ std::vector<std::shared_ptr<StaticMeshDescriptor>> AssetManager::ImportMesh(cons
         return descriptors;
     }
 
-    
+
     return {};
 }
 
@@ -131,7 +141,7 @@ std::shared_ptr<Texture2DDescriptor> AssetManager::ImportTexture(const Texture2D
     if (texturePath.empty()) return nullptr;
 
     std::shared_ptr<Texture2DDescriptor> descriptor = std::make_shared<Texture2DDescriptor>();
-    descriptor->AssetId = m_FreeAssetId++;
+    descriptor->AssetId = UUIDs::random_generator()();
     descriptor->AssetName = std::filesystem::path(texturePath).filename().string();
     descriptor->AssetType = AssetType::Texture2D;
 
@@ -141,17 +151,14 @@ std::shared_ptr<Texture2DDescriptor> AssetManager::ImportTexture(const Texture2D
     
     int32_t channals;
     Texture2DData& data = descriptor->Data;
-    data.Data = stbi_load(texturePath.c_str(), &data.Width, &data.Height, &channals, 4);
+
+    data.Data = stbi_load(texturePath.c_str(), &data.Width, &data.Height, &channals, Types::GetChannelNumber(parameters.Format));
+    data.PixelSize = Types::GetPixelSize(parameters.Format);
 
     std::string savePath = Files::GetSavePath(texturePath, AssetType::Texture2D);
-    SaveDescriptor(savePath, descriptor);
+    Serialization::SaveDescriptor(savePath, descriptor);
+	AddDescriptor(descriptor, savePath);
 
-    if (data.Data) {
-        stbi_image_free(data.Data);
-    }
-
-    data.Data = nullptr;
-    
     return descriptor;
 }
 
@@ -175,7 +182,7 @@ std::vector<std::shared_ptr<MaterialDescriptor>> AssetManager::ImportMaterialInt
         const aiMaterial* material = scene->mMaterials[i];
             
         std::shared_ptr<MaterialDescriptor> descriptor = std::make_shared<MaterialDescriptor>();
-        descriptor->AssetId = m_FreeAssetId++;
+        descriptor->AssetId = UUIDs::random_generator()();
         descriptor->AssetName = material->GetName().C_Str();
         descriptor->AssetType = AssetType::Material;
 
@@ -210,7 +217,8 @@ std::vector<std::shared_ptr<MaterialDescriptor>> AssetManager::ImportMaterialInt
         material->Get(AI_MATKEY_METALLIC_FACTOR, descriptor->Metalic);
 
         std::string savePath = Files::GetSavePath(materialPath, AssetType::Material, material->GetName().C_Str());
-        SaveDescriptor(savePath, descriptor);
+        Serialization::SaveDescriptor(savePath, descriptor);
+		AddDescriptor(descriptor, savePath);
 
         descriptors.push_back(descriptor);
     }
@@ -218,28 +226,37 @@ std::vector<std::shared_ptr<MaterialDescriptor>> AssetManager::ImportMaterialInt
     return descriptors;
 }
 
+std::vector<std::shared_ptr<Material>> AssetManager::GetAllMaterials() const
+{
+    std::vector<std::shared_ptr<Material>> materials;
+    for (auto& [id, asset] : m_Assets)
+    {
+        if (std::shared_ptr<Material> material = std::dynamic_pointer_cast<Material>(asset))
+        {
+            materials.push_back(material);
+        }
+    }
+    return materials;
+}
+
 std::shared_ptr<MaterialDescriptor> AssetManager::CreateMaterial(const std::string& materialPath)
 {
     if (materialPath.empty()) return nullptr;
 
     std::shared_ptr<MaterialDescriptor> descriptor = std::make_shared<MaterialDescriptor>();
-    descriptor->AssetId = m_FreeAssetId++;
+    descriptor->AssetId = UUIDs::random_generator()();
     descriptor->AssetName = std::filesystem::path(materialPath).filename().string();
     descriptor->AssetType = AssetType::Material;
 
-    descriptor->BaseColorTextureID = -1;
-    descriptor->NormalTextureID = -1;
-    descriptor->RoughnessTextureID = -1;
-    descriptor->MetalicTextureID = -1;
-    
     descriptor->BaseColor = glm::vec4(1.0f);
     descriptor->Roughness = 0.5f;
     descriptor->Metalic = 0.5f;
 
     std::string savePath = Files::GetSavePath(materialPath, AssetType::Material);
     
-    SaveDescriptor(savePath, descriptor);
-    
+    Serialization::SaveDescriptor(savePath, descriptor);
+	AddDescriptor(descriptor, savePath);
+
     return descriptor;
 }
 
@@ -255,18 +272,8 @@ std::shared_ptr<StaticMesh> AssetManager::LoadMesh(const std::shared_ptr<StaticM
         return std::static_pointer_cast<StaticMesh>(m_Assets[descriptor->AssetId]);
     }
     
-    AssetDescriptor* descriptorPtr;
-    {
-        AssetUtils::SetUseFullDescriptor(true);
-        std::ifstream file(m_AssetIdToDescriptorPath[descriptor->AssetId], std::ios_base::binary);
-        boost::archive::binary_iarchive ia(file);
-        ia >> descriptorPtr;
-    }
-    descriptor->MeshData = std::move(static_cast<StaticMeshDescriptor*>(descriptorPtr)->MeshData);
+    Serialization::LoadDescriptor(m_AssetIdToDescriptorPath[descriptor->AssetId], descriptor);
 
-    delete descriptorPtr;
-    descriptorPtr = nullptr;
-    
     std::shared_ptr<StaticMesh> mesh = AssetUtils::CreateStaticMesh(descriptor);
     
     m_Assets[descriptor->AssetId] = mesh;
@@ -285,20 +292,9 @@ std::shared_ptr<Texture2D> AssetManager::LoadTexture(const std::shared_ptr<Textu
 		ED_LOG(AssetManager, info, "Finished loading texture: {}", descriptor->AssetName)
         return std::static_pointer_cast<Texture2D>(m_Assets[descriptor->AssetId]);
     }
-    
-    AssetDescriptor* descriptorPtr;
-    {
-        AssetUtils::SetUseFullDescriptor(true);
-        std::ifstream file(m_AssetIdToDescriptorPath[descriptor->AssetId], std::ios_base::binary);
-        boost::archive::binary_iarchive ia(file);
-        ia >> descriptorPtr;
-    }
 
-    descriptor->Data = std::move(static_cast<Texture2DDescriptor*>(descriptorPtr)->Data);
-    
-    delete descriptorPtr;
-    descriptorPtr = nullptr;
-    
+    Serialization::LoadDescriptor(m_AssetIdToDescriptorPath[descriptor->AssetId], descriptor);
+
     std::shared_ptr<Texture2D> texture = RenderingHelper::CreateTexture2D(descriptor);
     m_Assets[descriptor->AssetId] = texture;
     
@@ -324,59 +320,31 @@ std::shared_ptr<Material> AssetManager::LoadMaterial(const std::shared_ptr<Mater
         return std::static_pointer_cast<Material>(m_Assets[descriptor->AssetId]);
     }
 
-    std::shared_ptr<Material> material = std::make_shared<Material>(); // TODO: Change shader to descriptor's one :)
-    material->SetDescriptor(descriptor);
-    m_Assets[descriptor->AssetId] = material;
-    
-    material->SetBaseColor(descriptor->BaseColor);
-    material->SetRoughness(descriptor->Roughness);    
-    material->SetMetalic(descriptor->Metalic);    
+    Serialization::LoadDescriptor(m_AssetIdToDescriptorPath[descriptor->AssetId], descriptor);
 
-    material->SetBaseColorTexture(LoadTexture(descriptor->BaseColorTextureID));
-    material->SetNormalTexture(LoadTexture(descriptor->NormalTextureID));
-    material->SetRoughnessTexture(LoadTexture(descriptor->RoughnessTextureID));
-    material->SetMetalicTexture(LoadTexture(descriptor->MetalicTextureID));
+    std::shared_ptr<Material> material = AssetUtils::CreateMaterial(descriptor);
+    m_Assets[descriptor->AssetId] = material;
 
 	ED_LOG(AssetManager, info, "Finished loading material: {}", descriptor->AssetName)
     return material;
 }
 
-std::shared_ptr<StaticMesh> AssetManager::LoadMesh(int32_t assetId)
+std::shared_ptr<StaticMesh> AssetManager::LoadMesh(UUID assetId)
 {
-    if (assetId == -1) return nullptr;
+    if (assetId.is_nil()) return nullptr;
     return LoadMesh(std::static_pointer_cast<StaticMeshDescriptor>(m_Descriptors[assetId]));
 }
 
-std::shared_ptr<Texture2D> AssetManager::LoadTexture(int32_t assetId)
+std::shared_ptr<Texture2D> AssetManager::LoadTexture(UUID assetId)
 {
-    if (assetId == -1) return nullptr;
+    if (assetId.is_nil()) return nullptr;
     return LoadTexture(std::static_pointer_cast<Texture2DDescriptor>(m_Descriptors[assetId]));
 }
 
-std::shared_ptr<Material> AssetManager::LoadMaterial(int32_t assetId)
+std::shared_ptr<Material> AssetManager::LoadMaterial(UUID assetId)
 {
-    if (assetId == -1) return nullptr;
+    if (assetId.is_nil()) return nullptr;
     return LoadMaterial(std::static_pointer_cast<MaterialDescriptor>(m_Descriptors[assetId]));
-}
-
-const std::vector<std::shared_ptr<AssetDescriptor>>& AssetManager::GetDescriptors(AssetType type) const
-{
-    return m_DescriptorsByType.at(type);
-}
-
-const std::vector<std::shared_ptr<StaticMeshDescriptor>>& AssetManager::GetMeshDescriptors() const
-{
-    return *reinterpret_cast<const std::vector<std::shared_ptr<StaticMeshDescriptor>>*>(&m_DescriptorsByType.at(AssetType::StaticMesh));
-}
-
-const std::vector<std::shared_ptr<Texture2DDescriptor>>& AssetManager::GetTexture2DDescriptors() const
-{
-    return *reinterpret_cast<const std::vector<std::shared_ptr<Texture2DDescriptor>>*>(&m_DescriptorsByType.at(AssetType::Texture2D));
-}
-
-const std::vector<std::shared_ptr<MaterialDescriptor>>& AssetManager::GetMaterialDescriptors() const
-{
-    return *reinterpret_cast<const std::vector<std::shared_ptr<MaterialDescriptor>>*>(&m_DescriptorsByType.at(AssetType::Material));
 }
 
 std::shared_ptr<AssetDescriptor> AssetManager::GetAssetDescriptor(const std::string& path) const
@@ -388,30 +356,9 @@ std::shared_ptr<AssetDescriptor> AssetManager::GetAssetDescriptor(const std::str
     return nullptr;
 }
 
-std::shared_ptr<AssetDescriptor> AssetManager::GetAssetDescriptor(int32_t assetId)
+std::shared_ptr<AssetDescriptor> AssetManager::GetAssetDescriptor(UUID assetId)
 {
-    return assetId == -1 ? nullptr : m_Descriptors[assetId];
-}
-
-void AssetManager::RefreshMaterial(const std::shared_ptr<MaterialDescriptor>& descriptor)
-{
-    if (m_Assets.count(descriptor->AssetId))
-    {
-        std::shared_ptr<Material> material = std::static_pointer_cast<Material>(m_Assets[descriptor->AssetId]);
-
-        material->SetDescriptor(descriptor);
-
-        material->SetBaseColor(descriptor->BaseColor);
-        material->SetRoughness(descriptor->Roughness);    
-        material->SetMetalic(descriptor->Metalic);    
-
-        material->SetBaseColorTexture(LoadTexture(descriptor->BaseColorTextureID));
-        material->SetNormalTexture(LoadTexture(descriptor->NormalTextureID));
-        material->SetRoughnessTexture(LoadTexture(descriptor->RoughnessTextureID));
-        material->SetMetalicTexture(LoadTexture(descriptor->MetalicTextureID));
-
-        SaveDescriptor(m_AssetIdToDescriptorPath[descriptor->AssetId], descriptor);
-    }
+    return assetId.is_nil() ? nullptr : m_Descriptors[assetId];
 }
 
 std::shared_ptr<Scene> AssetManager::CreateScene(const std::string& path)
@@ -430,7 +377,11 @@ std::shared_ptr<Scene> AssetManager::LoadScene(const std::string& path)
 
     std::filesystem::directory_entry entry(path);
 
-    ED_ASSERT(entry.exists() && !entry.is_directory(), "Couldn't find the scene: {}", path)
+    if (!entry.exists() || entry.is_directory())
+    {
+        ED_LOG(AssetManager, info, "Couldn't find the scene: {}", path)
+        return nullptr;
+    }
 
     {
         std::ifstream file(path, std::ios_base::binary);
@@ -444,62 +395,64 @@ std::shared_ptr<Scene> AssetManager::LoadScene(const std::string& path)
     return scene;
 }
 
-bool AssetManager::IsAssetExtension(const std::string& extension)
+void AssetManager::SaveAsset(const std::shared_ptr<Asset>& asset)
 {
-    return extension == ".edmesh" || extension == ".edmaterial" || extension == ".edtexture";
-}
+	std::shared_ptr<AssetDescriptor> descriptor = asset->GetDescriptor();
 
-void AssetManager::SaveDescriptor(const std::string& path, const std::shared_ptr<AssetDescriptor>& descriptor, bool bAddDescriptor)
-{
-    ED_LOG(AssetManager, info, "Started saving descriptor: {}", path)
+    std::string path = m_AssetIdToDescriptorPath[descriptor->AssetId];
 
-    std::ofstream file(path, std::ios_base::binary);
-    boost::archive::binary_oarchive oa(file);
-    AssetUtils::SetUseFullDescriptor(true); // TODO: remove this ;)
-    oa << descriptor.get();
+	ED_LOG(AssetManager, info, "Started saving descriptor: {}", path)
 
-    if (bAddDescriptor)
-    {
-        AddDescriptor(descriptor, path);
-    }
+	asset->SyncDescriptor();
+
+	std::ofstream file(path, std::ios_base::binary);
+	boost::archive::binary_oarchive oa(file);
+
+	switch (descriptor->AssetType)
+	{
+	case AssetType::Texture2D:   
+        oa & *std::static_pointer_cast<Texture2DDescriptor>(descriptor);
+        break;
+	case AssetType::CubeTexture:
+        oa & *std::static_pointer_cast<CubeTextureDescriptor>(descriptor);
+        break;
+	case AssetType::Material:
+        oa & *std::static_pointer_cast<MaterialDescriptor>(descriptor);
+        break;
+	case AssetType::StaticMesh:
+        oa & *std::static_pointer_cast<StaticMeshDescriptor>(descriptor);
+        break;
+	default:
+		ED_ASSERT(0, "This asset type cannot be serialized");
+		break;
+	}
 
 	ED_LOG(AssetManager, info, "Finished saving descriptor: {}", path)
 }
-    
+
 void AssetManager::SaveScene(const std::string& path, const std::shared_ptr<Scene>& scene)
 {
 	ED_LOG(AssetManager, info, "Started saving scene: {}", path)
 
     std::ofstream file(path, std::ios_base::binary);
     boost::archive::text_oarchive oa(file);
-    oa << *scene;
+    oa & *scene;
 
 	ED_LOG(AssetManager, info, "Finished saving scene: {}", path)
 }
     
-std::shared_ptr<AssetDescriptor> AssetManager::LoadDescriptor(const std::filesystem::path& filepath, bool loadFull)
+template<class T>
+std::shared_ptr<AssetDescriptor> AssetManager::LoadDescriptor(const std::string& path, bool bLoadData)
 {
-    ED_LOG(AssetManager, info, "Started loading descriptor {}", filepath.string())
+    ED_LOG(AssetManager, info, "Started loading descriptor {}", path)
 
-    std::string extension = filepath.extension().string();
-    std::string path = filepath.string().c_str();
-    
-    AssetDescriptor* descriptor;
-    {
-        std::ifstream file(filepath.c_str(), std::ios_base::binary);
-        boost::archive::binary_iarchive ia(file);
-        AssetUtils::SetUseFullDescriptor(loadFull); // TODO: remove this ;)
-        ia >> descriptor;
-    }
-    
-    std::shared_ptr<AssetDescriptor> descriptorSharedPtr(descriptor);
-    AddDescriptor(descriptorSharedPtr, path);
+    std::shared_ptr<T> descriptor = std::make_shared<T>();
+    Serialization::LoadDescriptor(path, descriptor, bLoadData);
+    AddDescriptor(descriptor, path);
 
-    m_FreeAssetId = std::max(m_FreeAssetId, descriptor->AssetId + 1);
+	ED_LOG(AssetManager, info, "Finished loading descriptor {}", path)
 
-	ED_LOG(AssetManager, info, "Finished loading descriptor {}", filepath.string())
-
-    return descriptorSharedPtr;
+    return descriptor;
 }
 
 void AssetManager::AddDescriptor(const std::shared_ptr<AssetDescriptor>& descriptor, const std::string& path)
@@ -613,11 +566,7 @@ StaticSubmeshData AssetManager::ParseMesh(aiMesh* mesh, const Transform& transfo
     
     if (mesh->mMaterialIndex < materials.size())
     {
-        data.Material = materials[mesh->mMaterialIndex]->AssetId;
-    }
-    else
-    {
-        data.Material = -1;   
+        data.MaterialID = materials[mesh->mMaterialIndex]->AssetId;
     }
     
     return data;

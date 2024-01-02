@@ -27,7 +27,13 @@ void ActorDetailsWidget::Tick(float DeltaTime)
         if (ImGui::BeginTable("##Details", 1, ImGuiTableFlags_BordersInnerH))
         {
             ImGui::TableNextColumn();
-            ImGui::InputText("##Name", actor->GetName().data(), 1024);
+            static char name[1024];
+            strcpy_s(name, actor->GetName().c_str());
+
+            if (ImGui::InputText(("##Name" + std::to_string((int32_t)actor.get())).c_str(), name, 1024))
+            {
+                actor->SetName(name);
+            }
             
             ImGui::TableNextColumn(); ComponentTree(actor);
             ImGui::TableNextColumn(); CreateComponent(actor);

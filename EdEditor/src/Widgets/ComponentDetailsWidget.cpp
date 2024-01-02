@@ -3,6 +3,7 @@
 #include "Core/Assets/AssetManager.h"
 #include "Core/Components/StaticMeshComponent.h"
 #include "Core/Components/PointLightComponent.h"
+#include "Core/Assets/Descriptors/MaterialDescriptor.h"
 
 #include <imgui.h>
 #include <glm/gtc/type_ptr.hpp>
@@ -58,9 +59,9 @@ void ComponentDetailsWidget::StaticMeshDetails()
                     component->SetStaticMesh(nullptr);
                 }
                 
-                for (const auto& descriptor: m_AssetManager->GetMeshDescriptors())
+                for (const auto& descriptor: m_AssetManager->GetDescriptors<StaticMeshDescriptor>(AssetType::StaticMesh))
                 {
-                    if (ImGui::Selectable(descriptor->AssetName.data(), mesh && mesh->GetDescriptor() == descriptor))
+                    if (ImGui::Selectable(AssetUtils::GetAssetNameLable(descriptor).c_str(), mesh && mesh->GetDescriptor() == descriptor))
                     {
                         std::shared_ptr<StaticMesh> newStaticMesh = m_AssetManager->LoadMesh(descriptor);
                         component->SetStaticMesh(newStaticMesh);
@@ -93,9 +94,9 @@ void ComponentDetailsWidget::StaticMeshDetails()
                         {
                             submesh->SetMaterial(nullptr);
                         }
-                        for (const auto& descriptor: m_AssetManager->GetMaterialDescriptors())
+                        for (const auto& descriptor: m_AssetManager->GetDescriptors<MaterialDescriptor>(AssetType::Material))
                         {
-                            if (ImGui::Selectable(descriptor->AssetName.data(), material && material->GetDescriptor() == descriptor))
+                            if (ImGui::Selectable(AssetUtils::GetAssetNameLable(descriptor).c_str(), material && material->GetDescriptor() == descriptor))
                             {
                                 std::shared_ptr<Material> newMaterial = m_AssetManager->LoadMaterial(descriptor);
                                 submesh->SetMaterial(newMaterial);
@@ -144,7 +145,13 @@ void ComponentDetailsWidget::PointLightDetails()
     {
         component->SetIntensity(intensity);
     }
-    
+
+	float radius = component->GetRadius();
+	if (ImGui::SliderFloat("Light Radius", &radius, 0.0f, 1000.0f))
+	{
+		component->SetRadius(radius);
+	}
+
     glm::vec3 color = component->GetColor();
     if (ImGui::ColorPicker3("Light color", glm::value_ptr(color)))
     {

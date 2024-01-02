@@ -1,10 +1,14 @@
 #pragma once
 
+#include <glm/vec3.hpp>
+#include <glm/vec4.hpp>
+
 enum class WrapMode
 {
 	Repeat,
 	ClampToEdge,
-	ClampToBorder
+	ClampToBorder,
+	MirroredRepeat
 };
 
 enum class PixelFormat
@@ -14,10 +18,12 @@ enum class PixelFormat
 	SRGB8F,
 	SRGBA8F,
 	RGB16F,
+	RGBA16F,
 	RGB32F,
 	R8F,
 	R16F,
 	R32F,
+	R11G11B10F,
 
 	Depth,
 	DepthStencil
@@ -26,7 +32,8 @@ enum class PixelFormat
 enum class FilteringMode
 {
 	Nearest,
-	Linear
+	Linear,
+	TriLinear
 };
 
 enum class BufferUsage
@@ -63,6 +70,7 @@ enum class ShaderType
 	Vertex,
 	Geometry,
 	Pixel,
+	Compute
 };
 
 enum class DepthTestFunction
@@ -82,4 +90,25 @@ enum class TextureType
 {
 	Texture2D,
 	CubeTexture
+};
+
+enum class BarrierType
+{
+	AllBits
+};
+
+struct Vertex {
+	glm::vec3 Position;
+	glm::vec4 Color;
+	glm::vec3 TextureCoordinates;
+	glm::vec3 Normal;
+	glm::vec3 Tangent;
+	glm::vec3 Bitangent;
+};
+
+class Types
+{
+public:
+	static uint32_t GetChannelNumber(PixelFormat format);
+	static uint32_t GetPixelSize(PixelFormat format);
 };

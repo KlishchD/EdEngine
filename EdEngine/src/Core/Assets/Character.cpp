@@ -1,5 +1,5 @@
 ﻿#include "Character.h"
-#include "TextureImportParameters.h"
+#include "ImportParameters/TextureImportParameters.h"
 #include "Core/Rendering/Textures/TextureData.h"
 #include "Utils/RenderingHelper.h"
 

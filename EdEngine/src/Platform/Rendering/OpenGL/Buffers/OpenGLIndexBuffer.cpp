@@ -1,5 +1,5 @@
 #include "OpenGLIndexBuffer.h"
-#include "Core/Ed.h"
+#include "Core/Rendering/EdRendering.h"
 #include "Platform/Rendering/OpenGL/OpenGLTypes.h"
 
 OpenGLIndexBuffer::OpenGLIndexBuffer()

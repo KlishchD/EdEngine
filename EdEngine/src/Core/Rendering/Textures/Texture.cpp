@@ -10,6 +10,11 @@ uint32_t Texture::GetID() const
 	return m_Id;
 }
 
+PixelFormat Texture::GetPixelFormat() const
+{
+	return GetImportParameters().Format;
+}
+
 const TextureImportParameters& Texture::GetImportParameters() const
 {
 	return *GetDescriptor<TextureDescriptor>()->GetImportParameters();

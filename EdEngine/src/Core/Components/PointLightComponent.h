@@ -1,7 +1,6 @@
 ﻿#pragma once
 
 #include "Component.h"
-#include "Core/Ed.h"
 
 class PointLightComponent: public Component
 {
@@ -13,6 +12,7 @@ class PointLightComponent: public Component
         ar & boost::serialization::base_object<Component>(*this);
         ar & m_Color;
         ar & m_Intensity;
+        ar & m_Radius;
         ar & m_IsCastingShadows;
 
         m_Color = glm::clamp(m_Color, glm::vec3(0.0f), glm::vec3(1.0f));
@@ -32,6 +32,9 @@ public:
     
     bool IsShadowCasting() const;
     void SetShadowCasting(bool isShadowCasting);
+
+    void SetRadius(float radius);
+    float GetRadius() const;
     
     virtual ComponentType GetType() const override;
     
@@ -40,6 +43,7 @@ private:
     glm::vec3 m_Color = { 1.0f, 1.0f, 1.0f};
     float m_Intensity = 1.0f;
     bool m_IsCastingShadows = true;
+    float m_Radius = 1.0f;
 };
 
 BOOST_CLASS_EXPORT_KEY(PointLightComponent)

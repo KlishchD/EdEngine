@@ -4,6 +4,8 @@
 #include "Core/Window.h"
 #include "Core/Rendering/Types.h"
 
+#undef CreateWindow
+
 class VertexBuffer;
 class IndexBuffer;
 class Framebuffer;
@@ -45,6 +47,7 @@ public:
 	static std::shared_ptr<CubeTexture> CreateCubeTexture(CubeTextureImportParameters& parameters, CubeTextureData& data, const std::string& name);
 	static std::shared_ptr<CubeTexture> CreateCubeTexture(CubeTextureImportParameters&& parameters, CubeTextureData&& data, const std::string& name);
 
+	static std::shared_ptr<Texture2D> CreateBloomIntermediateTexture();
 
 	static inline std::shared_ptr<Texture2D> WhiteTexture;
 

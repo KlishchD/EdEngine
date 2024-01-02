@@ -54,6 +54,7 @@ void OptionsMenuWidget::Tick(float DeltaTime)
             if (ImGui::MenuItem("Import texture"))
             {
                 m_TextureImportParameters = Texture2DImportParameters();
+                m_TextureImportParameters.Format = PixelFormat::SRGBA8F;
                 m_TextureImportParameters.Path = PlatformUtils::OpenFileWindow("Texture\0", *m_Window, "Texture");
                 m_TextureImportPopupIsOpened = true;
             }
@@ -119,47 +120,32 @@ void OptionsMenuWidget::TextureImportPopup()
             {
                 m_TextureImportParameters.WrapS = WrapMode::ClampToEdge;
             }
-            
-            
             if (ImGui::Selectable("Repeat", m_TextureImportParameters.WrapS == WrapMode::Repeat))
             {
                 m_TextureImportParameters.WrapS = WrapMode::Repeat;
             }
             ImGui::EndCombo();
         }
+
         if (ImGui::BeginCombo("WrapT", m_TextureImportParameters.WrapT == WrapMode::ClampToEdge ? "Clamp to border" : "Repeat"))
         {
             if (ImGui::Selectable("Clamp to border", m_TextureImportParameters.WrapT == WrapMode::ClampToEdge))
             {
                 m_TextureImportParameters.WrapT = WrapMode::ClampToEdge;
             }
-            
             if (ImGui::Selectable("Repeat", m_TextureImportParameters.WrapT == WrapMode::Repeat))
             {
                 m_TextureImportParameters.WrapT = WrapMode::Repeat;
             }
             ImGui::EndCombo();
         }
-        if (ImGui::BeginCombo("Internal format", m_TextureImportParameters.Format == PixelFormat::RGBA8F ? "RGBA8" : "SRGBA8"))
+        
+        if (ImGui::BeginCombo("Format", m_TextureImportParameters.Format == PixelFormat::RGBA8F ? "RGBA8" : "SRGBA8"))
         {
             if (ImGui::Selectable("RGBA8", m_TextureImportParameters.Format == PixelFormat::RGBA8F))
             {
                 m_TextureImportParameters.Format = PixelFormat::RGBA8F;
             }
-            
-            if (ImGui::Selectable("SRGBA8", m_TextureImportParameters.Format == PixelFormat::SRGBA8F))
-            {
-                m_TextureImportParameters.Format = PixelFormat::SRGBA8F;
-            }
-            ImGui::EndCombo();
-        }
-        if (ImGui::BeginCombo("External format", m_TextureImportParameters.Format == PixelFormat::RGBA8F ? "RGBA8" : "SRGBA8"))
-        {
-            if (ImGui::Selectable("RGBA8", m_TextureImportParameters.Format == PixelFormat::RGBA8F))
-            {
-                m_TextureImportParameters.Format = PixelFormat::RGBA8F;
-            }
-            
             if (ImGui::Selectable("SRGBA8", m_TextureImportParameters.Format == PixelFormat::SRGBA8F))
             {
                 m_TextureImportParameters.Format = PixelFormat::SRGBA8F;

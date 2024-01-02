@@ -21,8 +21,6 @@ std::shared_ptr<Window> RenderingHelper::CreateWindow(WindowSpecification specif
 	return std::make_shared<OpenGLWindow>(specificeton);
 }
 
-#define CreateWindow CreateWindowW
-
 std::shared_ptr<VertexBuffer> RenderingHelper::CreateVertexBuffer(void* data, uint32_t size, const VertexBufferLayout& layout, BufferUsage usage)
 {
 	std::shared_ptr<VertexBuffer> buffer = std::make_shared<OpenGLVertexBuffer>();
@@ -94,6 +92,8 @@ std::shared_ptr<Shader> RenderingHelper::CreateShader(const std::string& path)
 	std::fstream file(path, std::ios_base::in);
 	std::string line;
 
+	ED_ASSERT(file.is_open(), "Couldn't find a shader")
+
 	std::shared_ptr<OpenGLShader> shader = std::make_shared<OpenGLShader>();
 
 	while (std::getline(file, line)) {
@@ -112,6 +112,10 @@ std::shared_ptr<Shader> RenderingHelper::CreateShader(const std::string& path)
 			else if (line.find("geometry") != std::string::npos)
 			{
 				currentShaderType = ShaderType::Geometry;
+			}
+			else if (line.find("compute") != std::string::npos)
+			{
+				currentShaderType = ShaderType::Compute;
 			}
 			else {
 				ED_ASSERT_CONTEXT(Shader, 0, "Unsuported shader type");
@@ -191,6 +195,21 @@ std::shared_ptr<CubeTexture> RenderingHelper::CreateCubeTexture(CubeTextureImpor
 	return texture;
 }
 
+std::shared_ptr<Texture2D> RenderingHelper::CreateBloomIntermediateTexture()
+{
+	Texture2DImportParameters parameters;
+	parameters.Format = PixelFormat::R11G11B10F;
+	parameters.WrapS = WrapMode::ClampToEdge;
+	parameters.WrapT = WrapMode::ClampToEdge;
+
+	Texture2DData data;
+	data.Data = nullptr;
+	data.Width = 1;
+	data.Height = 1;
+
+	return RenderingHelper::CreateTexture2D(parameters, data, "Bloom downscale iteration texture");
+}
+
 Texture2DImportParameters RenderingHelper::GetDefaultBaseColorTexture2DImportParameters(const std::string& path)
 {
 	Texture2DImportParameters parameters;
@@ -243,13 +262,19 @@ std::shared_ptr<Texture2D> RenderingHelper::GetWhiteTexture()
 
 	if (!isInitialized)
 	{
-		Texture2DImportParameters parameters = GetDefaultBaseColorTexture2DImportParameters("");
+		Texture2DImportParameters parameters;
+		parameters.WrapS = WrapMode::Repeat;
+		parameters.WrapT = WrapMode::Repeat;
+		parameters.Format = PixelFormat::RGB8F;
+		parameters.Filtering = FilteringMode::Linear;
 
 		Texture2DData data;
 		data.Width = 1;
 		data.Height = 1;
 		data.Data = (uint8_t*) std::malloc(sizeof(uint32_t));
-		*data.Data = 0xffffffff;
+		data.Data[0] = 255;
+		data.Data[1] = 255;
+		data.Data[2] = 255;
 
 		texutre = CreateTexture2D(std::move(parameters), std::move(data), "white texture");
 

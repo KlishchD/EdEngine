@@ -28,15 +28,14 @@ ComponentType StaticMeshComponent::GetType() const
     return ComponentType::StaticMesh;
 }
 
-int32_t StaticMeshComponent::GetStaticMeshAssetId() const
+UUID StaticMeshComponent::GetStaticMeshAssetId() const
 {
-    int32_t id = -1;
     if (m_StaticMesh)
     {
         if (std::shared_ptr<AssetDescriptor> descriptor = m_StaticMesh->GetDescriptor())
         {
-            id = descriptor->AssetId;
+            return descriptor->AssetId;
         }
     }
-    return id;
+    return UUIDs::nil_uuid();
 }

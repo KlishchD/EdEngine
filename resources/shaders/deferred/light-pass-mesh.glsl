@@ -60,7 +60,8 @@ float GX(float dot, float r) {
     return dot / (dot * (1 - k) + k);
 }
 
-void main() {
+void main()
+{
     vec2 pos = gl_FragCoord.xy / u_ScreenSize;
     
     vec3 albedo = texture(u_Albedo, pos).xyz;
@@ -105,7 +106,7 @@ void main() {
         vec3 diffuse = (vec3(1.0f) - F) * albedo / M_PI;
 
         float distance = length(u_PointLight.Position - position);
-        vec3 radiance = 10 * u_PointLight.Intensity * u_PointLight.Color / (distance * distance);
+        vec3 radiance = u_PointLight.Intensity * u_PointLight.Color / (distance * distance);
 
         if (distance > u_PointLight.Radius) {
             discard;
@@ -129,26 +130,28 @@ void main() {
 
         shadowIntensity /= 20;
         */
-
-        float offset = 0.01f;
-        float delta = (2.0f * offset) / u_FilterSize;
-
-        for (float i = -offset; i < offset; i += delta)
+        if (u_PointLight.UseShadowMap)
         {
-            for (float j = -offset; j < offset; j += delta)
+            float offset = 0.01f;
+            float delta = (2.0f * offset) / u_FilterSize;
+
+            for (float i = -offset; i < offset; i += delta)
             {
-                for (float k = -offset; k < offset; k += delta)
+                for (float j = -offset; j < offset; j += delta)
                 {
-                    float nearest = texture(u_PointLight.ShadowMap, -light.xyz + vec3(i, j, k)).r * u_FarPlane;
-                    if (nearest + bias < distance)  
+                    for (float k = -offset; k < offset; k += delta)
                     {
-                        shadowIntensity += 1;
+                        float nearest = texture(u_PointLight.ShadowMap, -light.xyz + vec3(i, j, k)).r * u_FarPlane;
+                        if (nearest + bias < distance)
+                        {
+                            shadowIntensity += 1;
+                        }
                     }
                 }
             }
-        }
         
-        shadowIntensity /= u_FilterSize * u_FilterSize * u_FilterSize;
+            shadowIntensity /= u_FilterSize * u_FilterSize * u_FilterSize;
+        }
         /*
         float fsize2 = u_FilterSize * u_FilterSize;
         for (float j = 0; j < 3; ++j) 

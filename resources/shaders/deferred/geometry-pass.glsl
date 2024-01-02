@@ -48,10 +48,11 @@ void main() {
 #extension GL_ARB_bindless_texture : require
 
 struct Material {
-    vec4 BaseColor;
+    vec3 BaseColor;
 
     float Roughness;
     float Metalic;
+    float Emission;
 
     sampler2D BaseColorTexture;
     sampler2D NormalTexture;
@@ -76,18 +77,21 @@ layout(location = 1) out vec4 position;
 layout(location = 2) out vec4 normal;
 layout(location = 3) out vec4 roughnessMetalic;
 
-void main() {
-    albedo = u_Material.BaseColor * v_BaseColor * texture(u_Material.BaseColorTexture, v_TextureCoordinates.xy);
+void main()
+{
+    albedo = vec4(u_Material.BaseColor, 1.0f) * v_BaseColor * texture2D(u_Material.BaseColorTexture, v_TextureCoordinates.xy);
     position = vec4(v_Position, 1.0f);
 
     if (u_Material.HasNormalTexture)
     {
-        normal = vec4(v_TBN * (2.0f * texture(u_Material.NormalTexture, v_TextureCoordinates.xy).xyz - 1.0f), 1.0f);
+        normal = vec4(v_TBN * (2.0f * texture2D(u_Material.NormalTexture, v_TextureCoordinates.xy).xyz - 1.0f), 1.0f);
     }
     else
     {
         normal = vec4(v_Normal, 1.0f);
     }
 
-    roughnessMetalic = vec4(u_Material.Roughness, u_Material.Metalic, 1.0f, 1.0f);
+    float roughness = u_Material.Roughness * texture2D(u_Material.RoughnessTexture, v_TextureCoordinates.xy).r;
+    float metalic = u_Material.Metalic * texture2D(u_Material.MetalicTexture, v_TextureCoordinates.xy).r;
+    roughnessMetalic = vec4(roughness, metalic, u_Material.Emission, 1.0f);
 }

@@ -1,14 +1,15 @@
 #include "OpenGLTypes.h"
 #include "Core/Macros.h"
-#include "Core/Ed.h"
+#include "Core/Rendering/EdRendering.h"
 
 uint32_t OpenGLTypes::ConvertWrapMode(WrapMode mode)
 {
 	switch (mode)
 	{
-	case WrapMode::Repeat:        return GL_REPEAT;
-	case WrapMode::ClampToBorder: return GL_CLAMP_TO_BORDER;
-	case WrapMode::ClampToEdge:   return GL_CLAMP_TO_EDGE;
+	case WrapMode::Repeat:           return GL_REPEAT;
+	case WrapMode::ClampToBorder:    return GL_CLAMP_TO_BORDER;
+	case WrapMode::ClampToEdge:      return GL_CLAMP_TO_EDGE;
+	case WrapMode::MirroredRepeat:   return GL_MIRRORED_REPEAT;
 	default:
 		ED_ASSERT_CONTEXT(OpenGLAPI, 0, "Wrap mode is not supported");
 		return 0;
@@ -19,8 +20,9 @@ uint32_t OpenGLTypes::ConvertFilteringMode(FilteringMode mode)
 {
 	switch (mode)
 	{
-	case FilteringMode::Nearest: return GL_NEAREST;
-	case FilteringMode::Linear:  return GL_LINEAR;
+	case FilteringMode::Nearest:    return GL_NEAREST;
+	case FilteringMode::Linear:     return GL_LINEAR;
+	case FilteringMode::TriLinear:  return GL_LINEAR_MIPMAP_LINEAR;
 	default:
 		ED_ASSERT_CONTEXT(OpenGLAPI, 0, "Filtering mode is not supported");
 		return 0;
@@ -36,10 +38,12 @@ uint32_t OpenGLTypes::ConvertPixelFormat(PixelFormat format)
 	case PixelFormat::SRGB8F:         return GL_SRGB8;
 	case PixelFormat::SRGBA8F:        return GL_SRGB8_ALPHA8;
 	case PixelFormat::RGB16F:         return GL_RGB16F;
+	case PixelFormat::RGBA16F:        return GL_RGBA16F;
 	case PixelFormat::RGB32F:         return GL_RGB32F;
 	case PixelFormat::R8F:            return GL_R8;
 	case PixelFormat::R16F:           return GL_R16F;
 	case PixelFormat::R32F:           return GL_R32F;
+	case PixelFormat::R11G11B10F:     return GL_R11F_G11F_B10F;
 	case PixelFormat::Depth:          return GL_DEPTH_COMPONENT;
 	case PixelFormat::DepthStencil:   return GL_DEPTH24_STENCIL8;
 	default:
@@ -57,10 +61,12 @@ uint32_t OpenGLTypes::ConvertPixelExternalFormat(PixelFormat format)
 	case PixelFormat::SRGB8F:         return GL_RGB;
 	case PixelFormat::SRGBA8F:        return GL_RGBA;
 	case PixelFormat::RGB16F:         return GL_RGB;
+	case PixelFormat::RGBA16F:        return GL_RGBA;
 	case PixelFormat::RGB32F:         return GL_RGB;
 	case PixelFormat::R8F:            return GL_RED;
 	case PixelFormat::R16F:           return GL_RED;
 	case PixelFormat::R32F:           return GL_RED;
+	case PixelFormat::R11G11B10F:     return GL_RGB;
 	case PixelFormat::Depth:          return GL_DEPTH_COMPONENT;
 	case PixelFormat::DepthStencil:   return GL_DEPTH_STENCIL;
 	default:
@@ -78,10 +84,12 @@ uint32_t OpenGLTypes::ConvertDataType(PixelFormat format)
 	case PixelFormat::SRGB8F:         return GL_UNSIGNED_BYTE;
 	case PixelFormat::SRGBA8F:        return GL_UNSIGNED_BYTE;
 	case PixelFormat::RGB16F:         return GL_FLOAT;
+	case PixelFormat::RGBA16F:        return GL_FLOAT;
 	case PixelFormat::RGB32F:         return GL_FLOAT;
 	case PixelFormat::R8F:            return GL_UNSIGNED_BYTE;
 	case PixelFormat::R16F:           return GL_FLOAT;
 	case PixelFormat::R32F:           return GL_FLOAT;
+	case PixelFormat::R11G11B10F:     return GL_FLOAT;
 	case PixelFormat::Depth:          return GL_UNSIGNED_BYTE;
 	case PixelFormat::DepthStencil:   return GL_UNSIGNED_INT_24_8;
 	default:
@@ -165,6 +173,7 @@ uint32_t OpenGLTypes::ConvertShaderType(ShaderType type)
 	case ShaderType::Vertex:   return GL_VERTEX_SHADER;
 	case ShaderType::Geometry: return GL_GEOMETRY_SHADER;
 	case ShaderType::Pixel:    return GL_FRAGMENT_SHADER;
+	case ShaderType::Compute:  return GL_COMPUTE_SHADER;
 	default:
 		ED_ASSERT_CONTEXT(OpenGLAPI, 0, "Shdare type is not supported")
 		return 0;
@@ -204,6 +213,17 @@ uint32_t OpenGLTypes::ConverTextureType(TextureType type)
 	case TextureType::CubeTexture: return GL_TEXTURE_CUBE_MAP;
 	default:
 		ED_ASSERT_CONTEXT(OpenGLAPI, 0, "Texture type is not supported")
+		return 0;
+	}
+}
+
+uint32_t OpenGLTypes::ConvertBarrierType(BarrierType type)
+{
+	switch (type)
+	{
+	case BarrierType::AllBits:   return GL_ALL_BARRIER_BITS;
+	default:
+		ED_ASSERT_CONTEXT(OpenGLAPI, 0, "Barrier type is not supported")
 		return 0;
 	}
 }

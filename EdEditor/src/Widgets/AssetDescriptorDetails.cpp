@@ -6,9 +6,10 @@
 #include "Core/Rendering/Textures/Texture2D.h"
 #include "Core/Rendering/Textures/CubeTexture.h"
 #include "Core/Assets/Material.h"
+#include "Core/Assets/Descriptors/MaterialDescriptor.h"
 #include "Core/Assets/StaticMesh.h"
-
 #include <imgui.h>
+#include <glm/gtc/type_ptr.hpp>
 
 void AssetDescriptorDetails::Initialize()
 {
@@ -60,103 +61,99 @@ void AssetDescriptorDetails::CubeTextureDescriptorDetails(const std::shared_ptr<
     BaseDescriptorDetails(descriptor);
 }
 
-void AssetDescriptorDetails::MaterialDescriptorDetails(const std::shared_ptr<MaterialDescriptor>& descriptor)
+void AssetDescriptorDetails::MaterialDescriptorDetails(const std::shared_ptr<MaterialDescriptor>& materialDescriptor)
 {
-    BaseDescriptorDetails(descriptor);
+    BaseDescriptorDetails(materialDescriptor);
 
+    std::shared_ptr<Material> material = m_AssetManager->LoadMaterial(materialDescriptor);
+
+    if (glm::vec3 color = material->GetBaseColor(); ImGui::ColorPicker3("Base color", glm::value_ptr(color)))
     {
-        std::shared_ptr<AssetDescriptor> baseColorDescriptor = m_AssetManager->GetAssetDescriptor(descriptor->BaseColorTextureID); // TODO: make it better :)
-        std::string label = baseColorDescriptor ? baseColorDescriptor->AssetName : "Select Base Color Texture";
-        
-        ImGui::Text("Base Color Texture"); ImGui::SameLine();
-        if (ImGui::BeginCombo("##BaseColorTexture", label.data()))
-        {
-            if (ImGui::Selectable("None", descriptor->BaseColorTextureID == -1))
-            {
-                descriptor->BaseColorTextureID = -1;
-                m_AssetManager->RefreshMaterial(descriptor);
-            }
-            for (const auto& textureDescriptor : m_AssetManager->GetTexture2DDescriptors())
-            {
-                if (ImGui::Selectable(textureDescriptor->AssetName.data(), descriptor->BaseColorTextureID == textureDescriptor->AssetId))
-                {
-                    descriptor->BaseColorTextureID = textureDescriptor->AssetId;
-                    m_AssetManager->RefreshMaterial(descriptor);
-                }
-            }
-            ImGui::EndCombo();
-        }
+        material->SetBaseColor(color);
     }
 
+    if (float emission = material->GetEmission(); ImGui::SliderFloat("Emission", &emission, 0, 100))
     {
-        std::shared_ptr<AssetDescriptor> normalDescriptor = m_AssetManager->GetAssetDescriptor(descriptor->NormalTextureID); // TODO: make it better :)
-        std::string label = normalDescriptor ? normalDescriptor->AssetName : "Select Normal Texture";
-        
-        ImGui::Text("Normal Texture"); ImGui::SameLine();
-        if (ImGui::BeginCombo("##NormalTexture", label.data()))
-        {
-            if (ImGui::Selectable("None", descriptor->NormalTextureID == -1))
-            {
-                descriptor->NormalTextureID = -1;
-                m_AssetManager->RefreshMaterial(descriptor);
-            }
-            for (const auto& textureDescriptor : m_AssetManager->GetTexture2DDescriptors())
-            {
-                if (ImGui::Selectable(textureDescriptor->AssetName.data(), descriptor->NormalTextureID == textureDescriptor->AssetId))
-                {
-                    descriptor->NormalTextureID = textureDescriptor->AssetId;
-                    m_AssetManager->RefreshMaterial(descriptor);
-                }
-            }
-            ImGui::EndCombo();
-        }
+        material->SetEmission(emission);
     }
 
-    {
-        std::shared_ptr<AssetDescriptor> roughnessDescriptor = m_AssetManager->GetAssetDescriptor(descriptor->RoughnessTextureID); // TODO: make it better :)
-        std::string label = roughnessDescriptor ? roughnessDescriptor->AssetName : "Select Roughness Texture";
+    const std::vector<std::shared_ptr<Texture2DDescriptor>>& descriptors = m_AssetManager->GetDescriptors<Texture2DDescriptor>(AssetType::Texture2D);
 
-        ImGui::Text("Roughness Texture"); ImGui::SameLine();
-        if (ImGui::BeginCombo("##RoughnessTexture", label.data()))
+    ImGui::Text("Base Color Texture"); ImGui::SameLine();
+    if (ImGui::BeginCombo("##BaseColorTexture", AssetUtils::GetSelectTextureLable(material->GetBaseColorTexture()).c_str()))
+    {
+        if (ImGui::Selectable("None", material->GetBaseColorTexture() == nullptr))
         {
-            if (ImGui::Selectable("None", descriptor->RoughnessTextureID == -1))
-            {
-                descriptor->RoughnessTextureID = -1;
-                m_AssetManager->RefreshMaterial(descriptor);
-            }
-            for (const auto& textureDescriptor : m_AssetManager->GetTexture2DDescriptors())
-            {
-                if (ImGui::Selectable(textureDescriptor->AssetName.data(), descriptor->RoughnessTextureID == textureDescriptor->AssetId))
-                {
-                    descriptor->RoughnessTextureID = textureDescriptor->AssetId;
-                    m_AssetManager->RefreshMaterial(descriptor);
-                }
-            }
-            ImGui::EndCombo();
+            material->SetBaseColorTexture(nullptr);
         }
+        for (const auto& descriptor : descriptors)
+        {
+            if (ImGui::Selectable(AssetUtils::GetAssetNameLable(descriptor).c_str(), materialDescriptor->BaseColorTextureID == descriptor->AssetId))
+            {
+                material->SetBaseColorTexture(m_AssetManager->LoadTexture(descriptor));
+            }
+        }
+        ImGui::EndCombo();
     }
 
+    ImGui::Text("Normal Texture"); ImGui::SameLine();
+    if (ImGui::BeginCombo("##NormalTexture", AssetUtils::GetSelectTextureLable(material->GetNormalTexture()).c_str()))
     {
-        std::shared_ptr<AssetDescriptor> metalicDescriptor = m_AssetManager->GetAssetDescriptor(descriptor->MetalicTextureID); // TODO: make it better :)
-        std::string label = metalicDescriptor ? metalicDescriptor->AssetName : "Select Metalic Texture";
-    
-        ImGui::Text("Metalic Texture"); ImGui::SameLine();
-        if (ImGui::BeginCombo("##MetalicTexture", label.data()))
+        if (ImGui::Selectable("None", material->GetNormalTexture() == nullptr))
         {
-            if (ImGui::Selectable("None", descriptor->MetalicTextureID == -1))
-            {
-                descriptor->MetalicTextureID = -1;
-                m_AssetManager->RefreshMaterial(descriptor);
-            }
-            for (const auto& textureDescriptor : m_AssetManager->GetTexture2DDescriptors())
-            {
-                if (ImGui::Selectable(textureDescriptor->AssetName.data(), descriptor->MetalicTextureID == textureDescriptor->AssetId))
-                {
-                    descriptor->MetalicTextureID = textureDescriptor->AssetId;
-                    m_AssetManager->RefreshMaterial(descriptor);
-                }
-            }
-            ImGui::EndCombo();
+            material->SetNormalTexture(nullptr);
         }
+        for (const auto& descriptor : descriptors)
+        {
+            if (ImGui::Selectable(AssetUtils::GetAssetNameLable(descriptor).c_str(), materialDescriptor->NormalTextureID == descriptor->AssetId))
+            {
+				material->SetNormalTexture(m_AssetManager->LoadTexture(descriptor));
+            }
+        }
+        ImGui::EndCombo();
+    }
+
+    ImGui::Text("Roughness Texture"); ImGui::SameLine();
+    if (ImGui::BeginCombo("##RoughnessTexture", AssetUtils::GetSelectTextureLable(material->GetRoughnessTexture()).c_str()))
+    {
+        if (ImGui::Selectable("None", material->GetRoughnessTexture() == nullptr))
+        {
+            material->SetRoughnessTexture(nullptr);
+        }
+        for (const auto& descriptor : descriptors)
+        {
+            if (ImGui::Selectable(AssetUtils::GetAssetNameLable(descriptor).c_str(), materialDescriptor->RoughnessTextureID == descriptor->AssetId))
+            {
+                material->SetRoughnessTexture(m_AssetManager->LoadTexture(descriptor));
+            }
+        }
+        ImGui::EndCombo();
+    }
+
+    if (float roughness = material->GetRoughness(); ImGui::SliderFloat("Roughness", &roughness, 0.0f, 1.0f))
+    {
+        material->SetRoughness(roughness);
+    }
+
+    ImGui::Text("Metalic Texture"); ImGui::SameLine();
+    if (ImGui::BeginCombo("##MetalicTexture", AssetUtils::GetSelectTextureLable(material->GetMetalicTexture()).c_str()))
+    {
+        if (ImGui::Selectable("None", material->GetMetalicTexture() == nullptr))
+        {
+            material->SetMetalicTexture(nullptr);
+        }
+        for (const auto& descriptor : descriptors)
+        {
+            if (ImGui::Selectable(AssetUtils::GetAssetNameLable(descriptor).c_str(), materialDescriptor->MetalicTextureID == descriptor->AssetId))
+            {
+                material->SetMetalicTexture(m_AssetManager->LoadTexture(descriptor));
+            }
+        }
+        ImGui::EndCombo();
+    }
+
+    if (float metalic = material->GetMetalic(); ImGui::SliderFloat("Metalic", &metalic, 0.0f, 1.0f))
+    {
+        material->SetMetalic(metalic);
     }
 }

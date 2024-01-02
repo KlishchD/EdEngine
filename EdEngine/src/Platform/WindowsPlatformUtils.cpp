@@ -2,7 +2,8 @@
 #include <windows.h>
 #include <dwmapi.h>
 #include <string>
-#include "Core/Ed.h"
+
+#include "Core/Rendering/EdRendering.h"
 
 #define GLFW_EXPOSE_NATIVE_WIN32
 #include <GLFW/glfw3native.h>

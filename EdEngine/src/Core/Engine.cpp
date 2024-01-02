@@ -71,6 +71,10 @@ void Engine::Initialize()
 	}
 
 	m_Scene = assetManager->LoadScene(Files::ContentFolderPath + R"(scenes\main_test.edscene)");
+	if (!m_Scene)
+	{
+		m_Scene = assetManager->CreateScene(Files::ContentFolderPath + R"(scenes\main_test.edscene)");
+	}
 
 	m_Camera = Camera(90.0f, 1240.0f / 960.0f, 1.0f, 15000.0f);
 
@@ -183,4 +187,13 @@ std::shared_ptr<Window> Engine::GetWindow() const
 std::shared_ptr<Renderer> Engine::GetRenderer()
 {
 	return m_Renderer;
+}
+
+Engine::~Engine()
+{
+	if (m_IsRunning)
+	{
+		Stop();
+		Deinitialize();
+	}
 }

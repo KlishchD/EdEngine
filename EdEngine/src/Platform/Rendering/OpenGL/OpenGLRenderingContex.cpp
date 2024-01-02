@@ -1,3 +1,4 @@
+#include "Core/Rendering/EdRendering.h"
 #include "OpenGLRenderingContex.h"
 #include "Core/Rendering/Framebuffers/Framebuffer.h"
 #include "Core/Rendering/Framebuffers/CubeFramebuffer.h"
@@ -26,6 +27,16 @@ void OpenGLRenderingContext::SetFramebuffer(const std::shared_ptr<BaseFramebuffe
 
 void OpenGLRenderingContext::SetVertexBuffer(const std::shared_ptr<class VertexBuffer>& buffer)
 {
+	if (m_VBO == buffer) return;
+
+	if (m_VBO)
+	{
+		for (int32_t i = 0; i < buffer->GetLayout().GetElements().size(); ++i)
+		{
+			glDisableVertexAttribArray(i);
+		}
+	}
+
 	m_VBO = buffer;
 
 	glBindBuffer(GL_ARRAY_BUFFER, std::static_pointer_cast<OpenGLVertexBuffer>(buffer)->GetID());
@@ -34,11 +45,6 @@ void OpenGLRenderingContext::SetVertexBuffer(const std::shared_ptr<class VertexB
 	for (auto& element : buffer->GetLayout().GetElements()) 
 	{
 		stride += OpenGLTypes::ConvertShaderDataTypeSize(element.Type);
-	}
-
-	for (int32_t i = 0; i < 10; ++i) 
-	{
-		glDisableVertexAttribArray(i);
 	}
 
 	int32_t location = 0, offset = 0;
@@ -53,6 +59,8 @@ void OpenGLRenderingContext::SetVertexBuffer(const std::shared_ptr<class VertexB
 
 void OpenGLRenderingContext::SetIndexBuffer(const std::shared_ptr<class IndexBuffer>& buffer)
 {
+	if (m_IBO == buffer) return;
+
 	m_IBO = buffer;
 	if (m_IBO)
 	{
@@ -66,6 +74,8 @@ void OpenGLRenderingContext::SetIndexBuffer(const std::shared_ptr<class IndexBuf
 
 void OpenGLRenderingContext::SetShader(const std::shared_ptr<Shader>& shader)
 {
+	if (m_Shader == shader) return;
+
 	m_Shader = shader;
 	m_ShaderID = std::static_pointer_cast<OpenGLShader>(shader)->GetID();
 	glUseProgram(m_ShaderID);
@@ -79,7 +89,13 @@ void OpenGLRenderingContext::SetShaderDataTexture(const std::string& name, const
 	const int32_t location = glGetUniformLocation(m_ShaderID, name.c_str());
 	glUniform1i(location, m_LastTextureSlot);
 	
-	m_LastTextureSlot = (m_LastTextureSlot + 1) % MaxTextureSlots; // > 1
+	m_LastTextureSlot = (m_LastTextureSlot + 1) % MaxTextureSlots;
+}
+
+void OpenGLRenderingContext::SetShaderDataImage(const std::string& name, const std::shared_ptr<Texture>& texture)
+{
+	glBindImageTexture(m_LastTextureSlot, texture->GetID(), 0, GL_FALSE, 0, GL_READ_WRITE, OpenGLTypes::ConvertPixelFormat(texture->GetPixelFormat()));
+	m_LastTextureSlot = (m_LastTextureSlot + 1) % MaxTextureSlots;
 }
 
 void OpenGLRenderingContext::SetShaderDataInt(const std::string& name, int32_t value)
@@ -96,7 +112,12 @@ void OpenGLRenderingContext::SetShaderDataTexture(const char* name, const std::s
 	const int32_t location = glGetUniformLocation(m_ShaderID, name);
 	glUniform1i(location, m_LastTextureSlot);
 	
-	m_LastTextureSlot = (m_LastTextureSlot + 1) % MaxTextureSlots; // > 1
+	m_LastTextureSlot = (m_LastTextureSlot + 1) % MaxTextureSlots;
+}
+
+void OpenGLRenderingContext::SetShaderDataImage(const char* name, const std::shared_ptr<Texture>& texture)
+{
+ 	glBindImageTexture(0, texture->GetID(), 0, GL_FALSE, 0, GL_READ_WRITE, OpenGLTypes::ConvertPixelFormat(texture->GetPixelFormat()));
 }
 
 void OpenGLRenderingContext::SetShaderDataInt(const char* name, int32_t value)
@@ -163,6 +184,16 @@ void OpenGLRenderingContext::SetShaderDataBool(const char* name, bool value)
 {
 	const int32_t location = glGetUniformLocation(m_ShaderID, name);
 	glUniform1i(location, value);
+}
+
+void OpenGLRenderingContext::RunComputeShader(uint32_t sizeX, uint32_t sizeY, uint32_t sizeZ)
+{
+	glDispatchCompute(sizeX, sizeY, sizeZ);
+}
+
+void OpenGLRenderingContext::Barier(BarrierType type)
+{
+	glMemoryBarrier(OpenGLTypes::ConvertBarrierType(type));
 }
 
 void OpenGLRenderingContext::Draw()

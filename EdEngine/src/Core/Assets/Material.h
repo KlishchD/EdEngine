@@ -1,45 +1,7 @@
 ﻿#pragma once
 
 #include "Asset.h"
-
-struct MaterialDescriptor: public AssetDescriptor
-{
-    std::string ShaderPath;
-    
-    glm::vec4 BaseColor = glm::vec4(1.0f);
-    float Roughness = 0.5f;
-    float Metalic = 0.5f;
-    
-    int32_t BaseColorTextureID = -1;
-    int32_t NormalTextureID = -1;
-    int32_t RoughnessTextureID = -1;
-    int32_t MetalicTextureID = -1;
-};
-
-namespace boost
-{
-    namespace serialization
-    {
-        template <class Archive>
-        void serialize(Archive& ar, MaterialDescriptor& descriptor, uint32_t version)
-        {
-            ar & boost::serialization::base_object<AssetDescriptor>(descriptor);
-
-            ar & descriptor.BaseColor.x;
-            ar & descriptor.BaseColor.y;
-            ar & descriptor.BaseColor.z;
-            
-            ar & descriptor.Roughness;
-            ar & descriptor.Metalic;
-            
-            ar & descriptor.ShaderPath;
-            ar & descriptor.BaseColorTextureID;
-            ar & descriptor.NormalTextureID;
-            ar & descriptor.RoughnessTextureID;
-            ar & descriptor.MetalicTextureID;
-        }
-    }
-}
+#include "Descriptors/MaterialDescriptor.h"
 
 class Texture2D;
 
@@ -49,16 +11,24 @@ public:
     Material(const Material& material);
     Material();
 
+    virtual void SyncDescriptor() override;
+
     void SetShaderData(const std::shared_ptr<class RenderingContext>& context);
     
-    void SetBaseColor(glm::vec4 color) { m_BaseColor = color; }
+    void SetBaseColor(glm::vec3 color) { m_BaseColor = color; }
     void SetRoughness(float roughness) { m_Roughness = roughness; }
     void SetMetalic(float metalic) { m_Metalic = metalic; }
+    void SetEmission(float emission);
 
     void SetBaseColorTexture(const std::shared_ptr<Texture2D>& texture);
     void SetNormalTexture(const std::shared_ptr<Texture2D>& texture);
     void SetRoughnessTexture(const std::shared_ptr<Texture2D>& texture);
     void SetMetalicTexture(const std::shared_ptr<Texture2D>& texture);
+
+    glm::vec3 GetBaseColor() const;
+    float GetRoughness() const;
+    float GetMetalic() const;
+    float GetEmission() const;
 
     std::shared_ptr<Texture2D> GetBaseColorTexture() const;
     std::shared_ptr<Texture2D> GetNormalTexture() const;
@@ -72,11 +42,9 @@ private:
     std::shared_ptr<Texture2D> m_RoughnessTexture;
     std::shared_ptr<Texture2D> m_MetalicTexture;
     
-    glm::vec4 m_BaseColor = glm::vec4(1.0f, 1.0f, 1.0f, 1.0f);
+    glm::vec3 m_BaseColor = glm::vec4(1.0f, 1.0f, 1.0f, 1.0f);
 
-    float m_Roughness = 0.5f;
-    float m_Metalic = 0.5f;
+    float m_Roughness = 1.0f;
+    float m_Metalic = 1.0f;
+    float m_Emission = 0.0f;
 };
-
-BOOST_CLASS_EXPORT_KEY(MaterialDescriptor)
-BOOST_CLASS_VERSION(MaterialDescriptor, 1)

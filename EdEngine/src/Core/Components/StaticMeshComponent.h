@@ -21,7 +21,7 @@ class StaticMeshComponent : public Component
     {
         ar & boost::serialization::base_object<Component>(*this);
         
-        int32_t staticMeshId;
+        UUID staticMeshId;
         ar & staticMeshId;
 
         m_StaticMesh = AssetUtils::CreateStaticMesh(staticMeshId);
@@ -41,7 +41,7 @@ public:
 private:
     std::shared_ptr<StaticMesh> m_StaticMesh;
 
-    int32_t GetStaticMeshAssetId() const;
+    UUID GetStaticMeshAssetId() const;
 };
 
 BOOST_CLASS_VERSION(StaticMeshComponent, 1)

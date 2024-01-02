@@ -40,19 +40,47 @@ public:
     void SetSSAOEnabled(bool enabled);
     bool IsSSAOEnabled() const;
 
+    void SetUseNewBloom(bool use);
+    bool IsUsingNewBloom() const;
+
+    void SetBloomStrength(float strength);
+    float GetBloomStrength() const;
+
+    void SetBloomIntensity(float intensity);
+    float GetBloomIntensity() const;
+
+    void SetBloomMixStrength(float strength);
+    float GetBloomMixStrength() const;
+
+    void SetBloomDownscaleTexturesCount(uint32_t count);
+    uint32_t GetBloomDownscaleTextureCount() const;
+
+    void SetUseLightPassAsBoomBase(bool use);
+    bool IsUsingLightPassASBloomBase() const;
+
+    void SetUpsampleScale(float scale);
+    float GetUpsampleScale() const;
+
     std::shared_ptr<Framebuffer> GetGeometryPassFramebuffer() const;
     std::shared_ptr<Framebuffer> LightPassFramebuffer() const;
     std::shared_ptr<Framebuffer> GetViewport() const;
+
 private:
 	float m_FarPlane = 15000.0f;
 
     RenderPassSpecification m_GeometryPassSpecification;
-    RenderPassSpecification m_LightPassSpecification;
     RenderPassSpecification m_SSAOPassSpecification;
     RenderPassSpecification m_SSAOBlurPassSpecification;
     RenderPassSpecification m_CombinationPassSpecification;
 
+    // Light
+
+    RenderPassSpecification m_LightPassSpecification;
     RenderPassSpecification m_PointLightShadowPassSpecification;
+    
+    std::shared_ptr<Shader> m_EmissionPassShader;
+
+    //
     RenderPassSpecification m_BrighnessFilterPassSpecification;
 
     glm::mat4 m_LightPerspective = glm::perspective(glm::radians(90.0f), 1.0f, 1.0f, m_FarPlane);
@@ -63,7 +91,7 @@ private:
     int32_t m_NoiseSize = 10;
     std::shared_ptr<Texture2D> m_SSAONoise;
 
-    bool bSSAOEnabled = true;
+    bool m_bSSAOEnabled = true;
 
     // Bloom
     std::shared_ptr<Framebuffer> m_BlurFramebuffer1;
@@ -76,6 +104,30 @@ private:
     int32_t m_FilterSize = 5;
     std::shared_ptr<Texture2D> m_ShadowMapRandomSamples;
 
+    // Bloom
+    std::shared_ptr<Shader> m_BloomDownscaleShader;
+    std::shared_ptr<Shader> m_BloomUpscaleShader;
+
+    float m_BloomStrength = 0.1f;
+    float m_BloomMixStrength = 0.85f;
+    float m_BloomIntensity = 1.0f;
+    bool m_bUseLightPassImageAsBloomBase = true;
+
+    std::vector<std::shared_ptr<Texture2D>> m_BloomIntermediateTextrues;
+    int32_t m_NewBloomDownscaleCount = 4;
+
+    bool m_bUseNewBloom = false;
+    
+    // Post-Processing
+    RenderPassSpecification m_PostProcessingRenderPassSpecification;
+    float m_Gamma = 2.2f;
+
+    //
+
+    float m_UpsampleScale = 2;
+
+    //
+
     std::queue<std::function<void(RenderingContext* context)>> m_Commands;
 
     Engine* m_Engine = nullptr;
@@ -86,15 +138,23 @@ private:
     void LightPass(const std::vector<std::shared_ptr<Component>>& components, Camera* camera);
     void SSAOPass(Camera* camera);
     void BloomPass();
+    void NewBloomPass();
     void CombinationPass(const std::vector<std::shared_ptr<Component>>& components, Camera* camera);
+    void PostProcessingPass();
 
     void CreateRandomShadowMapSamples();
 
+    void BloomDownscale(const std::shared_ptr<Texture2D>& in, const std::shared_ptr<Texture2D> out);
+    void BloomUpscale(const std::shared_ptr<Texture2D>& downscaled, const std::shared_ptr<Texture2D>& upscaled, const std::shared_ptr<Texture2D>& fullsize = nullptr);
+    void UpdateBloomTexturesSizes();
 private:
     void SetupGeometryRenderPass();
     void SetupLightRenderPass();
     void SetupSSAORenderPass();
     void SetupCombinationRenderPass();
+    void SetupPostProcessingRenderPass();
+
+    void SetupNewBloomRenderPass();
 
     void SetupShadowRenderPass();
     void SetupBrightnessFilterPass();

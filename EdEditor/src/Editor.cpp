@@ -48,6 +48,19 @@ void Editor::Initialize(Engine* engine)
     m_IconsPassSpecification.Name = "Editor icons";
     m_IconsPassSpecification.Framebuffer = m_Renderer->GetViewport();
     m_IconsPassSpecification.Shader = RenderingHelper::CreateShader(Files::ContentFolderPath + R"(Editor\shaders\IconShader.glsl)");
+// 
+//     std::shared_ptr<Actor> actor = engine->GetLoadedScene()->CreateActor<Actor>("Lights");
+// 
+//     for (int32_t i = -60; i <= 50; i += 10)
+//     {
+//         for (int32_t j = -10; j <= 5; j += 5)
+//         {
+//             std::shared_ptr<PointLightComponent> light = std::make_shared<PointLightComponent>();
+//             light->GetTransform().SetTranslation(glm::vec3(i, 2.0f, j));
+//             light->SetShadowCasting(false);
+//             actor->RegisterComponent(light);
+//         }
+//     }
 }
 
 void Editor::Update(float DeltaTime)
@@ -114,6 +127,7 @@ void Editor::SetUpInputs(Engine* engine)
     engine->SubscribeToInput(Key::RightMouseClick, Action::Release, [this]() { m_IsRightMouseButtonClicked = false; });
 
     engine->SubscribeToInput(Key::U, Action::Press, [this]() { m_Renderer->SetSSAOEnabled(!m_Renderer->IsSSAOEnabled()); });
+    engine->SubscribeToInput(Key::B, Action::Press, [this]() { m_Renderer->SetUseNewBloom(!m_Renderer->IsUsingNewBloom()); });
 }
 
 void Editor::SetSelectedActor(const std::shared_ptr<Actor>& actor)

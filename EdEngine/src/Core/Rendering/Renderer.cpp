@@ -55,19 +55,20 @@ void Renderer::Initialize(Engine* engine)
 	m_PointLightMeshIBO = RenderingHelper::CreateIndexBuffer(indices.data(), sizeof(int32_t) * indices.size(), BufferUsage::StaticDraw);
 
 
-
     m_BlurFramebuffer1 = RenderingHelper::CreateFramebuffer(1, 1);
 	m_BlurFramebuffer1->CreateAttachment(FramebufferAttachmentType::Color16);
 
 	m_BlurFramebuffer2 = RenderingHelper::CreateFramebuffer(1, 1);
 	m_BlurFramebuffer2->CreateAttachment(FramebufferAttachmentType::Color16);
 
-    m_BlurShader = RenderingHelper::CreateShader(Files::ContentFolderPath + R"(\shaders\blur.glsl)");
-    
+	m_BlurShader = RenderingHelper::CreateShader(Files::ContentFolderPath + R"(\shaders\bloom\blur.glsl)");
+
     SetupGeometryRenderPass();
     SetupLightRenderPass();
     SetupSSAORenderPass();
-    SetupCombinationRenderPass();
+	SetupNewBloomRenderPass();
+	SetupCombinationRenderPass();
+	SetupPostProcessingRenderPass();
 
     SetupShadowRenderPass();
     SetupBrightnessFilterPass();
@@ -86,11 +87,12 @@ void Renderer::Update()
 {
 	m_Context->SwapBuffers();
 
-	if (m_GeometryPassSpecification.Framebuffer->GetWidth() != m_ViewportSize.x || m_GeometryPassSpecification.Framebuffer->GetHeight() != m_ViewportSize.y)
+	if (m_GeometryPassSpecification.Framebuffer->GetWidth() != m_UpsampleScale * m_ViewportSize.x || m_GeometryPassSpecification.Framebuffer->GetHeight() != m_UpsampleScale * m_ViewportSize.y)
 	{
-		std::static_pointer_cast<Framebuffer>(m_GeometryPassSpecification.Framebuffer)->Resize(m_ViewportSize.x, m_ViewportSize.y);
-		std::static_pointer_cast<Framebuffer>(m_LightPassSpecification.Framebuffer)->Resize(m_ViewportSize.x, m_ViewportSize.y);
-		std::static_pointer_cast<Framebuffer>(m_CombinationPassSpecification.Framebuffer)->Resize(m_ViewportSize.x, m_ViewportSize.y);
+		std::static_pointer_cast<Framebuffer>(m_GeometryPassSpecification.Framebuffer)->Resize(m_UpsampleScale * m_ViewportSize.x, m_UpsampleScale * m_ViewportSize.y);
+		std::static_pointer_cast<Framebuffer>(m_LightPassSpecification.Framebuffer)->Resize(m_UpsampleScale * m_ViewportSize.x, m_UpsampleScale * m_ViewportSize.y);
+		std::static_pointer_cast<Framebuffer>(m_CombinationPassSpecification.Framebuffer)->Resize(m_UpsampleScale * m_ViewportSize.x, m_UpsampleScale * m_ViewportSize.y);
+		std::static_pointer_cast<Framebuffer>(m_PostProcessingRenderPassSpecification.Framebuffer)->Resize(m_UpsampleScale * m_ViewportSize.x, m_UpsampleScale * m_ViewportSize.y);
 
 		std::static_pointer_cast<CubeFramebuffer>(m_PointLightShadowPassSpecification.Framebuffer)->Resize(m_ViewportSize.y);
 
@@ -99,6 +101,8 @@ void Renderer::Update()
 
 		std::static_pointer_cast<Framebuffer>(m_SSAOPassSpecification.Framebuffer)->Resize(m_ViewportSize.x, m_ViewportSize.y);
 		std::static_pointer_cast<Framebuffer>(m_SSAOBlurPassSpecification.Framebuffer)->Resize(m_ViewportSize.x, m_ViewportSize.y);
+
+		UpdateBloomTexturesSizes();
 
 		m_Engine->GetCamera()->SetProjection(90.0f, 1.0f * m_ViewportSize.x / m_ViewportSize.y, 1.0f, m_FarPlane);
 	}
@@ -111,8 +115,11 @@ void Renderer::Update()
 	GeometryPass(components, camera);
 	LightPass(components, camera);
 	SSAOPass(camera);
-	BloomPass();
 	CombinationPass(components, camera);
+
+	BloomPass();
+	NewBloomPass();
+	PostProcessingPass();
 
 	while (m_Commands.size()) {
 		m_Commands.front()(m_Context.get());
@@ -122,7 +129,7 @@ void Renderer::Update()
 
 void Renderer::ResizeViewport(glm::vec2 size)
 {
-    m_ViewportSize = 2.0f * size;
+    m_ViewportSize = size;
 }
 
 void Renderer::SubmitRenderCommand(const std::function<void(RenderingContext* context)>& command)
@@ -132,12 +139,87 @@ void Renderer::SubmitRenderCommand(const std::function<void(RenderingContext* co
 
 void Renderer::SetSSAOEnabled(bool enabled)
 {
-    bSSAOEnabled = enabled;
+    m_bSSAOEnabled = enabled;
 }
 
 bool Renderer::IsSSAOEnabled() const
 {
-    return bSSAOEnabled;
+    return m_bSSAOEnabled;
+}
+
+void Renderer::SetUseNewBloom(bool use)
+{
+	m_bUseNewBloom = use;
+}
+
+bool Renderer::IsUsingNewBloom() const
+{
+	return m_bUseNewBloom;
+}
+
+void Renderer::SetBloomStrength(float strength)
+{
+	m_BloomStrength = strength;
+}
+
+float Renderer::GetBloomStrength() const
+{
+	return m_BloomStrength;
+}
+
+void Renderer::SetBloomIntensity(float intensity)
+{
+	m_BloomIntensity = intensity;
+}
+
+float Renderer::GetBloomIntensity() const
+{
+	return m_BloomIntensity;
+}
+
+void Renderer::SetBloomMixStrength(float strength)
+{
+	m_BloomMixStrength = strength;
+}
+
+float Renderer::GetBloomMixStrength() const
+{
+	return m_BloomMixStrength;
+}
+
+void Renderer::SetBloomDownscaleTexturesCount(uint32_t count)
+{
+	m_NewBloomDownscaleCount = count;
+	while (m_BloomIntermediateTextrues.size() < count)
+	{
+		m_BloomIntermediateTextrues.push_back(RenderingHelper::CreateBloomIntermediateTexture());
+	}
+	UpdateBloomTexturesSizes();
+}
+
+uint32_t Renderer::GetBloomDownscaleTextureCount() const
+{
+	return m_NewBloomDownscaleCount;
+}
+
+void Renderer::SetUseLightPassAsBoomBase(bool use)
+{
+	m_bUseLightPassImageAsBloomBase = use;
+}
+
+bool Renderer::IsUsingLightPassASBloomBase() const
+{
+	return m_bUseLightPassImageAsBloomBase;
+}
+
+void Renderer::SetUpsampleScale(float scale)
+{
+	m_UpsampleScale = scale;
+}
+
+float Renderer::GetUpsampleScale() const
+{
+	return m_UpsampleScale;
 }
 
 std::shared_ptr<Framebuffer> Renderer::GetGeometryPassFramebuffer() const
@@ -152,7 +234,46 @@ std::shared_ptr<Framebuffer> Renderer::LightPassFramebuffer() const
 
 std::shared_ptr<Framebuffer> Renderer::GetViewport() const
 {
-    return std::static_pointer_cast<Framebuffer>(m_CombinationPassSpecification.Framebuffer);
+    return std::static_pointer_cast<Framebuffer>(m_PostProcessingRenderPassSpecification.Framebuffer);
+}
+
+void Renderer::BloomDownscale(const std::shared_ptr<Texture2D>& in, const std::shared_ptr<Texture2D> out)
+{
+	m_Context->SetShader(m_BloomDownscaleShader);
+	m_Context->SetShaderDataTexture("u_Input", in);
+	m_Context->SetShaderDataImage("u_Output", out);
+	m_Context->SetShaderDataFloat2("u_PixelSize", glm::vec2(1.0f / in->GetWidth(), 1.0f / in->GetHeight()));
+	m_Context->RunComputeShader(out->GetWidth(), out->GetHeight(), 1);
+}
+
+void Renderer::BloomUpscale(const std::shared_ptr<Texture2D>& downscaled, const std::shared_ptr<Texture2D>& upscaled, const std::shared_ptr<Texture2D>& fullsize)
+{
+	m_Context->SetShader(m_BloomUpscaleShader);
+	m_Context->SetShaderDataTexture("u_Downscaled", downscaled);
+	m_Context->SetShaderDataImage("u_Upscaled", upscaled);
+	m_Context->SetShaderDataFloat2("u_PixelSize", glm::vec2(1.0f / downscaled->GetWidth(), 1.0f / downscaled->GetHeight()));
+	m_Context->SetShaderDataFloat("u_MixStrength", m_BloomMixStrength);
+	if (fullsize)
+	{
+		m_Context->SetShaderDataBool("u_UseFullsize", true);
+		m_Context->SetShaderDataTexture("u_Fullsize", fullsize);
+	}
+	else
+	{
+		m_Context->SetShaderDataBool("u_UseFullsize", false);
+	}
+
+	m_Context->RunComputeShader(upscaled->GetWidth(), upscaled->GetHeight(), 1);
+}
+
+void Renderer::UpdateBloomTexturesSizes()
+{
+	glm::vec2 size = m_UpsampleScale * glm::vec2(m_ViewportSize) / 2.0f;
+	for (int32_t i = 0; i < m_NewBloomDownscaleCount; ++i)
+	{
+		m_BloomIntermediateTextrues[i]->Resize(size.x, size.y);
+		size /= 2.0f;
+	}
 }
 
 void Renderer::GeometryPass(const std::vector<std::shared_ptr<Component>>& components, Camera* camera)
@@ -175,7 +296,7 @@ void Renderer::GeometryPass(const std::vector<std::shared_ptr<Component>>& compo
 }
 
 void Renderer::SSAOPass(Camera* camera) {
-    if (bSSAOEnabled)
+    if (m_bSSAOEnabled)
     {
         {
             glm::mat4 view = camera->GetView();
@@ -217,58 +338,90 @@ void Renderer::SSAOPass(Camera* camera) {
 
 void Renderer::BloomPass() 
 {
-    BeginRenderPass(m_BrighnessFilterPassSpecification, glm::mat4(1.0f), glm::mat4(1.0f)); // Temporary step, may be removed after PBR bloom will be added :)
+	if (!m_bUseNewBloom)
+	{
+		BeginRenderPass(m_BrighnessFilterPassSpecification, glm::mat4(1.0f), glm::mat4(1.0f)); // Temporary step, may be removed after PBR bloom will be added :)
 
-    m_Context->SetShaderDataTexture("u_Image", m_LightPassSpecification.Framebuffer->GetAttachment(0));
-
-    SubmitQuad(-1.0f, -1.0f, -1.0f, 1.0f, 1.0f, 1.0f, 1.0f, -1.0f);
-
-    EndRenderPass();
-
-    std::shared_ptr<Framebuffer> read;
-    std::shared_ptr<Framebuffer> write;
-
-    for (int32_t i = 0; i < m_BlurPassCount; ++i) {
-		if (i % 2)
-		{
-			read = m_BlurFramebuffer2;
-			write = m_BlurFramebuffer1;
-		}
-		else
-		{
-			read = m_BlurFramebuffer1;
-			write = m_BlurFramebuffer2;
-		}
-
-		BeginRenderPass("Blur pass", write, m_BlurShader, glm::mat4(1.0f), glm::mat4(1.0f), glm::vec3(0.0f));
-
-		m_Context->ClearColorTarget();
-
-		m_Context->SetShaderDataBool("u_HorizontalPass", i % 2 == 0);
-		m_Context->SetShaderDataFloat("u_PixelWidth", 1.0f / read->GetWidth());
-		m_Context->SetShaderDataFloat("u_PixelHeight", 1.0f / read->GetHeight());
-		m_Context->SetShaderDataFloat2("u_ScreenSize", write->GetWidth(), write->GetHeight());
-
-        m_Context->SetShaderDataTexture("u_Image", read->GetAttachment(0));
+		m_Context->SetShaderDataTexture("u_Image", m_LightPassSpecification.Framebuffer->GetAttachment(0));
 
 		SubmitQuad(-1.0f, -1.0f, -1.0f, 1.0f, 1.0f, 1.0f, 1.0f, -1.0f);
 
 		EndRenderPass();
-    }
+
+		std::shared_ptr<Framebuffer> read;
+		std::shared_ptr<Framebuffer> write;
+
+		for (int32_t i = 0; i < m_BlurPassCount; ++i) {
+			if (i % 2)
+			{
+				read = m_BlurFramebuffer2;
+				write = m_BlurFramebuffer1;
+			}
+			else
+			{
+				read = m_BlurFramebuffer1;
+				write = m_BlurFramebuffer2;
+			}
+
+			BeginRenderPass("Blur pass", write, m_BlurShader, glm::mat4(1.0f), glm::mat4(1.0f), glm::vec3(0.0f));
+
+			m_Context->ClearColorTarget();
+
+			m_Context->SetShaderDataBool("u_HorizontalPass", i % 2 == 0);
+			m_Context->SetShaderDataFloat("u_PixelWidth", 1.0f / read->GetWidth());
+			m_Context->SetShaderDataFloat("u_PixelHeight", 1.0f / read->GetHeight());
+			m_Context->SetShaderDataFloat2("u_ScreenSize", write->GetWidth(), write->GetHeight());
+
+			m_Context->SetShaderDataTexture("u_Image", read->GetAttachment(0));
+
+			SubmitQuad(-1.0f, -1.0f, -1.0f, 1.0f, 1.0f, 1.0f, 1.0f, -1.0f);
+
+			EndRenderPass();
+		}
+	}
+}
+
+void Renderer::NewBloomPass()
+{
+	if (m_bUseNewBloom)
+	{
+		std::shared_ptr<BaseFramebuffer> framebuffer = m_bUseLightPassImageAsBloomBase ? m_LightPassSpecification.Framebuffer : m_CombinationPassSpecification.Framebuffer;
+		std::shared_ptr<Texture2D> scene = std::static_pointer_cast<Texture2D>(framebuffer->GetAttachment(0));
+
+		BloomDownscale(scene, m_BloomIntermediateTextrues[1]);
+		for (int32_t i = 2; i < m_NewBloomDownscaleCount; ++i)
+		{
+			m_Context->Barier(BarrierType::AllBits);
+			BloomDownscale(m_BloomIntermediateTextrues[i - 1], m_BloomIntermediateTextrues[i]);
+		}
+
+		for (int32_t i = m_NewBloomDownscaleCount - 1; i > 1; --i)
+		{
+			m_Context->Barier(BarrierType::AllBits);
+			BloomUpscale(m_BloomIntermediateTextrues[i], m_BloomIntermediateTextrues[i - 1]);
+		}
+
+		BloomUpscale(m_BloomIntermediateTextrues[1], m_BloomIntermediateTextrues[0], scene);
+
+		m_Context->Barier(BarrierType::AllBits);
+	}
 }
 
 void Renderer::LightPass(const std::vector<std::shared_ptr<Component>>& components, Camera* camera)
 {
-    m_LightPassSpecification.ViewPosition = camera->GetPosition();
-
-    BeginRenderPass(m_LightPassSpecification, camera->GetView(), camera->GetProjection());
+	BeginRenderPass("Light emission pass", m_LightPassSpecification.Framebuffer, m_EmissionPassShader, glm::mat4(1.0f), glm::mat4(1.0f), glm::vec3(0.0f));
     
     m_Context->ClearColorTarget();
     m_Context->ClearDepthTarget();
-    
+
+	m_Context->SetShaderDataTexture("u_Albedo", m_GeometryPassSpecification.Framebuffer->GetAttachment(0));
+	m_Context->SetShaderDataTexture("u_RoughnessMetalic", m_GeometryPassSpecification.Framebuffer->GetAttachment(3));
+
+	SubmitQuad(-1.0f, -1.0f, -1.0f, 1.0f, 1.0f, 1.0f, 1.0f, -1.0f);
+
     EndRenderPass();
 
-
+    m_LightPassSpecification.ViewPosition = camera->GetPosition();
     for (const std::shared_ptr<Component>& outerComponent : components)
     {
         if (std::shared_ptr<PointLightComponent> light = std::dynamic_pointer_cast<PointLightComponent>(outerComponent))
@@ -280,14 +433,14 @@ void Renderer::LightPass(const std::vector<std::shared_ptr<Component>>& componen
 
             m_PointLightShadowPassSpecification.ViewPosition = light->GetPosition();
 
-			BeginRenderPass(m_PointLightShadowPassSpecification, glm::mat4(1.0f), glm::mat4(1.0f));
-            
-            m_Context->SetShaderDataFloat("u_FarPlane", m_FarPlane);
-
             std::shared_ptr<CubeFramebuffer> frambuffer = std::static_pointer_cast<CubeFramebuffer>(m_PointLightShadowPassSpecification.Framebuffer);
 
             if (light->IsShadowCasting())
             {
+				BeginRenderPass(m_PointLightShadowPassSpecification, glm::mat4(1.0f), glm::mat4(1.0f));
+
+				m_Context->SetShaderDataFloat("u_FarPlane", m_FarPlane);
+
                 for (int32_t i = 0; i < 6; ++i) {
                     m_Context->SetShaderDataMat4("u_ViewProjection[" + std::to_string(i) + "]", m_LightPerspective * light->GetShadowMapPassCameraTransformation(i));
 				}
@@ -303,16 +456,9 @@ void Renderer::LightPass(const std::vector<std::shared_ptr<Component>>& componen
 						}
 					}
 				}
-            }
-			else
-			{
-				for (int32_t i = 0; i < 6; ++i) {
-                    frambuffer->AttachFace(i);
-					m_Context->ClearDepthTarget();
-				}
-			}
 
-            EndRenderPass();
+				EndRenderPass();
+            }
 
             m_LightPassSpecification.ViewPosition = camera->GetPosition();
 
@@ -462,6 +608,7 @@ void Renderer::SetupLightRenderPass()
     m_LightPassSpecification.Framebuffer = framebuffer;
 
     m_LightPassSpecification.Shader = RenderingHelper::CreateShader(Files::ContentFolderPath + R"(\shaders\deferred\light-pass-mesh.glsl)");
+	m_EmissionPassShader = RenderingHelper::CreateShader(Files::ContentFolderPath + R"(\shaders\deferred\emission-pass.glsl)");
 
     m_LightPassSpecification.SourceFactor = BlendFactor::One;
     m_LightPassSpecification.DestinationFactor = BlendFactor::One;
@@ -473,7 +620,7 @@ void Renderer::SetupBrightnessFilterPass()
 
     m_BrighnessFilterPassSpecification.Framebuffer = m_BlurFramebuffer1;
 
-    m_BrighnessFilterPassSpecification.Shader = RenderingHelper::CreateShader(Files::ContentFolderPath + R"(\shaders\brightness-filter.glsl)");
+    m_BrighnessFilterPassSpecification.Shader = RenderingHelper::CreateShader(Files::ContentFolderPath + R"(\shaders\bloom\brightness-filter.glsl)");
 
     m_BrighnessFilterPassSpecification.bClearColors = true;
 }
@@ -499,7 +646,7 @@ void Renderer::SetupCombinationRenderPass()
     m_CombinationPassSpecification.Name = "Combination pass";
 
     std::shared_ptr<Framebuffer> framebuffer = RenderingHelper::CreateFramebuffer(1, 1);
-    framebuffer->CreateAttachment(FramebufferAttachmentType::Color);
+    framebuffer->CreateAttachment(FramebufferAttachmentType::Color16);
     framebuffer->CreateAttachment(FramebufferAttachmentType::Depth);
 
     m_CombinationPassSpecification.Framebuffer = framebuffer;
@@ -512,6 +659,31 @@ void Renderer::SetupCombinationRenderPass()
     m_CombinationPassSpecification.bClearDepth = true;
 }
 
+void Renderer::SetupPostProcessingRenderPass()
+{
+	m_PostProcessingRenderPassSpecification.Name = "Post-Processing pass";
+
+	m_PostProcessingRenderPassSpecification.Framebuffer = RenderingHelper::CreateFramebuffer(1, 1);
+	m_PostProcessingRenderPassSpecification.Framebuffer->CreateAttachment(FramebufferAttachmentType::Color16);
+
+	m_PostProcessingRenderPassSpecification.Shader = RenderingHelper::CreateShader(Files::ContentFolderPath + R"(\shaders\deferred\post-processing.glsl)");
+
+	m_CombinationPassSpecification.bUseBlending = false;
+
+	m_CombinationPassSpecification.bClearColors = true;
+}
+
+void Renderer::SetupNewBloomRenderPass()
+{
+	for (int32_t i = 0; i < m_NewBloomDownscaleCount; ++i)
+	{
+		m_BloomIntermediateTextrues.push_back(RenderingHelper::CreateBloomIntermediateTexture());
+	}
+
+	m_BloomDownscaleShader = RenderingHelper::CreateShader(Files::ContentFolderPath + R"(\shaders\bloom\downscale.glsl)");
+	m_BloomUpscaleShader = RenderingHelper::CreateShader(Files::ContentFolderPath + R"(\shaders\bloom\upscale.glsl)");
+}
+
 void Renderer::SetupGeometryRenderPass()
 {
 	m_GeometryPassSpecification.Name = "Geometry pass";
@@ -520,7 +692,7 @@ void Renderer::SetupGeometryRenderPass()
     framebuffer->CreateAttachment(FramebufferAttachmentType::Color);
     framebuffer->CreateAttachment(FramebufferAttachmentType::Position);
     framebuffer->CreateAttachment(FramebufferAttachmentType::Direction);
-    framebuffer->CreateAttachment(FramebufferAttachmentType::Color);
+    framebuffer->CreateAttachment(FramebufferAttachmentType::Color16);
     framebuffer->CreateAttachment(FramebufferAttachmentType::Depth);
 
 	m_GeometryPassSpecification.Framebuffer = framebuffer;
@@ -540,21 +712,40 @@ float Renderer::lerp(float a, float b, float f)
 
 void Renderer::CombinationPass(const std::vector<std::shared_ptr<Component>>& components, Camera* camera)
 {
-    m_CombinationPassSpecification.ViewPosition = camera->GetPosition();
-
-    BeginRenderPass(m_CombinationPassSpecification, camera->GetView(), camera->GetProjection());
-
-    std::shared_ptr<Shader> shader = m_CombinationPassSpecification.Shader;
+    BeginRenderPass(m_CombinationPassSpecification, glm::mat4(1.0f), glm::mat4(1.0f));
 
     m_Context->SetShaderDataTexture("u_Albedo", m_GeometryPassSpecification.Framebuffer->GetAttachment(0));
     m_Context->SetShaderDataTexture("u_RoughnessMetalic", m_GeometryPassSpecification.Framebuffer->GetAttachment(3));
     m_Context->SetShaderDataTexture("u_Light", m_LightPassSpecification.Framebuffer->GetAttachment(0));
-    m_Context->SetShaderDataTexture("u_Bloom", (m_BlurPassCount % 2 ? m_BlurFramebuffer2 : m_BlurFramebuffer1)->GetAttachment(0));
-    m_Context->SetShaderDataTexture("u_AmbientOcclusion", bSSAOEnabled ? m_SSAOBlurPassSpecification.Framebuffer->GetAttachment(0) : RenderingHelper::GetWhiteTexture());
+	m_Context->SetShaderDataTexture("u_AmbientOcclusion", m_bSSAOEnabled ? m_SSAOBlurPassSpecification.Framebuffer->GetAttachment(0) : RenderingHelper::GetWhiteTexture());
 
     SubmitQuad(-1.0f, -1.0f, -1.0f, 1.0f, 1.0f, 1.0f, 1.0f, -1.0f);
 
     EndRenderPass();
+}
+
+void Renderer::PostProcessingPass()
+{
+	BeginRenderPass(m_PostProcessingRenderPassSpecification, glm::mat4(1.0f), glm::mat4(1.0f));
+
+	m_Context->SetShaderDataTexture("u_Color", m_CombinationPassSpecification.Framebuffer->GetAttachment(0));
+	m_Context->SetShaderDataFloat("u_Gamma", m_Gamma);
+
+	if (m_bUseNewBloom)
+	{
+		m_Context->SetShaderDataTexture("u_Bloom", m_BloomIntermediateTextrues.front());
+		m_Context->SetShaderDataFloat("u_BloomStrength", m_BloomStrength);
+		m_Context->SetShaderDataFloat("u_BloomIntensity", m_BloomIntensity);
+	}
+	else
+	{
+		m_Context->SetShaderDataTexture("u_Bloom", (m_BlurPassCount % 2 ? m_BlurFramebuffer2 : m_BlurFramebuffer1)->GetAttachment(0));
+		m_Context->SetShaderDataFloat("u_BloomStrength", 1.0f);
+	}
+
+	SubmitQuad(-1.0f, -1.0f, -1.0f, 1.0f, 1.0f, 1.0f, 1.0f, -1.0f);
+
+	EndRenderPass();
 }
 
 void Renderer::BeginUIFrame()
@@ -639,9 +830,7 @@ void Renderer::SetNewCameraInformation(const glm::mat4& view, const glm::mat4& p
 
 void Renderer::SubmitLightMesh(const std::shared_ptr<PointLightComponent>& light, const std::shared_ptr<Texture>& shadowMap)
 {
-	glm::vec3 color = light->GetColor();
-	float Imax = std::max(color.x, std::max(color.y, color.z));
-	float radius = std::sqrt(light->GetIntensity() * Imax) * 16.0f;
+	float radius = light->GetRadius();
 
 	if (glm::length(m_Specification->ViewPosition - light->GetPosition()) * 0.9f > radius)
 	{
@@ -660,13 +849,14 @@ void Renderer::SubmitLightMesh(const std::shared_ptr<PointLightComponent>& light
 	m_Context->SetShaderDataFloat("u_PointLight.Intensity", light->GetIntensity());
 	m_Context->SetShaderDataFloat("u_PointLight.Radius", radius);
 
-	if (shadowMap)
+	if (light->IsShadowCasting())
 	{
 		m_Context->SetShaderDataTexture("u_PointLight.ShadowMap", shadowMap);
 		m_Context->SetShaderDataBool("u_PointLight.UseShadowMap", true);
 	}
 	else
 	{
+		m_Context->SetShaderDataTexture("u_PointLight.ShadowMap", RenderingHelper::GetWhiteTexture());
 		m_Context->SetShaderDataBool("u_PointLight.UseShadowMap", false);
 	}
 

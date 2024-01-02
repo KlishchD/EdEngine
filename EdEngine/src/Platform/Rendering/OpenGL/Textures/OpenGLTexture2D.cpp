@@ -1,5 +1,6 @@
 #include "OpenGLTexture2D.h"
 #include "Platform/Rendering/OpenGL/OpenGLTypes.h"
+#include "Core/Rendering/EdRendering.h"
 
 OpenGLTexture2D::OpenGLTexture2D(const std::shared_ptr<TextureDescriptor>& descriptor): Texture2D(descriptor)
 {

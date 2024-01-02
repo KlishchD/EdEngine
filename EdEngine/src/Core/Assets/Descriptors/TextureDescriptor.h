@@ -1,7 +1,7 @@
 #pragma once
 
 #include "AssetDescriptor.h"
-#include "Core/Assets/TextureImportParameters.h"
+#include "Core/Assets/ImportParameters/TextureImportParameters.h"
 #include "Core/Rendering/Textures/TextureData.h"
 
 struct TextureDescriptor : public AssetDescriptor
@@ -17,6 +17,7 @@ struct Texture2DDescriptor : public TextureDescriptor
 
 	virtual TextureImportParameters* GetImportParameters() const override;
 	virtual TextureData* GetData() const override;
+	virtual bool HasData() const override;
 };
 
 struct CubeTextureDescriptor : public TextureDescriptor
@@ -26,4 +27,51 @@ struct CubeTextureDescriptor : public TextureDescriptor
 
 	virtual TextureImportParameters* GetImportParameters() const override;
 	virtual TextureData* GetData() const override;
+	virtual bool HasData() const override;
 };
+
+namespace boost
+{
+	namespace serialization
+	{
+		template <class Archive>
+		void serialize(Archive& ar, Texture2DDescriptor& descriptor, uint32_t version)
+		{
+			ar & boost::serialization::base_object<AssetDescriptor>(descriptor);
+			ar & descriptor.ImportParameters;
+			
+			if (!Archive::is_saving::value)
+			{
+				descriptor.Data.PixelSize = Types::GetPixelSize(descriptor.ImportParameters.Format);
+			}
+
+			if (descriptor.ShouldHaveData() || (Archive::is_saving::value && descriptor.HasData()))
+			{
+				ar & descriptor.Data;
+			}
+		}
+
+		template <class Archive>
+		void serialize(Archive& ar, CubeTextureDescriptor& descriptor, uint32_t version)
+		{
+			ar & boost::serialization::base_object<AssetDescriptor>(descriptor);
+			ar & descriptor.ImportParameters;
+
+			if (!Archive::is_saving::value)
+			{
+				descriptor.Data.PixelSize = Types::GetPixelSize(descriptor.ImportParameters.Format);
+			}
+
+			if (descriptor.ShouldHaveData() || (Archive::is_saving::value && descriptor.HasData()))
+			{
+				ar & descriptor.Data;
+			}
+		}
+	}
+}
+
+BOOST_CLASS_EXPORT_KEY(Texture2DDescriptor)
+BOOST_CLASS_VERSION(Texture2DDescriptor, 1)
+
+BOOST_CLASS_EXPORT_KEY(CubeTextureDescriptor)
+BOOST_CLASS_VERSION(CubeTextureDescriptor, 1)

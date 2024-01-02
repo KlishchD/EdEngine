@@ -17,7 +17,8 @@ public:
 private:
     std::shared_ptr<class Editor> m_Editor;
     class Engine* m_Engine = nullptr;
-    
+    std::shared_ptr<class Renderer> m_Renderer;
+
     bool PositionSliders(glm::vec3& position, glm::vec2 range);
     bool RotationSliders(glm::vec3& angles);
 };

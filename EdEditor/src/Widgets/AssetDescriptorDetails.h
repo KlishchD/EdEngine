@@ -1,6 +1,7 @@
 ﻿#pragma once
 
 #include <memory>
+#include <string>
 #include "Core/Widget.h"
 
 class AssetDescriptorDetails: public Widget

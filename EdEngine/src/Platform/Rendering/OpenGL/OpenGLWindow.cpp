@@ -1,5 +1,5 @@
 #include "OpenGLWindow.h"
-#include "Core/Ed.h"
+#include "Core/Rendering/EdRendering.h"
 #include "imgui.h"
 #include "Core/Macros.h"
 #include "OpenGLRenderingContex.h"
@@ -176,14 +176,14 @@ OpenGLWindow::OpenGLWindow(WindowSpecification specification): Window(specificat
 	style.LogSliderDeadzone = 4;
 	style.TabRounding = 4;
 
-	//PlatformUtils::DisableTitleBar(*this);
+	PlatformUtils::DisableTitleBar(*this);
 
 	ED_LOG(Window, info, "Finished creating window")
 }
 
 void OpenGLWindow::Update()
 {
-	/*if (glfwGetMouseButton(m_Window, 0) == GLFW_PRESS && dragState == 0)
+	if (glfwGetMouseButton(m_Window, 0) == GLFW_PRESS && dragState == 0)
 	{
 		glfwGetCursorPos(m_Window, &s_xpos, &s_ypos);
 		glfwGetWindowSize(m_Window, &w_xsiz, &w_ysiz);
@@ -205,7 +205,7 @@ void OpenGLWindow::Update()
 	if (glfwGetMouseButton(m_Window, 0) == GLFW_RELEASE && dragState == 1) 
 	{
 		dragState = 0;
-	}*/
+	}
 
 	glfwPollEvents();
 }

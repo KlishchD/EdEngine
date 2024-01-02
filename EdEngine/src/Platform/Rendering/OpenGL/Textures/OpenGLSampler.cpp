@@ -1,4 +1,5 @@
 #include "OpenGLSampler.h"
+#include "Core/Rendering/EdRendering.h"
 
 OpenGLSampler::OpenGLSampler()
 {

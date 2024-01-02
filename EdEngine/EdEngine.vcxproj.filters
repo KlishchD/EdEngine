@@ -177,9 +177,6 @@
     <ClCompile Include="src\Platform\Rendering\OpenGL\Framebuffers\OpenGLCubeFramebuffer.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\Core\Assets\TextureImportParameters.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="src\Core\Rendering\RenderingContex.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -205,6 +202,24 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="src\Core\Assets\Descriptors\TextureDescriptor.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Core\Assets\Descriptors\AssetDescriptor.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Core\Assets\Descriptors\MaterialDescriptor.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Core\Assets\ImportParameters\StaticMeshImportParameters.h">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Core\Assets\Descriptors\StaticMeshDescriptor.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Core\Rendering\Types.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Core\Input.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -368,7 +383,7 @@
     <ClInclude Include="src\Core\Rendering\Textures\TextureData.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\Core\Assets\TextureImportParameters.h">
+    <ClInclude Include="src\Core\Assets\ImportParameters\TextureImportParameters.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\Core\Rendering\Types.h">
@@ -414,6 +429,15 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\Platform\Rendering\OpenGL\Textures\OpenGLSampler.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Core\Assets\Descriptors\MaterialDescriptor.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Core\Assets\Descriptors\StaticMeshDescriptor.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Core\Rendering\EdRendering.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

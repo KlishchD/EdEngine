@@ -1,6 +1,6 @@
 #include "OpenGLVertexBuffer.h"
 #include "Platform/Rendering/OpenGL/OpenGLTypes.h"
-#include "Core/Ed.h"
+#include "Core/Rendering/EdRendering.h"
 
 OpenGLVertexBuffer::OpenGLVertexBuffer()
 {

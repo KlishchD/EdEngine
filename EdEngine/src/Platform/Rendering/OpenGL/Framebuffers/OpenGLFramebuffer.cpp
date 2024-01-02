@@ -1,4 +1,5 @@
 #include "OpenGLFramebuffer.h"
+#include "Core/Rendering/EdRendering.h"
 #include "Utils/RenderingHelper.h"
 #include "Core/Macros.h"
 
@@ -15,13 +16,13 @@ void OpenGLFramebuffer::CreateAttachment(FramebufferAttachmentType type)
 
 	switch (type)
 	{
-	case FramebufferAttachmentType::Color:        parameters = { "", WrapMode::Repeat, WrapMode::Repeat, PixelFormat::RGB8F,          FilteringMode::Linear }; break;
-	case FramebufferAttachmentType::Color16:      parameters = { "", WrapMode::Repeat, WrapMode::Repeat, PixelFormat::RGB16F,         FilteringMode::Linear }; break;
-	case FramebufferAttachmentType::Depth:        parameters = { "", WrapMode::Repeat, WrapMode::Repeat, PixelFormat::Depth,          FilteringMode::Nearest }; break;
-	case FramebufferAttachmentType::DepthStencil: parameters = { "", WrapMode::Repeat, WrapMode::Repeat, PixelFormat::DepthStencil,   FilteringMode::Nearest }; break;
-	case FramebufferAttachmentType::Position:     parameters = { "", WrapMode::Repeat, WrapMode::Repeat, PixelFormat::RGB32F,         FilteringMode::Linear }; break;
-	case FramebufferAttachmentType::Direction:    parameters = { "", WrapMode::Repeat, WrapMode::Repeat, PixelFormat::RGB16F,         FilteringMode::Linear }; break;
-	case FramebufferAttachmentType::Distance:     parameters = { "", WrapMode::Repeat, WrapMode::Repeat, PixelFormat::R16F,           FilteringMode::Linear }; break;
+	case FramebufferAttachmentType::Color:        parameters = { "", WrapMode::ClampToEdge,    WrapMode::ClampToEdge,    PixelFormat::RGBA8F,          FilteringMode::Linear }; break;
+	case FramebufferAttachmentType::Color16:      parameters = { "", WrapMode::ClampToEdge,    WrapMode::ClampToEdge,    PixelFormat::RGBA16F,         FilteringMode::Linear }; break;
+	case FramebufferAttachmentType::Depth:        parameters = { "", WrapMode::Repeat,         WrapMode::Repeat,         PixelFormat::Depth,           FilteringMode::Nearest }; break;
+	case FramebufferAttachmentType::DepthStencil: parameters = { "", WrapMode::Repeat,         WrapMode::Repeat,         PixelFormat::DepthStencil,    FilteringMode::Nearest }; break;
+	case FramebufferAttachmentType::Position:     parameters = { "", WrapMode::Repeat,         WrapMode::Repeat,         PixelFormat::RGB32F,          FilteringMode::Linear }; break;
+	case FramebufferAttachmentType::Direction:    parameters = { "", WrapMode::Repeat,         WrapMode::Repeat,         PixelFormat::RGB16F,          FilteringMode::Linear }; break;
+	case FramebufferAttachmentType::Distance:     parameters = { "", WrapMode::MirroredRepeat, WrapMode::MirroredRepeat, PixelFormat::R8F,             FilteringMode::Linear }; break;
 	default:
 		ED_ASSERT_CONTEXT(OpenGLAPI, 0, "Unsupported framebuffer attachment type")
 			break;

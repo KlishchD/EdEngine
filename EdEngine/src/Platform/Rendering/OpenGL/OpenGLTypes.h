@@ -25,4 +25,6 @@ public:
 	static uint32_t ConvertFace(Face face);
 
 	static uint32_t ConverTextureType(TextureType type);
+
+	static uint32_t ConvertBarrierType(BarrierType type);
 };

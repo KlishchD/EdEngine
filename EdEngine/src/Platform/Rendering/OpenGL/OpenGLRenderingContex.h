@@ -19,6 +19,7 @@ public:
 	virtual void SetShader(const std::shared_ptr<Shader>& shader) override;
 
 	virtual void SetShaderDataTexture(const std::string& name, const std::shared_ptr<Texture>& texture) override;
+	virtual void SetShaderDataImage(const std::string& name, const std::shared_ptr<Texture>& texture) override;
 	virtual void SetShaderDataInt(const std::string& name, int32_t value) override;
 	virtual void SetShaderDataFloat(const std::string& name, float value) override;
 	virtual void SetShaderDataFloat2(const std::string& name, glm::vec2 vector) override;
@@ -32,6 +33,7 @@ public:
 	virtual void SetShaderDataBool(const std::string& name, bool value) override;
 
 	virtual void SetShaderDataTexture(const char* name, const std::shared_ptr<Texture>& texture) override;
+	virtual void SetShaderDataImage(const char* name, const std::shared_ptr<Texture>& texture) override;
 	virtual void SetShaderDataInt(const char* name, int32_t value) override;
 	virtual void SetShaderDataFloat(const char* name, float value) override;
 	virtual void SetShaderDataFloat2(const char* name, glm::vec2 vector) override;
@@ -43,6 +45,9 @@ public:
 	virtual void SetShaderDataMat4(const char* name, const glm::mat4& matrix) override;
 	virtual void SetShaderDataMat3(const char* name, const glm::mat3& matrix) override;
 	virtual void SetShaderDataBool(const char* name, bool value) override;
+
+	virtual void RunComputeShader(uint32_t sizeX, uint32_t sizeY, uint32_t sizeZ) override;
+	virtual void Barier(BarrierType type) override;
 
 	virtual void Draw() override;
 

@@ -1,6 +1,7 @@
 ﻿#include "CameraDetailsWidget.h"
 #include "Editor.h"
 #include "Core/Engine.h"
+#include "Core/Rendering/Renderer.h"
 
 #include <imgui.h>
 #include <glm/gtc/type_ptr.hpp>
@@ -15,6 +16,7 @@ void CameraDetailsWidget::Initialize()
     Widget::Initialize();
 
     m_Engine = &Engine::Get();
+    m_Renderer = m_Engine->GetRenderer();
     m_Editor = m_Engine->GetManager<Editor>();
 }
 
@@ -47,6 +49,45 @@ void CameraDetailsWidget::Tick(float DeltaTime)
 
         ImGui::End();
     }
+
+    ImGui::Begin("Rendering");
+
+    if (float strength = m_Renderer->GetBloomStrength(); ImGui::SliderFloat("Bloom strength", &strength, 0.0f, 1.0f))
+    {
+        m_Renderer->SetBloomStrength(strength);
+    }
+
+    if (float strength = m_Renderer->GetBloomMixStrength(); ImGui::SliderFloat("Bloom mix strength", &strength, 0.0f, 1.0f))
+    {
+        m_Renderer->SetBloomMixStrength(strength);
+    }
+
+    if (int32_t count = m_Renderer->GetBloomDownscaleTextureCount(); ImGui::SliderInt("Downscale count", &count, 1, 8))
+    {
+        m_Renderer->SetBloomDownscaleTexturesCount(count);
+    }
+
+    if (bool use = m_Renderer->IsUsingLightPassASBloomBase(); ImGui::Checkbox("Use light pass as bloom base", &use))
+    {
+        m_Renderer->SetUseLightPassAsBoomBase(use);
+    }
+
+    if (bool use = m_Renderer->IsUsingNewBloom(); ImGui::Checkbox("Use new bloom", &use))
+    {
+        m_Renderer->SetUseNewBloom(use);
+    }
+
+    if (float intensity = m_Renderer->GetBloomIntensity(); ImGui::SliderFloat("Bloom intensity", &intensity, 0.0f, 1.0f))
+    {
+        m_Renderer->SetBloomIntensity(intensity);
+    }
+
+    if (float scale = m_Renderer->GetUpsampleScale(); ImGui::SliderFloat("Upsample scale", &scale, 0.25f, 4.0f))
+    {
+        m_Renderer->SetUpsampleScale(scale);
+    }
+
+    ImGui::End();
 }
 
 bool CameraDetailsWidget::PositionSliders(glm::vec3& position, glm::vec2 range)

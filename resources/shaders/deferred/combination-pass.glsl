@@ -17,15 +17,12 @@ void main() {
 
 uniform vec2 u_ScreenSize;
 
-uniform vec3 u_ViewPosition;
-
 uniform sampler2D u_Albedo;
 uniform sampler2D u_RoughnessMetalic;
 uniform sampler2D u_Light;
-uniform sampler2D u_Bloom;
 uniform sampler2D u_AmbientOcclusion;
 
-layout(location = 0) out vec4 color;
+layout(location = 0) out vec4 result;
 
 vec3 ACESFilm(vec3 x)
 {
@@ -43,23 +40,17 @@ void main() {
     vec3 albedo = texture(u_Albedo, pos).xyz;
     vec4 roughnessMetalic = texture(u_RoughnessMetalic, pos);
     
+    vec3 color;
+
     if (roughnessMetalic.a == 1.0f)
     {
         float ambientOcclusion = texture2D(u_AmbientOcclusion, pos).x;
-        vec3 rColor = 0.1f * albedo * ambientOcclusion + texture(u_Light, pos).xyz + texture(u_Bloom, pos).xyz;
-
-        // HDR tone-mapping
-        //totalColor = totalColor / (totalColor + vec3(1.0f));
-        rColor = ACESFilm(rColor);
-
-        // gamma correction
-        rColor = pow(rColor, vec3(1.0f / 2.2f));
-
-        color = vec4(rColor, 1.0f);
-        //color = vec4(ambientOcclusion, ambientOcclusion, ambientOcclusion, 1.0f);
+        color = 0.1f * albedo * ambientOcclusion + texture(u_Light, pos).xyz;
     }
     else
     {
-        color = vec4(albedo, 1.0f);
+        color = albedo;
     }
+    
+    result = vec4(color, 1.0f);
 }

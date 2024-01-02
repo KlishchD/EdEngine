@@ -60,3 +60,13 @@ void PointLightComponent::SetShadowCasting(bool isShadowCasting)
 {
     m_IsCastingShadows = isShadowCasting;
 }
+
+void PointLightComponent::SetRadius(float radius)
+{
+    m_Radius = radius;
+}
+
+float PointLightComponent::GetRadius() const
+{
+    return m_Radius;
+}

@@ -1,7 +1,8 @@
+#include "Core/Rendering/Textures/CubeTexture.h"
+#include "Core/Rendering/EdRendering.h"
 #include "OpenGLCubeFramebuffer.h"
 #include "Utils/RenderingHelper.h"
 #include "Core/Macros.h"
-#include "Core/Rendering/Textures/CubeTexture.h"
 
 OpenGLCubeFramebuffer::OpenGLCubeFramebuffer(int32_t size) : CubeFramebuffer(size)
 {
@@ -16,13 +17,13 @@ void OpenGLCubeFramebuffer::CreateAttachment(FramebufferAttachmentType type)
 
 	switch (type)
 	{
-	case FramebufferAttachmentType::Color:        parameters = { "", WrapMode::Repeat, WrapMode::Repeat, WrapMode::Repeat, PixelFormat::RGB8F,        FilteringMode::Linear  }; break;
-	case FramebufferAttachmentType::Color16:      parameters = { "", WrapMode::Repeat, WrapMode::Repeat, WrapMode::Repeat, PixelFormat::RGB16F,       FilteringMode::Linear  }; break;
-	case FramebufferAttachmentType::Depth:        parameters = { "", WrapMode::Repeat, WrapMode::Repeat, WrapMode::Repeat, PixelFormat::Depth,        FilteringMode::Nearest }; break;
-	case FramebufferAttachmentType::DepthStencil: parameters = { "", WrapMode::Repeat, WrapMode::Repeat, WrapMode::Repeat, PixelFormat::DepthStencil, FilteringMode::Nearest }; break;
-	case FramebufferAttachmentType::Direction:    parameters = { "", WrapMode::Repeat, WrapMode::Repeat, WrapMode::Repeat, PixelFormat::RGB8F,        FilteringMode::Linear  }; break;
-	case FramebufferAttachmentType::Position:     parameters = { "", WrapMode::Repeat, WrapMode::Repeat, WrapMode::Repeat, PixelFormat::RGB32F,       FilteringMode::Linear  };	break; // TODO: check for artifacts :)
-	case FramebufferAttachmentType::Distance:     parameters = { "", WrapMode::Repeat, WrapMode::Repeat, WrapMode::Repeat, PixelFormat::R8F,          FilteringMode::Linear  };	break; // TODO: check for artifacts :)
+	case FramebufferAttachmentType::Color:        parameters = { "", WrapMode::ClampToEdge, WrapMode::ClampToEdge, PixelFormat::RGBA8F,        FilteringMode::Linear,  WrapMode::ClampToEdge }; break;
+	case FramebufferAttachmentType::Color16:      parameters = { "", WrapMode::ClampToEdge, WrapMode::ClampToEdge, PixelFormat::RGBA16F,       FilteringMode::Linear,  WrapMode::ClampToEdge }; break;
+	case FramebufferAttachmentType::Depth:        parameters = { "", WrapMode::Repeat,      WrapMode::Repeat,      PixelFormat::Depth,         FilteringMode::Nearest, WrapMode::Repeat,     }; break;
+	case FramebufferAttachmentType::DepthStencil: parameters = { "", WrapMode::Repeat,      WrapMode::Repeat,      PixelFormat::DepthStencil,  FilteringMode::Nearest, WrapMode::Repeat,     }; break;
+	case FramebufferAttachmentType::Direction:    parameters = { "", WrapMode::Repeat,      WrapMode::Repeat,      PixelFormat::RGB8F,         FilteringMode::Linear,  WrapMode::Repeat,     }; break;
+	case FramebufferAttachmentType::Position:     parameters = { "", WrapMode::Repeat,      WrapMode::Repeat,      PixelFormat::RGB32F,        FilteringMode::Linear,  WrapMode::Repeat,     }; break; // TODO: check for artifacts :)
+	case FramebufferAttachmentType::Distance:     parameters = { "", WrapMode::Repeat,      WrapMode::Repeat,      PixelFormat::R8F,           FilteringMode::Linear,  WrapMode::Repeat,     }; break; // TODO: check for artifacts :)
 	default:
 		ED_ASSERT_CONTEXT(OpenGLAPI, 0, "Unsupported cube framebuffer attachment type");
 		break;

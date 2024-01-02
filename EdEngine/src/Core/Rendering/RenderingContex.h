@@ -6,6 +6,7 @@
 #include "Core/Rendering/Types.h"
 
 class Texture;
+class Shader;
 
 class RenderingContext 
 {
@@ -19,9 +20,10 @@ public:
 
 	virtual void SetIndexBuffer(const std::shared_ptr<class IndexBuffer>& buffer) = 0;
 
-	virtual void SetShader(const std::shared_ptr<class Shader>& shader) = 0;
+	virtual void SetShader(const std::shared_ptr<Shader>& shader) = 0;
 
 	virtual void SetShaderDataTexture(const std::string& name, const std::shared_ptr<Texture>& texture) = 0;
+	virtual void SetShaderDataImage(const std::string& name, const std::shared_ptr<Texture>& texture) = 0;
 	virtual void SetShaderDataInt(const std::string& name, int32_t value) = 0;
 	virtual void SetShaderDataFloat(const std::string& name, float value) = 0;
 	virtual void SetShaderDataFloat2(const std::string& name, glm::vec2 vector) = 0;
@@ -35,6 +37,7 @@ public:
 	virtual void SetShaderDataBool(const std::string& name, bool value) = 0;
 
 	virtual void SetShaderDataTexture(const char* name, const std::shared_ptr<Texture>& texture) = 0;
+	virtual void SetShaderDataImage(const char* name, const std::shared_ptr<Texture>& texture) = 0;
 	virtual void SetShaderDataInt(const char* name, int32_t value) = 0;
 	virtual void SetShaderDataFloat(const char* name, float value) = 0;
 	virtual void SetShaderDataFloat2(const char* name, glm::vec2 vector) = 0;
@@ -46,6 +49,9 @@ public:
 	virtual void SetShaderDataMat4(const char* name, const glm::mat4& matrix)  = 0;
 	virtual void SetShaderDataMat3(const char* name, const glm::mat3& matrix)  = 0;
 	virtual void SetShaderDataBool(const char* name, bool value) = 0;
+
+	virtual void RunComputeShader(uint32_t sizeX, uint32_t sizeY, uint32_t sizeZ) = 0;
+	virtual void Barier(BarrierType type) = 0;
 
 	virtual void Draw() = 0;
 

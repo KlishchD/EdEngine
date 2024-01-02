@@ -22,7 +22,9 @@ void SceneTreeWidget::Tick(float DeltaTime)
 
     for (const auto& actor: m_Engine->GetLoadedScene()->GetActors())
     {
-        if (ImGui::TreeNodeEx(actor->GetName().c_str(), ImGuiTreeNodeFlags_Leaf))
+        int32_t pos = actor->GetName().find_first_of((char) 0);
+        std::string name = actor->GetName().substr(0, pos) + "##" + std::to_string((int32_t)actor.get());
+        if (ImGui::TreeNodeEx(name.c_str(), ImGuiTreeNodeFlags_Leaf))
         {
             if (ImGui::IsItemClicked())
             {
@@ -31,6 +33,6 @@ void SceneTreeWidget::Tick(float DeltaTime)
             ImGui::TreePop();
         }
     }
-        
+
     ImGui::End();
 }

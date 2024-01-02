@@ -1,5 +1,5 @@
 #include "OpenGLShader.h"
-#include "Core/Ed.h"
+#include "Core/Rendering/EdRendering.h"
 #include "Core/Macros.h"
 #include "OpenGLTypes.h"
 

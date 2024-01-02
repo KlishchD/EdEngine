@@ -1,4 +1,5 @@
 #include "OpenGLCubeTexture.h"
+#include "Core/Rendering/EdRendering.h"
 #include "Platform/Rendering/OpenGL/OpenGLTypes.h"
 
 OpenGLCubeTexture::OpenGLCubeTexture(const std::shared_ptr<CubeTextureDescriptor>& descriptor): CubeTexture(descriptor)
