@@ -9,6 +9,8 @@ enum class ComponentType: uint8_t
     PointLight
 };
 
+class Actor;
+
 class Component
 {
     friend class boost::serialization::access;
@@ -58,15 +60,31 @@ public:
     const std::vector<std::shared_ptr<Component>>& GetChildren() const;
     std::vector<std::shared_ptr<Component>> GetAllChildren();
 
+    void SetOwnerComponent(const std::shared_ptr<Component>& component);
+    std::shared_ptr<Component> GetOwnerComponent() const;
+
+    void SetOwnerActor(const std::shared_ptr<Actor>& actor);
+    std::shared_ptr<Actor> GetOwnerActor() const;
+
     void SetTransform(const Transform& transform);
     Transform& GetTransform();
-    
+    Transform GetPreviousTransform() const;
+
+    Transform GetFullTransform() const;
+    Transform GetFullPreviousTransform() const;
+
+    virtual void Update(float DeltaSeconds);
+
     const std::string& GetName() const;
     void SetName(const std::string& name);
 protected:
     std::string m_Name;
 
+    std::shared_ptr<Component> m_OwnerComponent;
+    std::shared_ptr<Actor> m_OwnerActor;
+
     Transform m_Transform;
+    Transform m_PreviousTransform;
     
     std::vector<std::shared_ptr<Component>> m_Children;
 };

@@ -16,6 +16,7 @@ struct TextureImportParameters
 
 struct Texture2DImportParameters : public TextureImportParameters
 {
+	bool GenerateMipMaps = false;
 };
 
 struct CubeTextureImportParameters: public TextureImportParameters
@@ -36,6 +37,7 @@ namespace boost
 			ar & parameters.WrapT;
 			ar & parameters.Format;
 			ar & parameters.Filtering;
+			ar & parameters.GenerateMipMaps;
 		}
 
 		template <class Archive>

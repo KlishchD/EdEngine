@@ -32,7 +32,7 @@ void ViewportWidget::Tick(float DeltaTime)
 
     m_Editor->SetViewportIsActive(ImGui::IsWindowHovered());
     
-    ImGui::Image((void*)m_Renderer->GetViewport()->GetAttachment(0)->GetID(), viewportSize, { 0, 1 }, { 1, 0 });
+    ImGui::Image((void*)m_Renderer->GetViewportTexture()->GetID(), viewportSize, { 0, 1 }, { 1, 0 });
     
     ImGui::End();
 

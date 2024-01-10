@@ -75,6 +75,8 @@ void Editor::Update(float DeltaTime)
         camera->AddPositionOffset(camera->GetUp() * m_MovementDirection.y * m_CameraSpeed * DeltaTime);
     }
 
+//    std::shared_ptr<Actor> cube = m_Engine->GetLoadedScene()->GetActors().back();
+//    cube->GetTransform().AddTranslation(DeltaTime * glm::vec3(-1.0f, 0.0f, 0.0f));
 
     m_Renderer->SubmitRenderCommand([this, camera](RenderingContext* context) {
         std::vector<std::shared_ptr<Component>> components = m_Engine->GetLoadedScene()->GetAllComponents();
@@ -127,7 +129,7 @@ void Editor::SetUpInputs(Engine* engine)
     engine->SubscribeToInput(Key::RightMouseClick, Action::Release, [this]() { m_IsRightMouseButtonClicked = false; });
 
     engine->SubscribeToInput(Key::U, Action::Press, [this]() { m_Renderer->SetSSAOEnabled(!m_Renderer->IsSSAOEnabled()); });
-    engine->SubscribeToInput(Key::B, Action::Press, [this]() { m_Renderer->SetUseNewBloom(!m_Renderer->IsUsingNewBloom()); });
+    engine->SubscribeToInput(Key::B, Action::Press, [this]() { m_Renderer->SetAAMethod(m_Renderer->GetAAMethod() == AAMethod::None ? AAMethod::TAA : AAMethod::None); });
 }
 
 void Editor::SetSelectedActor(const std::shared_ptr<Actor>& actor)

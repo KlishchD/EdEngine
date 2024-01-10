@@ -36,7 +36,7 @@ class Actor : public GameObject
         {
             Component* component;
             ar & component;
-            m_Components.push_back(std::shared_ptr<Component>(component));
+            RegisterComponent(std::shared_ptr<Component>(component));
         }
     }
     
@@ -47,6 +47,9 @@ public:
 
     void SetTransform(const Transform& transform);
     Transform& GetTransform();
+    Transform GetPreviousTransform() const;
+
+    virtual void Update(float DeltaSeconds);
 
     void RegisterComponent(const std::shared_ptr<Component>& component);
     const std::vector<std::shared_ptr<Component>>& GetComponents() const;
@@ -55,6 +58,7 @@ public:
 protected:
     std::vector<std::shared_ptr<Component>> m_Components;
     Transform m_Transform;
+    Transform m_PreviousTransform;
 };
 
 BOOST_CLASS_EXPORT_KEY(Actor)

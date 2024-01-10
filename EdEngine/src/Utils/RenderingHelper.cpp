@@ -218,6 +218,7 @@ Texture2DImportParameters RenderingHelper::GetDefaultBaseColorTexture2DImportPar
 	parameters.WrapT = WrapMode::Repeat;
 	parameters.Format = PixelFormat::SRGBA8F;
 	parameters.Filtering = FilteringMode::Linear;
+	parameters.GenerateMipMaps = true;
 	return parameters;
 }
 

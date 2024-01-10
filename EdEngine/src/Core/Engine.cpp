@@ -7,6 +7,7 @@
 #include "LogManager.h"
 #include "Assets/AssetManager.h"
 #include "Rendering/Renderer.h"
+#include "Scene.h"
 #include "Macros.h"
 
 Engine* engine = nullptr;
@@ -56,7 +57,7 @@ void Engine::Initialize()
 	ED_LOG(Engine, info, "Started initializing");
 
 #undef CreateWindow // TODO: REMOVE IT :)
-	m_Window = RenderingHelper::CreateWindow({ "EdEngine", 1024, 960 });
+	m_Window = RenderingHelper::CreateWindow({ "EdEngine", 2048, 1152 });
 #define CreateWindow CreateWindowW
 
 	m_Renderer = std::make_shared<Renderer>();
@@ -105,6 +106,8 @@ void Engine::Update()
 	float DeltaTime = std::chrono::duration_cast<std::chrono::microseconds>(now - m_PreviousFrameTime).count() / 1000000.0f;
 
 	m_PreviousFrameTime = now;
+
+	m_Scene->Update(DeltaTime);
 
 	PushUpdate(DeltaTime);
 	

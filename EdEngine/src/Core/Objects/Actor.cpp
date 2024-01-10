@@ -17,8 +17,24 @@ Transform& Actor::GetTransform()
     return m_Transform;
 }
 
+Transform Actor::GetPreviousTransform() const
+{
+    return m_PreviousTransform;
+}
+
+void Actor::Update(float DeltaSeconds)
+{
+    m_PreviousTransform = m_Transform;
+
+    for (const std::shared_ptr<Component>& component : m_Components)
+    {
+        component->Update(DeltaSeconds);
+    }
+}
+
 void Actor::RegisterComponent(const std::shared_ptr<Component>& component)
 {
+    component->SetOwnerActor(std::shared_ptr<Actor>(this));
     m_Components.push_back(component);
 }
 

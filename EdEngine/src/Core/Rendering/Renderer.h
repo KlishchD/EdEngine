@@ -37,8 +37,14 @@ public:
 
     void SubmitRenderCommand(const std::function<void(RenderingContext* context)>& command);
 
+    void SetGamma(float gamma);
+    float GetGamma() const;
+
     void SetSSAOEnabled(bool enabled);
     bool IsSSAOEnabled() const;
+
+    void SetBloomEnabled(bool enabled);
+    bool IsBloomEnabled() const;
 
     void SetUseNewBloom(bool use);
     bool IsUsingNewBloom() const;
@@ -55,15 +61,34 @@ public:
     void SetBloomDownscaleTexturesCount(uint32_t count);
     uint32_t GetBloomDownscaleTextureCount() const;
 
-    void SetUseLightPassAsBoomBase(bool use);
-    bool IsUsingLightPassASBloomBase() const;
-
     void SetUpsampleScale(float scale);
     float GetUpsampleScale() const;
+
+    void SetAAMethod(AAMethod method);
+    AAMethod GetAAMethod() const;
+
+    void SetContrastThreshold(float threshold);
+    float GetContrastThreshold() const;
+
+    void SetRelativeThreshold(float threshold);
+    float GetRelativeThreshold() const;
+
+    void SetSubpixelBlending(float scale);
+    float GetSubpixelBlending() const;
+
+    void SetIsUsingComputeShadersForPostProcessing(bool active);
+    bool IsUsingComputeShadersForPostProcessing() const;
+
+    void SetActiveRenderTarget(RenderTarget target);
+    RenderTarget GetActiveRenderTarget() const;
+
+    void SetTAAGamma(float gamma);
+    float GetTAAGamma() const;
 
     std::shared_ptr<Framebuffer> GetGeometryPassFramebuffer() const;
     std::shared_ptr<Framebuffer> LightPassFramebuffer() const;
     std::shared_ptr<Framebuffer> GetViewport() const;
+    std::shared_ptr<Texture2D> GetViewportTexture() const;
 
 private:
 	float m_FarPlane = 15000.0f;
@@ -93,7 +118,7 @@ private:
 
     bool m_bSSAOEnabled = true;
 
-    // Bloom
+    // Old Bloom
     std::shared_ptr<Framebuffer> m_BlurFramebuffer1;
     std::shared_ptr<Framebuffer> m_BlurFramebuffer2;
     std::shared_ptr<Shader> m_BlurShader;
@@ -104,29 +129,66 @@ private:
     int32_t m_FilterSize = 5;
     std::shared_ptr<Texture2D> m_ShadowMapRandomSamples;
 
-    // Bloom
-    std::shared_ptr<Shader> m_BloomDownscaleShader;
-    std::shared_ptr<Shader> m_BloomUpscaleShader;
+    // New Bloom
+    bool m_bIsBloomEnabled = false;
+
+	std::shared_ptr<Shader> m_BloomDownscaleShader;
+	std::shared_ptr<Shader> m_BloomUpscaleShader;
+
+	std::shared_ptr<Shader> m_BloomDownscaleComputeShader;
+	std::shared_ptr<Shader> m_BloomUpscaleComputeShader;
+
+    std::shared_ptr<Framebuffer> m_BloomFramebuffer;
 
     float m_BloomStrength = 0.1f;
     float m_BloomMixStrength = 0.85f;
     float m_BloomIntensity = 1.0f;
-    bool m_bUseLightPassImageAsBloomBase = true;
 
     std::vector<std::shared_ptr<Texture2D>> m_BloomIntermediateTextrues;
     int32_t m_NewBloomDownscaleCount = 4;
 
-    bool m_bUseNewBloom = false;
+    bool m_bUseNewBloom = true;
     
     // Post-Processing
     RenderPassSpecification m_PostProcessingRenderPassSpecification;
     float m_Gamma = 2.2f;
 
+    // AA
+
+    AAMethod m_AAMethod = AAMethod::TAA;
+    std::shared_ptr<Framebuffer> m_AAOutput;
+
+    // TAA
+    std::shared_ptr<Shader> m_TAAShader;
+    std::shared_ptr<Shader> m_TAAComputeShader;
+
+    int32_t m_JitterSequenceSize = 16;
+    int32_t m_CurrentJitterIndex;
+    std::vector<glm::vec2> m_JitterSequence;
+    
+    uint32_t m_HistoryBufferSize = 2;
+    std::vector<std::shared_ptr<Texture>> m_HistoryBuffer;
+    int32_t m_ActiveHistoryBufferTextureIndex = 0;
+
+    glm::mat4 m_PreviousView = glm::mat4(1.0f);
+
+    float m_TAAGamma = 1.25f;
+
+    // Super sample
+    float m_UpsampleScale = 1.0f;
+
+    // FXAA
+
+    std::shared_ptr<Shader> m_FFXAShader;
+    float m_ContrastThreshold = 0.0312f;
+    float m_RelativeThreshold = 0.125f;
+    float m_SubpixelBlending = 1.0f;
+
     //
 
-    float m_UpsampleScale = 2;
+	bool m_bUseComputeShadersForPostProcessing = false;
 
-    //
+    RenderTarget m_ActiveRenderTarget = RenderTarget::PostProcessing;
 
     std::queue<std::function<void(RenderingContext* context)>> m_Commands;
 
@@ -142,11 +204,15 @@ private:
     void CombinationPass(const std::vector<std::shared_ptr<Component>>& components, Camera* camera);
     void PostProcessingPass();
 
+    void TAAPass();
+    void FXAAPass();
+
     void CreateRandomShadowMapSamples();
 
-    void BloomDownscale(const std::shared_ptr<Texture2D>& in, const std::shared_ptr<Texture2D> out);
+    void BloomDownscale(const std::shared_ptr<Texture2D>& in, const std::shared_ptr<Texture2D>& out);
     void BloomUpscale(const std::shared_ptr<Texture2D>& downscaled, const std::shared_ptr<Texture2D>& upscaled, const std::shared_ptr<Texture2D>& fullsize = nullptr);
     void UpdateBloomTexturesSizes();
+
 private:
     void SetupGeometryRenderPass();
     void SetupLightRenderPass();
@@ -156,10 +222,12 @@ private:
 
     void SetupNewBloomRenderPass();
 
+    void SetupAA();
+    void SetupFXAARenderPass();
+    void SetupTAARenderPass();
+
     void SetupShadowRenderPass();
     void SetupBrightnessFilterPass();
-
-    static float lerp(float a, float b, float f);
 
 private:
 	std::shared_ptr<RenderingContext> m_Context;
@@ -188,11 +256,11 @@ public:
 	void SubmitLight(const std::shared_ptr<PointLightComponent>& light);
 	void SubmitLightMesh(const std::shared_ptr<PointLightComponent>& light, const std::shared_ptr<Texture>& shadowMap);
 
-	void SubmitMesh(const std::shared_ptr<StaticMesh>& mesh, const Transform& transform);
-	void SubmitSubmesh(const std::shared_ptr<StaticSubmesh>& submesh, const Transform& transform);
+	void SubmitMesh(const std::shared_ptr<StaticMesh>& mesh, const Transform& transform, const Transform& previousTransform);
+	void SubmitSubmesh(const std::shared_ptr<StaticSubmesh>& submesh, const Transform& transform, const Transform& previousTransform);
 
-	void SubmitMeshRaw(const std::shared_ptr<StaticMesh>& mesh, const Transform& transform);
-	void SubmitSubmeshRaw(const std::shared_ptr<StaticSubmesh>& submesh, const Transform& transform);
+	void SubmitMeshRaw(const std::shared_ptr<StaticMesh>& mesh, const Transform& transform, const Transform& previousTransform);
+	void SubmitSubmeshRaw(const std::shared_ptr<StaticSubmesh>& submesh, const Transform& transform, const Transform& previousTransform);
 
 	void SubmitQuad(float x1, float y1, float x2, float y2, float x3, float y3, float x4, float y4);
 	void SubmitIcon(const std::shared_ptr<Texture2D>& texture, const glm::mat4& Transform);

@@ -23,6 +23,7 @@ enum class PixelFormat
 	R8F,
 	R16F,
 	R32F,
+	RG16F,
 	R11G11B10F,
 
 	Depth,
@@ -95,6 +96,28 @@ enum class TextureType
 enum class BarrierType
 {
 	AllBits
+};
+
+enum class AAMethod
+{
+	None,
+	TAA,
+	FXAA
+};
+
+enum class RenderTarget
+{
+	GAlbedo,
+	GPosition,
+	GNormal,
+	GRougnessMetalicEmission,
+	GVelocity,
+
+	LightPass,
+
+	CombinationPass,
+	AAOutput,
+	PostProcessing
 };
 
 struct Vertex {

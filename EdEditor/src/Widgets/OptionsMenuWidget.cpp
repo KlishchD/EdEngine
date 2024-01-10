@@ -166,6 +166,8 @@ void OptionsMenuWidget::TextureImportPopup()
             ImGui::EndCombo();
         }
         
+        ImGui::Checkbox("Generate MipMaps", &m_TextureImportParameters.GenerateMipMaps);
+
         if (ImGui::Button("Import")) {
             m_AssetManager->ImportTexture(m_TextureImportParameters);
 
@@ -173,6 +175,7 @@ void OptionsMenuWidget::TextureImportPopup()
 
             ImGui::CloseCurrentPopup();
         }
+
 
         ImGui::EndPopup();
     }

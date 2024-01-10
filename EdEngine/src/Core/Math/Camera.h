@@ -10,6 +10,7 @@ public:
     Camera(float fov, float aspect, float near, float far, glm::vec3 rotation, glm::vec3 position);
 
     void SetProjection(float fov, float aspect, float near, float far);
+    void SetProjection(const glm::mat4& projection);
 
     glm::vec3 GetPosition() const;
     void SetPosition(const glm::vec3 position);

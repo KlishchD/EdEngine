@@ -6,7 +6,7 @@
 class OpenGLTypes {
 public:
 	static uint32_t ConvertWrapMode(WrapMode mode);
-	static uint32_t ConvertFilteringMode(FilteringMode mode);
+	static uint32_t ConvertFilteringMode(FilteringMode mode, bool bMipMapEnabled = false);
 	static uint32_t ConvertPixelFormat(PixelFormat format);
 	static uint32_t ConvertPixelExternalFormat(PixelFormat format);
 	static uint32_t ConvertDataType(PixelFormat format);

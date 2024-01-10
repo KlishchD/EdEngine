@@ -1,18 +1,30 @@
-// type compute
+// type vertex
 
 #version 460 core
 
-layout (local_size_x = 1, local_size_y = 1, local_size_z = 1) in;
+layout(location = 0) in vec2 position;
+
+void main()
+{
+	gl_Position = vec4(position.x, position.y, 0.0f, 1.0f);
+}
+
+// type fragment
+
+#version 460 core
 
 uniform bool u_UseFullsize;
 uniform sampler2D u_Fullsize;
 
 uniform sampler2D u_Downscaled;
-layout(r11f_g11f_b10f) uniform image2D u_Upscaled;
+uniform sampler2D u_Upscaled;
 
 uniform float u_MixStrength;
 
-uniform vec2 u_PixelSize;
+uniform vec2 u_UpscaledPixelSize;
+uniform vec2 u_DownscaledPixelSize;
+
+out vec4 color;
 
 void main() 
 {
@@ -24,34 +36,33 @@ void main()
 	// d e f
 	// g h i
 
-	vec2 location = 1.0f * (gl_WorkGroupID.xy + 0.5f) / gl_NumWorkGroups.xy;
-	ivec2 imageLocation = ivec2(gl_WorkGroupID.x, gl_WorkGroupID.y);
+	vec2 location = gl_FragCoord.xy * u_UpscaledPixelSize;
 
-	vec3 color;
+	vec3 upsacledColor;
 	if (u_UseFullsize)
 	{
-		color = texture2D(u_Fullsize, location).rgb;
+		upsacledColor = texture2D(u_Fullsize, location).rgb;
 	}
 	else
 	{
-		color = imageLoad(u_Upscaled, imageLocation).rgb;
+		upsacledColor = texture2D(u_Upscaled, location).rgb;
 	}
 
-	vec3 a = texture2D(u_Downscaled, location + vec2(-u_PixelSize.x, u_PixelSize.y)).rgb;
-	vec3 b = texture2D(u_Downscaled, location + vec2(0.0f,           u_PixelSize.y)).rgb;
-	vec3 c = texture2D(u_Downscaled, location + vec2(u_PixelSize.x,  u_PixelSize.y)).rgb;
+	vec3 a = texture2D(u_Downscaled, location + vec2(-u_DownscaledPixelSize.x, u_DownscaledPixelSize.y)).rgb;
+	vec3 b = texture2D(u_Downscaled, location + vec2(0.0f,           u_DownscaledPixelSize.y)).rgb;
+	vec3 c = texture2D(u_Downscaled, location + vec2(u_DownscaledPixelSize.x,  u_DownscaledPixelSize.y)).rgb;
 
-	vec3 d = texture2D(u_Downscaled, location + vec2(-u_PixelSize.x, 0.0f)).rgb;
+	vec3 d = texture2D(u_Downscaled, location + vec2(-u_DownscaledPixelSize.x, 0.0f)).rgb;
 	vec3 e = texture2D(u_Downscaled, location).rgb;
-	vec3 f = texture2D(u_Downscaled, location + vec2(u_PixelSize.x, 0.0f)).rgb;
+	vec3 f = texture2D(u_Downscaled, location + vec2(u_DownscaledPixelSize.x, 0.0f)).rgb;
 
-	vec3 g = texture2D(u_Downscaled, location + vec2(-u_PixelSize.x, -u_PixelSize.y)).rgb;
-	vec3 h = texture2D(u_Downscaled, location + vec2(0.0f,           -u_PixelSize.y)).rgb;
-	vec3 i = texture2D(u_Downscaled, location + vec2(u_PixelSize.x,  -u_PixelSize.y)).rgb;
+	vec3 g = texture2D(u_Downscaled, location + vec2(-u_DownscaledPixelSize.x, -u_DownscaledPixelSize.y)).rgb;
+	vec3 h = texture2D(u_Downscaled, location + vec2(0.0f,           -u_DownscaledPixelSize.y)).rgb;
+	vec3 i = texture2D(u_Downscaled, location + vec2(u_DownscaledPixelSize.x,  -u_DownscaledPixelSize.y)).rgb;
 
 	
 	vec3 average = (a + c + g + i) + 2 * (b + d + f + h) + 4 * e;
 	average /= 16.0f;
 
-	imageStore(u_Upscaled, imageLocation, vec4(mix(vec3(0.0f), color + average, u_MixStrength), 1.0f));
+	color = vec4(mix(vec3(0.0f), upsacledColor + average, u_MixStrength), 1.0f);
 }

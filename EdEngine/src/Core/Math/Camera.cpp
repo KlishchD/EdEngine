@@ -17,6 +17,11 @@ void Camera::SetProjection(float fov, float aspect, float near, float far)
     m_Projection = glm::perspective(glm::radians(fov), aspect, near, far);
 }
 
+void Camera::SetProjection(const glm::mat4& projection)
+{
+    m_Projection = projection;
+}
+
 glm::vec3 Camera::GetPosition() const
 {
     return m_Position;

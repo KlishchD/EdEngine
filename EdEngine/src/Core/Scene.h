@@ -48,6 +48,8 @@ public:
         return actor;
     }
     
+    virtual void Update(float DeltaSeconds);
+
     const std::vector<std::shared_ptr<Actor>>& GetActors() const { return m_Actors; }
 
     std::shared_ptr<class PointLightComponent> FindLight() const;

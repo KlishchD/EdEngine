@@ -3,6 +3,7 @@
 #include "Core/Scene.h"
 #include "Utils/GeometryBuilder.h"
 #include "Utils/RenderingHelper.h"
+#include "Utils/MathUtils.h"
 #include "Utils/Files.h"
 #include "Core/Macros.h"
 #include "imgui.h"
@@ -73,6 +74,10 @@ void Renderer::Initialize(Engine* engine)
     SetupShadowRenderPass();
     SetupBrightnessFilterPass();
 
+	SetupAA();
+	SetupFXAARenderPass();
+	SetupTAARenderPass();
+
     CreateRandomShadowMapSamples();
 
 	ED_LOG(Renderer, info, "Finished initalizing Renderer")
@@ -102,6 +107,8 @@ void Renderer::Update()
 		std::static_pointer_cast<Framebuffer>(m_SSAOPassSpecification.Framebuffer)->Resize(m_ViewportSize.x, m_ViewportSize.y);
 		std::static_pointer_cast<Framebuffer>(m_SSAOBlurPassSpecification.Framebuffer)->Resize(m_ViewportSize.x, m_ViewportSize.y);
 
+		m_AAOutput->Resize(m_UpsampleScale * m_ViewportSize.x, m_UpsampleScale * m_ViewportSize.y);
+
 		UpdateBloomTexturesSizes();
 
 		m_Engine->GetCamera()->SetProjection(90.0f, 1.0f * m_ViewportSize.x / m_ViewportSize.y, 1.0f, m_FarPlane);
@@ -116,10 +123,19 @@ void Renderer::Update()
 	LightPass(components, camera);
 	SSAOPass(camera);
 	CombinationPass(components, camera);
+	
+	TAAPass();
+	FXAAPass();
 
 	BloomPass();
 	NewBloomPass();
 	PostProcessingPass();
+
+	if (m_HistoryBufferSize > 1)
+	{
+		m_ActiveHistoryBufferTextureIndex = (m_ActiveHistoryBufferTextureIndex + 1) % m_HistoryBufferSize;
+		m_AAOutput->SetAttachment(0, m_HistoryBuffer[m_ActiveHistoryBufferTextureIndex]);
+	}
 
 	while (m_Commands.size()) {
 		m_Commands.front()(m_Context.get());
@@ -137,6 +153,26 @@ void Renderer::SubmitRenderCommand(const std::function<void(RenderingContext* co
     m_Commands.push(command);
 }
 
+void Renderer::SetGamma(float gamma)
+{
+	m_Gamma = gamma;
+}
+
+void Renderer::SetTAAGamma(float gamma)
+{
+	m_TAAGamma = gamma;
+}
+
+float Renderer::GetTAAGamma() const
+{
+	return m_TAAGamma;
+}
+
+float Renderer::GetGamma() const
+{
+	return m_Gamma;
+}
+
 void Renderer::SetSSAOEnabled(bool enabled)
 {
     m_bSSAOEnabled = enabled;
@@ -145,6 +181,16 @@ void Renderer::SetSSAOEnabled(bool enabled)
 bool Renderer::IsSSAOEnabled() const
 {
     return m_bSSAOEnabled;
+}
+
+void Renderer::SetBloomEnabled(bool enabled)
+{
+	m_bIsBloomEnabled = enabled;
+}
+
+bool Renderer::IsBloomEnabled() const
+{
+	return m_bIsBloomEnabled;
 }
 
 void Renderer::SetUseNewBloom(bool use)
@@ -202,16 +248,6 @@ uint32_t Renderer::GetBloomDownscaleTextureCount() const
 	return m_NewBloomDownscaleCount;
 }
 
-void Renderer::SetUseLightPassAsBoomBase(bool use)
-{
-	m_bUseLightPassImageAsBloomBase = use;
-}
-
-bool Renderer::IsUsingLightPassASBloomBase() const
-{
-	return m_bUseLightPassImageAsBloomBase;
-}
-
 void Renderer::SetUpsampleScale(float scale)
 {
 	m_UpsampleScale = scale;
@@ -220,6 +256,66 @@ void Renderer::SetUpsampleScale(float scale)
 float Renderer::GetUpsampleScale() const
 {
 	return m_UpsampleScale;
+}
+
+AAMethod Renderer::GetAAMethod() const
+{
+	return m_AAMethod;
+}
+
+void Renderer::SetContrastThreshold(float threshold)
+{
+	m_ContrastThreshold = threshold;
+}
+
+float Renderer::GetContrastThreshold() const
+{
+	return m_ContrastThreshold;
+}
+
+void Renderer::SetRelativeThreshold(float threshold)
+{
+	m_RelativeThreshold = threshold;
+}
+
+float Renderer::GetRelativeThreshold() const
+{
+	return m_RelativeThreshold;
+}
+
+void Renderer::SetSubpixelBlending(float scale)
+{
+	m_SubpixelBlending = scale;
+}
+
+float Renderer::GetSubpixelBlending() const
+{
+	return m_SubpixelBlending;
+}
+
+void Renderer::SetIsUsingComputeShadersForPostProcessing(bool active)
+{
+	m_bUseComputeShadersForPostProcessing = active;
+}
+
+bool Renderer::IsUsingComputeShadersForPostProcessing() const
+{
+	return m_bUseComputeShadersForPostProcessing;
+}
+
+void Renderer::SetActiveRenderTarget(RenderTarget target)
+{
+	m_ActiveRenderTarget = target;
+}
+
+RenderTarget Renderer::GetActiveRenderTarget() const
+{
+	return m_ActiveRenderTarget;
+}
+
+void Renderer::SetAAMethod(AAMethod method)
+{
+	m_AAMethod = method;
 }
 
 std::shared_ptr<Framebuffer> Renderer::GetGeometryPassFramebuffer() const
@@ -234,41 +330,104 @@ std::shared_ptr<Framebuffer> Renderer::LightPassFramebuffer() const
 
 std::shared_ptr<Framebuffer> Renderer::GetViewport() const
 {
-    return std::static_pointer_cast<Framebuffer>(m_PostProcessingRenderPassSpecification.Framebuffer);
+	return std::static_pointer_cast<Framebuffer>(m_PostProcessingRenderPassSpecification.Framebuffer); // m_AAMethod == AAMethod::None ? std::static_pointer_cast<Framebuffer>(m_PostProcessingRenderPassSpecification.Framebuffer) : m_AAOutput;
 }
 
-void Renderer::BloomDownscale(const std::shared_ptr<Texture2D>& in, const std::shared_ptr<Texture2D> out)
+std::shared_ptr<Texture2D> Renderer::GetViewportTexture() const
 {
-	m_Context->SetShader(m_BloomDownscaleShader);
-	m_Context->SetShaderDataTexture("u_Input", in);
-	m_Context->SetShaderDataImage("u_Output", out);
-	m_Context->SetShaderDataFloat2("u_PixelSize", glm::vec2(1.0f / in->GetWidth(), 1.0f / in->GetHeight()));
-	m_Context->RunComputeShader(out->GetWidth(), out->GetHeight(), 1);
+	switch (m_ActiveRenderTarget)
+	{
+	case RenderTarget::GAlbedo:                   return std::static_pointer_cast<Texture2D>(m_GeometryPassSpecification.Framebuffer->GetAttachment(0));
+	case RenderTarget::GPosition:                 return std::static_pointer_cast<Texture2D>(m_GeometryPassSpecification.Framebuffer->GetAttachment(1));
+	case RenderTarget::GNormal:                   return std::static_pointer_cast<Texture2D>(m_GeometryPassSpecification.Framebuffer->GetAttachment(2));
+	case RenderTarget::GRougnessMetalicEmission:  return std::static_pointer_cast<Texture2D>(m_GeometryPassSpecification.Framebuffer->GetAttachment(3));
+	case RenderTarget::GVelocity:                 return std::static_pointer_cast<Texture2D>(m_GeometryPassSpecification.Framebuffer->GetAttachment(4));
+	case RenderTarget::LightPass:                 return std::static_pointer_cast<Texture2D>(m_LightPassSpecification.Framebuffer->GetAttachment(0));
+	case RenderTarget::CombinationPass:           return std::static_pointer_cast<Texture2D>(m_CombinationPassSpecification.Framebuffer->GetAttachment(0));
+	case RenderTarget::AAOutput:                  return std::static_pointer_cast<Texture2D>(m_AAOutput->GetAttachment(0));
+	case RenderTarget::PostProcessing:            return std::static_pointer_cast<Texture2D>(m_PostProcessingRenderPassSpecification.Framebuffer->GetAttachment(0));
+	default:
+		ED_ASSERT(0, "Unsuppoerted active target")
+	}
+}
+
+void Renderer::BloomDownscale(const std::shared_ptr<Texture2D>& in, const std::shared_ptr<Texture2D>& out)
+{
+	if (m_bUseComputeShadersForPostProcessing)
+	{
+		m_Context->SetShader(m_BloomDownscaleComputeShader);
+		m_Context->SetShaderDataImage("u_Output", out);
+		m_Context->SetShaderDataFloat2("u_PixelSize", glm::vec2(1.0f / in->GetWidth(), 1.0f / in->GetHeight()));
+		m_Context->RunComputeShader(out->GetWidth(), out->GetHeight(), 1);
+		m_Context->Barier(BarrierType::AllBits);
+	}
+	else
+	{
+		m_BloomFramebuffer->SetAttachment(0, out, true);
+
+		BeginRenderPass("Bloom downscale", m_BloomFramebuffer, m_BloomDownscaleShader, glm::mat4(1.0f), glm::mat4(1.0f), glm::vec3(0.0f));
+
+		m_Context->SetShaderDataTexture("u_Input", in);
+		m_Context->SetShaderDataFloat2("u_InPixelSize", glm::vec2(1.0f / in->GetWidth(), 1.0f / in->GetHeight()));
+		m_Context->SetShaderDataFloat2("u_OutPixelSize", glm::vec2(1.0f / out->GetWidth(), 1.0f / out->GetHeight()));
+
+		SubmitQuad(-1.0f, -1.0f, -1.0f, 1.0f, 1.0f, 1.0f, 1.0f, -1.0f);
+
+		EndRenderPass();
+	}
 }
 
 void Renderer::BloomUpscale(const std::shared_ptr<Texture2D>& downscaled, const std::shared_ptr<Texture2D>& upscaled, const std::shared_ptr<Texture2D>& fullsize)
 {
-	m_Context->SetShader(m_BloomUpscaleShader);
-	m_Context->SetShaderDataTexture("u_Downscaled", downscaled);
-	m_Context->SetShaderDataImage("u_Upscaled", upscaled);
-	m_Context->SetShaderDataFloat2("u_PixelSize", glm::vec2(1.0f / downscaled->GetWidth(), 1.0f / downscaled->GetHeight()));
-	m_Context->SetShaderDataFloat("u_MixStrength", m_BloomMixStrength);
-	if (fullsize)
+	if (m_bUseComputeShadersForPostProcessing)
 	{
-		m_Context->SetShaderDataBool("u_UseFullsize", true);
-		m_Context->SetShaderDataTexture("u_Fullsize", fullsize);
+		m_Context->SetShader(m_BloomUpscaleComputeShader);
+		m_Context->SetShaderDataTexture("u_Downscaled", downscaled);
+		m_Context->SetShaderDataImage("u_Upscaled", upscaled);
+		m_Context->SetShaderDataFloat2("u_PixelSize", glm::vec2(1.0f / downscaled->GetWidth(), 1.0f / downscaled->GetHeight()));
+		m_Context->SetShaderDataFloat("u_MixStrength", m_BloomMixStrength);
+		if (fullsize)
+		{
+			m_Context->SetShaderDataBool("u_UseFullsize", true);
+			m_Context->SetShaderDataTexture("u_Fullsize", fullsize);
+		}
+		else
+		{
+			m_Context->SetShaderDataBool("u_UseFullsize", false);
+		}
+
+		m_Context->RunComputeShader(upscaled->GetWidth(), upscaled->GetHeight(), 1);
 	}
 	else
 	{
-		m_Context->SetShaderDataBool("u_UseFullsize", false);
-	}
+		m_BloomFramebuffer->SetAttachment(0, upscaled, true);
 
-	m_Context->RunComputeShader(upscaled->GetWidth(), upscaled->GetHeight(), 1);
+		BeginRenderPass("Bloom downscale", m_BloomFramebuffer, m_BloomUpscaleShader, glm::mat4(1.0f), glm::mat4(1.0f), glm::vec3(0.0f));
+
+		m_Context->SetShaderDataTexture("u_Downscaled", downscaled);
+		m_Context->SetShaderDataTexture("u_Upscaled", upscaled);
+		m_Context->SetShaderDataFloat2("u_UpscaledPixelSize", glm::vec2(1.0f / upscaled->GetWidth(), 1.0f / upscaled->GetHeight()));
+		m_Context->SetShaderDataFloat2("u_DownscaledPixelSize", glm::vec2(1.0f / downscaled->GetWidth(), 1.0f / downscaled->GetHeight()));
+		m_Context->SetShaderDataFloat("u_MixStrength", m_BloomMixStrength);
+		if (fullsize)
+		{
+			m_Context->SetShaderDataBool("u_UseFullsize", true);
+			m_Context->SetShaderDataTexture("u_Fullsize", fullsize);
+		}
+		else
+		{
+			m_Context->SetShaderDataBool("u_UseFullsize", false);
+		}
+
+		SubmitQuad(-1.0f, -1.0f, -1.0f, 1.0f, 1.0f, 1.0f, 1.0f, -1.0f);
+
+		EndRenderPass();
+	}
 }
 
 void Renderer::UpdateBloomTexturesSizes()
 {
-	glm::vec2 size = m_UpsampleScale * glm::vec2(m_ViewportSize) / 2.0f;
+	glm::vec2 size = m_UpsampleScale * glm::vec2(m_ViewportSize);
 	for (int32_t i = 0; i < m_NewBloomDownscaleCount; ++i)
 	{
 		m_BloomIntermediateTextrues[i]->Resize(size.x, size.y);
@@ -278,8 +437,35 @@ void Renderer::UpdateBloomTexturesSizes()
 
 void Renderer::GeometryPass(const std::vector<std::shared_ptr<Component>>& components, Camera* camera)
 {
-    m_GeometryPassSpecification.ViewPosition = camera->GetPosition();
-    BeginRenderPass(m_GeometryPassSpecification, camera->GetView(), camera->GetProjection());
+	glm::vec2 size = glm::vec2(m_GeometryPassSpecification.Framebuffer->GetWidth(), m_GeometryPassSpecification.Framebuffer->GetHeight());
+
+	glm::mat4 view = camera->GetView();
+	glm::mat4 projection = camera->GetProjection();
+
+	glm::vec2 jitter = m_JitterSequence[m_CurrentJitterIndex] / size;
+	glm::vec2 previousJitter = m_JitterSequence[(m_CurrentJitterIndex - 1 + m_JitterSequenceSize) % m_JitterSequenceSize] / size;
+
+	if (m_AAMethod == AAMethod::TAA)
+	{
+		projection = glm::translate(glm::mat4(1.0f), glm::vec3(jitter - previousJitter, 0.0f)) * projection;
+		camera->SetProjection(projection);
+	}
+
+	m_GeometryPassSpecification.ViewPosition = camera->GetPosition();
+
+    BeginRenderPass(m_GeometryPassSpecification, view, projection);
+
+	if (m_AAMethod == AAMethod::TAA)
+	{
+ 		m_Context->SetShaderDataFloat2("u_PreviousJitter", previousJitter);
+		m_Context->SetShaderDataFloat2("u_Jitter", jitter);
+	}
+	else
+	{
+		m_Context->SetShaderDataMat4("u_PreviousProjectionMatrix", m_Projection);
+	}
+
+	m_Context->SetShaderDataMat4("u_PreviousViewMatrix", m_PreviousView);
 
     for (const std::shared_ptr<Component>& component : components)
     {
@@ -287,12 +473,15 @@ void Renderer::GeometryPass(const std::vector<std::shared_ptr<Component>>& compo
         {
             if (std::shared_ptr<StaticMesh> mesh = meshComponent->GetStaticMesh()) 
             {
-                SubmitMesh(mesh, meshComponent->GetTransform()); // TODO: Need a hierarchical Transform
+                SubmitMesh(mesh, meshComponent->GetFullTransform(), meshComponent->GetFullPreviousTransform()); // TODO: Need a hierarchical Transform
             }
         }
     }
 
     EndRenderPass();
+
+	m_CurrentJitterIndex = (m_CurrentJitterIndex + 1) % m_JitterSequenceSize;
+	m_PreviousView = view;
 }
 
 void Renderer::SSAOPass(Camera* camera) {
@@ -338,7 +527,7 @@ void Renderer::SSAOPass(Camera* camera) {
 
 void Renderer::BloomPass() 
 {
-	if (!m_bUseNewBloom)
+	if (!m_bUseNewBloom && m_bIsBloomEnabled)
 	{
 		BeginRenderPass(m_BrighnessFilterPassSpecification, glm::mat4(1.0f), glm::mat4(1.0f)); // Temporary step, may be removed after PBR bloom will be added :)
 
@@ -383,27 +572,23 @@ void Renderer::BloomPass()
 
 void Renderer::NewBloomPass()
 {
-	if (m_bUseNewBloom)
+	if (m_bUseNewBloom && m_bIsBloomEnabled)
 	{
-		std::shared_ptr<BaseFramebuffer> framebuffer = m_bUseLightPassImageAsBloomBase ? m_LightPassSpecification.Framebuffer : m_CombinationPassSpecification.Framebuffer;
+		std::shared_ptr<BaseFramebuffer> framebuffer = m_AAMethod != AAMethod::None ?  m_AAOutput : m_CombinationPassSpecification.Framebuffer;
 		std::shared_ptr<Texture2D> scene = std::static_pointer_cast<Texture2D>(framebuffer->GetAttachment(0));
 
 		BloomDownscale(scene, m_BloomIntermediateTextrues[1]);
 		for (int32_t i = 2; i < m_NewBloomDownscaleCount; ++i)
 		{
-			m_Context->Barier(BarrierType::AllBits);
 			BloomDownscale(m_BloomIntermediateTextrues[i - 1], m_BloomIntermediateTextrues[i]);
 		}
 
 		for (int32_t i = m_NewBloomDownscaleCount - 1; i > 1; --i)
 		{
-			m_Context->Barier(BarrierType::AllBits);
 			BloomUpscale(m_BloomIntermediateTextrues[i], m_BloomIntermediateTextrues[i - 1]);
 		}
 
 		BloomUpscale(m_BloomIntermediateTextrues[1], m_BloomIntermediateTextrues[0], scene);
-
-		m_Context->Barier(BarrierType::AllBits);
 	}
 }
 
@@ -452,7 +637,7 @@ void Renderer::LightPass(const std::vector<std::shared_ptr<Component>>& componen
 					if (std::shared_ptr<StaticMeshComponent> meshComponent = std::dynamic_pointer_cast<StaticMeshComponent>(component))
 					{
 						if (std::shared_ptr<StaticMesh> mesh = meshComponent->GetStaticMesh()) {
-							SubmitMeshRaw(mesh, meshComponent->GetTransform()); // TODO: Need a hierarchical Transform
+							SubmitMeshRaw(mesh, meshComponent->GetFullTransform(), meshComponent->GetFullPreviousTransform());
 						}
 					}
 				}
@@ -553,9 +738,8 @@ void Renderer::SetupSSAORenderPass()
         glm::vec3 sample(x, y, z);
         sample = glm::normalize(sample) * distribution(generator);
 
-        float scale = 1.0f * i / m_SSAOSamplesCount;
-        Renderer::lerp(0.1f, 1.0f, scale * scale);
-        sample *= scale;
+		float scale = 1.0f * i / m_SSAOSamplesCount;
+        sample *= Math::lerp(0.1f, 1.0f, scale * scale);
 
         m_SSAOSamples.push_back(sample);
     }
@@ -565,7 +749,7 @@ void Renderer::SetupSSAORenderPass()
     {
         float x = distribution(generator) * 2.0f - 1.0f;
         float y = distribution(generator) * 2.0f - 1.0f;
-        float z = 0.0f; // TODO: Why?
+        float z = 0.0f;
         
 		noise[i * 3] = x;
 		noise[i * 3 + 1] = y;
@@ -575,7 +759,7 @@ void Renderer::SetupSSAORenderPass()
     Texture2DImportParameters parameters;
     parameters.WrapS = WrapMode::Repeat;
     parameters.WrapT = WrapMode::Repeat;
-    parameters.Format = PixelFormat::RGB32F;
+    parameters.Format = PixelFormat::RGB16F;
     parameters.Filtering = FilteringMode::Linear;
 
     Texture2DData data;
@@ -675,6 +859,10 @@ void Renderer::SetupPostProcessingRenderPass()
 
 void Renderer::SetupNewBloomRenderPass()
 {
+	m_BloomFramebuffer = RenderingHelper::CreateFramebuffer(1, 1);
+	m_BloomFramebuffer->CreateAttachment(FramebufferAttachmentType::Bloom);
+
+	m_BloomIntermediateTextrues.push_back(std::static_pointer_cast<Texture2D>(m_BloomFramebuffer->GetAttachment(0)));
 	for (int32_t i = 0; i < m_NewBloomDownscaleCount; ++i)
 	{
 		m_BloomIntermediateTextrues.push_back(RenderingHelper::CreateBloomIntermediateTexture());
@@ -682,6 +870,55 @@ void Renderer::SetupNewBloomRenderPass()
 
 	m_BloomDownscaleShader = RenderingHelper::CreateShader(Files::ContentFolderPath + R"(\shaders\bloom\downscale.glsl)");
 	m_BloomUpscaleShader = RenderingHelper::CreateShader(Files::ContentFolderPath + R"(\shaders\bloom\upscale.glsl)");
+
+	m_BloomDownscaleComputeShader = RenderingHelper::CreateShader(Files::ContentFolderPath + R"(\shaders\bloom\downscale-compute.glsl)");
+	m_BloomUpscaleComputeShader = RenderingHelper::CreateShader(Files::ContentFolderPath + R"(\shaders\bloom\upscale-compute.glsl)");
+}
+
+void Renderer::SetupAA()
+{
+	Texture2DImportParameters pararmeters = RenderingHelper::GetDefaultNormalTexture2DImportParameters("");
+
+	Texture2DData data;
+	data.Width = 1;
+	data.Height = 1;
+	data.Data = nullptr;
+
+	m_AAOutput = RenderingHelper::CreateFramebuffer(1, 1);
+	m_AAOutput->CreateAttachment(FramebufferAttachmentType::Color16);
+}
+
+void Renderer::SetupFXAARenderPass()
+{
+	m_FFXAShader = RenderingHelper::CreateShader(Files::ContentFolderPath + R"(\shaders\AA\FXAA.glsl)");
+}
+
+void Renderer::SetupTAARenderPass()
+{
+	m_TAAShader = RenderingHelper::CreateShader(Files::ContentFolderPath + R"(\shaders\AA\TAA.glsl)");
+	m_TAAComputeShader = RenderingHelper::CreateShader(Files::ContentFolderPath + R"(\shaders\AA\TAA-compute.glsl)");
+
+	m_HistoryBuffer.push_back(m_AAOutput->GetAttachment(0));
+	
+	while (m_HistoryBuffer.size() < m_HistoryBufferSize)
+	{
+		Texture2DImportParameters parameters;
+		parameters.WrapS = WrapMode::ClampToEdge;
+		parameters.WrapT = WrapMode::ClampToEdge;
+		parameters.Format = PixelFormat::RGBA16F;
+		
+		Texture2DData data;
+		data.Width = 1;
+		data.Height = 1;
+		data.Data = nullptr;
+
+		m_HistoryBuffer.push_back(RenderingHelper::CreateTexture2D(parameters, data, "History buffer texture"));
+	}
+	
+	for (int32_t i = 0; i < m_JitterSequenceSize; ++i)
+	{
+		m_JitterSequence.push_back(glm::vec2(2.0f * Math::Halton(i + 1, 2) - 1.0f, 2.0f * Math::Halton(i + 1, 3) - 1.0f));
+	}
 }
 
 void Renderer::SetupGeometryRenderPass()
@@ -693,6 +930,7 @@ void Renderer::SetupGeometryRenderPass()
     framebuffer->CreateAttachment(FramebufferAttachmentType::Position);
     framebuffer->CreateAttachment(FramebufferAttachmentType::Direction);
     framebuffer->CreateAttachment(FramebufferAttachmentType::Color16);
+    framebuffer->CreateAttachment(FramebufferAttachmentType::Velocity);
     framebuffer->CreateAttachment(FramebufferAttachmentType::Depth);
 
 	m_GeometryPassSpecification.Framebuffer = framebuffer;
@@ -703,11 +941,6 @@ void Renderer::SetupGeometryRenderPass()
 
     m_GeometryPassSpecification.bClearColors = true;
     m_GeometryPassSpecification.bClearDepth = true;
-}
-
-float Renderer::lerp(float a, float b, float f)
-{
-    return a + f * (b - a);
 }
 
 void Renderer::CombinationPass(const std::vector<std::shared_ptr<Component>>& components, Camera* camera)
@@ -728,24 +961,89 @@ void Renderer::PostProcessingPass()
 {
 	BeginRenderPass(m_PostProcessingRenderPassSpecification, glm::mat4(1.0f), glm::mat4(1.0f));
 
-	m_Context->SetShaderDataTexture("u_Color", m_CombinationPassSpecification.Framebuffer->GetAttachment(0));
+	m_Context->SetShaderDataTexture("u_Color", m_AAMethod != AAMethod::None ? m_AAOutput->GetAttachment(0) : m_CombinationPassSpecification.Framebuffer->GetAttachment(0));
 	m_Context->SetShaderDataFloat("u_Gamma", m_Gamma);
 
-	if (m_bUseNewBloom)
+	if (m_bIsBloomEnabled)
 	{
-		m_Context->SetShaderDataTexture("u_Bloom", m_BloomIntermediateTextrues.front());
-		m_Context->SetShaderDataFloat("u_BloomStrength", m_BloomStrength);
-		m_Context->SetShaderDataFloat("u_BloomIntensity", m_BloomIntensity);
+		if (m_bUseNewBloom)
+		{
+			m_Context->SetShaderDataTexture("u_Bloom", m_BloomIntermediateTextrues.front());
+			m_Context->SetShaderDataFloat("u_BloomStrength", m_BloomStrength);
+			m_Context->SetShaderDataFloat("u_BloomIntensity", m_BloomIntensity);
+		}
+		else
+		{
+			m_Context->SetShaderDataTexture("u_Bloom", (m_BlurPassCount % 2 ? m_BlurFramebuffer2 : m_BlurFramebuffer1)->GetAttachment(0));
+			m_Context->SetShaderDataFloat("u_BloomStrength", 1.0f);
+		}
 	}
 	else
 	{
-		m_Context->SetShaderDataTexture("u_Bloom", (m_BlurPassCount % 2 ? m_BlurFramebuffer2 : m_BlurFramebuffer1)->GetAttachment(0));
-		m_Context->SetShaderDataFloat("u_BloomStrength", 1.0f);
+		m_Context->SetShaderDataTexture("u_Bloom", RenderingHelper::GetWhiteTexture());
+		m_Context->SetShaderDataFloat("u_BloomIntensity", 0.0f);
 	}
 
 	SubmitQuad(-1.0f, -1.0f, -1.0f, 1.0f, 1.0f, 1.0f, 1.0f, -1.0f);
 
 	EndRenderPass();
+}
+
+void Renderer::TAAPass()
+{
+	if (m_AAMethod == AAMethod::TAA)
+	{
+		if (m_bUseComputeShadersForPostProcessing)
+		{
+			m_Context->SetShader(m_TAAComputeShader);
+			
+			m_Context->SetShaderDataImage("u_Output", m_AAOutput->GetAttachment(0));
+		}
+		else
+		{
+			BeginRenderPass("TAA", m_AAOutput, m_TAAShader, glm::mat4(1.0f), glm::mat4(1.0f), glm::vec3(0.0f));
+		}
+
+		m_Context->SetShaderDataTexture("u_PreviousColor", m_HistoryBuffer[(m_ActiveHistoryBufferTextureIndex - 1 + m_HistoryBufferSize) % m_HistoryBufferSize]);
+		m_Context->SetShaderDataTexture("u_CurrentColor", m_CombinationPassSpecification.Framebuffer->GetAttachment(0));
+		m_Context->SetShaderDataTexture("u_CurrentDepth", m_GeometryPassSpecification.Framebuffer->GetDepthAttachment());
+		m_Context->SetShaderDataTexture("u_Velocity", m_GeometryPassSpecification.Framebuffer->GetAttachment(4));
+		m_Context->SetShaderDataFloat2("u_PixelSize", 1.0f / glm::vec2(m_AAOutput->GetWidth(), m_AAOutput->GetHeight()));
+		m_Context->SetShaderDataFloat2("u_ScreenSize", glm::vec2(m_AAOutput->GetWidth(), m_AAOutput->GetHeight()));
+		m_Context->SetShaderDataFloat("u_Gamma", m_TAAGamma);
+
+		if (m_bUseComputeShadersForPostProcessing)
+		{
+			m_Context->RunComputeShader(m_AAOutput->GetWidth(), m_AAOutput->GetHeight(), 1);
+
+			m_Context->Barier(BarrierType::AllBits);
+		}
+		else
+		{
+			SubmitQuad(-1.0f, -1.0f, -1.0f, 1.0f, 1.0f, 1.0f, 1.0f, -1.0f);
+
+			EndRenderPass();
+		}
+	}
+}
+
+void Renderer::FXAAPass()
+{
+	if (m_AAMethod == AAMethod::FXAA)
+	{
+		m_Context->SetShader(m_FFXAShader);
+
+		m_Context->SetShaderDataTexture("u_Input", m_CombinationPassSpecification.Framebuffer->GetAttachment(0));
+		m_Context->SetShaderDataImage("u_Output", m_AAOutput->GetAttachment(0));
+		m_Context->SetShaderDataFloat("u_ContrastThreshold", m_ContrastThreshold);
+		m_Context->SetShaderDataFloat("u_RelativeThreshold", m_RelativeThreshold);
+		m_Context->SetShaderDataFloat("u_SubpixelBlending", m_SubpixelBlending);
+		m_Context->SetShaderDataFloat2("u_PixelSize", 1.0f / glm::vec2(m_ViewportSize));
+
+		m_Context->RunComputeShader(m_AAOutput->GetWidth(), m_AAOutput->GetHeight(), 1);
+
+		m_Context->Barier(BarrierType::AllBits);
+	}
 }
 
 void Renderer::BeginUIFrame()
@@ -783,6 +1081,7 @@ void Renderer::BeginRenderPass(RenderPassSpecification& specification, const glm
 	m_Context->SetShaderDataMat4("u_ViewMatrix", m_View);
 	m_Context->SetShaderDataMat4("u_ProjectionMatrix", m_Projection);
 	m_Context->SetShaderDataMat4("u_ProjectionViewMatrix", m_Projection * m_View);
+	m_Context->SetShaderDataMat4("u_InvProjectionViewMatrix", glm::inverse(m_Projection * m_View));
 	m_Context->SetShaderDataFloat3("u_ViewPosition", m_Specification->ViewPosition);
 	m_Context->SetShaderDataFloat2("u_ScreenSize", m_Specification->Framebuffer->GetWidth(), m_Specification->Framebuffer->GetHeight());
 
@@ -876,15 +1175,15 @@ void Renderer::SubmitLight(const std::shared_ptr<PointLightComponent>& light)
     m_Context->SetShaderDataInt("u_PointLightsCount", m_LightCount);
 }
 
-void Renderer::SubmitMesh(const std::shared_ptr<StaticMesh>& mesh, const Transform& transform)
+void Renderer::SubmitMesh(const std::shared_ptr<StaticMesh>& mesh, const Transform& transform, const Transform& previousTransform)
 {
 	for (const std::shared_ptr<StaticSubmesh>& submesh : mesh->GetSubmeshes())
 	{
-		SubmitSubmesh(submesh, transform);
+		SubmitSubmesh(submesh, transform, previousTransform);
 	}
 }
 
-void Renderer::SubmitSubmesh(const std::shared_ptr<StaticSubmesh>& submesh, const Transform& transform)
+void Renderer::SubmitSubmesh(const std::shared_ptr<StaticSubmesh>& submesh, const Transform& transform, const Transform& previousTransform)
 {
 	if (std::shared_ptr<Material> material = submesh->GetMaterial()) {
         m_Context->SetVertexBuffer(submesh->GetVertexBuffer());
@@ -892,6 +1191,7 @@ void Renderer::SubmitSubmesh(const std::shared_ptr<StaticSubmesh>& submesh, cons
 		
         material->SetShaderData(m_Context);
 
+		m_Context->SetShaderDataMat4("u_PreviousModelMatrix", previousTransform.GetMatrix());
 		m_Context->SetShaderDataMat4("u_ModelMatrix", transform.GetMatrix());
 		m_Context->SetShaderDataMat3("u_NormalMatrix", transform.GetInversedTransposedMatrix());
 
@@ -899,21 +1199,22 @@ void Renderer::SubmitSubmesh(const std::shared_ptr<StaticSubmesh>& submesh, cons
 	}
 }
 
-void Renderer::SubmitMeshRaw(const std::shared_ptr<StaticMesh>& mesh, const Transform& transform)
+void Renderer::SubmitMeshRaw(const std::shared_ptr<StaticMesh>& mesh, const Transform& transform, const Transform& previousTransform)
 {
 	for (const std::shared_ptr<StaticSubmesh>& submesh : mesh->GetSubmeshes())
 	{
-		SubmitSubmeshRaw(submesh, transform);
+		SubmitSubmeshRaw(submesh, transform, previousTransform);
 	}
 }
 
-void Renderer::SubmitSubmeshRaw(const std::shared_ptr<StaticSubmesh>& submesh, const Transform& transform)
+void Renderer::SubmitSubmeshRaw(const std::shared_ptr<StaticSubmesh>& submesh, const Transform& transform, const Transform& previousTransform)
 {
 	if (std::shared_ptr<Material> material = submesh->GetMaterial()) {
 		m_Context->SetVertexBuffer(submesh->GetVertexBuffer());
 		m_Context->SetIndexBuffer(submesh->GetIndexBuffer());
 
         m_Context->SetShaderDataMat4("u_ModelMatrix", transform.GetMatrix());
+        m_Context->SetShaderDataMat4("u_PreviousModelMatrix", previousTransform.GetMatrix());
 
         m_Context->Draw();
 	}

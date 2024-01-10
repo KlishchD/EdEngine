@@ -16,16 +16,18 @@ void OpenGLFramebuffer::CreateAttachment(FramebufferAttachmentType type)
 
 	switch (type)
 	{
-	case FramebufferAttachmentType::Color:        parameters = { "", WrapMode::ClampToEdge,    WrapMode::ClampToEdge,    PixelFormat::RGBA8F,          FilteringMode::Linear }; break;
-	case FramebufferAttachmentType::Color16:      parameters = { "", WrapMode::ClampToEdge,    WrapMode::ClampToEdge,    PixelFormat::RGBA16F,         FilteringMode::Linear }; break;
-	case FramebufferAttachmentType::Depth:        parameters = { "", WrapMode::Repeat,         WrapMode::Repeat,         PixelFormat::Depth,           FilteringMode::Nearest }; break;
-	case FramebufferAttachmentType::DepthStencil: parameters = { "", WrapMode::Repeat,         WrapMode::Repeat,         PixelFormat::DepthStencil,    FilteringMode::Nearest }; break;
-	case FramebufferAttachmentType::Position:     parameters = { "", WrapMode::Repeat,         WrapMode::Repeat,         PixelFormat::RGB32F,          FilteringMode::Linear }; break;
-	case FramebufferAttachmentType::Direction:    parameters = { "", WrapMode::Repeat,         WrapMode::Repeat,         PixelFormat::RGB16F,          FilteringMode::Linear }; break;
-	case FramebufferAttachmentType::Distance:     parameters = { "", WrapMode::MirroredRepeat, WrapMode::MirroredRepeat, PixelFormat::R8F,             FilteringMode::Linear }; break;
+	case FramebufferAttachmentType::Color:        parameters = { "", WrapMode::ClampToEdge,    WrapMode::ClampToEdge,    PixelFormat::RGBA8F,       FilteringMode::Linear  }; break;
+	case FramebufferAttachmentType::Color16:      parameters = { "", WrapMode::ClampToEdge,    WrapMode::ClampToEdge,    PixelFormat::RGBA16F,      FilteringMode::Linear  }; break;
+	case FramebufferAttachmentType::Depth:        parameters = { "", WrapMode::Repeat,         WrapMode::Repeat,         PixelFormat::Depth,        FilteringMode::Nearest }; break;
+	case FramebufferAttachmentType::DepthStencil: parameters = { "", WrapMode::Repeat,         WrapMode::Repeat,         PixelFormat::DepthStencil, FilteringMode::Nearest }; break;
+	case FramebufferAttachmentType::Position:     parameters = { "", WrapMode::Repeat,         WrapMode::Repeat,         PixelFormat::RGB32F,       FilteringMode::Linear  }; break;
+	case FramebufferAttachmentType::Direction:    parameters = { "", WrapMode::Repeat,         WrapMode::Repeat,         PixelFormat::RGB16F,       FilteringMode::Linear  }; break;
+	case FramebufferAttachmentType::Velocity:     parameters = { "", WrapMode::Repeat,         WrapMode::Repeat,         PixelFormat::RG16F,        FilteringMode::Linear  }; break;
+	case FramebufferAttachmentType::Distance:     parameters = { "", WrapMode::MirroredRepeat, WrapMode::MirroredRepeat, PixelFormat::R8F,          FilteringMode::Linear  }; break;
+	case FramebufferAttachmentType::Bloom:        parameters = { "", WrapMode::ClampToEdge,    WrapMode::ClampToEdge,    PixelFormat::R11G11B10F,   FilteringMode::Linear  }; break;
 	default:
 		ED_ASSERT_CONTEXT(OpenGLAPI, 0, "Unsupported framebuffer attachment type")
-			break;
+		break;
 	}
 
 	Texture2DData data;
@@ -59,6 +61,30 @@ void OpenGLFramebuffer::CreateAttachment(FramebufferAttachmentType type)
 	ED_ASSERT(status == GL_FRAMEBUFFER_COMPLETE, "[RendererAPI] Failed to attach texture to framebuffer")
 
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
+}
+
+void OpenGLFramebuffer::SetAttachment(int32_t index, const std::shared_ptr<Texture>& texture, bool bResizeFramebufferToTextureSize)
+{
+	ED_ASSERT(index < m_Attachments.size(), "SetAttachment can only replace an attachment")
+
+	glBindFramebuffer(GL_FRAMEBUFFER, m_Id);
+
+	std::shared_ptr<Texture2D> castedTexture = std::static_pointer_cast<Texture2D>(texture);
+
+	if (!bResizeFramebufferToTextureSize)
+	{
+		castedTexture->Resize(m_Width, m_Height);
+	}
+
+	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0 + index, GL_TEXTURE_2D, texture->GetID(), 0);
+	m_Attachments[index] = texture;
+
+	glBindFramebuffer(GL_FRAMEBUFFER, 0);
+
+	if (bResizeFramebufferToTextureSize)
+	{
+		Resize(castedTexture->GetWidth(), castedTexture->GetHeight());
+	}
 }
 
 void OpenGLFramebuffer::CopyAttachment(const std::shared_ptr<Framebuffer>& framebuffer, int32_t attachment)
