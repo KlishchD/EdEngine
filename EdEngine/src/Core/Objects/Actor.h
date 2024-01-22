@@ -4,7 +4,7 @@
 #include "Core/Components/Component.h"
 #include "Core/Ed.h"
 
-class Actor : public GameObject
+class Actor : public GameObject, public std::enable_shared_from_this<Actor>
 {
     friend class boost::serialization::access;
 

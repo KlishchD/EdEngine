@@ -284,3 +284,32 @@ std::shared_ptr<Texture2D> RenderingHelper::GetWhiteTexture()
 
 	return texutre;
 }
+
+std::shared_ptr<Texture2D> RenderingHelper::GetBlackTexture()
+{
+	static bool isInitialized = false;
+	static std::shared_ptr<Texture2D> texutre;
+
+	if (!isInitialized)
+	{
+		Texture2DImportParameters parameters;
+		parameters.WrapS = WrapMode::Repeat;
+		parameters.WrapT = WrapMode::Repeat;
+		parameters.Format = PixelFormat::RGB8F;
+		parameters.Filtering = FilteringMode::Linear;
+
+		Texture2DData data;
+		data.Width = 1;
+		data.Height = 1;
+		data.Data = (uint8_t*)std::malloc(sizeof(uint32_t));
+		data.Data[0] = 0;
+		data.Data[1] = 0;
+		data.Data[2] = 0;
+
+		texutre = CreateTexture2D(std::move(parameters), std::move(data), "black texture");
+
+		isInitialized = true;
+	}
+
+	return texutre;
+}

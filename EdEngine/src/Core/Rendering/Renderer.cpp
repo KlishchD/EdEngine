@@ -66,7 +66,10 @@ void Renderer::Initialize(Engine* engine)
 
     SetupGeometryRenderPass();
     SetupLightRenderPass();
+
     SetupSSAORenderPass();
+	SetupSSDORenderPass();
+	
 	SetupNewBloomRenderPass();
 	SetupCombinationRenderPass();
 	SetupPostProcessingRenderPass();
@@ -107,6 +110,9 @@ void Renderer::Update()
 		std::static_pointer_cast<Framebuffer>(m_SSAOPassSpecification.Framebuffer)->Resize(m_ViewportSize.x, m_ViewportSize.y);
 		std::static_pointer_cast<Framebuffer>(m_SSAOBlurPassSpecification.Framebuffer)->Resize(m_ViewportSize.x, m_ViewportSize.y);
 
+		std::static_pointer_cast<Framebuffer>(m_SSDOPassSpecification.Framebuffer)->Resize(m_ViewportSize.x, m_ViewportSize.y);
+		std::static_pointer_cast<Framebuffer>(m_SSDOBlurPassSpecification.Framebuffer)->Resize(m_ViewportSize.x, m_ViewportSize.y);
+
 		m_AAOutput->Resize(m_UpsampleScale * m_ViewportSize.x, m_UpsampleScale * m_ViewportSize.y);
 
 		UpdateBloomTexturesSizes();
@@ -121,7 +127,10 @@ void Renderer::Update()
 
 	GeometryPass(components, camera);
 	LightPass(components, camera);
+
 	SSAOPass(camera);
+	SSDOPass(camera);
+
 	CombinationPass(components, camera);
 	
 	TAAPass();
@@ -166,6 +175,26 @@ void Renderer::SetTAAGamma(float gamma)
 float Renderer::GetTAAGamma() const
 {
 	return m_TAAGamma;
+}
+
+void Renderer::SetSSDORadius(float radius)
+{
+	m_SSDORadius = radius;
+}
+
+float Renderer::GetSSDORadius() const
+{
+	return m_SSDORadius;
+}
+
+void Renderer::SetSSDOEnabled(bool enabled)
+{
+	m_bSSDOEnabled = enabled;
+}
+
+bool Renderer::IsSSDOEnabled() const
+{
+	return m_bSSDOEnabled;
 }
 
 float Renderer::GetGamma() const
@@ -318,6 +347,27 @@ void Renderer::SetAAMethod(AAMethod method)
 	m_AAMethod = method;
 }
 
+void Renderer::SetSSDOSampleCount(int32_t samples)
+{
+	m_SSDOSamplesCount = samples;
+	m_SSDOSamples = Math::GenerateHalfSphereSamples(samples);
+}
+
+int32_t Renderer::GetSSDOSampleCount() const
+{
+	return m_SSDOSamplesCount;
+}
+
+void Renderer::SetSSDOBounceStrength(float strength)
+{
+	m_SSDOBounceStrength = strength;
+}
+
+float Renderer::GetSSDOBounceStrength() const
+{
+	return m_SSDOBounceStrength;
+}
+
 std::shared_ptr<Framebuffer> Renderer::GetGeometryPassFramebuffer() const
 {
     return std::static_pointer_cast<Framebuffer>(m_GeometryPassSpecification.Framebuffer);
@@ -335,6 +385,8 @@ std::shared_ptr<Framebuffer> Renderer::GetViewport() const
 
 std::shared_ptr<Texture2D> Renderer::GetViewportTexture() const
 {
+	//return std::static_pointer_cast<Texture2D>(m_SSDOPassSpecification.Framebuffer->GetAttachment(0));
+
 	switch (m_ActiveRenderTarget)
 	{
 	case RenderTarget::GAlbedo:                   return std::static_pointer_cast<Texture2D>(m_GeometryPassSpecification.Framebuffer->GetAttachment(0));
@@ -343,6 +395,8 @@ std::shared_ptr<Texture2D> Renderer::GetViewportTexture() const
 	case RenderTarget::GRougnessMetalicEmission:  return std::static_pointer_cast<Texture2D>(m_GeometryPassSpecification.Framebuffer->GetAttachment(3));
 	case RenderTarget::GVelocity:                 return std::static_pointer_cast<Texture2D>(m_GeometryPassSpecification.Framebuffer->GetAttachment(4));
 	case RenderTarget::LightPass:                 return std::static_pointer_cast<Texture2D>(m_LightPassSpecification.Framebuffer->GetAttachment(0));
+	case RenderTarget::SSAO:					  return std::static_pointer_cast<Texture2D>(m_SSAOBlurPassSpecification.Framebuffer->GetAttachment(0));
+	case RenderTarget::SSDO:					  return std::static_pointer_cast<Texture2D>(m_SSDOBlurPassSpecification.Framebuffer->GetAttachment(0));
 	case RenderTarget::CombinationPass:           return std::static_pointer_cast<Texture2D>(m_CombinationPassSpecification.Framebuffer->GetAttachment(0));
 	case RenderTarget::AAOutput:                  return std::static_pointer_cast<Texture2D>(m_AAOutput->GetAttachment(0));
 	case RenderTarget::PostProcessing:            return std::static_pointer_cast<Texture2D>(m_PostProcessingRenderPassSpecification.Framebuffer->GetAttachment(0));
@@ -484,14 +538,13 @@ void Renderer::GeometryPass(const std::vector<std::shared_ptr<Component>>& compo
 	m_PreviousView = view;
 }
 
-void Renderer::SSAOPass(Camera* camera) {
-    if (m_bSSAOEnabled)
+void Renderer::SSAOPass(Camera* camera) 
+{
+    if (false)
     {
         {
             glm::mat4 view = camera->GetView();
             BeginRenderPass(m_SSAOPassSpecification, view, camera->GetProjection());
-
-            std::shared_ptr<Shader> shader = m_SSAOPassSpecification.Shader;
 
             m_Context->SetShaderDataMat4("u_NormalMatrix", glm::transpose(glm::inverse(view)));
             
@@ -514,8 +567,7 @@ void Renderer::SSAOPass(Camera* camera) {
         {
             BeginRenderPass(m_SSAOBlurPassSpecification, camera->GetView(), camera->GetProjection());
 
-            std::shared_ptr<Shader> shader = m_SSAOBlurPassSpecification.Shader;
-            m_Context->SetShaderDataTexture("u_AmbientOcclusion", m_SSAOPassSpecification.Framebuffer->GetAttachment(0));
+			m_Context->SetShaderDataTexture("u_AmbientOcclusion", m_SSAOPassSpecification.Framebuffer->GetAttachment(0));
             m_Context->SetShaderDataFloat2("u_PixelSize", 1.0f / glm::vec2(m_ViewportSize));
 
 			SubmitQuad(-1.0f, -1.0f, -1.0f, 1.0f, 1.0f, 1.0f, 1.0f, -1.0f);
@@ -523,6 +575,50 @@ void Renderer::SSAOPass(Camera* camera) {
             EndRenderPass();
         }
     }
+}
+
+void Renderer::SSDOPass(Camera* camera)
+{
+	if (m_bSSDOEnabled)
+	{
+		glm::mat4 view = camera->GetView();
+		
+		{
+			BeginRenderPass(m_SSDOPassSpecification, view, camera->GetProjection());
+
+			m_Context->SetShaderDataMat4("u_NormalMatrix", glm::transpose(glm::inverse(view)));
+
+			m_Context->SetShaderDataTexture("u_Diffuse", m_LightPassSpecification.Framebuffer->GetAttachment(0));
+			m_Context->SetShaderDataTexture("u_Position", m_GeometryPassSpecification.Framebuffer->GetAttachment(1));
+			m_Context->SetShaderDataTexture("u_Normal", m_GeometryPassSpecification.Framebuffer->GetAttachment(2));
+
+			m_Context->SetShaderDataFloat("u_SampleCount", m_SSDOSamplesCount);
+			m_Context->SetShaderDataFloat("u_NoiseSize", m_NoiseSize);
+			m_Context->SetShaderDataTexture("u_Noise", m_SSAONoise);
+			m_Context->SetShaderDataFloat("u_Radius", m_SSDORadius);
+			m_Context->SetShaderDataFloat("u_BounceStrength", m_SSDOBounceStrength);
+
+			for (int32_t i = 0; i < m_SSDOSamplesCount; ++i)
+			{
+				m_Context->SetShaderDataFloat3("u_Samples[" + std::to_string(i) + "]", m_SSDOSamples[i]);
+			}
+
+			SubmitQuad(-1.0f, -1.0f, -1.0f, 1.0f, 1.0f, 1.0f, 1.0f, -1.0f);
+
+			EndRenderPass();
+		}
+
+		{
+			BeginRenderPass(m_SSDOBlurPassSpecification, view, camera->GetProjection());
+
+			m_Context->SetShaderDataTexture("u_Input", m_SSDOPassSpecification.Framebuffer->GetAttachment(0));
+			m_Context->SetShaderDataFloat2("u_PixelSize", glm::vec2(1.0f / m_SSDOPassSpecification.Framebuffer->GetWidth(), 1.0f / m_SSDOPassSpecification.Framebuffer->GetHeight()));
+
+			SubmitQuad(-1.0f, -1.0f, -1.0f, 1.0f, 1.0f, 1.0f, 1.0f, -1.0f);
+			
+			EndRenderPass();
+		}
+	}
 }
 
 void Renderer::BloomPass() 
@@ -727,22 +823,10 @@ void Renderer::SetupSSAORenderPass()
         m_SSAOPassSpecification.bClearColors = true;
     }
 
-    std::uniform_real_distribution<float> distribution(0.0f, 1.0f);
-    std::default_random_engine generator;
-    for (int32_t i = 0; i < m_SSAOSamplesCount; ++i)
-    {
-        float x = distribution(generator) * 2.0f - 1.0f;
-        float y = distribution(generator) * 2.0f - 1.0f;
-        float z = distribution(generator);
+	m_SSAOSamples = Math::GenerateHalfSphereSamples(m_SSAOSamplesCount);
 
-        glm::vec3 sample(x, y, z);
-        sample = glm::normalize(sample) * distribution(generator);
-
-		float scale = 1.0f * i / m_SSAOSamplesCount;
-        sample *= Math::lerp(0.1f, 1.0f, scale * scale);
-
-        m_SSAOSamples.push_back(sample);
-    }
+	std::uniform_real_distribution<float> distribution(0.0f, 1.0f);
+	std::default_random_engine generator;
 
 	float* noise = (float*)std::malloc(3 * m_NoiseSize * m_NoiseSize * sizeof(float));
     for (int32_t i = 0; i < m_NoiseSize * m_NoiseSize; ++i) 
@@ -780,6 +864,30 @@ void Renderer::SetupSSAORenderPass()
         m_SSAOBlurPassSpecification.bUseBlending = false;
         m_SSAOBlurPassSpecification.bClearColors = false;
     }
+}
+
+void Renderer::SetupSSDORenderPass()
+{
+	{
+		m_SSDOPassSpecification.Name = "SSDO pass";
+
+		m_SSDOPassSpecification.Framebuffer = RenderingHelper::CreateFramebuffer(1, 1);
+		m_SSDOPassSpecification.Framebuffer->CreateAttachment(FramebufferAttachmentType::Color16);
+
+		m_SSDOPassSpecification.Shader = RenderingHelper::CreateShader(Files::ContentFolderPath + R"(\shaders\SSDO.glsl)");
+
+	}
+
+	m_SSDOSamples = Math::GenerateHalfSphereSamples(m_SSDOSamplesCount);
+	
+	{
+		m_SSDOBlurPassSpecification.Name = "SSDO blur pass";
+
+		m_SSDOBlurPassSpecification.Framebuffer = RenderingHelper::CreateFramebuffer(1, 1);
+		m_SSDOBlurPassSpecification.Framebuffer->CreateAttachment(FramebufferAttachmentType::Color16);
+
+		m_SSDOBlurPassSpecification.Shader = RenderingHelper::CreateShader(Files::ContentFolderPath + R"(\shaders\SSDO-blur.glsl)");
+	}
 }
 
 void Renderer::SetupLightRenderPass()
@@ -951,6 +1059,7 @@ void Renderer::CombinationPass(const std::vector<std::shared_ptr<Component>>& co
     m_Context->SetShaderDataTexture("u_RoughnessMetalic", m_GeometryPassSpecification.Framebuffer->GetAttachment(3));
     m_Context->SetShaderDataTexture("u_Light", m_LightPassSpecification.Framebuffer->GetAttachment(0));
 	m_Context->SetShaderDataTexture("u_AmbientOcclusion", m_bSSAOEnabled ? m_SSAOBlurPassSpecification.Framebuffer->GetAttachment(0) : RenderingHelper::GetWhiteTexture());
+	m_Context->SetShaderDataTexture("u_SSDO", m_bSSDOEnabled ? m_SSDOBlurPassSpecification.Framebuffer->GetAttachment(0) : RenderingHelper::GetBlackTexture());
 
     SubmitQuad(-1.0f, -1.0f, -1.0f, 1.0f, 1.0f, 1.0f, 1.0f, -1.0f);
 

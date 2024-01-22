@@ -115,6 +115,9 @@ enum class RenderTarget
 
 	LightPass,
 
+	SSAO,
+	SSDO,
+
 	CombinationPass,
 	AAOutput,
 	PostProcessing

@@ -19,21 +19,21 @@ void main()
 
 in vec2 v_TextureCoordinates;
 
-uniform sampler2D u_AmbientOcclusion;
+uniform sampler2D u_Input;
 uniform vec2 u_PixelSize;
 
-out float ambientOcclusion;
+out vec4 color;
 
 void main() 
 {
-	ambientOcclusion = 0.0f;
 	for (int i = -2; i < 2; ++i) 
 	{
 		for (int j = -2; j < 2; ++j) 
 		{
 			vec2 position = v_TextureCoordinates + vec2(i, j) * u_PixelSize;
-			ambientOcclusion += texture2D(u_AmbientOcclusion, position).r;
+			color += texture2D(u_Input, position);
 		}
 	}
-	ambientOcclusion /= 16;
+
+	color /= 16.0f;
 }

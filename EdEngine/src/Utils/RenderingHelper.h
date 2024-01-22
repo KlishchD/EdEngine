@@ -52,6 +52,7 @@ public:
 	static inline std::shared_ptr<Texture2D> WhiteTexture;
 
 	static std::shared_ptr<Texture2D> GetWhiteTexture();
+	static std::shared_ptr<Texture2D> GetBlackTexture();
 
 	static Texture2DImportParameters GetDefaultBaseColorTexture2DImportParameters(const std::string& path);
 	static Texture2DImportParameters GetDefaultNormalTexture2DImportParameters(const std::string& path);

@@ -85,6 +85,18 @@ public:
     void SetTAAGamma(float gamma);
     float GetTAAGamma() const;
 
+    void SetSSDORadius(float radius);
+    float GetSSDORadius() const;
+
+    void SetSSDOEnabled(bool enabled);
+    bool IsSSDOEnabled() const;
+
+    void SetSSDOSampleCount(int32_t samples);
+    int32_t GetSSDOSampleCount() const;
+
+    void SetSSDOBounceStrength(float strength);
+    float GetSSDOBounceStrength() const;
+
     std::shared_ptr<Framebuffer> GetGeometryPassFramebuffer() const;
     std::shared_ptr<Framebuffer> LightPassFramebuffer() const;
     std::shared_ptr<Framebuffer> GetViewport() const;
@@ -94,8 +106,6 @@ private:
 	float m_FarPlane = 15000.0f;
 
     RenderPassSpecification m_GeometryPassSpecification;
-    RenderPassSpecification m_SSAOPassSpecification;
-    RenderPassSpecification m_SSAOBlurPassSpecification;
     RenderPassSpecification m_CombinationPassSpecification;
 
     // Light
@@ -111,12 +121,29 @@ private:
     glm::mat4 m_LightPerspective = glm::perspective(glm::radians(90.0f), 1.0f, 1.0f, m_FarPlane);
     
     // SSAO
+
+    RenderPassSpecification m_SSAOPassSpecification;
+    RenderPassSpecification m_SSAOBlurPassSpecification;
+
     int32_t m_SSAOSamplesCount = 16;
     std::vector<glm::vec3> m_SSAOSamples;
     int32_t m_NoiseSize = 10;
     std::shared_ptr<Texture2D> m_SSAONoise;
 
-    bool m_bSSAOEnabled = true;
+    bool m_bSSAOEnabled = false;
+
+    // SSDO
+
+    int32_t m_SSDOSamplesCount = 4;
+    std::vector<glm::vec3> m_SSDOSamples;
+
+    RenderPassSpecification m_SSDOPassSpecification;
+    RenderPassSpecification m_SSDOBlurPassSpecification;
+    float m_SSDORadius = 1.0f;
+
+    float m_SSDOBounceStrength = 1.0f;
+
+    bool m_bSSDOEnabled = true;
 
     // Old Bloom
     std::shared_ptr<Framebuffer> m_BlurFramebuffer1;
@@ -198,7 +225,10 @@ private:
 
     void GeometryPass(const std::vector<std::shared_ptr<Component>>& components, Camera* camera);
     void LightPass(const std::vector<std::shared_ptr<Component>>& components, Camera* camera);
+
     void SSAOPass(Camera* camera);
+    void SSDOPass(Camera* camera);
+
     void BloomPass();
     void NewBloomPass();
     void CombinationPass(const std::vector<std::shared_ptr<Component>>& components, Camera* camera);
@@ -217,6 +247,7 @@ private:
     void SetupGeometryRenderPass();
     void SetupLightRenderPass();
     void SetupSSAORenderPass();
+    void SetupSSDORenderPass();
     void SetupCombinationRenderPass();
     void SetupPostProcessingRenderPass();
 

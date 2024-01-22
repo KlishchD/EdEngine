@@ -21,6 +21,7 @@ uniform sampler2D u_Albedo;
 uniform sampler2D u_RoughnessMetalic;
 uniform sampler2D u_Light;
 uniform sampler2D u_AmbientOcclusion;
+uniform sampler2D u_SSDO;
 
 layout(location = 0) out vec4 result;
 
@@ -45,12 +46,15 @@ void main() {
     if (roughnessMetalic.a == 1.0f)
     {
         float ambientOcclusion = texture2D(u_AmbientOcclusion, pos).x;
-        color = 0.1f * albedo * ambientOcclusion + texture(u_Light, pos).xyz;
+        color = texture(u_Light, pos).xyz; // 0.1f * albedo * ambientOcclusion +
     }
     else
     {
         color = albedo;
     }
+
+    vec3 indirect = texture2D(u_SSDO, pos).rgb;
+    color += indirect;
     
     result = vec4(color, 1.0f);
 }

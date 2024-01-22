@@ -30,5 +30,5 @@ void main() {
     vec4 roughnessMetalic = texture(u_RoughnessMetalic, pos);
     float emission = roughnessMetalic.z;
     
-    color = vec4(albedo * emission, 1.0f);
+    color = vec4(albedo * emission + albedo * 0.1f, 1.0f);
 }
