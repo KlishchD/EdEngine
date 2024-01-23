@@ -16,6 +16,8 @@
 #include "Core/Scene.h"
 #include "Utils/RenderingHelper.h"
 #include "Core/Components/PointLightComponent.h"
+#include "Core/Rendering/Tasks/ResolutionRenderTask.h"
+#include <Core/Rendering/Tasks/GBufferRenderTask.h>
 
 void Editor::Deinitialize()
 {
@@ -46,7 +48,7 @@ void Editor::Initialize(Engine* engine)
     m_Engine->AddWidget<AssetDescriptorDetails>();
 
     m_IconsPassSpecification.Name = "Editor icons";
-    m_IconsPassSpecification.Framebuffer = m_Renderer->GetViewport();
+    m_IconsPassSpecification.Framebuffer = m_Renderer->GetTask<ResolutionRenderTask>()->GetFramebuffer();
     m_IconsPassSpecification.Shader = RenderingHelper::CreateShader(Files::ContentFolderPath + R"(Editor\shaders\IconShader.glsl)");
 // 
 //     std::shared_ptr<Actor> actor = engine->GetLoadedScene()->CreateActor<Actor>("Lights");
@@ -80,11 +82,11 @@ void Editor::Update(float DeltaTime)
 
     m_Renderer->SubmitRenderCommand([this, camera](RenderingContext* context) {
         std::vector<std::shared_ptr<Component>> components = m_Engine->GetLoadedScene()->GetAllComponents();
-        std::shared_ptr<Framebuffer> viewportFramebuffer = m_Renderer->GetViewport();
 
         m_IconsPassSpecification.ViewPosition = camera->GetPosition();
 
-        m_Renderer->GetViewport()->CopyDepthAttachment(m_Renderer->GetGeometryPassFramebuffer());
+        std::shared_ptr<Framebuffer> framebuffer = std::static_pointer_cast<Framebuffer>(m_IconsPassSpecification.Framebuffer);
+        framebuffer->CopyDepthAttachment(m_Renderer->GetTask<GBufferRenderTask>()->GetFramebuffer());
         
         m_Renderer->BeginRenderPass(m_IconsPassSpecification, camera->GetView(), camera->GetProjection());
         

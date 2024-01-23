@@ -1,6 +1,7 @@
-﻿#include "MathUtils.h"
+﻿#include "MathHelper.h"
 #include <glm/detail/type_quat.hpp>
 #include <glm/gtx/matrix_decompose.hpp>
+#include <random>
 
 glm::vec3 glm::translation(mat4 Transform)
 {
@@ -42,12 +43,12 @@ glm::mat4 glm::rotationless(mat4 Transform)
     return glm::scale(glm::translate(glm::mat4(1.0f), translation), scale);
 }
 
-float Math::lerp(float a, float b, float f)
+float MathHelper::lerp(float a, float b, float f)
 {
 	return a + f * (b - a);
 }
 
-float Math::Halton(uint32_t i, uint32_t b)
+float MathHelper::Halton(uint32_t i, uint32_t b)
 {
 	float f = 1.0f;
 	float r = 0.0f;
@@ -60,4 +61,28 @@ float Math::Halton(uint32_t i, uint32_t b)
 	}
 
 	return r;
+}
+
+std::vector<glm::vec3> MathHelper::GenerateHalfSphereSamples(int32_t count)
+{
+    std::vector<glm::vec3> samples(count);
+
+	std::uniform_real_distribution<float> distribution(0.0f, 1.0f);
+	std::default_random_engine generator;
+	for (int32_t i = 0; i < count; ++i)
+	{
+		float x = distribution(generator) * 2.0f - 1.0f;
+		float y = distribution(generator) * 2.0f - 1.0f;
+		float z = distribution(generator);
+
+		glm::vec3 sample(x, y, z);
+		sample = glm::normalize(sample) * distribution(generator);
+
+		float scale = 1.0f * i / count;
+		sample *= MathHelper::lerp(0.1f, 1.0f, scale * scale);
+
+        samples[i] = sample;
+	}
+
+    return samples;
 }

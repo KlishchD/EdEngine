@@ -112,12 +112,16 @@ enum class RenderTarget
 	GNormal,
 	GRougnessMetalicEmission,
 	GVelocity,
+	GDepth,
 
-	LightPass,
+	SSAO,
 
-	CombinationPass,
+	Light,
+
+	Bloom,
+
 	AAOutput,
-	PostProcessing
+	Resolution
 };
 
 struct Vertex {

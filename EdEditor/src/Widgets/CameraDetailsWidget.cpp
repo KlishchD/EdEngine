@@ -2,9 +2,13 @@
 #include "Editor.h"
 #include "Core/Engine.h"
 #include "Core/Rendering/Renderer.h"
+#include "Core/Rendering/Tasks/BloomRenderTask.h"
+#include "Core/Rendering/Tasks/ResolutionRenderTask.h"
 
 #include <imgui.h>
 #include <glm/gtc/type_ptr.hpp>
+#include <Core/Rendering/Tasks/FXAARenderTask.h>
+#include <Core/Rendering/Tasks/TAARenderTask.h>
 
 CameraDetailsWidget::CameraDetailsWidget()
 {
@@ -52,7 +56,7 @@ void CameraDetailsWidget::Tick(float DeltaTime)
 
     ImGui::Begin("Rendering");
 
-    static RenderTarget targets[] = { RenderTarget::GAlbedo, RenderTarget::GPosition, RenderTarget::GNormal, RenderTarget::GRougnessMetalicEmission, RenderTarget::GVelocity, RenderTarget::LightPass, RenderTarget::CombinationPass, RenderTarget::AAOutput, RenderTarget::PostProcessing };
+    static RenderTarget targets[] = { RenderTarget::GAlbedo, RenderTarget::GPosition, RenderTarget::GNormal, RenderTarget::GRougnessMetalicEmission, RenderTarget::GVelocity, RenderTarget::GDepth, RenderTarget::SSAO, RenderTarget::Light, RenderTarget::Bloom, RenderTarget::AAOutput, RenderTarget::Resolution };
 
     if (RenderTarget activeTarget = m_Renderer->GetActiveRenderTarget(); ImGui::BeginCombo("Render Target", GetRenderTargetName(activeTarget).c_str()))
     {
@@ -74,34 +78,21 @@ void CameraDetailsWidget::Tick(float DeltaTime)
 
     if (m_Renderer->IsBloomEnabled())
     {
-        if (bool use = m_Renderer->IsUsingNewBloom(); ImGui::Checkbox("Use new bloom", &use))
+        std::shared_ptr<ResolutionRenderTask> resoultion = m_Renderer->GetTask<ResolutionRenderTask>();
+        if (float strength = resoultion->GetBloomStrength(); ImGui::SliderFloat("Bloom strength", &strength, 0.0f, 1.0f))
         {
-            m_Renderer->SetUseNewBloom(use);
+            resoultion->SetBloomStrength(strength);
         }
 
-        if (m_Renderer->IsUsingNewBloom())
+        std::shared_ptr<BloomRenderTask> bloom = m_Renderer->GetTask<BloomRenderTask>();
+        if (float strength = bloom->GetBloomMixStrength(); ImGui::SliderFloat("Bloom mix strength", &strength, 0.0f, 1.0f))
         {
-            if (float strength = m_Renderer->GetBloomStrength(); ImGui::SliderFloat("Bloom strength", &strength, 0.0f, 1.0f))
-            {
-                m_Renderer->SetBloomStrength(strength);
-            }
-
-            if (float strength = m_Renderer->GetBloomMixStrength(); ImGui::SliderFloat("Bloom mix strength", &strength, 0.0f, 1.0f))
-            {
-                m_Renderer->SetBloomMixStrength(strength);
-            }
-
-            if (int32_t count = m_Renderer->GetBloomDownscaleTextureCount(); ImGui::SliderInt("Downscale count", &count, 1, 8))
-            {
-                m_Renderer->SetBloomDownscaleTexturesCount(count);
-            }
+            bloom->SetBloomMixStrength(strength);
         }
-        else
+
+        if (int32_t count = bloom->GetBloomDownscaleTextureCount(); ImGui::SliderInt("Downscale count", &count, 1, 8))
         {
-            if (float intensity = m_Renderer->GetBloomIntensity(); ImGui::SliderFloat("Bloom intensity", &intensity, 0.0f, 1.0f))
-            {
-                m_Renderer->SetBloomIntensity(intensity);
-            }
+            bloom->SetBloomDownscaleTexturesCount(count);
         }
     }
 
@@ -125,38 +116,36 @@ void CameraDetailsWidget::Tick(float DeltaTime)
 
     if (m_Renderer->GetAAMethod() == AAMethod::FXAA)
     {
-        if (float threshold = m_Renderer->GetContrastThreshold(); ImGui::SliderFloat("Contrast threshold", &threshold, 0.01f, 0.1f))
-        {
-            m_Renderer->SetContrastThreshold(threshold);
-        }
+        std::shared_ptr<FXAARenderTask> fxaa = m_Renderer->GetTask<FXAARenderTask>();
+		if (float threshold = fxaa->GetContrastThreshold(); ImGui::SliderFloat("Contrast threshold", &threshold, 0.01f, 0.1f))
+		{
+			fxaa->SetContrastThreshold(threshold);
+		}
 
-        if (float threshold = m_Renderer->GetRelativeThreshold(); ImGui::SliderFloat("Relative threshold", &threshold, 0.01f, 0.4f))
-        {
-            m_Renderer->SetRelativeThreshold(threshold);
-        }
+		if (float threshold = fxaa->GetRelativeThreshold(); ImGui::SliderFloat("Relative threshold", &threshold, 0.01f, 0.4f))
+		{
+			fxaa->SetRelativeThreshold(threshold);
+		}
 
-        if (float scale = m_Renderer->GetSubpixelBlending(); ImGui::SliderFloat("Subpixel blending", &scale, 0.0f, 1.0f))
+        if (float scale = fxaa->GetSubpixelBlending(); ImGui::SliderFloat("Subpixel blending", &scale, 0.0f, 1.0f))
         {
-            m_Renderer->SetSubpixelBlending(scale);
+            fxaa->SetSubpixelBlending(scale);
         }
 	}
     else if (m_Renderer->GetAAMethod() == AAMethod::TAA)
     {
-        if (float gamma = m_Renderer->GetTAAGamma(); ImGui::SliderFloat("TAA Gamma", &gamma, 0.5f, 10.0f))
+		std::shared_ptr<TAARenderTask> taa = m_Renderer->GetTask<TAARenderTask>();
+        if (float gamma = taa->GetGamma(); ImGui::SliderFloat("TAA Gamma", &gamma, 0.5f, 10.0f))
         {
-            m_Renderer->SetTAAGamma(gamma);
+            taa->SetGamma(gamma);
         }
     }
 
-    if (bool active = m_Renderer->IsUsingComputeShadersForPostProcessing(); ImGui::Checkbox("Use compute shaders for post processing", &active))
-    {
-        m_Renderer->SetIsUsingComputeShadersForPostProcessing(active);
-    }
-
-    if (float gamma = m_Renderer->GetGamma(); ImGui::SliderFloat("Gamma", &gamma, 0.1f, 10.0f))
-    {
-        m_Renderer->SetGamma(gamma);
-    }
+	std::shared_ptr<ResolutionRenderTask> resoultion = m_Renderer->GetTask<ResolutionRenderTask>();
+	if (float gamma = resoultion->GetGamma(); ImGui::SliderFloat("Gamma", &gamma, 0.1f, 10.0f))
+	{
+        resoultion->SetGamma(gamma);
+	}
 
     ImGui::End();
 }
@@ -196,10 +185,12 @@ std::string CameraDetailsWidget::GetRenderTargetName(RenderTarget target)
     case RenderTarget::GNormal:                  return "GNormal";
     case RenderTarget::GRougnessMetalicEmission: return "GRougnessMetalicEmission";
     case RenderTarget::GVelocity:                return "GVelocity";
-    case RenderTarget::LightPass:                return "LightPass";
-    case RenderTarget::CombinationPass:          return "CombinationPass";
+    case RenderTarget::GDepth:                   return "GDepth";
+    case RenderTarget::SSAO:                     return "SSAO";
+    case RenderTarget::Light:                    return "Light";
+    case RenderTarget::Bloom:                    return "Bloom";
     case RenderTarget::AAOutput:                 return "AAOutput";
-    case RenderTarget::PostProcessing:           return "PostProvessing";
+    case RenderTarget::Resolution:               return "Resolution";
     default:
         ED_ASSERT(0, "Unsupported render target")
     }
