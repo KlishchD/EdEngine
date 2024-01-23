@@ -3,7 +3,7 @@
 #include "Core/Scene.h"
 #include "Utils/GeometryBuilder.h"
 #include "Utils/RenderingHelper.h"
-#include "Utils/MathUtils.h"
+#include "Utils/MathHelper.h"
 #include "Utils/Files.h"
 #include "Core/Macros.h"
 #include "imgui.h"
@@ -20,6 +20,16 @@
 #include "Framebuffers/CubeFramebuffer.h"
 #include "Buffers/VertexBufferLayout.h"
 #include "Shader.h"
+
+#include "Tasks/GBufferRenderTask.h"
+#include "Tasks/SSAORenderTask.h"
+#include "Tasks/EmissionRenderTask.h"
+#include "Tasks/PointLightRenderTask.h"
+#include "Tasks/AmbientRenderTask.h"
+#include "Tasks/FXAARenderTask.h"
+#include "Tasks/TAARenderTask.h"
+#include "Tasks/BloomRenderTask.h"
+#include "Tasks/ResolutionRenderTask.h"
 
 void Renderer::Initialize(Engine* engine)
 {
@@ -55,30 +65,44 @@ void Renderer::Initialize(Engine* engine)
 	m_PointLightMeshVBO = RenderingHelper::CreateVertexBuffer(vertices.data(), sizeof(float) * vertices.size(), pointLightVBOLayout, BufferUsage::StaticDraw);
 	m_PointLightMeshIBO = RenderingHelper::CreateIndexBuffer(indices.data(), sizeof(int32_t) * indices.size(), BufferUsage::StaticDraw);
 
+	m_LightFramebuffer = RenderingHelper::CreateFramebuffer(1, 1);
+	m_LightFramebuffer->CreateAttachment(FramebufferAttachmentType::Color16);
 
-    m_BlurFramebuffer1 = RenderingHelper::CreateFramebuffer(1, 1);
-	m_BlurFramebuffer1->CreateAttachment(FramebufferAttachmentType::Color16);
+	{
+		Texture2DImportParameters pararmeters = RenderingHelper::GetDefaultNormalTexture2DImportParameters("");
 
-	m_BlurFramebuffer2 = RenderingHelper::CreateFramebuffer(1, 1);
-	m_BlurFramebuffer2->CreateAttachment(FramebufferAttachmentType::Color16);
+		Texture2DData data;
+		data.Width = 1;
+		data.Height = 1;
+		data.Data = nullptr;
 
-	m_BlurShader = RenderingHelper::CreateShader(Files::ContentFolderPath + R"(\shaders\bloom\blur.glsl)");
-
-    SetupGeometryRenderPass();
-    SetupLightRenderPass();
-    SetupSSAORenderPass();
-	SetupNewBloomRenderPass();
-	SetupCombinationRenderPass();
-	SetupPostProcessingRenderPass();
-
-    SetupShadowRenderPass();
-    SetupBrightnessFilterPass();
-
-	SetupAA();
-	SetupFXAARenderPass();
-	SetupTAARenderPass();
+		m_AAFramebuffer = RenderingHelper::CreateFramebuffer(1, 1);
+		m_AAFramebuffer->CreateAttachment(FramebufferAttachmentType::Color16);
+	}
 
     CreateRandomShadowMapSamples();
+
+	{
+		m_Tasks.push_back(GBufferRenderTask());
+
+		m_Tasks.push_back(SSAORenderTask());
+
+		m_Tasks.push_back(EmissionRenderTask());
+		m_Tasks.push_back(PointLightRenderTask());
+		m_Tasks.push_back(AmbientRenderTask());
+
+		m_Tasks.push_back(FXAARenderTask());
+		m_Tasks.push_back(TAARenderTask());
+
+		m_Tasks.push_back(BloomRenderTask());
+
+		m_Tasks.push_back(ResolutionRenderTask());
+
+		for (RenderTask& task : m_Tasks)
+		{
+			task.Setup(this);
+		}
+	}
 
 	ED_LOG(Renderer, info, "Finished initalizing Renderer")
 }
@@ -91,26 +115,17 @@ void Renderer::Deinitialize()
 void Renderer::Update()
 {
 	m_Context->SwapBuffers();
-
-	if (m_GeometryPassSpecification.Framebuffer->GetWidth() != m_UpsampleScale * m_ViewportSize.x || m_GeometryPassSpecification.Framebuffer->GetHeight() != m_UpsampleScale * m_ViewportSize.y)
+	
+	if (m_bIsViewportSizeDirty)
 	{
-		std::static_pointer_cast<Framebuffer>(m_GeometryPassSpecification.Framebuffer)->Resize(m_UpsampleScale * m_ViewportSize.x, m_UpsampleScale * m_ViewportSize.y);
-		std::static_pointer_cast<Framebuffer>(m_LightPassSpecification.Framebuffer)->Resize(m_UpsampleScale * m_ViewportSize.x, m_UpsampleScale * m_ViewportSize.y);
-		std::static_pointer_cast<Framebuffer>(m_CombinationPassSpecification.Framebuffer)->Resize(m_UpsampleScale * m_ViewportSize.x, m_UpsampleScale * m_ViewportSize.y);
-		std::static_pointer_cast<Framebuffer>(m_PostProcessingRenderPassSpecification.Framebuffer)->Resize(m_UpsampleScale * m_ViewportSize.x, m_UpsampleScale * m_ViewportSize.y);
+		for (RenderTask& task : m_Tasks)
+		{
+			task.Resize(m_ViewportSize, m_UpsampleScale);
+		}
 
-		std::static_pointer_cast<CubeFramebuffer>(m_PointLightShadowPassSpecification.Framebuffer)->Resize(m_ViewportSize.y);
-
-		std::static_pointer_cast<Framebuffer>(m_BlurFramebuffer1)->Resize(m_ViewportSize.x, m_ViewportSize.y);
-		std::static_pointer_cast<Framebuffer>(m_BlurFramebuffer2)->Resize(m_ViewportSize.x, m_ViewportSize.y);
-
-		std::static_pointer_cast<Framebuffer>(m_SSAOPassSpecification.Framebuffer)->Resize(m_ViewportSize.x, m_ViewportSize.y);
-		std::static_pointer_cast<Framebuffer>(m_SSAOBlurPassSpecification.Framebuffer)->Resize(m_ViewportSize.x, m_ViewportSize.y);
-
-		m_AAOutput->Resize(m_UpsampleScale * m_ViewportSize.x, m_UpsampleScale * m_ViewportSize.y);
-
-		UpdateBloomTexturesSizes();
-
+		m_LightFramebuffer->Resize(m_ViewportSize.x * m_UpsampleScale, m_ViewportSize.y * m_UpsampleScale);
+		m_AAFramebuffer->Resize(m_ViewportSize.x * m_UpsampleScale, m_ViewportSize.y * m_UpsampleScale);
+	
 		m_Engine->GetCamera()->SetProjection(90.0f, 1.0f * m_ViewportSize.x / m_ViewportSize.y, 1.0f, m_FarPlane);
 	}
 
@@ -119,22 +134,9 @@ void Renderer::Update()
 
 	std::vector<std::shared_ptr<Component>> components = scene->GetAllComponents();
 
-	GeometryPass(components, camera);
-	LightPass(components, camera);
-	SSAOPass(camera);
-	CombinationPass(components, camera);
-	
-	TAAPass();
-	FXAAPass();
-
-	BloomPass();
-	NewBloomPass();
-	PostProcessingPass();
-
-	if (m_HistoryBufferSize > 1)
+	for (RenderTask& task : m_Tasks)
 	{
-		m_ActiveHistoryBufferTextureIndex = (m_ActiveHistoryBufferTextureIndex + 1) % m_HistoryBufferSize;
-		m_AAOutput->SetAttachment(0, m_HistoryBuffer[m_ActiveHistoryBufferTextureIndex]);
+		task.Run(components, camera);
 	}
 
 	while (m_Commands.size()) {
@@ -145,17 +147,16 @@ void Renderer::Update()
 
 void Renderer::ResizeViewport(glm::vec2 size)
 {
-    m_ViewportSize = size;
+	if (m_ViewportSize != glm::ivec2(size))
+	{
+		m_bIsViewportSizeDirty = true;
+		m_ViewportSize = size;
+	}
 }
 
 void Renderer::SubmitRenderCommand(const std::function<void(RenderingContext* context)>& command)
 {
     m_Commands.push(command);
-}
-
-void Renderer::SetGamma(float gamma)
-{
-	m_Gamma = gamma;
 }
 
 void Renderer::SetTAAGamma(float gamma)
@@ -166,6 +167,26 @@ void Renderer::SetTAAGamma(float gamma)
 float Renderer::GetTAAGamma() const
 {
 	return m_TAAGamma;
+}
+
+std::shared_ptr<RenderingContext> Renderer::GetRenderContext() const
+{
+	return m_Context;
+}
+
+std::shared_ptr<Framebuffer> Renderer::GetLightFramebuffer() const
+{
+	return m_LightFramebuffer;
+}
+
+std::shared_ptr<Framebuffer> Renderer::GetAntiAliasingFramebuffer() const
+{
+	return m_AAFramebuffer;
+}
+
+std::shared_ptr<Texture2D> Renderer::GetAntiAliasingOutputTexture() const
+{
+	return m_AAMethod == AAMethod::None ? GetRenderTarget(RenderTarget::Light) : std::static_pointer_cast<Texture2D>(m_AAFramebuffer->GetAttachment(0));
 }
 
 float Renderer::GetGamma() const
@@ -193,61 +214,6 @@ bool Renderer::IsBloomEnabled() const
 	return m_bIsBloomEnabled;
 }
 
-void Renderer::SetUseNewBloom(bool use)
-{
-	m_bUseNewBloom = use;
-}
-
-bool Renderer::IsUsingNewBloom() const
-{
-	return m_bUseNewBloom;
-}
-
-void Renderer::SetBloomStrength(float strength)
-{
-	m_BloomStrength = strength;
-}
-
-float Renderer::GetBloomStrength() const
-{
-	return m_BloomStrength;
-}
-
-void Renderer::SetBloomIntensity(float intensity)
-{
-	m_BloomIntensity = intensity;
-}
-
-float Renderer::GetBloomIntensity() const
-{
-	return m_BloomIntensity;
-}
-
-void Renderer::SetBloomMixStrength(float strength)
-{
-	m_BloomMixStrength = strength;
-}
-
-float Renderer::GetBloomMixStrength() const
-{
-	return m_BloomMixStrength;
-}
-
-void Renderer::SetBloomDownscaleTexturesCount(uint32_t count)
-{
-	m_NewBloomDownscaleCount = count;
-	while (m_BloomIntermediateTextrues.size() < count)
-	{
-		m_BloomIntermediateTextrues.push_back(RenderingHelper::CreateBloomIntermediateTexture());
-	}
-	UpdateBloomTexturesSizes();
-}
-
-uint32_t Renderer::GetBloomDownscaleTextureCount() const
-{
-	return m_NewBloomDownscaleCount;
-}
-
 void Renderer::SetUpsampleScale(float scale)
 {
 	m_UpsampleScale = scale;
@@ -261,46 +227,6 @@ float Renderer::GetUpsampleScale() const
 AAMethod Renderer::GetAAMethod() const
 {
 	return m_AAMethod;
-}
-
-void Renderer::SetContrastThreshold(float threshold)
-{
-	m_ContrastThreshold = threshold;
-}
-
-float Renderer::GetContrastThreshold() const
-{
-	return m_ContrastThreshold;
-}
-
-void Renderer::SetRelativeThreshold(float threshold)
-{
-	m_RelativeThreshold = threshold;
-}
-
-float Renderer::GetRelativeThreshold() const
-{
-	return m_RelativeThreshold;
-}
-
-void Renderer::SetSubpixelBlending(float scale)
-{
-	m_SubpixelBlending = scale;
-}
-
-float Renderer::GetSubpixelBlending() const
-{
-	return m_SubpixelBlending;
-}
-
-void Renderer::SetIsUsingComputeShadersForPostProcessing(bool active)
-{
-	m_bUseComputeShadersForPostProcessing = active;
-}
-
-bool Renderer::IsUsingComputeShadersForPostProcessing() const
-{
-	return m_bUseComputeShadersForPostProcessing;
 }
 
 void Renderer::SetActiveRenderTarget(RenderTarget target)
@@ -318,357 +244,38 @@ void Renderer::SetAAMethod(AAMethod method)
 	m_AAMethod = method;
 }
 
-std::shared_ptr<Framebuffer> Renderer::GetGeometryPassFramebuffer() const
-{
-    return std::static_pointer_cast<Framebuffer>(m_GeometryPassSpecification.Framebuffer);
-}
-
-std::shared_ptr<Framebuffer> Renderer::LightPassFramebuffer() const
-{
-    return std::static_pointer_cast<Framebuffer>(m_LightPassSpecification.Framebuffer);
-}
-
-std::shared_ptr<Framebuffer> Renderer::GetViewport() const
-{
-	return std::static_pointer_cast<Framebuffer>(m_PostProcessingRenderPassSpecification.Framebuffer); // m_AAMethod == AAMethod::None ? std::static_pointer_cast<Framebuffer>(m_PostProcessingRenderPassSpecification.Framebuffer) : m_AAOutput;
-}
-
-std::shared_ptr<Texture2D> Renderer::GetViewportTexture() const
+std::shared_ptr<Texture2D> Renderer::GetRenderTarget(RenderTarget target) const
 {
 	switch (m_ActiveRenderTarget)
 	{
-	case RenderTarget::GAlbedo:                   return std::static_pointer_cast<Texture2D>(m_GeometryPassSpecification.Framebuffer->GetAttachment(0));
-	case RenderTarget::GPosition:                 return std::static_pointer_cast<Texture2D>(m_GeometryPassSpecification.Framebuffer->GetAttachment(1));
-	case RenderTarget::GNormal:                   return std::static_pointer_cast<Texture2D>(m_GeometryPassSpecification.Framebuffer->GetAttachment(2));
-	case RenderTarget::GRougnessMetalicEmission:  return std::static_pointer_cast<Texture2D>(m_GeometryPassSpecification.Framebuffer->GetAttachment(3));
-	case RenderTarget::GVelocity:                 return std::static_pointer_cast<Texture2D>(m_GeometryPassSpecification.Framebuffer->GetAttachment(4));
-	case RenderTarget::LightPass:                 return std::static_pointer_cast<Texture2D>(m_LightPassSpecification.Framebuffer->GetAttachment(0));
-	case RenderTarget::CombinationPass:           return std::static_pointer_cast<Texture2D>(m_CombinationPassSpecification.Framebuffer->GetAttachment(0));
-	case RenderTarget::AAOutput:                  return std::static_pointer_cast<Texture2D>(m_AAOutput->GetAttachment(0));
-	case RenderTarget::PostProcessing:            return std::static_pointer_cast<Texture2D>(m_PostProcessingRenderPassSpecification.Framebuffer->GetAttachment(0));
+	case RenderTarget::GAlbedo:                   return GetTask<GBufferRenderTask>()->GetAlbedoTexture();
+	case RenderTarget::GPosition:                 return GetTask<GBufferRenderTask>()->GetPositionTexture();
+	case RenderTarget::GNormal:                   return GetTask<GBufferRenderTask>()->GetNormalTexture();
+	case RenderTarget::GRougnessMetalicEmission:  return GetTask<GBufferRenderTask>()->GetRoughnessMetalicEmissionTexture();
+	case RenderTarget::GVelocity:                 return GetTask<GBufferRenderTask>()->GetVelocityTexture();
+	case RenderTarget::GDepth:                    return GetTask<GBufferRenderTask>()->GetDepthTexture();
+
+	case RenderTarget::SSAO:					  return GetTask<SSAORenderTask>()->GetBluredTexture();
+
+	case RenderTarget::Light:					  return std::static_pointer_cast<Texture2D>(m_LightFramebuffer->GetAttachment(0));
+
+	case RenderTarget::Bloom:					  return GetTask<BloomRenderTask>()->GetTexture();
+
+	case RenderTarget::AAOutput:                  return std::static_pointer_cast<Texture2D>(m_AAFramebuffer->GetAttachment(0));
+	case RenderTarget::Resolution:				  return GetTask<ResolutionRenderTask>()->GetTexture();
 	default:
 		ED_ASSERT(0, "Unsuppoerted active target")
 	}
 }
 
-void Renderer::BloomDownscale(const std::shared_ptr<Texture2D>& in, const std::shared_ptr<Texture2D>& out)
+std::shared_ptr<Texture2D> Renderer::GetViewportTexture() const
 {
-	if (m_bUseComputeShadersForPostProcessing)
-	{
-		m_Context->SetShader(m_BloomDownscaleComputeShader);
-		m_Context->SetShaderDataImage("u_Output", out);
-		m_Context->SetShaderDataFloat2("u_PixelSize", glm::vec2(1.0f / in->GetWidth(), 1.0f / in->GetHeight()));
-		m_Context->RunComputeShader(out->GetWidth(), out->GetHeight(), 1);
-		m_Context->Barier(BarrierType::AllBits);
-	}
-	else
-	{
-		m_BloomFramebuffer->SetAttachment(0, out, true);
-
-		BeginRenderPass("Bloom downscale", m_BloomFramebuffer, m_BloomDownscaleShader, glm::mat4(1.0f), glm::mat4(1.0f), glm::vec3(0.0f));
-
-		m_Context->SetShaderDataTexture("u_Input", in);
-		m_Context->SetShaderDataFloat2("u_InPixelSize", glm::vec2(1.0f / in->GetWidth(), 1.0f / in->GetHeight()));
-		m_Context->SetShaderDataFloat2("u_OutPixelSize", glm::vec2(1.0f / out->GetWidth(), 1.0f / out->GetHeight()));
-
-		SubmitQuad(-1.0f, -1.0f, -1.0f, 1.0f, 1.0f, 1.0f, 1.0f, -1.0f);
-
-		EndRenderPass();
-	}
+	return GetRenderTarget(m_ActiveRenderTarget);
 }
 
-void Renderer::BloomUpscale(const std::shared_ptr<Texture2D>& downscaled, const std::shared_ptr<Texture2D>& upscaled, const std::shared_ptr<Texture2D>& fullsize)
+float Renderer::GetFarPlane() const
 {
-	if (m_bUseComputeShadersForPostProcessing)
-	{
-		m_Context->SetShader(m_BloomUpscaleComputeShader);
-		m_Context->SetShaderDataTexture("u_Downscaled", downscaled);
-		m_Context->SetShaderDataImage("u_Upscaled", upscaled);
-		m_Context->SetShaderDataFloat2("u_PixelSize", glm::vec2(1.0f / downscaled->GetWidth(), 1.0f / downscaled->GetHeight()));
-		m_Context->SetShaderDataFloat("u_MixStrength", m_BloomMixStrength);
-		if (fullsize)
-		{
-			m_Context->SetShaderDataBool("u_UseFullsize", true);
-			m_Context->SetShaderDataTexture("u_Fullsize", fullsize);
-		}
-		else
-		{
-			m_Context->SetShaderDataBool("u_UseFullsize", false);
-		}
-
-		m_Context->RunComputeShader(upscaled->GetWidth(), upscaled->GetHeight(), 1);
-	}
-	else
-	{
-		m_BloomFramebuffer->SetAttachment(0, upscaled, true);
-
-		BeginRenderPass("Bloom downscale", m_BloomFramebuffer, m_BloomUpscaleShader, glm::mat4(1.0f), glm::mat4(1.0f), glm::vec3(0.0f));
-
-		m_Context->SetShaderDataTexture("u_Downscaled", downscaled);
-		m_Context->SetShaderDataTexture("u_Upscaled", upscaled);
-		m_Context->SetShaderDataFloat2("u_UpscaledPixelSize", glm::vec2(1.0f / upscaled->GetWidth(), 1.0f / upscaled->GetHeight()));
-		m_Context->SetShaderDataFloat2("u_DownscaledPixelSize", glm::vec2(1.0f / downscaled->GetWidth(), 1.0f / downscaled->GetHeight()));
-		m_Context->SetShaderDataFloat("u_MixStrength", m_BloomMixStrength);
-		if (fullsize)
-		{
-			m_Context->SetShaderDataBool("u_UseFullsize", true);
-			m_Context->SetShaderDataTexture("u_Fullsize", fullsize);
-		}
-		else
-		{
-			m_Context->SetShaderDataBool("u_UseFullsize", false);
-		}
-
-		SubmitQuad(-1.0f, -1.0f, -1.0f, 1.0f, 1.0f, 1.0f, 1.0f, -1.0f);
-
-		EndRenderPass();
-	}
-}
-
-void Renderer::UpdateBloomTexturesSizes()
-{
-	glm::vec2 size = m_UpsampleScale * glm::vec2(m_ViewportSize);
-	for (int32_t i = 0; i < m_NewBloomDownscaleCount; ++i)
-	{
-		m_BloomIntermediateTextrues[i]->Resize(size.x, size.y);
-		size /= 2.0f;
-	}
-}
-
-void Renderer::GeometryPass(const std::vector<std::shared_ptr<Component>>& components, Camera* camera)
-{
-	glm::vec2 size = glm::vec2(m_GeometryPassSpecification.Framebuffer->GetWidth(), m_GeometryPassSpecification.Framebuffer->GetHeight());
-
-	glm::mat4 view = camera->GetView();
-	glm::mat4 projection = camera->GetProjection();
-
-	glm::vec2 jitter = m_JitterSequence[m_CurrentJitterIndex] / size;
-	glm::vec2 previousJitter = m_JitterSequence[(m_CurrentJitterIndex - 1 + m_JitterSequenceSize) % m_JitterSequenceSize] / size;
-
-	if (m_AAMethod == AAMethod::TAA)
-	{
-		projection = glm::translate(glm::mat4(1.0f), glm::vec3(jitter - previousJitter, 0.0f)) * projection;
-		camera->SetProjection(projection);
-	}
-
-	m_GeometryPassSpecification.ViewPosition = camera->GetPosition();
-
-    BeginRenderPass(m_GeometryPassSpecification, view, projection);
-
-	if (m_AAMethod == AAMethod::TAA)
-	{
- 		m_Context->SetShaderDataFloat2("u_PreviousJitter", previousJitter);
-		m_Context->SetShaderDataFloat2("u_Jitter", jitter);
-	}
-	else
-	{
-		m_Context->SetShaderDataMat4("u_PreviousProjectionMatrix", m_Projection);
-	}
-
-	m_Context->SetShaderDataMat4("u_PreviousViewMatrix", m_PreviousView);
-
-    for (const std::shared_ptr<Component>& component : components)
-    {
-        if (std::shared_ptr<StaticMeshComponent> meshComponent = std::dynamic_pointer_cast<StaticMeshComponent>(component))
-        {
-            if (std::shared_ptr<StaticMesh> mesh = meshComponent->GetStaticMesh()) 
-            {
-                SubmitMesh(mesh, meshComponent->GetFullTransform(), meshComponent->GetFullPreviousTransform()); // TODO: Need a hierarchical Transform
-            }
-        }
-    }
-
-    EndRenderPass();
-
-	m_CurrentJitterIndex = (m_CurrentJitterIndex + 1) % m_JitterSequenceSize;
-	m_PreviousView = view;
-}
-
-void Renderer::SSAOPass(Camera* camera) {
-    if (m_bSSAOEnabled)
-    {
-        {
-            glm::mat4 view = camera->GetView();
-            BeginRenderPass(m_SSAOPassSpecification, view, camera->GetProjection());
-
-            std::shared_ptr<Shader> shader = m_SSAOPassSpecification.Shader;
-
-            m_Context->SetShaderDataMat4("u_NormalMatrix", glm::transpose(glm::inverse(view)));
-            
-            m_Context->SetShaderDataTexture("u_Position", m_GeometryPassSpecification.Framebuffer->GetAttachment(1));
-            m_Context->SetShaderDataTexture("u_Normal", m_GeometryPassSpecification.Framebuffer->GetAttachment(2));
-            
-            m_Context->SetShaderDataFloat("u_SampleCount", m_SSAOSamplesCount);
-            m_Context->SetShaderDataFloat("u_NoiseSize", m_NoiseSize);
-            m_Context->SetShaderDataTexture("u_Noise", m_SSAONoise);
-
-            for (int32_t i = 0; i < m_SSAOSamplesCount; ++i)
-            {
-                m_Context->SetShaderDataFloat3("u_Samples[" + std::to_string(i) + "]", m_SSAOSamples[i]);
-            }
-
-            SubmitQuad(-1.0f, -1.0f, -1.0f, 1.0f, 1.0f, 1.0f, 1.0f, -1.0f);
-
-            EndRenderPass();
-        }
-        {
-            BeginRenderPass(m_SSAOBlurPassSpecification, camera->GetView(), camera->GetProjection());
-
-            std::shared_ptr<Shader> shader = m_SSAOBlurPassSpecification.Shader;
-            m_Context->SetShaderDataTexture("u_AmbientOcclusion", m_SSAOPassSpecification.Framebuffer->GetAttachment(0));
-            m_Context->SetShaderDataFloat2("u_PixelSize", 1.0f / glm::vec2(m_ViewportSize));
-
-			SubmitQuad(-1.0f, -1.0f, -1.0f, 1.0f, 1.0f, 1.0f, 1.0f, -1.0f);
-
-            EndRenderPass();
-        }
-    }
-}
-
-void Renderer::BloomPass() 
-{
-	if (!m_bUseNewBloom && m_bIsBloomEnabled)
-	{
-		BeginRenderPass(m_BrighnessFilterPassSpecification, glm::mat4(1.0f), glm::mat4(1.0f)); // Temporary step, may be removed after PBR bloom will be added :)
-
-		m_Context->SetShaderDataTexture("u_Image", m_LightPassSpecification.Framebuffer->GetAttachment(0));
-
-		SubmitQuad(-1.0f, -1.0f, -1.0f, 1.0f, 1.0f, 1.0f, 1.0f, -1.0f);
-
-		EndRenderPass();
-
-		std::shared_ptr<Framebuffer> read;
-		std::shared_ptr<Framebuffer> write;
-
-		for (int32_t i = 0; i < m_BlurPassCount; ++i) {
-			if (i % 2)
-			{
-				read = m_BlurFramebuffer2;
-				write = m_BlurFramebuffer1;
-			}
-			else
-			{
-				read = m_BlurFramebuffer1;
-				write = m_BlurFramebuffer2;
-			}
-
-			BeginRenderPass("Blur pass", write, m_BlurShader, glm::mat4(1.0f), glm::mat4(1.0f), glm::vec3(0.0f));
-
-			m_Context->ClearColorTarget();
-
-			m_Context->SetShaderDataBool("u_HorizontalPass", i % 2 == 0);
-			m_Context->SetShaderDataFloat("u_PixelWidth", 1.0f / read->GetWidth());
-			m_Context->SetShaderDataFloat("u_PixelHeight", 1.0f / read->GetHeight());
-			m_Context->SetShaderDataFloat2("u_ScreenSize", write->GetWidth(), write->GetHeight());
-
-			m_Context->SetShaderDataTexture("u_Image", read->GetAttachment(0));
-
-			SubmitQuad(-1.0f, -1.0f, -1.0f, 1.0f, 1.0f, 1.0f, 1.0f, -1.0f);
-
-			EndRenderPass();
-		}
-	}
-}
-
-void Renderer::NewBloomPass()
-{
-	if (m_bUseNewBloom && m_bIsBloomEnabled)
-	{
-		std::shared_ptr<BaseFramebuffer> framebuffer = m_AAMethod != AAMethod::None ?  m_AAOutput : m_CombinationPassSpecification.Framebuffer;
-		std::shared_ptr<Texture2D> scene = std::static_pointer_cast<Texture2D>(framebuffer->GetAttachment(0));
-
-		BloomDownscale(scene, m_BloomIntermediateTextrues[1]);
-		for (int32_t i = 2; i < m_NewBloomDownscaleCount; ++i)
-		{
-			BloomDownscale(m_BloomIntermediateTextrues[i - 1], m_BloomIntermediateTextrues[i]);
-		}
-
-		for (int32_t i = m_NewBloomDownscaleCount - 1; i > 1; --i)
-		{
-			BloomUpscale(m_BloomIntermediateTextrues[i], m_BloomIntermediateTextrues[i - 1]);
-		}
-
-		BloomUpscale(m_BloomIntermediateTextrues[1], m_BloomIntermediateTextrues[0], scene);
-	}
-}
-
-void Renderer::LightPass(const std::vector<std::shared_ptr<Component>>& components, Camera* camera)
-{
-	BeginRenderPass("Light emission pass", m_LightPassSpecification.Framebuffer, m_EmissionPassShader, glm::mat4(1.0f), glm::mat4(1.0f), glm::vec3(0.0f));
-    
-    m_Context->ClearColorTarget();
-    m_Context->ClearDepthTarget();
-
-	m_Context->SetShaderDataTexture("u_Albedo", m_GeometryPassSpecification.Framebuffer->GetAttachment(0));
-	m_Context->SetShaderDataTexture("u_RoughnessMetalic", m_GeometryPassSpecification.Framebuffer->GetAttachment(3));
-
-	SubmitQuad(-1.0f, -1.0f, -1.0f, 1.0f, 1.0f, 1.0f, 1.0f, -1.0f);
-
-    EndRenderPass();
-
-    m_LightPassSpecification.ViewPosition = camera->GetPosition();
-    for (const std::shared_ptr<Component>& outerComponent : components)
-    {
-        if (std::shared_ptr<PointLightComponent> light = std::dynamic_pointer_cast<PointLightComponent>(outerComponent))
-        {
-            if (light->GetIntensity() == 0) 
-            {
-                continue;
-            }
-
-            m_PointLightShadowPassSpecification.ViewPosition = light->GetPosition();
-
-            std::shared_ptr<CubeFramebuffer> frambuffer = std::static_pointer_cast<CubeFramebuffer>(m_PointLightShadowPassSpecification.Framebuffer);
-
-            if (light->IsShadowCasting())
-            {
-				BeginRenderPass(m_PointLightShadowPassSpecification, glm::mat4(1.0f), glm::mat4(1.0f));
-
-				m_Context->SetShaderDataFloat("u_FarPlane", m_FarPlane);
-
-                for (int32_t i = 0; i < 6; ++i) {
-                    m_Context->SetShaderDataMat4("u_ViewProjection[" + std::to_string(i) + "]", m_LightPerspective * light->GetShadowMapPassCameraTransformation(i));
-				}
-                
-                frambuffer->AttachLayers();
-
-				for (const std::shared_ptr<Component>& component : components)
-				{
-					if (std::shared_ptr<StaticMeshComponent> meshComponent = std::dynamic_pointer_cast<StaticMeshComponent>(component))
-					{
-						if (std::shared_ptr<StaticMesh> mesh = meshComponent->GetStaticMesh()) {
-							SubmitMeshRaw(mesh, meshComponent->GetFullTransform(), meshComponent->GetFullPreviousTransform());
-						}
-					}
-				}
-
-				EndRenderPass();
-            }
-
-            m_LightPassSpecification.ViewPosition = camera->GetPosition();
-
-            BeginRenderPass(m_LightPassSpecification, camera->GetView(), camera->GetProjection());
-
-            std::shared_ptr<Shader> shader = m_LightPassSpecification.Shader;
-
-			m_Context->SetShaderDataTexture("u_Albedo", m_GeometryPassSpecification.Framebuffer->GetAttachment(0));
-			m_Context->SetShaderDataTexture("u_Position", m_GeometryPassSpecification.Framebuffer->GetAttachment(1));
-			m_Context->SetShaderDataTexture("u_Normal", m_GeometryPassSpecification.Framebuffer->GetAttachment(2));
-            m_Context->SetShaderDataTexture("u_RoughnessMetalic", m_GeometryPassSpecification.Framebuffer->GetAttachment(3));
-            
-            m_Context->SetShaderDataFloat("u_FarPlane", m_FarPlane);
-            
-            m_Context->SetShaderDataTexture("u_RandomSamples", m_ShadowMapRandomSamples);
-            m_Context->SetShaderDataFloat("u_FilterSize", m_FilterSize);
-            m_Context->SetShaderDataFloat("u_ShadowMapPixelSize", 1.0f / m_PointLightShadowPassSpecification.Framebuffer->GetWidth());
-
-            m_Context->EnableFaceCulling();
-            SubmitLightMesh(light, m_PointLightShadowPassSpecification.Framebuffer->GetDepthAttachment());
-            m_Context->DisableFaceCulling();
-
-            EndRenderPass();
-        }
-    }
+	return m_FarPlane;
 }
 
 void Renderer::CreateRandomShadowMapSamples()
@@ -711,339 +318,6 @@ void Renderer::CreateRandomShadowMapSamples()
 	data.Data = (uint8_t*)samples;
 
     m_ShadowMapRandomSamples = RenderingHelper::CreateTexture2D(parameters, data, "Shadow map random samples");
-}
-
-void Renderer::SetupSSAORenderPass()
-{
-    {
-        m_SSAOPassSpecification.Name = "SSAO pass";
-
-        m_SSAOPassSpecification.Framebuffer = RenderingHelper::CreateFramebuffer(1, 1);
-        m_SSAOPassSpecification.Framebuffer->CreateAttachment(FramebufferAttachmentType::Distance);
-
-        m_SSAOPassSpecification.Shader = RenderingHelper::CreateShader(Files::ContentFolderPath + R"(\shaders\SSAO.glsl)");
-
-        m_SSAOPassSpecification.bUseBlending = false;
-        m_SSAOPassSpecification.bClearColors = true;
-    }
-
-    std::uniform_real_distribution<float> distribution(0.0f, 1.0f);
-    std::default_random_engine generator;
-    for (int32_t i = 0; i < m_SSAOSamplesCount; ++i)
-    {
-        float x = distribution(generator) * 2.0f - 1.0f;
-        float y = distribution(generator) * 2.0f - 1.0f;
-        float z = distribution(generator);
-
-        glm::vec3 sample(x, y, z);
-        sample = glm::normalize(sample) * distribution(generator);
-
-		float scale = 1.0f * i / m_SSAOSamplesCount;
-        sample *= Math::lerp(0.1f, 1.0f, scale * scale);
-
-        m_SSAOSamples.push_back(sample);
-    }
-
-	float* noise = (float*)std::malloc(3 * m_NoiseSize * m_NoiseSize * sizeof(float));
-    for (int32_t i = 0; i < m_NoiseSize * m_NoiseSize; ++i) 
-    {
-        float x = distribution(generator) * 2.0f - 1.0f;
-        float y = distribution(generator) * 2.0f - 1.0f;
-        float z = 0.0f;
-        
-		noise[i * 3] = x;
-		noise[i * 3 + 1] = y;
-		noise[i * 3 + 2] = z;
-    }
-
-    Texture2DImportParameters parameters;
-    parameters.WrapS = WrapMode::Repeat;
-    parameters.WrapT = WrapMode::Repeat;
-    parameters.Format = PixelFormat::RGB16F;
-    parameters.Filtering = FilteringMode::Linear;
-
-    Texture2DData data;
-    data.Data = reinterpret_cast<uint8_t*>(noise);
-    data.Width = m_NoiseSize;
-    data.Height = m_NoiseSize;
-
-    m_SSAONoise = RenderingHelper::CreateTexture2D(parameters, data, "SSAO noise");
-
-    {
-        m_SSAOBlurPassSpecification.Name = "SSAO blur";
-
-        m_SSAOBlurPassSpecification.Framebuffer = RenderingHelper::CreateFramebuffer(1, 1);
-		m_SSAOBlurPassSpecification.Framebuffer->CreateAttachment(FramebufferAttachmentType::Distance);
-
-        m_SSAOBlurPassSpecification.Shader = RenderingHelper::CreateShader(Files::ContentFolderPath + R"(\shaders\SSAOBlur.glsl)");
-
-        m_SSAOBlurPassSpecification.bUseBlending = false;
-        m_SSAOBlurPassSpecification.bClearColors = false;
-    }
-}
-
-void Renderer::SetupLightRenderPass()
-{
-    m_LightPassSpecification.Name = "Light pass";
-
-    std::shared_ptr<Framebuffer> framebuffer = RenderingHelper::CreateFramebuffer(1, 1);
-    framebuffer->CreateAttachment(FramebufferAttachmentType::Color16);
-
-    m_LightPassSpecification.Framebuffer = framebuffer;
-
-    m_LightPassSpecification.Shader = RenderingHelper::CreateShader(Files::ContentFolderPath + R"(\shaders\deferred\light-pass-mesh.glsl)");
-	m_EmissionPassShader = RenderingHelper::CreateShader(Files::ContentFolderPath + R"(\shaders\deferred\emission-pass.glsl)");
-
-    m_LightPassSpecification.SourceFactor = BlendFactor::One;
-    m_LightPassSpecification.DestinationFactor = BlendFactor::One;
-}
-
-void Renderer::SetupBrightnessFilterPass()
-{
-    m_BrighnessFilterPassSpecification.Name = "Brighness filter";
-
-    m_BrighnessFilterPassSpecification.Framebuffer = m_BlurFramebuffer1;
-
-    m_BrighnessFilterPassSpecification.Shader = RenderingHelper::CreateShader(Files::ContentFolderPath + R"(\shaders\bloom\brightness-filter.glsl)");
-
-    m_BrighnessFilterPassSpecification.bClearColors = true;
-}
-
-void Renderer::SetupShadowRenderPass()
-{
-    m_PointLightShadowPassSpecification.Name = "Shadow pass";
-
-	std::shared_ptr<CubeFramebuffer> framebuffer = RenderingHelper::CreateCubeFramebuffer(1);
-    framebuffer->CreateAttachment(FramebufferAttachmentType::Depth);
-
-    m_PointLightShadowPassSpecification.Framebuffer = framebuffer;
-
-    m_PointLightShadowPassSpecification.Shader = RenderingHelper::CreateShader(Files::ContentFolderPath + R"(\shaders\shadow-pass.glsl)");
-
-    m_PointLightShadowPassSpecification.bUseBlending = false;
-
-    m_PointLightShadowPassSpecification.bClearDepth = true;
-}
-
-void Renderer::SetupCombinationRenderPass()
-{
-    m_CombinationPassSpecification.Name = "Combination pass";
-
-    std::shared_ptr<Framebuffer> framebuffer = RenderingHelper::CreateFramebuffer(1, 1);
-    framebuffer->CreateAttachment(FramebufferAttachmentType::Color16);
-    framebuffer->CreateAttachment(FramebufferAttachmentType::Depth);
-
-    m_CombinationPassSpecification.Framebuffer = framebuffer;
-
-    m_CombinationPassSpecification.Shader = RenderingHelper::CreateShader(Files::ContentFolderPath + R"(\shaders\deferred\combination-pass.glsl)");
-
-    m_CombinationPassSpecification.bUseBlending = false;
-
-    m_CombinationPassSpecification.bClearColors = true;
-    m_CombinationPassSpecification.bClearDepth = true;
-}
-
-void Renderer::SetupPostProcessingRenderPass()
-{
-	m_PostProcessingRenderPassSpecification.Name = "Post-Processing pass";
-
-	m_PostProcessingRenderPassSpecification.Framebuffer = RenderingHelper::CreateFramebuffer(1, 1);
-	m_PostProcessingRenderPassSpecification.Framebuffer->CreateAttachment(FramebufferAttachmentType::Color16);
-
-	m_PostProcessingRenderPassSpecification.Shader = RenderingHelper::CreateShader(Files::ContentFolderPath + R"(\shaders\deferred\post-processing.glsl)");
-
-	m_CombinationPassSpecification.bUseBlending = false;
-
-	m_CombinationPassSpecification.bClearColors = true;
-}
-
-void Renderer::SetupNewBloomRenderPass()
-{
-	m_BloomFramebuffer = RenderingHelper::CreateFramebuffer(1, 1);
-	m_BloomFramebuffer->CreateAttachment(FramebufferAttachmentType::Bloom);
-
-	m_BloomIntermediateTextrues.push_back(std::static_pointer_cast<Texture2D>(m_BloomFramebuffer->GetAttachment(0)));
-	for (int32_t i = 0; i < m_NewBloomDownscaleCount; ++i)
-	{
-		m_BloomIntermediateTextrues.push_back(RenderingHelper::CreateBloomIntermediateTexture());
-	}
-
-	m_BloomDownscaleShader = RenderingHelper::CreateShader(Files::ContentFolderPath + R"(\shaders\bloom\downscale.glsl)");
-	m_BloomUpscaleShader = RenderingHelper::CreateShader(Files::ContentFolderPath + R"(\shaders\bloom\upscale.glsl)");
-
-	m_BloomDownscaleComputeShader = RenderingHelper::CreateShader(Files::ContentFolderPath + R"(\shaders\bloom\downscale-compute.glsl)");
-	m_BloomUpscaleComputeShader = RenderingHelper::CreateShader(Files::ContentFolderPath + R"(\shaders\bloom\upscale-compute.glsl)");
-}
-
-void Renderer::SetupAA()
-{
-	Texture2DImportParameters pararmeters = RenderingHelper::GetDefaultNormalTexture2DImportParameters("");
-
-	Texture2DData data;
-	data.Width = 1;
-	data.Height = 1;
-	data.Data = nullptr;
-
-	m_AAOutput = RenderingHelper::CreateFramebuffer(1, 1);
-	m_AAOutput->CreateAttachment(FramebufferAttachmentType::Color16);
-}
-
-void Renderer::SetupFXAARenderPass()
-{
-	m_FFXAShader = RenderingHelper::CreateShader(Files::ContentFolderPath + R"(\shaders\AA\FXAA.glsl)");
-}
-
-void Renderer::SetupTAARenderPass()
-{
-	m_TAAShader = RenderingHelper::CreateShader(Files::ContentFolderPath + R"(\shaders\AA\TAA.glsl)");
-	m_TAAComputeShader = RenderingHelper::CreateShader(Files::ContentFolderPath + R"(\shaders\AA\TAA-compute.glsl)");
-
-	m_HistoryBuffer.push_back(m_AAOutput->GetAttachment(0));
-	
-	while (m_HistoryBuffer.size() < m_HistoryBufferSize)
-	{
-		Texture2DImportParameters parameters;
-		parameters.WrapS = WrapMode::ClampToEdge;
-		parameters.WrapT = WrapMode::ClampToEdge;
-		parameters.Format = PixelFormat::RGBA16F;
-		
-		Texture2DData data;
-		data.Width = 1;
-		data.Height = 1;
-		data.Data = nullptr;
-
-		m_HistoryBuffer.push_back(RenderingHelper::CreateTexture2D(parameters, data, "History buffer texture"));
-	}
-	
-	for (int32_t i = 0; i < m_JitterSequenceSize; ++i)
-	{
-		m_JitterSequence.push_back(glm::vec2(2.0f * Math::Halton(i + 1, 2) - 1.0f, 2.0f * Math::Halton(i + 1, 3) - 1.0f));
-	}
-}
-
-void Renderer::SetupGeometryRenderPass()
-{
-	m_GeometryPassSpecification.Name = "Geometry pass";
-
-    std::shared_ptr<Framebuffer> framebuffer = RenderingHelper::CreateFramebuffer(1, 1);
-    framebuffer->CreateAttachment(FramebufferAttachmentType::Color);
-    framebuffer->CreateAttachment(FramebufferAttachmentType::Position);
-    framebuffer->CreateAttachment(FramebufferAttachmentType::Direction);
-    framebuffer->CreateAttachment(FramebufferAttachmentType::Color16);
-    framebuffer->CreateAttachment(FramebufferAttachmentType::Velocity);
-    framebuffer->CreateAttachment(FramebufferAttachmentType::Depth);
-
-	m_GeometryPassSpecification.Framebuffer = framebuffer;
-
-    m_GeometryPassSpecification.Shader = RenderingHelper::CreateShader(Files::ContentFolderPath + R"(\shaders\deferred\geometry-pass.glsl)");
-
-    m_GeometryPassSpecification.bUseBlending = false;
-
-    m_GeometryPassSpecification.bClearColors = true;
-    m_GeometryPassSpecification.bClearDepth = true;
-}
-
-void Renderer::CombinationPass(const std::vector<std::shared_ptr<Component>>& components, Camera* camera)
-{
-    BeginRenderPass(m_CombinationPassSpecification, glm::mat4(1.0f), glm::mat4(1.0f));
-
-    m_Context->SetShaderDataTexture("u_Albedo", m_GeometryPassSpecification.Framebuffer->GetAttachment(0));
-    m_Context->SetShaderDataTexture("u_RoughnessMetalic", m_GeometryPassSpecification.Framebuffer->GetAttachment(3));
-    m_Context->SetShaderDataTexture("u_Light", m_LightPassSpecification.Framebuffer->GetAttachment(0));
-	m_Context->SetShaderDataTexture("u_AmbientOcclusion", m_bSSAOEnabled ? m_SSAOBlurPassSpecification.Framebuffer->GetAttachment(0) : RenderingHelper::GetWhiteTexture());
-
-    SubmitQuad(-1.0f, -1.0f, -1.0f, 1.0f, 1.0f, 1.0f, 1.0f, -1.0f);
-
-    EndRenderPass();
-}
-
-void Renderer::PostProcessingPass()
-{
-	BeginRenderPass(m_PostProcessingRenderPassSpecification, glm::mat4(1.0f), glm::mat4(1.0f));
-
-	m_Context->SetShaderDataTexture("u_Color", m_AAMethod != AAMethod::None ? m_AAOutput->GetAttachment(0) : m_CombinationPassSpecification.Framebuffer->GetAttachment(0));
-	m_Context->SetShaderDataFloat("u_Gamma", m_Gamma);
-
-	if (m_bIsBloomEnabled)
-	{
-		if (m_bUseNewBloom)
-		{
-			m_Context->SetShaderDataTexture("u_Bloom", m_BloomIntermediateTextrues.front());
-			m_Context->SetShaderDataFloat("u_BloomStrength", m_BloomStrength);
-			m_Context->SetShaderDataFloat("u_BloomIntensity", m_BloomIntensity);
-		}
-		else
-		{
-			m_Context->SetShaderDataTexture("u_Bloom", (m_BlurPassCount % 2 ? m_BlurFramebuffer2 : m_BlurFramebuffer1)->GetAttachment(0));
-			m_Context->SetShaderDataFloat("u_BloomStrength", 1.0f);
-		}
-	}
-	else
-	{
-		m_Context->SetShaderDataTexture("u_Bloom", RenderingHelper::GetWhiteTexture());
-		m_Context->SetShaderDataFloat("u_BloomIntensity", 0.0f);
-	}
-
-	SubmitQuad(-1.0f, -1.0f, -1.0f, 1.0f, 1.0f, 1.0f, 1.0f, -1.0f);
-
-	EndRenderPass();
-}
-
-void Renderer::TAAPass()
-{
-	if (m_AAMethod == AAMethod::TAA)
-	{
-		if (m_bUseComputeShadersForPostProcessing)
-		{
-			m_Context->SetShader(m_TAAComputeShader);
-			
-			m_Context->SetShaderDataImage("u_Output", m_AAOutput->GetAttachment(0));
-		}
-		else
-		{
-			BeginRenderPass("TAA", m_AAOutput, m_TAAShader, glm::mat4(1.0f), glm::mat4(1.0f), glm::vec3(0.0f));
-		}
-
-		m_Context->SetShaderDataTexture("u_PreviousColor", m_HistoryBuffer[(m_ActiveHistoryBufferTextureIndex - 1 + m_HistoryBufferSize) % m_HistoryBufferSize]);
-		m_Context->SetShaderDataTexture("u_CurrentColor", m_CombinationPassSpecification.Framebuffer->GetAttachment(0));
-		m_Context->SetShaderDataTexture("u_CurrentDepth", m_GeometryPassSpecification.Framebuffer->GetDepthAttachment());
-		m_Context->SetShaderDataTexture("u_Velocity", m_GeometryPassSpecification.Framebuffer->GetAttachment(4));
-		m_Context->SetShaderDataFloat2("u_PixelSize", 1.0f / glm::vec2(m_AAOutput->GetWidth(), m_AAOutput->GetHeight()));
-		m_Context->SetShaderDataFloat2("u_ScreenSize", glm::vec2(m_AAOutput->GetWidth(), m_AAOutput->GetHeight()));
-		m_Context->SetShaderDataFloat("u_Gamma", m_TAAGamma);
-
-		if (m_bUseComputeShadersForPostProcessing)
-		{
-			m_Context->RunComputeShader(m_AAOutput->GetWidth(), m_AAOutput->GetHeight(), 1);
-
-			m_Context->Barier(BarrierType::AllBits);
-		}
-		else
-		{
-			SubmitQuad(-1.0f, -1.0f, -1.0f, 1.0f, 1.0f, 1.0f, 1.0f, -1.0f);
-
-			EndRenderPass();
-		}
-	}
-}
-
-void Renderer::FXAAPass()
-{
-	if (m_AAMethod == AAMethod::FXAA)
-	{
-		m_Context->SetShader(m_FFXAShader);
-
-		m_Context->SetShaderDataTexture("u_Input", m_CombinationPassSpecification.Framebuffer->GetAttachment(0));
-		m_Context->SetShaderDataImage("u_Output", m_AAOutput->GetAttachment(0));
-		m_Context->SetShaderDataFloat("u_ContrastThreshold", m_ContrastThreshold);
-		m_Context->SetShaderDataFloat("u_RelativeThreshold", m_RelativeThreshold);
-		m_Context->SetShaderDataFloat("u_SubpixelBlending", m_SubpixelBlending);
-		m_Context->SetShaderDataFloat2("u_PixelSize", 1.0f / glm::vec2(m_ViewportSize));
-
-		m_Context->RunComputeShader(m_AAOutput->GetWidth(), m_AAOutput->GetHeight(), 1);
-
-		m_Context->Barier(BarrierType::AllBits);
-	}
 }
 
 void Renderer::BeginUIFrame()
