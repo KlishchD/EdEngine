@@ -60,13 +60,13 @@ float GX(float dot, float r) {
     return dot / (dot * (1 - k) + k);
 }
 
-float GetVisibility(vec2 pos, vec3 light, vec3 normal, vec3 position)
+float GetVisibility(vec2 pos, vec3 position, vec3 light, vec3 normal)
 {
     if (u_PointLight.UseShadowMap)
     {
         float NdotL = max(dot(normal, light), 0.0f);
 
-        float distance = length(u_PointLight.Position - position);
+        float distance = length(u_PointLight.Position - position); // TODO: use sqr
 
         float bias = max(5.0f * (1.0f - NdotL), 1.0f);
         float shadowIntensity = 0;
@@ -130,13 +130,14 @@ vec3 GetIntensity(vec2 pos, vec3 normal, vec3 view, vec3 light)
     vec3 specular = F * G * D / (4.0f * NdotV * NdotL + 0.0001f);
     vec3 diffuse = (vec3(1.0f) - F) * albedo / M_PI;
 
-    return (diffuse + specular) * NdotL;
+    return u_PointLight.Intensity * u_PointLight.Color * NdotL * (diffuse + specular);
 }
 
-vec3 GetAttenuation(vec2 pos, vec3 position)
+float GetAttenuation(vec2 pos, vec3 position, vec3 light, vec3 normal)
 {
-    float distance = length(u_PointLight.Position - position);
-    return u_PointLight.Intensity * u_PointLight.Color / (distance * distance);
+    float visibility = GetVisibility(pos, position, light, normal);
+    vec3 vector = u_PointLight.Position - position;
+    return visibility / dot(vector, vector);
 }
 
 void main()
@@ -149,9 +150,8 @@ void main()
     vec3 view = normalize(u_ViewPosition - position);
     vec3 light = normalize(u_PointLight.Position - position);
 
-    float visibility = GetVisibility(pos, light, normal, position);
     vec3 intensity = GetIntensity(pos, normal, view, light);
-    vec3 attenuation = GetAttenuation(pos, position);
+    float attenuation = GetAttenuation(pos, position, light, normal);
 
-    color = vec4(visibility * intensity * attenuation, 1.0f);
+    color = vec4(intensity * attenuation, 1.0f);
 }
