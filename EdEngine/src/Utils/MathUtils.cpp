@@ -78,8 +78,8 @@ std::vector<glm::vec3> Math::GenerateHalfSphereSamples(int32_t count)
         glm::vec3 sample(x, y, z);
         sample = glm::normalize(sample) * distribution(generator);
 
-        float scale = 1.0f * i / count;
-        sample *= Math::lerp(0.1f, 1.0f, scale * scale);
+        //float scale = 1.0f * i / count;
+        //sample *= Math::lerp(0.1f, 1.0f, scale * scale);
 
         result[i] = sample;
     }

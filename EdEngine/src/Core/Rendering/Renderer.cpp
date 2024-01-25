@@ -396,7 +396,7 @@ std::shared_ptr<Texture2D> Renderer::GetViewportTexture() const
 	case RenderTarget::GVelocity:                 return std::static_pointer_cast<Texture2D>(m_GeometryPassSpecification.Framebuffer->GetAttachment(4));
 	case RenderTarget::LightPass:                 return std::static_pointer_cast<Texture2D>(m_LightPassSpecification.Framebuffer->GetAttachment(0));
 	case RenderTarget::SSAO:					  return std::static_pointer_cast<Texture2D>(m_SSAOBlurPassSpecification.Framebuffer->GetAttachment(0));
-	case RenderTarget::SSDO:					  return std::static_pointer_cast<Texture2D>(m_SSDOBlurPassSpecification.Framebuffer->GetAttachment(0));
+	case RenderTarget::SSDO:					  return std::static_pointer_cast<Texture2D>(m_SSDOPassSpecification.Framebuffer->GetAttachment(0));
 	case RenderTarget::CombinationPass:           return std::static_pointer_cast<Texture2D>(m_CombinationPassSpecification.Framebuffer->GetAttachment(0));
 	case RenderTarget::AAOutput:                  return std::static_pointer_cast<Texture2D>(m_AAOutput->GetAttachment(0));
 	case RenderTarget::PostProcessing:            return std::static_pointer_cast<Texture2D>(m_PostProcessingRenderPassSpecification.Framebuffer->GetAttachment(0));
@@ -833,7 +833,7 @@ void Renderer::SetupSSAORenderPass()
     {
         float x = distribution(generator) * 2.0f - 1.0f;
         float y = distribution(generator) * 2.0f - 1.0f;
-        float z = 0.0f;
+        float z = distribution(generator) * 2.0f - 1.0f;
         
 		noise[i * 3] = x;
 		noise[i * 3 + 1] = y;

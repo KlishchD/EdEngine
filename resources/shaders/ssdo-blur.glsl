@@ -26,14 +26,32 @@ out vec4 color;
 
 void main() 
 {
-	for (int i = -2; i < 2; ++i) 
+	int hsize = 10;
+
+	for (int i = -hsize; i < hsize; ++i) 
 	{
-		for (int j = -2; j < 2; ++j) 
+		for (int j = -hsize; j < hsize; ++j) 
 		{
 			vec2 position = v_TextureCoordinates + vec2(i, j) * u_PixelSize;
 			color += texture2D(u_Input, position);
 		}
 	}
 
+	color /= 4 * hsize * hsize;
+/*
+
+	color += 4 * texture2D(u_Input, v_TextureCoordinates);
+
+	color += 2 * texture2D(u_Input, v_TextureCoordinates + vec2(0.0f, u_PixelSize.y));
+	color += 2 * texture2D(u_Input, v_TextureCoordinates + vec2(0.0f, -u_PixelSize.y));
+	color += 2 * texture2D(u_Input, v_TextureCoordinates + vec2(u_PixelSize.x, 0.0f));
+	color += 2 * texture2D(u_Input, v_TextureCoordinates + vec2(-u_PixelSize.x, 0.0f));
+
+	color += texture2D(u_Input, v_TextureCoordinates + vec2(-u_PixelSize.x, u_PixelSize.y));
+	color += texture2D(u_Input, v_TextureCoordinates + vec2(-u_PixelSize.x, -u_PixelSize.y));
+	color += texture2D(u_Input, v_TextureCoordinates + vec2(u_PixelSize.x, u_PixelSize.y));
+	color += texture2D(u_Input, v_TextureCoordinates + vec2(u_PixelSize.x, -u_PixelSize.y));
+
 	color /= 16.0f;
+*/
 }

@@ -56,9 +56,11 @@ void main()
 	vec3 tangent = normalize(noise - normal * dot(normal, noise));
 	vec3 bitangent = cross(normal, tangent);
 
-	mat3 TBN = mat3(tangent, bitangent, normal);
+	mat3 TBN = mat3(1.0f);//mat3(tangent, bitangent, normal);
 
 	float A = PI * u_Radius * u_Radius / u_SampleCount;
+
+	float count = 0.0f;
 
 	for (int i = 0; i < u_SampleCount && i < MAX_SAMPLES_COUNT; ++i)
 	{
@@ -80,13 +82,14 @@ void main()
 		vec3 recieverSender = position - samplePosition;
 		vec3 transmissionDirection = normalize(recieverSender);
 
-		float F = A * max(dot(-u_Samples[i], sampleNormal), 0.0f) * max(dot(u_Samples[i], normal), 0.0f); // why negative
-		//F /= PI * u_Radius * u_Radius + 0.0000001f; // dot(recieverSender, recieverSender)
+		float F = A * max(dot(-u_Samples[i], sampleNormal), 0.0f) * max(dot(normalize(u_Samples[i]), normal), 0.0f) * distanceCheck; // why negative
+		F /= PI * dot(recieverSender, recieverSender) + 0.0000001f; // dot(recieverSender, recieverSender)
 
 		color += vec4(u_BounceStrength * (1.0f - visible) * F * sampleColor, 0.0f);
+		count += 1.0f - visible;
 	}
 
-	color *= 2 * PI / u_SampleCount; // color * d_w
+	color *= 2 * PI / max(count, 1.0f); // color * d_w
 
 	color.a = 1.0f;
 }
