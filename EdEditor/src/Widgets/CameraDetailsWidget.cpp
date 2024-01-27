@@ -56,7 +56,7 @@ void CameraDetailsWidget::Tick(float DeltaTime)
 
     ImGui::Begin("Rendering");
 
-    static RenderTarget targets[] = { RenderTarget::GAlbedo, RenderTarget::GPosition, RenderTarget::GNormal, RenderTarget::GRougnessMetalicEmission, RenderTarget::GVelocity, RenderTarget::GDepth, RenderTarget::SSAO, RenderTarget::Light, RenderTarget::Bloom, RenderTarget::AAOutput, RenderTarget::Resolution };
+    static RenderTarget targets[] = { RenderTarget::GAlbedo, RenderTarget::GPosition, RenderTarget::GNormal, RenderTarget::GRougnessMetalicEmission, RenderTarget::GVelocity, RenderTarget::GDepth, RenderTarget::SSAO, RenderTarget::Diffuse, RenderTarget::Specular, RenderTarget::Light, RenderTarget::Bloom, RenderTarget::AAOutput, RenderTarget::Resolution };
 
     if (RenderTarget activeTarget = m_Renderer->GetActiveRenderTarget(); ImGui::BeginCombo("Render Target", GetRenderTargetName(activeTarget).c_str()))
     {
@@ -187,6 +187,8 @@ std::string CameraDetailsWidget::GetRenderTargetName(RenderTarget target)
     case RenderTarget::GVelocity:                return "GVelocity";
     case RenderTarget::GDepth:                   return "GDepth";
     case RenderTarget::SSAO:                     return "SSAO";
+    case RenderTarget::Diffuse:                  return "Diffuse";
+    case RenderTarget::Specular:                 return "Specular";
     case RenderTarget::Light:                    return "Light";
     case RenderTarget::Bloom:                    return "Bloom";
     case RenderTarget::AAOutput:                 return "AAOutput";

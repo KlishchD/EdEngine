@@ -116,6 +116,8 @@ enum class RenderTarget
 
 	SSAO,
 
+	Diffuse,
+	Specular,
 	Light,
 
 	Bloom,

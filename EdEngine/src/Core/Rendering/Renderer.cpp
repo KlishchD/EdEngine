@@ -68,6 +68,8 @@ void Renderer::Initialize(Engine* engine)
 
 	m_LightFramebuffer = RenderingHelper::CreateFramebuffer(1, 1);
 	m_LightFramebuffer->CreateAttachment(FramebufferAttachmentType::Color16);
+	m_LightFramebuffer->CreateAttachment(FramebufferAttachmentType::Color16);
+	m_LightFramebuffer->CreateAttachment(FramebufferAttachmentType::Color16);
 
 	{
 		Texture2DImportParameters pararmeters = RenderingHelper::GetDefaultNormalTexture2DImportParameters("");
@@ -262,9 +264,11 @@ std::shared_ptr<Texture2D> Renderer::GetRenderTarget(RenderTarget target) const
 	case RenderTarget::GDepth:                    return GetTask<GBufferRenderTask>()->GetDepthTexture();
 
 	case RenderTarget::SSAO:                      return GetTask<SSAORenderTask>()->GetBluredTexture();
-							               
-	case RenderTarget::Light:                     return std::static_pointer_cast<Texture2D>(m_LightFramebuffer->GetAttachment(0));
-							               
+
+	case RenderTarget::Diffuse:                   return std::static_pointer_cast<Texture2D>(m_LightFramebuffer->GetAttachment(0));
+	case RenderTarget::Specular:                  return std::static_pointer_cast<Texture2D>(m_LightFramebuffer->GetAttachment(1));
+	case RenderTarget::Light:                     return std::static_pointer_cast<Texture2D>(m_LightFramebuffer->GetAttachment(2));
+
 	case RenderTarget::Bloom:                     return GetTask<BloomRenderTask>()->GetTexture();
 
 	case RenderTarget::AAOutput:                  return std::static_pointer_cast<Texture2D>(m_AAFramebuffer->GetAttachment(0));

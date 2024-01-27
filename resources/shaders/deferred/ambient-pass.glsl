@@ -21,11 +21,13 @@ in vec2 v_TextureCoordinates;
 uniform sampler2D u_Albedo;
 uniform sampler2D u_AmbientOcclusion;
 
-layout(location = 0) out vec4 color;
+layout(location = 0) out vec4 diffuse;
+layout(location = 2) out vec4 combined;
 
 void main() {
     vec3 albedo = texture(u_Albedo, v_TextureCoordinates).xyz;
     float AO = texture2D(u_AmbientOcclusion, v_TextureCoordinates).x;
     
-    color = vec4(0.1f * AO * albedo, 1.0f);
+    diffuse = vec4(0.1f * AO * albedo, 1.0f);
+    combined = diffuse;
 }

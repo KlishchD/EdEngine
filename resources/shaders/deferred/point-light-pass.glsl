@@ -18,7 +18,14 @@ void main() {
 #define M_PI 3.1415926535897932384626433832795
 #define MAX_POINT_LIGHTS_COUNT 100
 
-struct PointLight {
+struct LightIntensity 
+{
+    vec3 diffuse;
+    vec3 specular;
+};
+
+struct PointLight 
+{
     vec3 Position;
     float Radius;
     vec3 Color;
@@ -53,7 +60,9 @@ vec3 sampleOffsetDirections[20] = vec3[]
    vec3( 0,  1,  1), vec3( 0, -1,  1), vec3( 0, -1, -1), vec3( 0,  1, -1)
 );   
 
-layout(location = 0) out vec4 color;
+layout(location = 0) out vec4 diffuse;
+layout(location = 1) out vec4 specular;
+layout(location = 2) out vec4 combined;
 
 float GX(float dot, float r) {
     float k = (1.0f + r) * (1.0f + r) / 8.0f;
@@ -99,7 +108,7 @@ float GetVisibility(vec2 pos, vec3 position, vec3 light, vec3 normal)
     }
 }
 
-vec3 GetIntensity(vec2 pos, vec3 normal, vec3 view, vec3 light)
+LightIntensity GetIntensity(vec2 pos, vec3 normal, vec3 view, vec3 light)
 {
     vec3 albedo = texture(u_Albedo, pos).xyz;
 
@@ -127,10 +136,16 @@ vec3 GetIntensity(vec2 pos, vec3 normal, vec3 view, vec3 light)
     
     float G = GX(NdotV, roughness) * GX(NdotL, roughness);
     
-    vec3 specular = F * G * D / (4.0f * NdotV * NdotL + 0.0001f);
-    vec3 diffuse = (vec3(1.0f) - F) * albedo / M_PI;
+    vec3 diffuseIntensity = (vec3(1.0f) - F) * albedo / M_PI;
+    vec3 specularIntensity = F * G * D / (4.0f * NdotV * NdotL + 0.0001f);
 
-    return u_PointLight.Intensity * u_PointLight.Color * NdotL * (diffuse + specular);
+    vec3 baseIntensity = u_PointLight.Intensity * u_PointLight.Color * NdotL;
+
+    LightIntensity intensity;
+    intensity.diffuse = baseIntensity * diffuseIntensity; 
+    intensity.specular = baseIntensity * specularIntensity; 
+
+    return intensity;
 }
 
 float GetAttenuation(vec2 pos, vec3 position, vec3 light, vec3 normal)
@@ -150,8 +165,10 @@ void main()
     vec3 view = normalize(u_ViewPosition - position);
     vec3 light = normalize(u_PointLight.Position - position);
 
-    vec3 intensity = GetIntensity(pos, normal, view, light);
+    LightIntensity intensity = GetIntensity(pos, normal, view, light);
     float attenuation = GetAttenuation(pos, position, light, normal);
 
-    color = vec4(intensity * attenuation, 1.0f);
+    diffuse = vec4(intensity.diffuse * attenuation, 0.0f);
+    specular = vec4(intensity.specular * attenuation, 0.0f);
+    combined = diffuse + specular;
 }
