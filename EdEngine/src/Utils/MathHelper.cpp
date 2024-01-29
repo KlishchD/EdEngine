@@ -63,7 +63,7 @@ float MathHelper::Halton(uint32_t i, uint32_t b)
 	return r;
 }
 
-std::vector<glm::vec3> MathHelper::GenerateHalfSphereSamples(int32_t count)
+std::vector<glm::vec3> MathHelper::GenerateHalfSphereSamples(int32_t count, bool bShiftTowardsCenter)
 {
     std::vector<glm::vec3> samples(count);
 
@@ -78,8 +78,11 @@ std::vector<glm::vec3> MathHelper::GenerateHalfSphereSamples(int32_t count)
 		glm::vec3 sample(x, y, z);
 		sample = glm::normalize(sample) * distribution(generator);
 
-		float scale = 1.0f * i / count;
-		sample *= MathHelper::lerp(0.1f, 1.0f, scale * scale);
+        if (bShiftTowardsCenter)
+        {
+		    float scale = 1.0f * i / count;
+		    sample *= MathHelper::lerp(0.1f, 1.0f, scale * scale);
+        }
 
         samples[i] = sample;
 	}

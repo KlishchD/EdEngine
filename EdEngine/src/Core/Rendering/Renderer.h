@@ -42,6 +42,9 @@ public:
     template <class T>
     std::shared_ptr<T> GetTask() const;
 
+    void SetSSDOEnabled(bool enabled);
+    bool IsSSDOEnabled() const;
+
     void SetSSAOEnabled(bool enabled);
     bool IsSSAOEnabled() const;
 
@@ -73,7 +76,8 @@ private:
     std::shared_ptr<Framebuffer> m_LightFramebuffer;
     std::shared_ptr<Framebuffer> m_AAFramebuffer;
     
-    bool m_bSSAOEnabled = true;
+    bool m_bIsSSDOEnabled = true;
+    bool m_bSSAOEnabled = false;
     bool m_bIsBloomEnabled = false;
 
 	float m_FarPlane = 15000.0f;

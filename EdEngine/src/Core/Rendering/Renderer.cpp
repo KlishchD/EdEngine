@@ -27,6 +27,7 @@
 #include "Tasks/EmissionRenderTask.h"
 #include "Tasks/PointLightRenderTask.h"
 #include "Tasks/AmbientRenderTask.h"
+#include "Tasks/SSDORenderTask.h"
 #include "Tasks/FXAARenderTask.h"
 #include "Tasks/TAARenderTask.h"
 #include "Tasks/BloomRenderTask.h"
@@ -90,6 +91,9 @@ void Renderer::Initialize(Engine* engine)
 
 		m_Tasks.push_back(std::make_shared<EmissionRenderTask>());
 		m_Tasks.push_back(std::make_shared<PointLightRenderTask>());
+
+		m_Tasks.push_back(std::make_shared<SSDORenderTask>());
+
 		m_Tasks.push_back(std::make_shared<AmbientRenderTask>());
 
 		m_Tasks.push_back(std::make_shared<FXAARenderTask>());
@@ -104,6 +108,10 @@ void Renderer::Initialize(Engine* engine)
 			task->Setup(this);
 		}
 	}
+
+	SetSSAOEnabled(m_bSSAOEnabled);
+	SetSSDOEnabled(m_bIsSSDOEnabled);
+	SetBloomEnabled(m_bIsBloomEnabled);
 
 	SetAAMethod(m_AAMethod);
 
@@ -182,6 +190,17 @@ std::shared_ptr<Framebuffer> Renderer::GetAntiAliasingFramebuffer() const
 std::shared_ptr<Texture2D> Renderer::GetAntiAliasingOutputTexture() const
 {
 	return m_AAMethod == AAMethod::None ? GetRenderTarget(RenderTarget::Light) : std::static_pointer_cast<Texture2D>(m_AAFramebuffer->GetAttachment(0));
+}
+
+void Renderer::SetSSDOEnabled(bool enabled)
+{
+	m_bIsSSDOEnabled = enabled;
+	GetTask<SSDORenderTask>()->SetEnabled(enabled);
+}
+
+bool Renderer::IsSSDOEnabled() const
+{
+	return m_bIsSSDOEnabled;
 }
 
 void Renderer::SetSSAOEnabled(bool enabled)
@@ -268,6 +287,8 @@ std::shared_ptr<Texture2D> Renderer::GetRenderTarget(RenderTarget target) const
 	case RenderTarget::Diffuse:                   return std::static_pointer_cast<Texture2D>(m_LightFramebuffer->GetAttachment(0));
 	case RenderTarget::Specular:                  return std::static_pointer_cast<Texture2D>(m_LightFramebuffer->GetAttachment(1));
 	case RenderTarget::Light:                     return std::static_pointer_cast<Texture2D>(m_LightFramebuffer->GetAttachment(2));
+
+	case RenderTarget::SSDO:                      return GetTask<SSDORenderTask>()->GetTexutre();
 
 	case RenderTarget::Bloom:                     return GetTask<BloomRenderTask>()->GetTexture();
 

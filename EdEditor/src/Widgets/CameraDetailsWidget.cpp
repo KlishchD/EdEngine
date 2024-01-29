@@ -9,6 +9,7 @@
 #include <glm/gtc/type_ptr.hpp>
 #include <Core/Rendering/Tasks/FXAARenderTask.h>
 #include <Core/Rendering/Tasks/TAARenderTask.h>
+#include <Core/Rendering/Tasks/SSDORenderTask.h>
 
 CameraDetailsWidget::CameraDetailsWidget()
 {
@@ -56,7 +57,7 @@ void CameraDetailsWidget::Tick(float DeltaTime)
 
     ImGui::Begin("Rendering");
 
-    static RenderTarget targets[] = { RenderTarget::GAlbedo, RenderTarget::GPosition, RenderTarget::GNormal, RenderTarget::GRougnessMetalicEmission, RenderTarget::GVelocity, RenderTarget::GDepth, RenderTarget::SSAO, RenderTarget::Diffuse, RenderTarget::Specular, RenderTarget::Light, RenderTarget::Bloom, RenderTarget::AAOutput, RenderTarget::Resolution };
+    static RenderTarget targets[] = { RenderTarget::GAlbedo, RenderTarget::GPosition, RenderTarget::GNormal, RenderTarget::GRougnessMetalicEmission, RenderTarget::GVelocity, RenderTarget::GDepth, RenderTarget::SSAO, RenderTarget::Diffuse, RenderTarget::Specular, RenderTarget::Light, RenderTarget::SSDO, RenderTarget::Bloom, RenderTarget::AAOutput, RenderTarget::Resolution };
 
     if (RenderTarget activeTarget = m_Renderer->GetActiveRenderTarget(); ImGui::BeginCombo("Render Target", GetRenderTargetName(activeTarget).c_str()))
     {
@@ -141,6 +142,48 @@ void CameraDetailsWidget::Tick(float DeltaTime)
         }
     }
 
+    if (bool enabled = m_Renderer->IsSSAOEnabled(); ImGui::Checkbox("SSAO enabled", &enabled))
+    {
+        m_Renderer->SetSSAOEnabled(enabled);
+    }
+
+    // TODO: Add parameters for SSAO ;)
+
+    if (bool enabled = m_Renderer->IsSSDOEnabled(); ImGui::Checkbox("SSDO enabled", &enabled))
+    {
+        m_Renderer->SetSSDOEnabled(enabled);
+    }
+
+    if (m_Renderer->IsSSDOEnabled())
+    {
+        std::shared_ptr<SSDORenderTask> ssdo = m_Renderer->GetTask<SSDORenderTask>();
+
+        if (float strenght = ssdo->GetDirectLightStrength(); ImGui::SliderFloat("Direct strength", &strenght, 0.0f, 100.0f))
+        {
+        	ssdo->SetDirectLightStrength(strenght);
+        }
+
+        if (float strenght = ssdo->GetIndirectStrength(); ImGui::SliderFloat("Indirect strength", &strenght, 0.0f, 100.0f))
+        {
+        	ssdo->SetIndirectStrength(strenght);
+        }
+
+        if (float radius = ssdo->GetRadius(); ImGui::SliderFloat("Radius", &radius, 0.0f, 100.0f))
+        {
+        	ssdo->SetRadius(radius);
+        }
+
+        if (int32_t count = ssdo->GetSamplesCount(); ImGui::SliderInt("Samples count", &count, 1, 100))
+        {
+            ssdo->SetSamplesCount(count);
+        }
+
+        if (int32_t size = ssdo->GetBlurFilterSize(); ImGui::SliderInt("Blur filter size", &size, 1, 100))
+        {
+            ssdo->SetBlurFilterSize(size);
+        }
+    }
+
 	std::shared_ptr<ResolutionRenderTask> resoultion = m_Renderer->GetTask<ResolutionRenderTask>();
 	if (float gamma = resoultion->GetGamma(); ImGui::SliderFloat("Gamma", &gamma, 0.1f, 10.0f))
 	{
@@ -190,6 +233,7 @@ std::string CameraDetailsWidget::GetRenderTargetName(RenderTarget target)
     case RenderTarget::Diffuse:                  return "Diffuse";
     case RenderTarget::Specular:                 return "Specular";
     case RenderTarget::Light:                    return "Light";
+    case RenderTarget::SSDO:                     return "SSDO";
     case RenderTarget::Bloom:                    return "Bloom";
     case RenderTarget::AAOutput:                 return "AAOutput";
     case RenderTarget::Resolution:               return "Resolution";

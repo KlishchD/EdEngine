@@ -173,6 +173,7 @@
     <ClCompile Include="src\Core\Rendering\Tasks\RenderTask.cpp" />
     <ClCompile Include="src\Core\Rendering\Tasks\ResolutionRenderTask.cpp" />
     <ClCompile Include="src\Core\Rendering\Tasks\SSAORenderTask.cpp" />
+    <ClCompile Include="src\Core\Rendering\Tasks\SSDORenderTask.cpp" />
     <ClCompile Include="src\Core\Rendering\Tasks\TAARenderTask.cpp" />
     <ClCompile Include="src\Core\Rendering\Textures\Sampler.cpp" />
     <ClCompile Include="src\Core\Rendering\Shader.cpp" />
@@ -252,6 +253,7 @@
     <ClInclude Include="src\Core\Rendering\Tasks\RenderTask.h" />
     <ClInclude Include="src\Core\Rendering\Tasks\ResolutionRenderTask.h" />
     <ClInclude Include="src\Core\Rendering\Tasks\SSAORenderTask.h" />
+    <ClInclude Include="src\Core\Rendering\Tasks\SSDORenderTask.h" />
     <ClInclude Include="src\Core\Rendering\Tasks\TAARenderTask.h" />
     <ClInclude Include="src\Core\Rendering\Textures\Sampler.h" />
     <ClInclude Include="src\Core\Rendering\Shader.h" />

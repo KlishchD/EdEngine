@@ -40,5 +40,5 @@ public:
     static float lerp(float a, float b, float f);
     static float Halton(uint32_t i, uint32_t b);
 
-    static std::vector<glm::vec3> GenerateHalfSphereSamples(int32_t count);
+    static std::vector<glm::vec3> GenerateHalfSphereSamples(int32_t count, bool bShiftTowardsCenter = true);
 };

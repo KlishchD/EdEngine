@@ -5,6 +5,7 @@
 #include "Core/Components/PointLightComponent.h"
 #include "Core/Components/StaticMeshComponent.h"
 #include "Utils/Files.h"
+#include "SSDORenderTask.h"
 
 void PointLightRenderTask::Setup(Renderer* renderer)
 {
@@ -105,6 +106,24 @@ void PointLightRenderTask::DrawLight(const std::shared_ptr<PointLightComponent>&
 
 	m_Context->SetShaderDataFloat("u_FilterSize", m_FilterSize);
 	m_Context->SetShaderDataFloat("u_ShadowMapPixelSize", 1.0f / m_ShadowPassSpecification.Framebuffer->GetWidth()); // TODO : make it vec2
+
+	if (std::shared_ptr<SSDORenderTask> ssdo = m_Renderer->GetTask<SSDORenderTask>(); ssdo->IsEnabled() && false) // TODO: take a look at this later ;)
+	{
+		m_Context->SetShaderDataFloat("u_Radius", ssdo->GetRadius());
+		m_Context->SetShaderDataFloat("u_DriectLightStrength", ssdo->GetDirectLightStrength());
+
+		std::vector<glm::vec3> samples = ssdo->GetSamples();
+
+		m_Context->SetShaderDataFloat("u_SampleCount", ssdo->GetSamplesCount());
+		for (int32_t i = 0; i < ssdo->GetSamplesCount(); ++i)
+		{
+			m_Context->SetShaderDataFloat3("u_Samples[" + std::to_string(i) + "]", samples[i]);
+		}
+	}
+	else
+	{
+		m_Context->SetShaderDataFloat("u_SampleCount", 0.0f);
+	}
 
 	m_Context->EnableFaceCulling();
 	m_Renderer->SubmitLightMesh(light, m_ShadowPassSpecification.Framebuffer->GetDepthAttachment());

@@ -17,6 +17,7 @@ void main() {
 
 #define M_PI 3.1415926535897932384626433832795
 #define MAX_POINT_LIGHTS_COUNT 100
+#define MAX_SAMPLES_COUNT 64
 
 struct LightIntensity 
 {
@@ -48,6 +49,15 @@ uniform sampler2D u_RoughnessMetalic;
 uniform sampler2D u_RandomSamples;
 uniform float u_FilterSize;
 uniform float u_ShadowMapPixelSize;
+
+uniform float u_Radius;
+uniform float u_SampleCount;
+uniform vec3 u_Samples[MAX_SAMPLES_COUNT];
+
+uniform float u_DriectLightStrength = 1.0f;
+
+uniform mat4 u_ViewMatrix;
+uniform mat4 u_ProjectionViewMatrix;
 
 uniform PointLight u_PointLight;
 
@@ -168,7 +178,40 @@ void main()
     LightIntensity intensity = GetIntensity(pos, normal, view, light);
     float attenuation = GetAttenuation(pos, position, light, normal);
 
-    diffuse = vec4(intensity.diffuse * attenuation, 0.0f);
+    vec3 direct = vec3(0.0f);
+    /* TODO: Check it again later :)
+	for (int i = 0; i < u_SampleCount && i < MAX_SAMPLES_COUNT; ++i)
+	{
+	    vec3 samplePosition = position + u_Samples[i] * u_Radius;
+
+	    vec4 screen = u_ProjectionViewMatrix * vec4(samplePosition, 1.0f);
+	    screen.xyz /= screen.w;
+	    screen = screen * 0.5f + 0.5f;
+
+        if (screen.x <= 1.0f && screen.y <= 1.0f && screen.x >= 0.0f && screen.y >= 0.0f)
+        {
+	        vec3 screenPosition = texture2D(u_Position, screen.xy).xyz;
+
+            float Depth = (u_ViewMatrix * vec4(position, 1.0f)).z;
+            float screenDepth = (u_ViewMatrix * vec4(screenPosition, 1.0f)).z;
+            float sampleDepth = (u_ViewMatrix * vec4(samplePosition, 1.0f)).z;
+
+	        float visibility = screenDepth >= sampleDepth ? 1.0f : 0.0f;
+
+	        vec3 transmissionDirection = normalize(samplePosition - position);
+
+	        float recieverTerm = clamp(dot(transmissionDirection, normal), 0.0f, 1.0f);
+
+            float rangeCheck = smoothstep(0.0f, 1.0f, u_Radius / abs(Depth - screenDepth));
+
+            LightIntensity intensity = GetIntensity(screen.xy, normal, view, transmissionDirection);
+
+	        direct += vec3(visibility * intensity.diffuse / (u_PointLight.Intensity * u_SampleCount));
+        }
+    }
+    */
+
+    diffuse = vec4(intensity.diffuse * attenuation + direct * u_DriectLightStrength, 0.0f);
     specular = vec4(intensity.specular * attenuation, 0.0f);
     combined = diffuse + specular;
 }

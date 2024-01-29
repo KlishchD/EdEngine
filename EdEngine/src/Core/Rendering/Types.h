@@ -120,6 +120,8 @@ enum class RenderTarget
 	Specular,
 	Light,
 
+	SSDO,
+
 	Bloom,
 
 	AAOutput,

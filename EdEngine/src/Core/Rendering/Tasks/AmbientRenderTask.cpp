@@ -14,7 +14,7 @@ void AmbientRenderTask::Run(const std::vector<std::shared_ptr<Component>>& compo
 {
 	m_Renderer->BeginRenderPass("Ambient pass", m_Renderer->GetLightFramebuffer(), m_AmbientShader);
 
-	m_Context->SetBlending(BlendFactor::One, BlendFactor::One);
+	m_Context->EnableBlending(BlendFactor::One, BlendFactor::One);
 
 	m_Context->SetShaderDataTexture("u_Albedo", m_Renderer->GetRenderTarget(RenderTarget::GAlbedo));
 	
