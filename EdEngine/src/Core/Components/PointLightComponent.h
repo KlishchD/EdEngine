@@ -13,7 +13,7 @@ class PointLightComponent: public Component
         ar & m_Color;
         ar & m_Intensity;
         ar & m_Radius;
-        ar & m_IsCastingShadows;
+        ar & m_bIsCastingShadows;
 
         m_Color = glm::clamp(m_Color, glm::vec3(0.0f), glm::vec3(1.0f));
     }
@@ -42,7 +42,7 @@ public:
 private:
     glm::vec3 m_Color = { 1.0f, 1.0f, 1.0f};
     float m_Intensity = 1.0f;
-    bool m_IsCastingShadows = true;
+    bool m_bIsCastingShadows = true;
     float m_Radius = 1.0f;
 };
 

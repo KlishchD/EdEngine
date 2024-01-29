@@ -70,29 +70,29 @@ std::shared_ptr<Actor> Component::GetOwnerActor() const
     return m_OwnerActor;
 }
 
-void Component::SetTransform(const Transform& transform)
+void Component::SetRelativeTransform(const Transform& transform)
 {
     m_Transform = transform;
 }
 
-Transform& Component::GetTransform()
+Transform& Component::GetRelativeTransform()
 {
     return m_Transform;
 }
 
-Transform Component::GetPreviousTransform() const
+Transform Component::GetPreviousRelativeTransform() const
 {
     return m_PreviousTransform;
 }
 
-Transform Component::GetFullTransform() const
+Transform Component::GetWorldTransform() const
 {
     Transform transform = m_Transform;
 
     std::shared_ptr<Component> component = m_OwnerComponent;
     while (component)
     {
-        transform = transform + component->GetTransform();
+        transform = transform + component->GetRelativeTransform();
         component = component->GetOwnerComponent();
     }
 
@@ -104,14 +104,14 @@ Transform Component::GetFullTransform() const
     return transform;
 }
 
-Transform Component::GetFullPreviousTransform() const
+Transform Component::GetPreviousWorldTransform() const
 {
 	Transform transform = m_PreviousTransform;
 
 	std::shared_ptr<Component> component = m_OwnerComponent;
 	while (component)
 	{
-		transform = transform + component->GetPreviousTransform();
+		transform = transform + component->GetPreviousRelativeTransform();
 		component = component->GetOwnerComponent();
 	}
 

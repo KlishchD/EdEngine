@@ -66,12 +66,12 @@ public:
     void SetOwnerActor(const std::shared_ptr<Actor>& actor);
     std::shared_ptr<Actor> GetOwnerActor() const;
 
-    void SetTransform(const Transform& transform);
-    Transform& GetTransform();
-    Transform GetPreviousTransform() const;
+    void SetRelativeTransform(const Transform& transform);
+    Transform& GetRelativeTransform();
+    Transform GetPreviousRelativeTransform() const;
 
-    Transform GetFullTransform() const;
-    Transform GetFullPreviousTransform() const;
+    Transform GetWorldTransform() const;
+    Transform GetPreviousWorldTransform() const;
 
     virtual void Update(float DeltaSeconds);
 

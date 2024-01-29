@@ -74,7 +74,7 @@ void GBufferRenderTask::Run(const std::vector<std::shared_ptr<Component>>& compo
 		{
 			if (std::shared_ptr<StaticMesh> mesh = meshComponent->GetStaticMesh())
 			{
-				m_Renderer->SubmitMesh(mesh, meshComponent->GetFullTransform(), meshComponent->GetFullPreviousTransform());
+				m_Renderer->SubmitMesh(mesh, meshComponent->GetWorldTransform(), meshComponent->GetPreviousWorldTransform());
 			}
 		}
 	}

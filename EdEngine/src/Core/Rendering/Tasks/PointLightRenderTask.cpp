@@ -83,7 +83,7 @@ void PointLightRenderTask::DrawShadowMap(const std::vector<std::shared_ptr<Compo
 		if (std::shared_ptr<StaticMeshComponent> meshComponent = std::dynamic_pointer_cast<StaticMeshComponent>(component))
 		{
 			if (std::shared_ptr<StaticMesh> mesh = meshComponent->GetStaticMesh()) {
-				m_Renderer->SubmitMeshRaw(mesh, meshComponent->GetFullTransform(), meshComponent->GetFullPreviousTransform());
+				m_Renderer->SubmitMeshRaw(mesh, meshComponent->GetWorldTransform(), meshComponent->GetPreviousWorldTransform());
 			}
 		}
 	}

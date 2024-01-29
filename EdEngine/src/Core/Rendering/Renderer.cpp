@@ -403,7 +403,7 @@ void Renderer::SubmitLightMesh(const std::shared_ptr<PointLightComponent>& light
 		m_Context->SetCullingFace(Face::Front);
 	}
 
-	glm::mat4 transform = glm::scale(light->GetTransform().GetMatrixWithOutScale(), glm::vec3(radius));
+	glm::mat4 transform = glm::scale(light->GetRelativeTransform().GetMatrixWithOutScale(), glm::vec3(radius));
 	m_Context->SetShaderDataMat4("u_ModelMatrix", transform);
 
 	m_Context->SetShaderDataFloat3("u_PointLight.Position", light->GetPosition());

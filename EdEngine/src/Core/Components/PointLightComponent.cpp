@@ -10,6 +10,8 @@ PointLightComponent::PointLightComponent(const PointLightComponent& PointLightCo
     m_Transform = PointLightComponent.m_Transform;
     m_Color = PointLightComponent.m_Color;
     m_Intensity = PointLightComponent.m_Intensity;
+    m_Intensity = PointLightComponent.m_Radius;
+    m_Intensity = PointLightComponent.m_bIsCastingShadows;
 }
 
 glm::vec3 PointLightComponent::GetPosition() const
@@ -53,12 +55,12 @@ float PointLightComponent::GetIntensity()
 
 bool PointLightComponent::IsShadowCasting() const
 {
-    return m_IsCastingShadows;
+    return m_bIsCastingShadows;
 }
 
 void PointLightComponent::SetShadowCasting(bool isShadowCasting)
 {
-    m_IsCastingShadows = isShadowCasting;
+    m_bIsCastingShadows = isShadowCasting;
 }
 
 void PointLightComponent::SetRadius(float radius)

@@ -26,9 +26,9 @@ void ComponentDetailsWidget::Tick(float DeltaTime)
 
     if (m_Component)
     {
-        m_TransformationDetailsWidget.SetTransform(m_Component->GetTransform());
+        m_TransformationDetailsWidget.SetTransform(m_Component->GetRelativeTransform());
         m_TransformationDetailsWidget.Tick(DeltaTime);
-        m_Component->SetTransform(m_TransformationDetailsWidget.GetTransform());
+        m_Component->SetRelativeTransform(m_TransformationDetailsWidget.GetTransform());
     
     
         switch (m_Component->GetType())
