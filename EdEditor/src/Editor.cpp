@@ -93,7 +93,7 @@ void Editor::Update(float DeltaTime)
         glm::vec3 viewPosition = camera->GetPosition();
         for (const std::shared_ptr<Component>& component : components)
         {
-            if (std::shared_ptr<PointLightComponent> light = std::dynamic_pointer_cast<PointLightComponent>(component))
+            if (std::shared_ptr<LightComponent> light = std::dynamic_pointer_cast<LightComponent>(component))
             {
                 glm::mat4 view = glm::lookAt(light->GetRelativeTransform().GetTranslation(), viewPosition, glm::vec3(0.0f, 1.0f, 0.0f));
                 m_Renderer->SubmitIcon(m_LightIcon, glm::scale(glm::inverse(view), light->GetRelativeTransform().GetScale()));

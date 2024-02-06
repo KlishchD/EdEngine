@@ -57,7 +57,7 @@ void Engine::Initialize()
 	ED_LOG(Engine, info, "Started initializing");
 
 #undef CreateWindow // TODO: REMOVE IT :)
-	m_Window = RenderingHelper::CreateWindow({ "EdEngine", 2048, 1152 });
+	m_Window = RenderingHelper::CreateWindow({ "EdEngine", 1280, 720 });
 #define CreateWindow CreateWindowW
 
 	m_Renderer = std::make_shared<Renderer>();

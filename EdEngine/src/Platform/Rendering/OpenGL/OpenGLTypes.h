@@ -27,4 +27,6 @@ public:
 	static uint32_t ConverTextureType(TextureType type);
 
 	static uint32_t ConvertBarrierType(BarrierType type);
+
+	static uint32_t ConvertDrawMode(DrawMode mode);
 };

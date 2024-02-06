@@ -1,5 +1,5 @@
+#include "OpenGLRenderingContext.h"
 #include "Core/Rendering/EdRendering.h"
-#include "OpenGLRenderingContex.h"
 #include "Core/Rendering/Framebuffers/Framebuffer.h"
 #include "Core/Rendering/Framebuffers/CubeFramebuffer.h"
 #include "Core/Ed.h"
@@ -196,16 +196,18 @@ void OpenGLRenderingContext::Barier(BarrierType type)
 	glMemoryBarrier(OpenGLTypes::ConvertBarrierType(type));
 }
 
-void OpenGLRenderingContext::Draw()
+void OpenGLRenderingContext::Draw(DrawMode drawMode)
 {
+	int32_t mode = OpenGLTypes::ConvertDrawMode(drawMode);
+
 	if (m_IBO) 
 	{
 		int32_t count = m_IBO->GetCount();
-		glDrawElements(GL_TRIANGLES, count, GL_UNSIGNED_INT, nullptr);
+		glDrawElements(mode, count, GL_UNSIGNED_INT, nullptr);
 	}
 	else
 	{
-		glDrawArrays(GL_TRIANGLES, 0, m_VBO->GetCount());
+		glDrawArrays(mode, 0, m_VBO->GetCount());
 	}
 }
 

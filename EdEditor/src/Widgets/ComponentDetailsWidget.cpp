@@ -3,6 +3,7 @@
 #include "Core/Assets/AssetManager.h"
 #include "Core/Components/StaticMeshComponent.h"
 #include "Core/Components/PointLightComponent.h"
+#include "Core/Components/SpotLightComponent.h"
 #include "Core/Assets/Descriptors/MaterialDescriptor.h"
 
 #include <imgui.h>
@@ -26,6 +27,15 @@ void ComponentDetailsWidget::Tick(float DeltaTime)
 
     if (m_Component)
     {
+        ImGui::TableNextColumn();
+        static char name[1024];
+        strcpy_s(name, m_Component->GetName().c_str());
+
+        if (ImGui::InputText(("##Name" + std::to_string((int32_t)m_Component.get())).c_str(), name, 1024))
+        {
+            m_Component->SetName(name);
+        }
+
         m_TransformationDetailsWidget.SetTransform(m_Component->GetRelativeTransform());
         m_TransformationDetailsWidget.Tick(DeltaTime);
         m_Component->SetRelativeTransform(m_TransformationDetailsWidget.GetTransform());
@@ -35,6 +45,7 @@ void ComponentDetailsWidget::Tick(float DeltaTime)
         {
         case ComponentType::StaticMesh: StaticMeshDetails(); break;
         case ComponentType::PointLight: PointLightDetails(); break;
+        case ComponentType::SpotLight:  SpotLightDetails(); break;
         }
     }
 }
@@ -136,25 +147,61 @@ void ComponentDetailsWidget::StaticMeshDetails()
     }
 }
 
+void ComponentDetailsWidget::LightComponentDetails()
+{
+	std::shared_ptr<LightComponent> component = std::static_pointer_cast<LightComponent>(m_Component);
+
+	if (glm::vec3 color = component->GetColor(); ImGui::ColorPicker3("Light color", glm::value_ptr(color)))
+	{
+		component->SetColor(color);
+	}
+
+	if (float intensity = component->GetIntensity(); ImGui::SliderFloat("Light Intensity", &intensity, 0.0f, 100000.0f))
+	{
+		component->SetIntensity(intensity);
+	}
+
+	if (bool casts = component->IsShadowCasting(); ImGui::Checkbox("Casts shadows", &casts))
+	{
+		component->SetShadowCasting(casts);
+	}
+
+	if (bool enabled = component->ShouldShowWireframe(); ImGui::Checkbox("Show wireframe", &enabled))
+	{
+		component->SetShowWireframe(enabled);
+	}
+}
+
 void ComponentDetailsWidget::PointLightDetails()
 {
     std::shared_ptr<PointLightComponent> component = std::static_pointer_cast<PointLightComponent>(m_Component);
 
-    float intensity = component->GetIntensity();
-    if (ImGui::SliderFloat("Light Intensity", &intensity, 0.0f, 100000.0f))
-    {
-        component->SetIntensity(intensity);
-    }
+    LightComponentDetails();
 
-	float radius = component->GetRadius();
-	if (ImGui::SliderFloat("Light Radius", &radius, 0.0f, 1000.0f))
+	if (float radius = component->GetRadius(); ImGui::SliderFloat("Light Radius", &radius, 0.0f, 1000.0f))
 	{
 		component->SetRadius(radius);
 	}
+}
 
-    glm::vec3 color = component->GetColor();
-    if (ImGui::ColorPicker3("Light color", glm::value_ptr(color)))
-    {
-        component->SetColor(color);
-    }
+void ComponentDetailsWidget::SpotLightDetails()
+{
+	std::shared_ptr<SpotLightComponent> component = std::static_pointer_cast<SpotLightComponent>(m_Component);
+
+	LightComponentDetails();
+
+	if (float angle = glm::degrees(component->GetInnerAngle()); ImGui::SliderFloat("Light inner angle", &angle, 0.0f, 89.0f))
+	{
+		component->SetInnerAngle(glm::radians(angle));
+	}
+
+	if (float angle = glm::degrees(component->GetOuterAngle()); ImGui::SliderFloat("Light outer angle", &angle, 0.0f, 89.0f))
+	{
+		component->SetOuterAngle(glm::radians(angle));
+	}
+
+	if (float distance = component->GetMaxDistance(); ImGui::SliderFloat("Light max effective distance", &distance, 0.0f, 1000.0f))
+	{
+		component->SetMaxDistance(distance);
+	}
 }

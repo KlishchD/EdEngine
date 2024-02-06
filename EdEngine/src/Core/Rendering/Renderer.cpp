@@ -11,6 +11,7 @@
 
 #include "Core/Components/StaticMeshComponent.h"
 #include "Core/Components/PointLightComponent.h"
+#include "Core/Components/SpotLightComponent.h"
 
 #include "Core/Rendering/Buffers/VertexBuffer.h"
 
@@ -32,6 +33,7 @@
 #include "Tasks/TAARenderTask.h"
 #include "Tasks/BloomRenderTask.h"
 #include "Tasks/ResolutionRenderTask.h"
+#include "Tasks/SpotLightRenderTask.h"
 
 void Renderer::Initialize(Engine* engine)
 {
@@ -60,12 +62,21 @@ void Renderer::Initialize(Engine* engine)
 	m_TextVBO = RenderingHelper::CreateVertexBuffer(nullptr, 20 * sizeof(float), textVBOlayout, BufferUsage::DynamicDraw);
 	m_QuadVBO = RenderingHelper::CreateVertexBuffer(square, 24 * sizeof(float), textVBOlayout, BufferUsage::StaticDraw);
 
-	auto [vertices, indices] = GeometryBuilder::MakeSphere(1, 50, 50);
+	VertexBufferLayout lightVBOLayout = { { "position", ShaderDataType::Float3 } };
 
-	VertexBufferLayout pointLightVBOLayout = { { "position", ShaderDataType::Float3 } };
+	{
+		auto [vertices, indices] = GeometryBuilder::MakeSphere(1, PointLightMeshSectorsCount, PointLightMeshStackCount);
 
-	m_PointLightMeshVBO = RenderingHelper::CreateVertexBuffer(vertices.data(), sizeof(float) * vertices.size(), pointLightVBOLayout, BufferUsage::StaticDraw);
-	m_PointLightMeshIBO = RenderingHelper::CreateIndexBuffer(indices.data(), sizeof(int32_t) * indices.size(), BufferUsage::StaticDraw);
+		m_PointLightMeshVBO = RenderingHelper::CreateVertexBuffer(vertices.data(), sizeof(float) * vertices.size(), lightVBOLayout, BufferUsage::StaticDraw);
+		m_PointLightMeshIBO = RenderingHelper::CreateIndexBuffer(indices.data(), sizeof(int32_t) * indices.size(), BufferUsage::StaticDraw);
+	}
+
+	{
+		auto [vertices, indices] = GeometryBuilder::MakeCone(SpotLightMeshSectorsCount);
+
+		m_SpotLightMeshVBO = RenderingHelper::CreateVertexBuffer(vertices.data(), sizeof(float) * vertices.size(), lightVBOLayout, BufferUsage::StaticDraw);
+		m_SpotLightMeshIBO = RenderingHelper::CreateIndexBuffer(indices.data(), sizeof(int32_t) * indices.size(), BufferUsage::StaticDraw);
+	}
 
 	m_LightFramebuffer = RenderingHelper::CreateFramebuffer(1, 1);
 	m_LightFramebuffer->CreateAttachment(FramebufferAttachmentType::Color16);
@@ -90,6 +101,8 @@ void Renderer::Initialize(Engine* engine)
 		m_Tasks.push_back(std::make_shared<SSAORenderTask>());
 
 		m_Tasks.push_back(std::make_shared<EmissionRenderTask>());
+
+		m_Tasks.push_back(std::make_shared<SpotLightRenderTask>());
 		m_Tasks.push_back(std::make_shared<PointLightRenderTask>());
 
 		m_Tasks.push_back(std::make_shared<SSDORenderTask>());
@@ -390,52 +403,75 @@ void Renderer::SetNewCameraInformation(const glm::mat4& view, const glm::mat4& p
 	m_Context->SetShaderDataFloat3("u_ViewPosition", viewPosition);
 }
 
-void Renderer::SubmitLightMesh(const std::shared_ptr<PointLightComponent>& light, const std::shared_ptr<Texture>& shadowMap)
+void Renderer::SubmitLightMesh(const std::shared_ptr<PointLightComponent>& light)
 {
-	float radius = light->GetRadius();
+	m_Context->EnableFaceCulling(Face::Front);
 
-	if (glm::length(m_Specification->ViewPosition - light->GetPosition()) * 0.9f > radius)
-	{
-        m_Context->SetCullingFace(Face::Back);
-	}
-	else
-	{
-		m_Context->SetCullingFace(Face::Front);
-	}
+	Transform transform = light->GetWorldTransform();
+	transform.SetScale(glm::vec3(light->GetRadius()));
 
-	glm::mat4 transform = glm::scale(light->GetRelativeTransform().GetMatrixWithOutScale(), glm::vec3(radius));
-	m_Context->SetShaderDataMat4("u_ModelMatrix", transform);
-
-	m_Context->SetShaderDataFloat3("u_PointLight.Position", light->GetPosition());
-	m_Context->SetShaderDataFloat3("u_PointLight.Color", light->GetColor());
-	m_Context->SetShaderDataFloat("u_PointLight.Intensity", light->GetIntensity());
-	m_Context->SetShaderDataFloat("u_PointLight.Radius", radius);
-
-	if (light->IsShadowCasting())
-	{
-		m_Context->SetShaderDataTexture("u_PointLight.ShadowMap", shadowMap);
-		m_Context->SetShaderDataBool("u_PointLight.UseShadowMap", true);
-	}
-	else
-	{
-		m_Context->SetShaderDataTexture("u_PointLight.ShadowMap", RenderingHelper::GetWhiteTexture());
-		m_Context->SetShaderDataBool("u_PointLight.UseShadowMap", false);
-	}
+	m_Context->SetShaderDataMat4("u_ModelMatrix", transform.GetMatrix());
 
 	m_Context->SetVertexBuffer(m_PointLightMeshVBO);
 	m_Context->SetIndexBuffer(m_PointLightMeshIBO);
 	m_Context->Draw();
+
+	m_Context->DisableFaceCulling();
 }
 
-void Renderer::SubmitLight(const std::shared_ptr<PointLightComponent>& light)
+void Renderer::SubmitLightMesh(const std::shared_ptr<SpotLightComponent>& light)
 {
-	std::string front = "u_PointLights[" + std::to_string(m_LightCount) + "]";
-	m_Context->SetShaderDataFloat3(front + ".Position", light->GetPosition());
-    m_Context->SetShaderDataFloat3(front + ".Color", light->GetColor());
-    m_Context->SetShaderDataFloat(front + ".Intensity", light->GetIntensity());
+	m_Context->EnableFaceCulling(Face::Front);
 
-	m_LightCount++;
-    m_Context->SetShaderDataInt("u_PointLightsCount", m_LightCount);
+	const float angle = light->GetOuterAngle();
+	const float length = light->GetMaxDistance();
+	const float radius = glm::tan(angle) * length;
+
+	Transform transform = light->GetWorldTransform();
+	transform.SetScale(glm::vec3(radius, length, radius));
+
+	glm::vec3 directionTransformed = glm::normalize(transform.GetRotation() * SpotLightMeshDirection);
+	m_Context->SetShaderDataFloat3("u_SpotLight.Direction", directionTransformed);
+
+	m_Context->SetShaderDataMat4("u_ModelMatrix", transform.GetMatrix());
+
+	m_Context->SetVertexBuffer(m_SpotLightMeshVBO);
+	m_Context->SetIndexBuffer(m_SpotLightMeshIBO);
+	m_Context->Draw();
+
+	m_Context->DisableFaceCulling();
+}
+
+void Renderer::SubmitLightMeshWireframe(const std::shared_ptr<PointLightComponent>& light)
+{
+	m_Context->EnableFaceCulling();
+
+	Transform transform = light->GetWorldTransform();
+	transform.SetScale(glm::vec3(light->GetRadius()));
+
+	m_Context->SetShaderDataMat4("u_ModelMatrix", transform.GetMatrix());
+
+	m_Context->SetVertexBuffer(m_PointLightMeshVBO);
+	m_Context->SetIndexBuffer(m_PointLightMeshIBO);
+	m_Context->Draw(DrawMode::LineStrip);
+
+	m_Context->DisableFaceCulling();
+}
+
+void Renderer::SubmitLightMeshWireframe(const std::shared_ptr<SpotLightComponent>& light)
+{
+	const float angle = light->GetOuterAngle();
+	const float length = light->GetMaxDistance();
+	const float radius = glm::tan(angle) * length;
+
+	Transform transform = light->GetWorldTransform();
+	transform.SetScale(glm::vec3(radius, length, radius));
+
+	m_Context->SetShaderDataMat4("u_ModelMatrix", transform.GetMatrix());
+
+	m_Context->SetVertexBuffer(m_SpotLightMeshVBO);
+	m_Context->SetIndexBuffer(m_SpotLightMeshIBO);
+	m_Context->Draw(DrawMode::LineStrip);
 }
 
 void Renderer::SubmitMesh(const std::shared_ptr<StaticMesh>& mesh, const Transform& transform, const Transform& previousTransform)
@@ -462,11 +498,26 @@ void Renderer::SubmitSubmesh(const std::shared_ptr<StaticSubmesh>& submesh, cons
 	}
 }
 
+void Renderer::SubmitMeshesRaw(const std::vector<std::shared_ptr<Component>>& components)
+{
+	for (const std::shared_ptr<Component>& component : components)
+	{
+		if (component->GetType() == ComponentType::StaticMesh)
+		{
+			std::shared_ptr<StaticMeshComponent> mesh = std::static_pointer_cast<StaticMeshComponent>(component);
+			SubmitMeshRaw(mesh->GetStaticMesh(), mesh->GetWorldTransform(), mesh->GetPreviousWorldTransform());
+		}
+	}
+}
+
 void Renderer::SubmitMeshRaw(const std::shared_ptr<StaticMesh>& mesh, const Transform& transform, const Transform& previousTransform)
 {
-	for (const std::shared_ptr<StaticSubmesh>& submesh : mesh->GetSubmeshes())
+	if (mesh)
 	{
-		SubmitSubmeshRaw(submesh, transform, previousTransform);
+		for (const std::shared_ptr<StaticSubmesh>& submesh : mesh->GetSubmeshes())
+		{
+			SubmitSubmeshRaw(submesh, transform, previousTransform);
+		}
 	}
 }
 
@@ -528,7 +579,6 @@ void Renderer::EndRenderPass()
     m_Context->SetDefaultFramebuffer();
 
 	m_Specification = nullptr;
-	m_LightCount = 0;
 }
 
 

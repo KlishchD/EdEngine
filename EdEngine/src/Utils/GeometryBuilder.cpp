@@ -1,4 +1,7 @@
 ﻿#include "GeometryBuilder.h"
+#include <glm/fwd.hpp>
+#include <glm/trigonometric.hpp>
+#include <glm/ext/scalar_constants.hpp>
 
 #define PI 3.1415926535897932384626433832795
 
@@ -68,5 +71,44 @@ std::pair<std::vector<float>, std::vector<int32_t>> GeometryBuilder::MakeSphere(
         }
     }
     
+    return std::make_pair(vertices, indices);
+}
+
+std::pair<std::vector<float>, std::vector<int32_t>> GeometryBuilder::MakeCone(int32_t sectorCount)
+{
+    std::vector<float> vertices;
+    std::vector<int32_t> indices;
+
+    for (int32_t i = 0; i < sectorCount; ++i)
+    {
+        float fraction = 1.0f * i / sectorCount;
+        float angle = fraction * 2.0f * glm::pi<float>();
+        vertices.push_back(glm::cos(angle));
+        vertices.push_back(-1.0f);
+        vertices.push_back(glm::sin(angle));
+    }
+
+    vertices.push_back(0.0f);
+    vertices.push_back(0.0f);
+    vertices.push_back(0.0f);
+
+	vertices.push_back(0.0f);
+	vertices.push_back(-1.0f);
+	vertices.push_back(0.0f);
+
+    for (int32_t i = 0; i < sectorCount; ++i)
+    {
+        indices.push_back((i + 1) % sectorCount);
+        indices.push_back(i);
+        indices.push_back(sectorCount);
+    }
+
+	for (int32_t i = 0; i < sectorCount; ++i)
+	{
+		indices.push_back(i);
+		indices.push_back((i + 1) % sectorCount);
+		indices.push_back(sectorCount + 1);
+	}
+
     return std::make_pair(vertices, indices);
 }

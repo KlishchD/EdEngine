@@ -18,10 +18,21 @@ void PointLightRenderTask::Setup(Renderer* renderer)
 
 		m_LightPassSpecification.Framebuffer = renderer->GetLightFramebuffer();
 
-		m_LightPassSpecification.Shader = RenderingHelper::CreateShader(Files::ContentFolderPath + R"(\shaders\deferred\point-light-pass.glsl)");
+		m_LightPassSpecification.Shader = RenderingHelper::CreateShader(Files::ContentFolderPath + R"(\shaders\light\point-light-pass.glsl)");
 
 		m_LightPassSpecification.SourceFactor = BlendFactor::One;
 		m_LightPassSpecification.DestinationFactor = BlendFactor::One;
+	}
+
+	{
+		m_LightWireframePassSpecification.Name = "Light wire frame pass";
+
+		m_LightWireframePassSpecification.Framebuffer = renderer->GetLightFramebuffer();
+
+		m_LightWireframePassSpecification.Shader = RenderingHelper::CreateShader(Files::ContentFolderPath + R"(\shaders\wireframe.glsl)");
+
+		m_LightWireframePassSpecification.SourceFactor = BlendFactor::One;
+		m_LightWireframePassSpecification.DestinationFactor = BlendFactor::One;
 	}
 
 	{
@@ -32,7 +43,7 @@ void PointLightRenderTask::Setup(Renderer* renderer)
 
 		m_ShadowPassSpecification.Framebuffer = framebuffer;
 
-		m_ShadowPassSpecification.Shader = RenderingHelper::CreateShader(Files::ContentFolderPath + R"(\shaders\shadow-pass.glsl)");
+		m_ShadowPassSpecification.Shader = RenderingHelper::CreateShader(Files::ContentFolderPath + R"(\shaders\light\point-light-shadow-pass.glsl)");
 
 		m_ShadowPassSpecification.bUseBlending = false;
 
@@ -54,6 +65,7 @@ void PointLightRenderTask::Run(const std::vector<std::shared_ptr<Component>>& co
 			}
 
 			DrawLight(light, camera);
+			DrawWireframe(light, camera);
 		}
 	}
 }
@@ -78,15 +90,7 @@ void PointLightRenderTask::DrawShadowMap(const std::vector<std::shared_ptr<Compo
 
 	std::static_pointer_cast<CubeFramebuffer>(m_ShadowPassSpecification.Framebuffer)->AttachLayers();
 
-	for (const std::shared_ptr<Component>& component : components)
-	{
-		if (std::shared_ptr<StaticMeshComponent> meshComponent = std::dynamic_pointer_cast<StaticMeshComponent>(component))
-		{
-			if (std::shared_ptr<StaticMesh> mesh = meshComponent->GetStaticMesh()) {
-				m_Renderer->SubmitMeshRaw(mesh, meshComponent->GetWorldTransform(), meshComponent->GetPreviousWorldTransform());
-			}
-		}
-	}
+	m_Renderer->SubmitMeshesRaw(components);
 
 	m_Renderer->EndRenderPass();
 }
@@ -94,8 +98,6 @@ void PointLightRenderTask::DrawShadowMap(const std::vector<std::shared_ptr<Compo
 void PointLightRenderTask::DrawLight(const std::shared_ptr<PointLightComponent>& light, Camera* camera)
 {
 	m_Renderer->BeginRenderPass(m_LightPassSpecification, camera->GetView(), camera->GetProjection());
-
-	std::shared_ptr<Shader> shader = m_LightPassSpecification.Shader;
 
 	m_Context->SetShaderDataTexture("u_Albedo", m_Renderer->GetRenderTarget(RenderTarget::GAlbedo));
 	m_Context->SetShaderDataTexture("u_Position", m_Renderer->GetRenderTarget(RenderTarget::GPosition));
@@ -106,6 +108,23 @@ void PointLightRenderTask::DrawLight(const std::shared_ptr<PointLightComponent>&
 
 	m_Context->SetShaderDataFloat("u_FilterSize", m_FilterSize);
 	m_Context->SetShaderDataFloat("u_ShadowMapPixelSize", 1.0f / m_ShadowPassSpecification.Framebuffer->GetWidth()); // TODO : make it vec2
+
+	m_Context->SetShaderDataFloat3("u_PointLight.Position", light->GetPosition());
+	m_Context->SetShaderDataFloat3("u_PointLight.Color", light->GetColor());
+	m_Context->SetShaderDataFloat("u_PointLight.Intensity", light->GetIntensity());
+	m_Context->SetShaderDataFloat("u_PointLight.Radius", light->GetRadius());
+
+
+	m_Context->SetShaderDataBool("u_PointLight.UseShadowMap", light->IsShadowCasting());
+
+	if (light->IsShadowCasting())
+	{
+		m_Context->SetShaderDataTexture("u_PointLight.ShadowMap", m_ShadowPassSpecification.Framebuffer->GetDepthAttachment());
+	}
+	else
+	{
+		m_Context->SetShaderDataTexture("u_PointLight.ShadowMap", RenderingHelper::GetWhiteTexture());
+	}
 
 	if (std::shared_ptr<SSDORenderTask> ssdo = m_Renderer->GetTask<SSDORenderTask>(); ssdo->IsEnabled() && false) // TODO: take a look at this later ;)
 	{
@@ -125,9 +144,20 @@ void PointLightRenderTask::DrawLight(const std::shared_ptr<PointLightComponent>&
 		m_Context->SetShaderDataFloat("u_SampleCount", 0.0f);
 	}
 
-	m_Context->EnableFaceCulling();
-	m_Renderer->SubmitLightMesh(light, m_ShadowPassSpecification.Framebuffer->GetDepthAttachment());
-	m_Context->DisableFaceCulling();
+	m_Renderer->SubmitLightMesh(light);
 
 	m_Renderer->EndRenderPass();
+}
+
+void PointLightRenderTask::DrawWireframe(const std::shared_ptr<PointLightComponent>& light, Camera* camera)
+{
+	if (light->ShouldShowWireframe())
+	{
+		m_LightWireframePassSpecification.ViewPosition = camera->GetPosition();
+		m_Renderer->BeginRenderPass(m_LightWireframePassSpecification, camera->GetView(), camera->GetProjection());
+
+		m_Renderer->SubmitLightMeshWireframe(light);
+
+		m_Renderer->EndRenderPass();
+	}
 }

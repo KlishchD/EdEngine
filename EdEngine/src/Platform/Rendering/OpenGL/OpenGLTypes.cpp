@@ -56,7 +56,9 @@ uint32_t OpenGLTypes::ConvertPixelFormat(PixelFormat format)
 	case PixelFormat::R8F:            return GL_R8;
 	case PixelFormat::R16F:           return GL_R16F;
 	case PixelFormat::R32F:           return GL_R32F;
+	case PixelFormat::RG8F:           return GL_RG8;
 	case PixelFormat::RG16F:          return GL_RG16F;
+	case PixelFormat::RG32F:          return GL_RG32F;
 	case PixelFormat::R11G11B10F:     return GL_R11F_G11F_B10F;
 	case PixelFormat::Depth:          return GL_DEPTH_COMPONENT;
 	case PixelFormat::DepthStencil:   return GL_DEPTH24_STENCIL8;
@@ -80,7 +82,9 @@ uint32_t OpenGLTypes::ConvertPixelExternalFormat(PixelFormat format)
 	case PixelFormat::R8F:            return GL_RED;
 	case PixelFormat::R16F:           return GL_RED;
 	case PixelFormat::R32F:           return GL_RED;
+	case PixelFormat::RG8F:           return GL_RG;
 	case PixelFormat::RG16F:          return GL_RG;
+	case PixelFormat::RG32F:          return GL_RG;
 	case PixelFormat::R11G11B10F:     return GL_RGB;
 	case PixelFormat::Depth:          return GL_DEPTH_COMPONENT;
 	case PixelFormat::DepthStencil:   return GL_DEPTH_STENCIL;
@@ -104,7 +108,9 @@ uint32_t OpenGLTypes::ConvertDataType(PixelFormat format)
 	case PixelFormat::R8F:            return GL_UNSIGNED_BYTE;
 	case PixelFormat::R16F:           return GL_FLOAT;
 	case PixelFormat::R32F:           return GL_FLOAT;
+	case PixelFormat::RG8F:           return GL_FLOAT;
 	case PixelFormat::RG16F:          return GL_FLOAT;
+	case PixelFormat::RG32F:          return GL_FLOAT;
 	case PixelFormat::R11G11B10F:     return GL_FLOAT;
 	case PixelFormat::Depth:          return GL_UNSIGNED_BYTE;
 	case PixelFormat::DepthStencil:   return GL_UNSIGNED_INT_24_8;
@@ -240,6 +246,19 @@ uint32_t OpenGLTypes::ConvertBarrierType(BarrierType type)
 	case BarrierType::AllBits:   return GL_ALL_BARRIER_BITS;
 	default:
 		ED_ASSERT_CONTEXT(OpenGLAPI, 0, "Barrier type is not supported")
+		return 0;
+	}
+}
+
+uint32_t OpenGLTypes::ConvertDrawMode(DrawMode mode)
+{
+	switch (mode)
+	{
+	case DrawMode::Triangles:  return GL_TRIANGLES;
+	case DrawMode::Lines:      return GL_LINES;
+	case DrawMode::LineStrip:  return GL_LINE_STRIP;
+	default:
+		ED_ASSERT_CONTEXT(OpenGLAPI, 0, "Draw mode is not supported")
 		return 0;
 	}
 }

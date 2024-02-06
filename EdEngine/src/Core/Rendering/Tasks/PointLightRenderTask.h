@@ -1,7 +1,6 @@
 #pragma once
 
 #include "RenderTask.h"
-#include <Core/Rendering/Renderer.h>
 
 class PointLightComponent;
 
@@ -13,9 +12,9 @@ public:
 	virtual void Resize(glm::ivec2 size, float upscale) override;
 
 private:
-	RenderPassSpecification m_LightPassSpecification;
-
 	RenderPassSpecification m_ShadowPassSpecification;
+	RenderPassSpecification m_LightPassSpecification;
+	RenderPassSpecification m_LightWireframePassSpecification;
 
 	int32_t m_FilterSize = 5;
 
@@ -23,4 +22,5 @@ private:
 
 	void DrawShadowMap(const std::vector<std::shared_ptr<Component>>& components, const std::shared_ptr<PointLightComponent>& light);
 	void DrawLight(const std::shared_ptr<PointLightComponent>& light, Camera* camera);
+	void DrawWireframe(const std::shared_ptr<PointLightComponent>& light, Camera* camera);
 };

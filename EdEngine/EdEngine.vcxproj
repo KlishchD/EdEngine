@@ -163,6 +163,8 @@
     <ClCompile Include="src\Core\Assets\FontManager.cpp" />
     <ClCompile Include="src\Core\Assets\ImportParameters\StaticMeshImportParameters.h" />
     <ClCompile Include="src\Core\Assets\Material.cpp" />
+    <ClCompile Include="src\Core\Components\LightComponent.cpp" />
+    <ClCompile Include="src\Core\Components\SpotLightComponent.cpp" />
     <ClCompile Include="src\Core\Input.cpp" />
     <ClCompile Include="src\Core\Rendering\Tasks\AmbientRenderTask.cpp" />
     <ClCompile Include="src\Core\Rendering\Tasks\BloomRenderTask.cpp" />
@@ -172,6 +174,7 @@
     <ClCompile Include="src\Core\Rendering\Tasks\PointLightRenderTask.cpp" />
     <ClCompile Include="src\Core\Rendering\Tasks\RenderTask.cpp" />
     <ClCompile Include="src\Core\Rendering\Tasks\ResolutionRenderTask.cpp" />
+    <ClCompile Include="src\Core\Rendering\Tasks\SpotLightRenderTask.cpp" />
     <ClCompile Include="src\Core\Rendering\Tasks\SSAORenderTask.cpp" />
     <ClCompile Include="src\Core\Rendering\Tasks\SSDORenderTask.cpp" />
     <ClCompile Include="src\Core\Rendering\Tasks\TAARenderTask.cpp" />
@@ -201,7 +204,7 @@
     <ClCompile Include="src\Platform\Rendering\OpenGL\Buffers\OpenGLVertexBuffer.cpp" />
     <ClCompile Include="src\Platform\Rendering\OpenGL\Framebuffers\OpenGLCubeFramebuffer.cpp" />
     <ClCompile Include="src\Platform\Rendering\OpenGL\Framebuffers\OpenGLFramebuffer.cpp" />
-    <ClCompile Include="src\Platform\Rendering\OpenGL\OpenGLRenderingContex.cpp" />
+    <ClCompile Include="src\Platform\Rendering\OpenGL\OpenGLRenderingContext.cpp" />
     <ClCompile Include="src\Platform\Rendering\OpenGL\OpenGLShader.cpp" />
     <ClCompile Include="src\Platform\Rendering\OpenGL\OpenGLWindow.cpp" />
     <ClCompile Include="src\Platform\Rendering\OpenGL\Textures\OpenGLCubeTexture.cpp" />
@@ -243,6 +246,8 @@
     <ClInclude Include="src\Core\Assets\Font.h" />
     <ClInclude Include="src\Core\Assets\FontManager.h" />
     <ClInclude Include="src\Core\Assets\Material.h" />
+    <ClInclude Include="src\Core\Components\LightComponent.h" />
+    <ClInclude Include="src\Core\Components\SpotLightComponent.h" />
     <ClInclude Include="src\Core\Rendering\EdRendering.h" />
     <ClInclude Include="src\Core\Rendering\Tasks\AmbientRenderTask.h" />
     <ClInclude Include="src\Core\Rendering\Tasks\BloomRenderTask.h" />
@@ -252,6 +257,7 @@
     <ClInclude Include="src\Core\Rendering\Tasks\PointLightRenderTask.h" />
     <ClInclude Include="src\Core\Rendering\Tasks\RenderTask.h" />
     <ClInclude Include="src\Core\Rendering\Tasks\ResolutionRenderTask.h" />
+    <ClInclude Include="src\Core\Rendering\Tasks\SpotLightRenderTask.h" />
     <ClInclude Include="src\Core\Rendering\Tasks\SSAORenderTask.h" />
     <ClInclude Include="src\Core\Rendering\Tasks\SSDORenderTask.h" />
     <ClInclude Include="src\Core\Rendering\Tasks\TAARenderTask.h" />
@@ -293,7 +299,7 @@
     <ClInclude Include="src\Platform\Rendering\OpenGL\Buffers\OpenGLVertexBuffer.h" />
     <ClInclude Include="src\Platform\Rendering\OpenGL\Framebuffers\OpenGLCubeFramebuffer.h" />
     <ClInclude Include="src\Platform\Rendering\OpenGL\Framebuffers\OpenGLFramebuffer.h" />
-    <ClInclude Include="src\Platform\Rendering\OpenGL\OpenGLRenderingContex.h" />
+    <ClInclude Include="src\Platform\Rendering\OpenGL\OpenGLRenderingContext.h" />
     <ClInclude Include="src\Platform\Rendering\OpenGL\OpenGLShader.h" />
     <ClInclude Include="src\Platform\Rendering\OpenGL\OpenGLWindow.h" />
     <ClInclude Include="src\Platform\Rendering\OpenGL\Textures\OpenGLCubeTexture.h" />

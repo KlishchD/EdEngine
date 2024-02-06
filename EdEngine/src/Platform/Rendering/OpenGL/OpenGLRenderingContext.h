@@ -49,7 +49,7 @@ public:
 	virtual void RunComputeShader(uint32_t sizeX, uint32_t sizeY, uint32_t sizeZ) override;
 	virtual void Barier(BarrierType type) override;
 
-	virtual void Draw() override;
+	virtual void Draw(DrawMode drawMode = DrawMode::Triangles) override;
 
 	virtual void EnableBlending(BlendFactor source, BlendFactor destination) override;
 	virtual void SetBlending(BlendFactor source, BlendFactor destination) override;

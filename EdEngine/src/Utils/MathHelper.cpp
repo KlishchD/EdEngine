@@ -89,3 +89,22 @@ std::vector<glm::vec3> MathHelper::GenerateHalfSphereSamples(int32_t count, bool
 
     return samples;
 }
+
+std::vector<glm::vec2> MathHelper::GenerateCircleSamples(int32_t count)
+{
+	std::vector<glm::vec2> smaples;
+
+	std::uniform_real_distribution<float> distribution(0.0f, 1.0f);
+	std::default_random_engine generator;
+	for (int32_t i = 0; i < count; ++i)
+	{
+		float angle = distribution(generator) * 2.0f * glm::pi<float>();
+
+		float len = distribution(generator);
+		glm::vec2 smaple(glm::cos(angle) * len, glm::sin(angle) * len);
+
+		smaples.push_back(smaple);
+	}
+
+	return smaples;
+}

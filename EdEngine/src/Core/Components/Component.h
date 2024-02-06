@@ -6,7 +6,8 @@ enum class ComponentType: uint8_t
 {
     Base,
     StaticMesh,
-    PointLight
+    PointLight,
+    SpotLight
 };
 
 class Actor;

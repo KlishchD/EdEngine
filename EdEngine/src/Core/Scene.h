@@ -52,8 +52,6 @@ public:
 
     const std::vector<std::shared_ptr<Actor>>& GetActors() const { return m_Actors; }
 
-    std::shared_ptr<class PointLightComponent> FindLight() const;
-    
     std::vector<std::shared_ptr<class Component>> GetAllComponents() const;
 private:
     std::vector<std::shared_ptr<Actor>> m_Actors; 

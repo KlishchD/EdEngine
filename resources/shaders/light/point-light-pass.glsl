@@ -161,8 +161,18 @@ LightIntensity GetIntensity(vec2 pos, vec3 normal, vec3 view, vec3 light)
 float GetAttenuation(vec2 pos, vec3 position, vec3 light, vec3 normal)
 {
     float visibility = GetVisibility(pos, position, light, normal);
-    vec3 vector = u_PointLight.Position - position;
-    return visibility / dot(vector, vector);
+
+    vec3 pointLightVector = u_PointLight.Position - position;
+    float distanceSqr = dot(pointLightVector, pointLightVector);
+    float radiusSqr = u_PointLight.Radius * u_PointLight.Radius;
+
+    float A = distanceSqr / radiusSqr;
+    float B = clamp(1 - A * A, 0.0f, 1.0f);
+    float numerator = B * B;
+
+    float denominator = distanceSqr + 1.0f;
+
+    return visibility * numerator / denominator;
 }
 
 void main()

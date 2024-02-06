@@ -34,7 +34,7 @@ void Actor::Update(float DeltaSeconds)
 
 void Actor::RegisterComponent(const std::shared_ptr<Component>& component)
 {
-    component->SetOwnerActor(std::shared_ptr<Actor>(this));
+    component->SetOwnerActor(shared_from_this());
     m_Components.push_back(component);
 }
 

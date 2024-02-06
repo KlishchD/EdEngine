@@ -32,6 +32,20 @@ TextureType OpenGLTexture2D::GetType() const
 	return TextureType::Texture2D;
 }
 
+void OpenGLTexture2D::SetData(const Texture2DData& data)
+{
+	GetDescriptor<Texture2DDescriptor>()->Data = data;
+
+	Texture::Initialize();
+}
+
+void OpenGLTexture2D::SetData(Texture2DData&& data)
+{
+	GetDescriptor<Texture2DDescriptor>()->Data = std::move(data);
+
+	Texture::Initialize();
+}
+
 OpenGLTexture2D::~OpenGLTexture2D()
 {
 	glDeleteTextures(1, &m_Id);

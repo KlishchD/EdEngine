@@ -11,6 +11,7 @@ class Engine;
 class RenderingContext;
 class Component;
 class PointLightComponent;
+class SpotLightComponent;
 
 class VertexBuffer;
 class IndexBuffer;
@@ -29,6 +30,10 @@ class RenderTask;
 
 class Renderer: public BaseManager
 {
+    const int32_t PointLightMeshSectorsCount = 30;
+    const int32_t PointLightMeshStackCount = 30;
+    const int32_t SpotLightMeshSectorsCount = 50;
+    const glm::vec3 SpotLightMeshDirection = glm::vec3(0.0f, -1.0f, 0.0f);
 public:
     virtual void Initialize(Engine* engine) override;
     virtual void Deinitialize() override;
@@ -76,11 +81,11 @@ private:
     std::shared_ptr<Framebuffer> m_LightFramebuffer;
     std::shared_ptr<Framebuffer> m_AAFramebuffer;
     
-    bool m_bIsSSDOEnabled = true;
-    bool m_bSSAOEnabled = false;
+    bool m_bIsSSDOEnabled = false;
+    bool m_bSSAOEnabled = true;
     bool m_bIsBloomEnabled = false;
 
-	float m_FarPlane = 15000.0f;
+    float m_FarPlane = 15000.0f;
 
     AAMethod m_AAMethod = AAMethod::TAA;
 
@@ -97,47 +102,50 @@ private:
     bool m_bIsViewportSizeDirty = true;
     glm::ivec2 m_ViewportSize = glm::ivec2(1);
 private:
-	std::shared_ptr<RenderingContext> m_Context;
+    std::shared_ptr<RenderingContext> m_Context;
 
-	RenderPassSpecification* m_Specification;
+    RenderPassSpecification* m_Specification;
 
-	glm::mat4 m_View;
-	glm::mat4 m_Projection;
-	RenderPassSpecification m_TemporarySpecification;
+    glm::mat4 m_View;
+    glm::mat4 m_Projection;
+    RenderPassSpecification m_TemporarySpecification;
 
-	int32_t m_LightCount = 0;
+    glm::vec4 m_Up;
 
-	glm::vec4 m_Up;
+    std::shared_ptr<VertexBuffer> m_QuadVBO;
+    std::shared_ptr<VertexBuffer> m_TextVBO;
 
-	std::shared_ptr<VertexBuffer> m_QuadVBO;
-	std::shared_ptr<VertexBuffer> m_TextVBO;
+    std::shared_ptr<VertexBuffer> m_PointLightMeshVBO;
+    std::shared_ptr<IndexBuffer> m_PointLightMeshIBO;
 
-	std::shared_ptr<VertexBuffer> m_PointLightMeshVBO;
-	std::shared_ptr<IndexBuffer> m_PointLightMeshIBO;
+    std::shared_ptr<VertexBuffer> m_SpotLightMeshVBO;
+    std::shared_ptr<IndexBuffer> m_SpotLightMeshIBO;
 public:
 	void BeginRenderPass(const std::string& name, const std::shared_ptr<BaseFramebuffer>& framebuffer, const std::shared_ptr<Shader>& shader, const glm::mat4& view = glm::mat4(1.0f), const glm::mat4 projection = glm::mat4(1.0f), glm::vec3 viewPosition = glm::vec3(0.0f));
 	void BeginRenderPass(RenderPassSpecification& specification, const glm::mat4& view = glm::mat4(1.0f), const glm::mat4& projection = glm::mat4(1.0f));
 
-	void SetNewCameraInformation(const glm::mat4& view, const glm::mat4& projection, glm::vec3 viewPosition);
+    void SetNewCameraInformation(const glm::mat4& view, const glm::mat4& projection, glm::vec3 viewPosition);
 
-	void SubmitLight(const std::shared_ptr<PointLightComponent>& light);
-	void SubmitLightMesh(const std::shared_ptr<PointLightComponent>& light, const std::shared_ptr<Texture>& shadowMap);
+    void SubmitLightMesh(const std::shared_ptr<PointLightComponent>& light);
+    void SubmitLightMesh(const std::shared_ptr<SpotLightComponent>& light);
 
-	void SubmitMesh(const std::shared_ptr<StaticMesh>& mesh, const Transform& transform, const Transform& previousTransform);
-	void SubmitSubmesh(const std::shared_ptr<StaticSubmesh>& submesh, const Transform& transform, const Transform& previousTransform);
+    void SubmitLightMeshWireframe(const std::shared_ptr<PointLightComponent>& light);
+    void SubmitLightMeshWireframe(const std::shared_ptr<SpotLightComponent>& light);
 
-	void SubmitMeshRaw(const std::shared_ptr<StaticMesh>& mesh, const Transform& transform, const Transform& previousTransform);
-	void SubmitSubmeshRaw(const std::shared_ptr<StaticSubmesh>& submesh, const Transform& transform, const Transform& previousTransform);
+    void SubmitMesh(const std::shared_ptr<StaticMesh>& mesh, const Transform& transform, const Transform& previousTransform);
+    void SubmitSubmesh(const std::shared_ptr<StaticSubmesh>& submesh, const Transform& transform, const Transform& previousTransform);
 
-	void SubmitQuad(float x1, float y1, float x2, float y2, float x3, float y3, float x4, float y4);
-	void SubmitIcon(const std::shared_ptr<Texture2D>& texture, const glm::mat4& Transform);
+    void SubmitMeshesRaw(const std::vector<std::shared_ptr<Component>>& components);
+    void SubmitMeshRaw(const std::shared_ptr<StaticMesh>& mesh, const Transform& transform, const Transform& previousTransform);
+    void SubmitSubmeshRaw(const std::shared_ptr<StaticSubmesh>& submesh, const Transform& transform, const Transform& previousTransform);
 
-	void BeginUIFrame();
-	void EndUIFrame();
+    void SubmitQuad(float x1, float y1, float x2, float y2, float x3, float y3, float x4, float y4);
+    void SubmitIcon(const std::shared_ptr<Texture2D>& texture, const glm::mat4& Transform);
 
-    //void Submit(const std::string& text, const Font& font, float x, float y, float scale, glm::vec3 color, const std::shared_ptr<Shader>& shader);
+    void BeginUIFrame();
+    void EndUIFrame();
 
-	void EndRenderPass();
+    void EndRenderPass();
 };
 
 template<class T>

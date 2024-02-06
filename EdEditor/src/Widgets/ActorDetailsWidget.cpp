@@ -3,6 +3,7 @@
 #include "Core/Engine.h"
 #include "Core/Components/PointLightComponent.h"
 #include "Core/Components/StaticMeshComponent.h"
+#include "Core/Components/SpotLightComponent.h"
 #include "Core/Objects/Actor.h"
 
 #include <imgui.h>
@@ -92,7 +93,12 @@ void ActorDetailsWidget::CreateComponent(const std::shared_ptr<Actor>& actor)
         {
             actor->RegisterComponent(std::make_shared<PointLightComponent>());
         }
-                
+
+        if (ImGui::Selectable("Spot Light"))
+        {
+            actor->RegisterComponent(std::make_shared<SpotLightComponent>());
+        }
+
         ImGui::EndCombo();
     }
 }

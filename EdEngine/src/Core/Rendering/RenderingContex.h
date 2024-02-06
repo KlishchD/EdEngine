@@ -53,7 +53,7 @@ public:
 	virtual void RunComputeShader(uint32_t sizeX, uint32_t sizeY, uint32_t sizeZ) = 0;
 	virtual void Barier(BarrierType type) = 0;
 
-	virtual void Draw() = 0;
+	virtual void Draw(DrawMode mode = DrawMode::Triangles) = 0;
 
 	virtual void EnableBlending(BlendFactor source, BlendFactor destination) = 0;
 	virtual void SetBlending(BlendFactor source, BlendFactor destination) = 0;

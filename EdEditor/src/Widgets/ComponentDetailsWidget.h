@@ -19,5 +19,7 @@ private:
     TransformationDetailsWidget m_TransformationDetailsWidget;
     
     void StaticMeshDetails();
+    void LightComponentDetails();
     void PointLightDetails();
+    void SpotLightDetails();
 };

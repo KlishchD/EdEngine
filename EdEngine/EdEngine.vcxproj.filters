@@ -180,7 +180,7 @@
     <ClCompile Include="src\Core\Rendering\RenderingContex.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\Platform\Rendering\OpenGL\OpenGLRenderingContex.cpp">
+    <ClCompile Include="src\Platform\Rendering\OpenGL\OpenGLRenderingContext.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="src\Utils\RenderingHelper.cpp">
@@ -253,6 +253,15 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="src\Core\Rendering\Tasks\SSDORenderTask.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Core\Components\SpotLightComponent.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Core\Rendering\Tasks\SpotLightRenderTask.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Core\Components\LightComponent.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -440,7 +449,7 @@
     <ClInclude Include="src\Core\Rendering\RenderingContex.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\Platform\Rendering\OpenGL\OpenGLRenderingContex.h">
+    <ClInclude Include="src\Platform\Rendering\OpenGL\OpenGLRenderingContext.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\Utils\RenderingHelper.h">
@@ -504,6 +513,15 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\Core\Rendering\Tasks\SSDORenderTask.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Core\Components\SpotLightComponent.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Core\Rendering\Tasks\SpotLightRenderTask.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Core\Components\LightComponent.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

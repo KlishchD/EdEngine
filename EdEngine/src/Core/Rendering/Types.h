@@ -23,7 +23,9 @@ enum class PixelFormat
 	R8F,
 	R16F,
 	R32F,
+	RG8F,
 	RG16F,
+	RG32F,
 	R11G11B10F,
 
 	Depth,
@@ -126,6 +128,13 @@ enum class RenderTarget
 
 	AAOutput,
 	Resolution
+};
+
+enum class DrawMode
+{
+	Triangles,
+	Lines,
+	LineStrip
 };
 
 struct Vertex {

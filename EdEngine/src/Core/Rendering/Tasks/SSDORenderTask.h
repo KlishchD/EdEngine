@@ -40,7 +40,7 @@ private:
 	float m_IndirectStrength = 1.0f;
 	float m_Radius = 1.0f;
 
-	int32_t m_BlurFilterSize = 16.0f;
+	int32_t m_BlurFilterSize = 16;
 
 	void SSDO(Camera* camera);
 	void Blur();

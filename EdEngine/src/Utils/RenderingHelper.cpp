@@ -3,7 +3,7 @@
 #include "Platform/Rendering/OpenGL/Framebuffers/OpenGLCubeFramebuffer.h"
 #include "Platform/Rendering/OpenGL/Buffers/OpenGLVertexBuffer.h"
 #include "Platform/Rendering/OpenGL/Buffers/OpenGLIndexBuffer.h"
-#include "Platform/Rendering/OpenGL/OpenGLRenderingContex.h"
+#include "Platform/Rendering/OpenGL/OpenGLRenderingContext.h"
 #include "Platform/Rendering/OpenGL/OpenGLShader.h"
 #include "Platform/Rendering/OpenGL/OpenGLWindow.h"
 #include "Platform/Rendering/OpenGL/Textures/OpenGLTexture2D.h"

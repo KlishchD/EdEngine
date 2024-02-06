@@ -35,7 +35,7 @@ void TransformationDetailsWidget::Tick(float DeltaTime)
         }
         if (RotationSliders(rotation))
         {
-            m_Transform.AddRotation(rotation - m_Transform.GetEulerRotation());
+            m_Transform.SetRotation(glm::tquat(glm::radians(rotation)));
         }
         if (ScaleSliders(scale, { 0.00001f, 100.0f }))
         {

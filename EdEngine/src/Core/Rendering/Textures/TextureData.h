@@ -20,6 +20,7 @@ public:
 	Texture2DData() = default;
 	Texture2DData(int32_t width, int32_t height, uint8_t* data);
 
+	Texture2DData& operator=(const Texture2DData& data);
 	Texture2DData& operator=(Texture2DData&& data);
 
 	virtual ~Texture2DData() override;

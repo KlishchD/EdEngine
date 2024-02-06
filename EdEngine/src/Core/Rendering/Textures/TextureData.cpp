@@ -3,6 +3,19 @@
 Texture2DData::Texture2DData(int32_t width, int32_t height, uint8_t* data) : Width(width), Height(height), Data(data)
 {}
 
+Texture2DData& Texture2DData::operator=(const Texture2DData& data)
+{
+	Width = data.Width;
+	Height = data.Height;
+
+	int32_t size = Width * Height * data.PixelSize;
+	Data = (uint8_t*) malloc(size);
+	memcpy(Data, data.Data, size);
+
+	return *this;
+
+}
+
 Texture2DData& Texture2DData::operator=(Texture2DData&& data)
 {
 	Width = data.Width;

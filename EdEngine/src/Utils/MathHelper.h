@@ -41,4 +41,5 @@ public:
     static float Halton(uint32_t i, uint32_t b);
 
     static std::vector<glm::vec3> GenerateHalfSphereSamples(int32_t count, bool bShiftTowardsCenter = true);
+    static std::vector<glm::vec2> GenerateCircleSamples(int32_t count);
 };

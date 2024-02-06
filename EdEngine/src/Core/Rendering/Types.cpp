@@ -15,6 +15,9 @@ uint32_t Types::GetChannelNumber(PixelFormat format)
 	case PixelFormat::R8F:        return 1;
 	case PixelFormat::R16F:       return 1;
 	case PixelFormat::R32F:       return 1;
+	case PixelFormat::RG8F:       return 2;
+	case PixelFormat::RG16F:      return 2;
+	case PixelFormat::RG32F:      return 2;
 	case PixelFormat::R11G11B10F: return 3;
 	default:
 		ED_LOG(Types, warn, "Cannot calculate channels count")
@@ -36,6 +39,9 @@ uint32_t Types::GetPixelSize(PixelFormat format)
 	case PixelFormat::R8F:        return     sizeof(uint8_t);
 	case PixelFormat::R16F:       return     sizeof(uint16_t);
 	case PixelFormat::R32F:       return     sizeof(uint32_t);
+	case PixelFormat::RG8F:       return 2 * sizeof(uint8_t);
+	case PixelFormat::RG16F:      return 2 * sizeof(uint16_t);
+	case PixelFormat::RG32F:      return 2 * sizeof(uint32_t);
 	case PixelFormat::R11G11B10F: return     sizeof(uint32_t);
 	default:
 		ED_LOG(Types, warn, "Cannot calculate pixel size")

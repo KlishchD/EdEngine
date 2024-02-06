@@ -2,7 +2,7 @@
 #include "Core/Rendering/EdRendering.h"
 #include "imgui.h"
 #include "Core/Macros.h"
-#include "OpenGLRenderingContex.h"
+#include "OpenGLRenderingContext.h"
 #include "Core/Engine.h"
 #include <backends/imgui_impl_glfw.h>
 #include <backends/imgui_impl_opengl3.h>

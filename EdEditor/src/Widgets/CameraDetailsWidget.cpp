@@ -3,6 +3,7 @@
 #include "Core/Engine.h"
 #include "Core/Rendering/Renderer.h"
 #include "Core/Rendering/Tasks/BloomRenderTask.h"
+#include "Core/Rendering/Tasks/SpotLightRenderTask.h"
 #include "Core/Rendering/Tasks/ResolutionRenderTask.h"
 
 #include <imgui.h>
@@ -181,6 +182,24 @@ void CameraDetailsWidget::Tick(float DeltaTime)
         if (int32_t size = ssdo->GetBlurFilterSize(); ImGui::SliderInt("Blur filter size", &size, 1, 100))
         {
             ssdo->SetBlurFilterSize(size);
+        }
+    }
+
+    if (std::shared_ptr<SpotLightRenderTask> task = m_Renderer->GetTask<SpotLightRenderTask>())
+    {
+        if (int32_t count = task->GetShadowSamplesBlocksCount(); ImGui::SliderInt("Spot light samples blocks count", &count, 1, 10))
+        {
+            task->SetShadowSamplesBlockCount(count);
+        }
+
+        if (int32_t size = task->GetShadowFilterSize(); ImGui::SliderInt("Spot light samples filter size", &size, 1, 32))
+        {
+            task->SetShadowFilterSize(size);
+        }
+
+        if (float radius = task->GetShadowFilterRadius(); ImGui::SliderFloat("Spot light samples radius", &radius, 0.5f, 10.0f))
+        {
+            task->SetShadowFilterRadius(radius);
         }
     }
 
