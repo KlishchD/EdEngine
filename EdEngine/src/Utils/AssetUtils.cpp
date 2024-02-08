@@ -10,35 +10,15 @@
 
 std::shared_ptr<Material> AssetUtils::CreateMaterial(const std::shared_ptr<MaterialDescriptor>& descriptor)
 {
-    std::shared_ptr<AssetManager> manager = Engine::Get().GetManager<AssetManager>();
-
 	std::shared_ptr<Material> material = std::make_shared<Material>();
-
 	material->SetDescriptor(descriptor);
-
-	material->SetBaseColor(descriptor->BaseColor);
-	material->SetRoughness(descriptor->Roughness);
-	material->SetMetalic(descriptor->Metalic);
-	material->SetEmission(descriptor->Emission);
-
-	material->SetBaseColorTexture(manager->LoadTexture(descriptor->BaseColorTextureID));
-	material->SetNormalTexture(manager->LoadTexture(descriptor->NormalTextureID));
-	material->SetRoughnessTexture(manager->LoadTexture(descriptor->RoughnessTextureID));
-	material->SetMetalicTexture(manager->LoadTexture(descriptor->MetalicTextureID));
-
     return material;
 }
 
 std::shared_ptr<StaticMesh> AssetUtils::CreateStaticMesh(const std::shared_ptr<StaticMeshDescriptor>& descriptor)
 {
     std::shared_ptr<StaticMesh> mesh = std::make_shared<StaticMesh>();
-
     mesh->SetDescriptor(descriptor);
-    for (const StaticSubmeshData& data: descriptor->MeshData)
-    {
-        mesh->AddSubmesh(CreateStaticSubmesh(data));
-    }
-
     return mesh;
 }
 

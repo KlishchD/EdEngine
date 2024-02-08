@@ -5,6 +5,7 @@
 
 struct MaterialDescriptor : public AssetDescriptor
 {
+	std::string MaterialPath;
 	std::string ShaderPath;
 
 	glm::vec3 BaseColor = glm::vec3(1.0f);

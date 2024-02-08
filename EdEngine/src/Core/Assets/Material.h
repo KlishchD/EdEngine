@@ -11,6 +11,7 @@ public:
     Material(const Material& material);
     Material();
 
+    virtual void SetDescriptor(const std::shared_ptr<AssetDescriptor>& inDescriptor);
     virtual void SyncDescriptor() override;
 
     void SetShaderData(const std::shared_ptr<class RenderingContext>& context);

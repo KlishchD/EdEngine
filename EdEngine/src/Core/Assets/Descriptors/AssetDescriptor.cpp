@@ -11,6 +11,16 @@ bool AssetDescriptor::ShouldHaveData() const
     return m_bShouldHaveData;
 }
 
+bool AssetDescriptor::IsDirty() const
+{
+    return m_bIsDirty;
+}
+
+void AssetDescriptor::MarkDirty()
+{
+    m_bIsDirty = true;
+}
+
 bool AssetDescriptor::HasData() const
 {
     return false;

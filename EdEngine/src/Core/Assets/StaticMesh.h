@@ -39,7 +39,8 @@ public:
     StaticMesh() = default;
     StaticMesh(const StaticMesh& mesh);
 
-	virtual void SyncDescriptor() override;
+    virtual void SetDescriptor(const std::shared_ptr<AssetDescriptor>& inDescriptor) override;
+    virtual void SyncDescriptor() override;
 
     void AddSubmesh(const std::shared_ptr<StaticSubmesh>& submesh) { m_Submeshes.push_back(submesh); }
     const std::vector<std::shared_ptr<StaticSubmesh>>& GetSubmeshes() const { return m_Submeshes; }

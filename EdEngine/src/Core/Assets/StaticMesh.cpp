@@ -42,6 +42,19 @@ StaticMesh::StaticMesh(const StaticMesh& mesh)
     {
         m_Submeshes.push_back(std::make_shared<StaticSubmesh>(*submesh));
     }
+
+    MarkDirty();
+}
+
+void StaticMesh::SetDescriptor(const std::shared_ptr<AssetDescriptor>& inDescriptor)
+{
+    m_Descriptor = inDescriptor;
+
+    std::shared_ptr<StaticMeshDescriptor> descriptor = std::static_pointer_cast<StaticMeshDescriptor>(inDescriptor);
+    for (const StaticSubmeshData& data : descriptor->MeshData)
+    {
+        m_Submeshes.push_back(AssetUtils::CreateStaticSubmesh(data));
+    }
 }
 
 void StaticMesh::SyncDescriptor()

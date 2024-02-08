@@ -2,8 +2,10 @@
 #include "Core/Rendering/RenderingContex.h"
 #include "Core/Rendering/Textures/Texture2D.h"
 #include "Core/Assets/Descriptors/MaterialDescriptor.h"
+#include "Core/Engine.h"
 #include "Core/Ed.h"
 #include "Utils/RenderingHelper.h"
+#include "AssetManager.h"
 
 Material::Material(const Material& material) : m_BaseColorTexture(material.m_BaseColorTexture),
     m_NormalTexture(material.m_NormalTexture), m_RoughnessTexture(material.m_RoughnessTexture), m_MetalicTexture(material.m_MetalicTexture),
@@ -14,6 +16,25 @@ Material::Material(const Material& material) : m_BaseColorTexture(material.m_Bas
 
 Material::Material()
 {
+}
+
+void Material::SetDescriptor(const std::shared_ptr<AssetDescriptor>& inDescriptor)
+{
+    m_Descriptor = inDescriptor;
+
+    std::shared_ptr<MaterialDescriptor> descriptor = std::static_pointer_cast<MaterialDescriptor>(inDescriptor);
+
+    m_BaseColor = descriptor->BaseColor;
+    m_Metalic = descriptor->Metalic;
+    m_Roughness = descriptor->Roughness;
+    m_Emission = descriptor->Emission;
+
+    std::shared_ptr<AssetManager> manager = Engine::Get().GetManager<AssetManager>();
+
+    m_BaseColorTexture = manager->LoadTexture(descriptor->BaseColorTextureID);
+    m_MetalicTexture = manager->LoadTexture(descriptor->MetalicTextureID);
+    m_RoughnessTexture = manager->LoadTexture(descriptor->RoughnessTextureID);
+    m_NormalTexture = manager->LoadTexture(descriptor->NormalTextureID);
 }
 
 void Material::SyncDescriptor()
@@ -56,11 +77,13 @@ void Material::SetShaderData(const std::shared_ptr<RenderingContext>& context)
 void Material::SetEmission(float emission)
 {
     m_Emission = emission;
+    MarkDirty();
 }
 
 void Material::SetMetalicTexture(const std::shared_ptr<Texture2D>& texture)
 {
     m_MetalicTexture = texture;
+    MarkDirty();
 }
 
 glm::vec3 Material::GetBaseColor() const
@@ -106,14 +129,17 @@ std::shared_ptr<Texture2D> Material::GetMetalicTexture() const
 void Material::SetBaseColorTexture(const std::shared_ptr<Texture2D>& texture)
 {
     m_BaseColorTexture = texture;
+    MarkDirty();
 }
 
 void Material::SetNormalTexture(const std::shared_ptr<Texture2D>& texture)
 {
     m_NormalTexture = texture;
+    MarkDirty();
 }
 
 void Material::SetRoughnessTexture(const std::shared_ptr<Texture2D>& texture)
 {
     m_RoughnessTexture = texture;
+    MarkDirty();
 }

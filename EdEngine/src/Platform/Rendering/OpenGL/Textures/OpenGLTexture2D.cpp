@@ -35,6 +35,7 @@ TextureType OpenGLTexture2D::GetType() const
 void OpenGLTexture2D::SetData(const Texture2DData& data)
 {
 	GetDescriptor<Texture2DDescriptor>()->Data = data;
+	MarkDirty();
 
 	Texture::Initialize();
 }
@@ -42,6 +43,7 @@ void OpenGLTexture2D::SetData(const Texture2DData& data)
 void OpenGLTexture2D::SetData(Texture2DData&& data)
 {
 	GetDescriptor<Texture2DDescriptor>()->Data = std::move(data);
+	MarkDirty();
 
 	Texture::Initialize();
 }

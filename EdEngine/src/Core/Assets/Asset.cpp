@@ -27,3 +27,14 @@ std::string Asset::GetAssetName() const
     }
     return m_Descriptor->AssetName;
 }
+
+void Asset::MarkDirty()
+{
+    m_Descriptor->MarkDirty();
+    // TODO: Maybe add define for editor only ?)
+}
+
+bool Asset::IsDirty() const
+{
+    return m_Descriptor->IsDirty();
+}

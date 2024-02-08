@@ -45,9 +45,12 @@ void AssetManager::Initialize(Engine* engine)
 
 void AssetManager::Deinitialize()
 {
-    for (auto& [id, asset] : m_Assets)
+    for (const auto& [id, asset] : m_Assets)
     {
-        SaveAsset(asset);
+        if (asset->IsDirty())
+        {
+            SaveAsset(asset);
+        }
     }
 
     for (const auto& [path, scene]: m_ScenesPaths)
@@ -79,12 +82,25 @@ void AssetManager::LoadDescriptors(const std::string& contentPath)
 
 std::vector<std::shared_ptr<StaticMeshDescriptor>> AssetManager::ImportMesh(const StaticMeshImportParameters& parameters)
 {
+    std::vector<std::shared_ptr<StaticMeshDescriptor>> descriptors;
+    for (std::shared_ptr<StaticMeshDescriptor> descriptor : GetDescriptors<StaticMeshDescriptor>(AssetType::StaticMesh))
+    {
+        if (descriptor->ImportParameters.MeshPath == parameters.MeshPath)
+        {
+            descriptors.push_back(descriptor);
+        }
+    }
+
+    if (!descriptors.empty())
+    {
+        return descriptors;
+    }
+
     const std::string& meshPath = parameters.MeshPath;
     if (const aiScene* scene = m_Importer.ReadFile(meshPath.c_str(), GetImportParametersIntegerRepresentation(parameters)))
     {
         std::vector<std::shared_ptr<MaterialDescriptor>> materials = ImportMaterialInternal(scene, meshPath);
     
-        std::vector<std::shared_ptr<StaticMeshDescriptor>> descriptors;
 
         if (parameters.ImportAsOneMesh)
         {
@@ -100,6 +116,8 @@ std::vector<std::shared_ptr<StaticMeshDescriptor>> AssetManager::ImportMesh(cons
             std::string savePath = Files::GetSavePath(meshPath, AssetType::StaticMesh);
             Serialization::SaveDescriptor(savePath, descriptor);
 			AddDescriptor(descriptor, savePath);
+
+            descriptor->MarkDirty();
 
             descriptors.push_back(descriptor);
         }
@@ -122,6 +140,8 @@ std::vector<std::shared_ptr<StaticMeshDescriptor>> AssetManager::ImportMesh(cons
                 Serialization::SaveDescriptor(savePath, descriptor);
 				AddDescriptor(descriptor, savePath);
 
+				descriptor->MarkDirty();
+
                 descriptors.push_back(descriptor);
             }
         }
@@ -137,6 +157,14 @@ std::vector<std::shared_ptr<StaticMeshDescriptor>> AssetManager::ImportMesh(cons
 
 std::shared_ptr<Texture2DDescriptor> AssetManager::ImportTexture(const Texture2DImportParameters& parameters)
 {
+    for (std::shared_ptr<Texture2DDescriptor> descriptor : GetDescriptors<Texture2DDescriptor>(AssetType::Texture2D))
+    {
+        if (descriptor->ImportParameters.Path == parameters.Path)
+        {
+            return descriptor;
+        }
+    }
+
     const std::string& texturePath = parameters.Path;
     if (texturePath.empty()) return nullptr;
 
@@ -157,7 +185,9 @@ std::shared_ptr<Texture2DDescriptor> AssetManager::ImportTexture(const Texture2D
 
     std::string savePath = Files::GetSavePath(texturePath, AssetType::Texture2D);
     Serialization::SaveDescriptor(savePath, descriptor);
-	AddDescriptor(descriptor, savePath);
+    AddDescriptor(descriptor, savePath);
+
+    descriptor->MarkDirty();
 
     return descriptor;
 }
@@ -165,7 +195,14 @@ std::shared_ptr<Texture2DDescriptor> AssetManager::ImportTexture(const Texture2D
 std::vector<std::shared_ptr<MaterialDescriptor>> AssetManager::ImportMaterial(const std::string& materialPath)
 {
     std::vector<std::shared_ptr<MaterialDescriptor>> descriptors;
-    
+    for (std::shared_ptr<MaterialDescriptor> descriptor : GetDescriptors<MaterialDescriptor>(AssetType::Material))
+    {
+        if (descriptor->MaterialPath == materialPath)
+        {
+            descriptors.push_back(descriptor);
+        }
+    }
+
     if (const aiScene* scene = m_Importer.ReadFile(materialPath, 0))
     {
         ImportMaterialInternal(scene, materialPath);
@@ -185,6 +222,7 @@ std::vector<std::shared_ptr<MaterialDescriptor>> AssetManager::ImportMaterialInt
         descriptor->AssetId = UUIDs::random_generator()();
         descriptor->AssetName = material->GetName().C_Str();
         descriptor->AssetType = AssetType::Material;
+        descriptor->MaterialPath = materialPath;
 
         aiString path;
         if (material->GetTexture(aiTextureType_BASE_COLOR, 0, &path) == aiReturn_SUCCESS)
@@ -219,6 +257,8 @@ std::vector<std::shared_ptr<MaterialDescriptor>> AssetManager::ImportMaterialInt
         std::string savePath = Files::GetSavePath(materialPath, AssetType::Material, material->GetName().C_Str());
         Serialization::SaveDescriptor(savePath, descriptor);
 		AddDescriptor(descriptor, savePath);
+
+		descriptor->MarkDirty();
 
         descriptors.push_back(descriptor);
     }
@@ -256,6 +296,8 @@ std::shared_ptr<MaterialDescriptor> AssetManager::CreateMaterial(const std::stri
     
     Serialization::SaveDescriptor(savePath, descriptor);
 	AddDescriptor(descriptor, savePath);
+
+	descriptor->MarkDirty();
 
     return descriptor;
 }

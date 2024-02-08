@@ -14,8 +14,6 @@ enum class AssetType : uint8_t
 
 struct AssetDescriptor
 {
-	virtual ~AssetDescriptor() = default;
-
 	UUID AssetId;
 	std::string AssetName;
 	AssetType AssetType;
@@ -23,12 +21,18 @@ struct AssetDescriptor
 	virtual void SetShouldHaveData(bool status);
 	virtual bool ShouldHaveData() const;
 
+	bool IsDirty() const;
+	void MarkDirty();
+
 	virtual bool HasData() const;
 	virtual void ClaimData();
 	virtual void UnclaimData();
+
+	virtual ~AssetDescriptor() = default;
 private:
 	int32_t m_DataClaims = 0;
 	bool m_bShouldHaveData = false;
+	bool m_bIsDirty = false;
 };
 
 namespace boost

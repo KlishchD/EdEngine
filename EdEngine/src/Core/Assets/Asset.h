@@ -5,7 +5,7 @@
 class Asset
 {
 public:
-    void SetDescriptor(const std::shared_ptr<AssetDescriptor>& descriptor);
+    virtual void SetDescriptor(const std::shared_ptr<AssetDescriptor>& descriptor);
 
     virtual void SyncDescriptor();
 
@@ -15,6 +15,9 @@ public:
     std::shared_ptr<AssetDescriptor> GetDescriptor() const;
 
     std::string GetAssetName() const;
+
+    void MarkDirty();
+    bool IsDirty() const;
 protected:
     std::shared_ptr<AssetDescriptor> m_Descriptor;
 };
