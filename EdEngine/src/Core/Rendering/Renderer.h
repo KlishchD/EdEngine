@@ -115,9 +115,11 @@ private:
     std::shared_ptr<VertexBuffer> m_QuadVBO;
     std::shared_ptr<VertexBuffer> m_TextVBO;
 
+    std::vector<glm::vec3> m_PointLightVerticies;
     std::shared_ptr<VertexBuffer> m_PointLightMeshVBO;
     std::shared_ptr<IndexBuffer> m_PointLightMeshIBO;
 
+    std::vector<glm::vec3> m_SpotLightVerticies;
     std::shared_ptr<VertexBuffer> m_SpotLightMeshVBO;
     std::shared_ptr<IndexBuffer> m_SpotLightMeshIBO;
 public:
@@ -125,6 +127,9 @@ public:
 	void BeginRenderPass(RenderPassSpecification& specification, const glm::mat4& view = glm::mat4(1.0f), const glm::mat4& projection = glm::mat4(1.0f));
 
     void SetNewCameraInformation(const glm::mat4& view, const glm::mat4& projection, glm::vec3 viewPosition);
+
+    bool IsLightMeshVisible(const std::shared_ptr<PointLightComponent>& light, Camera* camera) const;
+    bool IsLightMeshVisible(const std::shared_ptr<SpotLightComponent>& light, Camera* camera) const;
 
     void SubmitLightMesh(const std::shared_ptr<PointLightComponent>& light);
     void SubmitLightMesh(const std::shared_ptr<SpotLightComponent>& light);
@@ -146,6 +151,8 @@ public:
     void EndUIFrame();
 
     void EndRenderPass();
+ private:
+    bool IsLightMeshVisible(const std::vector<glm::vec3>& vertices, const Transform& transform, Camera* camera) const;
 };
 
 template<class T>

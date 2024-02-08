@@ -57,15 +57,16 @@ void PointLightRenderTask::Run(const std::vector<std::shared_ptr<Component>>& co
 
 	for (const std::shared_ptr<Component>& component : components)
 	{
-		if (std::shared_ptr<PointLightComponent> light = std::dynamic_pointer_cast<PointLightComponent>(component); light && light->GetIntensity() != 0)
+		if (component->GetType() == ComponentType::PointLight)
 		{
-			if (light->IsShadowCasting())
+			std::shared_ptr<PointLightComponent> light = std::static_pointer_cast<PointLightComponent>(component);
+
+			if (light->GetIntensity() != 0 && m_Renderer->IsLightMeshVisible(light, camera))
 			{
 				DrawShadowMap(components, light);
+				DrawLight(light, camera);
+				DrawWireframe(light, camera);
 			}
-
-			DrawLight(light, camera);
-			DrawWireframe(light, camera);
 		}
 	}
 }
@@ -78,21 +79,24 @@ void PointLightRenderTask::Resize(glm::ivec2 size, float upscale)
 
 void PointLightRenderTask::DrawShadowMap(const std::vector<std::shared_ptr<Component>>& components, const std::shared_ptr<PointLightComponent>& light)
 {
-	m_ShadowPassSpecification.ViewPosition = light->GetPosition();
+	if (light->IsShadowCasting())
+	{
+		m_ShadowPassSpecification.ViewPosition = light->GetPosition();
 
-	m_Renderer->BeginRenderPass(m_ShadowPassSpecification, glm::mat4(1.0f), glm::mat4(1.0f));
+		m_Renderer->BeginRenderPass(m_ShadowPassSpecification, glm::mat4(1.0f), glm::mat4(1.0f));
 
-	m_Context->SetShaderDataFloat("u_FarPlane", m_Renderer->GetFarPlane());
+		m_Context->SetShaderDataFloat("u_FarPlane", m_Renderer->GetFarPlane());
 
-	for (int32_t i = 0; i < 6; ++i) {
-		m_Context->SetShaderDataMat4("u_ViewProjection[" + std::to_string(i) + "]", m_ShadowMapPerspective * light->GetShadowMapPassCameraTransformation(i));
+		for (int32_t i = 0; i < 6; ++i) {
+			m_Context->SetShaderDataMat4("u_ViewProjection[" + std::to_string(i) + "]", m_ShadowMapPerspective * light->GetShadowMapPassCameraTransformation(i));
+		}
+
+		std::static_pointer_cast<CubeFramebuffer>(m_ShadowPassSpecification.Framebuffer)->AttachLayers();
+
+		m_Renderer->SubmitMeshesRaw(components);
+
+		m_Renderer->EndRenderPass();
 	}
-
-	std::static_pointer_cast<CubeFramebuffer>(m_ShadowPassSpecification.Framebuffer)->AttachLayers();
-
-	m_Renderer->SubmitMeshesRaw(components);
-
-	m_Renderer->EndRenderPass();
 }
 
 void PointLightRenderTask::DrawLight(const std::shared_ptr<PointLightComponent>& light, Camera* camera)

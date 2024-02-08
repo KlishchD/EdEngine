@@ -67,15 +67,17 @@ void Renderer::Initialize(Engine* engine)
 	{
 		auto [vertices, indices] = GeometryBuilder::MakeSphere(1, PointLightMeshSectorsCount, PointLightMeshStackCount);
 
-		m_PointLightMeshVBO = RenderingHelper::CreateVertexBuffer(vertices.data(), sizeof(float) * vertices.size(), lightVBOLayout, BufferUsage::StaticDraw);
+		m_PointLightMeshVBO = RenderingHelper::CreateVertexBuffer(vertices.data(), 3.0f * sizeof(float) * vertices.size(), lightVBOLayout, BufferUsage::StaticDraw);
 		m_PointLightMeshIBO = RenderingHelper::CreateIndexBuffer(indices.data(), sizeof(int32_t) * indices.size(), BufferUsage::StaticDraw);
+		m_PointLightVerticies = std::move(vertices);
 	}
 
 	{
 		auto [vertices, indices] = GeometryBuilder::MakeCone(SpotLightMeshSectorsCount);
 
-		m_SpotLightMeshVBO = RenderingHelper::CreateVertexBuffer(vertices.data(), sizeof(float) * vertices.size(), lightVBOLayout, BufferUsage::StaticDraw);
+		m_SpotLightMeshVBO = RenderingHelper::CreateVertexBuffer(vertices.data(), 3.0f * sizeof(float) * vertices.size(), lightVBOLayout, BufferUsage::StaticDraw);
 		m_SpotLightMeshIBO = RenderingHelper::CreateIndexBuffer(indices.data(), sizeof(int32_t) * indices.size(), BufferUsage::StaticDraw);
+		m_SpotLightVerticies = std::move(vertices);
 	}
 
 	m_LightFramebuffer = RenderingHelper::CreateFramebuffer(1, 1);
@@ -403,6 +405,26 @@ void Renderer::SetNewCameraInformation(const glm::mat4& view, const glm::mat4& p
 	m_Context->SetShaderDataFloat3("u_ViewPosition", viewPosition);
 }
 
+bool Renderer::IsLightMeshVisible(const std::shared_ptr<PointLightComponent>& light, Camera* camera) const
+{
+	Transform transform = light->GetWorldTransform();
+	transform.SetScale(glm::vec3(light->GetRadius()));
+
+	return IsLightMeshVisible(m_PointLightVerticies, transform, camera);
+}
+
+bool Renderer::IsLightMeshVisible(const std::shared_ptr<SpotLightComponent>& light, Camera* camera) const
+{
+	const float angle = light->GetOuterAngle();
+	const float length = light->GetMaxDistance();
+	const float radius = glm::tan(angle) * length;
+
+	Transform transform = light->GetWorldTransform();
+	transform.SetScale(glm::vec3(radius, length, radius));
+
+	return IsLightMeshVisible(m_SpotLightVerticies, transform, camera);
+}
+
 void Renderer::SubmitLightMesh(const std::shared_ptr<PointLightComponent>& light)
 {
 	m_Context->EnableFaceCulling(Face::Front);
@@ -579,6 +601,40 @@ void Renderer::EndRenderPass()
     m_Context->SetDefaultFramebuffer();
 
 	m_Specification = nullptr;
+}
+
+bool Renderer::IsLightMeshVisible(const std::vector<glm::vec3>& vertices, const Transform& transform, Camera* camera) const
+{
+	glm::mat4 projectionViewModelMatrix = camera->GetViewPojection() * transform.GetMatrix();
+
+	glm::vec3 leftBottonCorner(std::numeric_limits<float>::max());
+	glm::vec3 rightTopCorner(std::numeric_limits<float>::min());
+
+	for (const glm::vec3& point : vertices)
+	{
+		glm::vec4 transformed = projectionViewModelMatrix * glm::vec4(point, 1.0f);
+		transformed /= transformed.w;
+
+		leftBottonCorner.x = glm::min(leftBottonCorner.x, transformed.x);
+		leftBottonCorner.y = glm::min(leftBottonCorner.y, transformed.y);
+		leftBottonCorner.z = glm::min(leftBottonCorner.z, transformed.z);
+
+		rightTopCorner.x = glm::max(rightTopCorner.x, transformed.x);
+		rightTopCorner.y = glm::max(rightTopCorner.y, transformed.y);
+		rightTopCorner.z = glm::max(rightTopCorner.z, transformed.z);
+	}
+
+	bool xChangesSign = leftBottonCorner.x * rightTopCorner.x < 0;
+	bool yChangesSign = leftBottonCorner.y * rightTopCorner.y < 0;
+	bool zChangesSign = leftBottonCorner.z * rightTopCorner.z < 0;
+
+	bool xInViewRange = (leftBottonCorner.x >= -1.0f && leftBottonCorner.x <= 1.0f) || (rightTopCorner.x >= -1.0f && rightTopCorner.x <= 1.0f);
+	bool yInViewRange = (leftBottonCorner.y >= -1.0f && leftBottonCorner.y <= 1.0f) || (rightTopCorner.y >= -1.0f && rightTopCorner.y <= 1.0f);
+	bool zInViewRange = (leftBottonCorner.z >=  0.0f && leftBottonCorner.z <= 1.0f) || (rightTopCorner.z >=  0.0f && rightTopCorner.z <= 1.0f);
+
+	return (xChangesSign && yChangesSign && zChangesSign) || (xInViewRange && yInViewRange && zInViewRange) ||
+           (xChangesSign && yChangesSign && zInViewRange) || (yChangesSign && zChangesSign && xInViewRange) || (xChangesSign && zChangesSign && yInViewRange) ||
+           (xChangesSign && yInViewRange && zInViewRange) || (yChangesSign && xInViewRange && zInViewRange) || (zChangesSign && yInViewRange && xInViewRange);
 }
 
 

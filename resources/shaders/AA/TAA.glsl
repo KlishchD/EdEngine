@@ -174,7 +174,7 @@ void main()
 	vec2 velocity = texture2D(u_Velocity, location + closestDepthDelta).rg;
 	vec2 historyCoordinates = location - velocity;
 
-	if (any(historyCoordinates != clamp(historyCoordinates, 0.0f, 1.0f)))
+	if (historyCoordinates != clamp(historyCoordinates, vec2(0.0f), vec2(1.0f)))
 	{
 		color = vec4(currentColor, 1.0f);
 		return;

@@ -69,9 +69,12 @@ void SpotLightRenderTask::Run(const std::vector<std::shared_ptr<Component>>& com
 		if (component->GetType() == ComponentType::SpotLight)
 		{
 			std::shared_ptr<SpotLightComponent> light = std::static_pointer_cast<SpotLightComponent>(component);
-			DrawShadows(components, light);
-			DrawLight(camera, light);
-			DrawWireframe(camera, light);
+			if (light->GetIntensity() != 0 && m_Renderer->IsLightMeshVisible(light, camera))
+			{
+				DrawShadows(components, light);
+				DrawLight(camera, light);
+				DrawWireframe(camera, light);
+			}
 		}
 	}
 }
