@@ -39,11 +39,11 @@ public:
 	static std::shared_ptr<Framebuffer> CreateFramebuffer(uint32_t width, uint32_t height);
 	static std::shared_ptr<CubeFramebuffer> CreateCubeFramebuffer(uint32_t size);
 
-	static std::shared_ptr<Texture2D> CreateTexture2D(const std::shared_ptr<Texture2DDescriptor>& descriptor);
+	static std::shared_ptr<Texture2D> CreateTexture2D(std::shared_ptr<Texture2DDescriptor> descriptor);
 	static std::shared_ptr<Texture2D> CreateTexture2D(Texture2DImportParameters& parameters, Texture2DData& data, const std::string& name);
 	static std::shared_ptr<Texture2D> CreateTexture2D(Texture2DImportParameters&& parameters, Texture2DData&& data, const std::string& name);
 
-	static std::shared_ptr<CubeTexture> CreateCubeTexture(const std::shared_ptr<CubeTextureDescriptor>& descriptor);
+	static std::shared_ptr<CubeTexture> CreateCubeTexture(std::shared_ptr<CubeTextureDescriptor> descriptor);
 	static std::shared_ptr<CubeTexture> CreateCubeTexture(CubeTextureImportParameters& parameters, CubeTextureData& data, const std::string& name);
 	static std::shared_ptr<CubeTexture> CreateCubeTexture(CubeTextureImportParameters&& parameters, CubeTextureData&& data, const std::string& name);
 

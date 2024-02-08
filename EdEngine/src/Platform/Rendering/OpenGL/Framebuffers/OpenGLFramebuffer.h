@@ -9,10 +9,10 @@ public:
 
 	virtual void CreateAttachment(FramebufferAttachmentType type) override;
 	
-	virtual void SetAttachment(int32_t index, const std::shared_ptr<Texture>& texture, bool bResizeFramebufferToTextureSize = false) override;
+	virtual void SetAttachment(int32_t index, std::shared_ptr<Texture> texture, bool bResizeFramebufferToTextureSize = false) override;
 
-	virtual void CopyAttachment(const std::shared_ptr<Framebuffer>& framebuffer, int32_t attachment) override;
-	virtual void CopyDepthAttachment(const std::shared_ptr<Framebuffer>& framebuffer) override;
+	virtual void CopyAttachment(std::shared_ptr<Framebuffer> framebuffer, int32_t attachment) override;
+	virtual void CopyDepthAttachment(std::shared_ptr<Framebuffer> framebuffer) override;
 
 	virtual uint32_t GetWidth() const override;
 	virtual uint32_t GetHeight() const override;

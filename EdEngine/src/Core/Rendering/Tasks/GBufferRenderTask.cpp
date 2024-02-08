@@ -68,7 +68,7 @@ void GBufferRenderTask::Run(const std::vector<std::shared_ptr<Component>>& compo
 
 	m_Context->SetShaderDataMat4("u_PreviousViewMatrix", m_PreviousView);
 
-	for (const std::shared_ptr<Component>& component : components)
+	for (std::shared_ptr<Component> component : components)
 	{
 		if (std::shared_ptr<StaticMeshComponent> meshComponent = std::dynamic_pointer_cast<StaticMeshComponent>(component))
 		{

@@ -86,15 +86,15 @@ class Serialization
 {
 public:
 	template<class T>
-	static void LoadDescriptor(const std::string& path, const std::shared_ptr<T>& descriptor, bool bLoadData = true);
+	static void LoadDescriptor(const std::string& path, std::shared_ptr<T> descriptor, bool bLoadData = true);
 
 	template<class T>
-	static void SaveDescriptor(const std::string& path, const std::shared_ptr<T>& descriptor);
+	static void SaveDescriptor(const std::string& path, std::shared_ptr<T> descriptor);
 
 };
 
 template<class T>
-inline void Serialization::LoadDescriptor(const std::string& path, const std::shared_ptr<T>& descriptor, bool bLoadData)
+inline void Serialization::LoadDescriptor(const std::string& path, std::shared_ptr<T> descriptor, bool bLoadData)
 {
 	if (!descriptor->HasData())
 	{
@@ -109,7 +109,7 @@ inline void Serialization::LoadDescriptor(const std::string& path, const std::sh
 }
 
 template<class T>
-inline void Serialization::SaveDescriptor(const std::string& path, const std::shared_ptr<T>& descriptor)
+inline void Serialization::SaveDescriptor(const std::string& path, std::shared_ptr<T> descriptor)
 {
 	std::ofstream file(path, std::ios_base::binary);
 	boost::archive::binary_oarchive oa(file);

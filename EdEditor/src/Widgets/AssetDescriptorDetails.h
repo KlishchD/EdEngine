@@ -4,6 +4,12 @@
 #include <string>
 #include "Core/Widget.h"
 
+struct AssetDescriptor;
+struct StaticMeshDescriptor;
+struct Texture2DDescriptor;
+struct CubeTextureDescriptor;
+struct MaterialDescriptor;
+
 class AssetDescriptorDetails: public Widget
 {
 public:
@@ -13,9 +19,9 @@ private:
     std::shared_ptr<class Editor> m_Editor;
     std::shared_ptr<class AssetManager> m_AssetManager;
 
-    void BaseDescriptorDetails(const std::shared_ptr<struct AssetDescriptor>& descriptor);
-    void StaticMeshDescriptorDetails(const std::shared_ptr<struct StaticMeshDescriptor>& descriptor);
-    void Texture2DDescriptorDetails(const std::shared_ptr<struct Texture2DDescriptor>& descriptor);
-    void CubeTextureDescriptorDetails(const std::shared_ptr<struct CubeTextureDescriptor>& descriptor);
-    void MaterialDescriptorDetails(const std::shared_ptr<struct MaterialDescriptor>& descriptor);
+    void BaseDescriptorDetails(std::shared_ptr<AssetDescriptor> descriptor);
+    void StaticMeshDescriptorDetails(std::shared_ptr<StaticMeshDescriptor> descriptor);
+    void Texture2DDescriptorDetails(std::shared_ptr<Texture2DDescriptor> descriptor);
+    void CubeTextureDescriptorDetails(std::shared_ptr<CubeTextureDescriptor> descriptor);
+    void MaterialDescriptorDetails(std::shared_ptr<MaterialDescriptor> descriptor);
 };

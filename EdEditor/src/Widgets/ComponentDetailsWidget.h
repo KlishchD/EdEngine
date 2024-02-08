@@ -10,7 +10,7 @@ class ComponentDetailsWidget: public Widget
 {
 public:
     virtual void Initialize() override;
-    void SetComponent(const std::shared_ptr<Component>& component);
+    void SetComponent(std::shared_ptr<Component> component);
     virtual void Tick(float DeltaTime) override;
 private:
     std::shared_ptr<class AssetManager> m_AssetManager;

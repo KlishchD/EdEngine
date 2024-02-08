@@ -26,13 +26,13 @@ void Actor::Update(float DeltaSeconds)
 {
     m_PreviousTransform = m_Transform;
 
-    for (const std::shared_ptr<Component>& component : m_Components)
+    for (std::shared_ptr<Component> component : m_Components)
     {
         component->Update(DeltaSeconds);
     }
 }
 
-void Actor::RegisterComponent(const std::shared_ptr<Component>& component)
+void Actor::RegisterComponent(std::shared_ptr<Component> component)
 {
     component->SetOwnerActor(shared_from_this());
     m_Components.push_back(component);
@@ -46,10 +46,10 @@ const std::vector<std::shared_ptr<Component>>& Actor::GetComponents() const
 std::vector<std::shared_ptr<Component>> Actor::GetAllComponents() const
 {
     std::vector<std::shared_ptr<Component>> components;
-    for (const std::shared_ptr<Component>& component: m_Components)
+    for (std::shared_ptr<Component> component: m_Components)
     {
         components.push_back(component);
-        for (const std::shared_ptr<Component>& child: component->GetAllChildren())
+        for (std::shared_ptr<Component> child: component->GetAllChildren())
         {
             components.push_back(child);
         }

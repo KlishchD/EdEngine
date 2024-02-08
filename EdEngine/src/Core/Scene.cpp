@@ -5,7 +5,7 @@
 
 void Scene::Update(float DeltaSeconds)
 {
-    for (const std::shared_ptr<Actor>& actor : m_Actors)
+    for (std::shared_ptr<Actor> actor : m_Actors)
     {
         actor->Update(DeltaSeconds);
     }
@@ -14,9 +14,9 @@ void Scene::Update(float DeltaSeconds)
 std::vector<std::shared_ptr<Component>> Scene::GetAllComponents() const
 {
     std::vector<std::shared_ptr<Component>> components;
-    for (const std::shared_ptr<Actor>& actor : m_Actors)
+    for (std::shared_ptr<Actor> actor : m_Actors)
     {
-        for (const std::shared_ptr<Component>& component : actor->GetAllComponents())
+        for (std::shared_ptr<Component> component : actor->GetAllComponents())
         {
             components.push_back(component);
         }

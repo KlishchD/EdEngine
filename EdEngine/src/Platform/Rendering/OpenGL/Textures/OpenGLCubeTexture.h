@@ -5,7 +5,7 @@
 class OpenGLCubeTexture : public CubeTexture
 {
 public:
-	OpenGLCubeTexture(const std::shared_ptr<CubeTextureDescriptor>& descriptor);
+	OpenGLCubeTexture(std::shared_ptr<CubeTextureDescriptor> descriptor);
 
 	virtual void Resize(uint32_t size) override;
 	virtual TextureType GetType() const override;

@@ -118,7 +118,7 @@ void Renderer::Initialize(Engine* engine)
 
 		m_Tasks.push_back(std::make_shared<ResolutionRenderTask>());
 
-		for (const std::shared_ptr<RenderTask>& task : m_Tasks)
+		for (std::shared_ptr<RenderTask> task : m_Tasks)
 		{
 			task->Setup(this);
 		}
@@ -144,7 +144,7 @@ void Renderer::Update()
 
 	if (m_bIsViewportSizeDirty)
 	{
-		for (const std::shared_ptr<RenderTask>& task : m_Tasks)
+		for (std::shared_ptr<RenderTask> task : m_Tasks)
 		{
 			task->Resize(m_ViewportSize, m_UpsampleScale);
 		}
@@ -162,7 +162,7 @@ void Renderer::Update()
 
 	std::vector<std::shared_ptr<Component>> components = scene->GetAllComponents();
 
-	for (const std::shared_ptr<RenderTask>& task : m_Tasks)
+	for (std::shared_ptr<RenderTask> task : m_Tasks)
 	{
 		task->Run(components, camera);
 	}
@@ -334,7 +334,7 @@ void Renderer::EndUIFrame()
 	 m_Context->EndUIFrame();
 }
 
-void Renderer::BeginRenderPass(const std::string& name, const std::shared_ptr<BaseFramebuffer>& framebuffer, const std::shared_ptr<Shader>& shader, const glm::mat4& view, glm::mat4 projection, glm::vec3 viewPosition)
+void Renderer::BeginRenderPass(const std::string& name, std::shared_ptr<BaseFramebuffer> framebuffer, std::shared_ptr<Shader> shader, const glm::mat4& view, glm::mat4 projection, glm::vec3 viewPosition)
 {
 	m_TemporarySpecification = RenderPassSpecification();
 
@@ -405,7 +405,7 @@ void Renderer::SetNewCameraInformation(const glm::mat4& view, const glm::mat4& p
 	m_Context->SetShaderDataFloat3("u_ViewPosition", viewPosition);
 }
 
-bool Renderer::IsLightMeshVisible(const std::shared_ptr<PointLightComponent>& light, Camera* camera) const
+bool Renderer::IsLightMeshVisible(std::shared_ptr<PointLightComponent> light, Camera* camera) const
 {
 	Transform transform = light->GetWorldTransform();
 	transform.SetScale(glm::vec3(light->GetRadius()));
@@ -413,7 +413,7 @@ bool Renderer::IsLightMeshVisible(const std::shared_ptr<PointLightComponent>& li
 	return IsLightMeshVisible(m_PointLightVerticies, transform, camera);
 }
 
-bool Renderer::IsLightMeshVisible(const std::shared_ptr<SpotLightComponent>& light, Camera* camera) const
+bool Renderer::IsLightMeshVisible(std::shared_ptr<SpotLightComponent> light, Camera* camera) const
 {
 	const float angle = light->GetOuterAngle();
 	const float length = light->GetMaxDistance();
@@ -425,7 +425,7 @@ bool Renderer::IsLightMeshVisible(const std::shared_ptr<SpotLightComponent>& lig
 	return IsLightMeshVisible(m_SpotLightVerticies, transform, camera);
 }
 
-void Renderer::SubmitLightMesh(const std::shared_ptr<PointLightComponent>& light)
+void Renderer::SubmitLightMesh(std::shared_ptr<PointLightComponent> light)
 {
 	m_Context->EnableFaceCulling(Face::Front);
 
@@ -441,7 +441,7 @@ void Renderer::SubmitLightMesh(const std::shared_ptr<PointLightComponent>& light
 	m_Context->DisableFaceCulling();
 }
 
-void Renderer::SubmitLightMesh(const std::shared_ptr<SpotLightComponent>& light)
+void Renderer::SubmitLightMesh(std::shared_ptr<SpotLightComponent> light)
 {
 	m_Context->EnableFaceCulling(Face::Front);
 
@@ -464,7 +464,7 @@ void Renderer::SubmitLightMesh(const std::shared_ptr<SpotLightComponent>& light)
 	m_Context->DisableFaceCulling();
 }
 
-void Renderer::SubmitLightMeshWireframe(const std::shared_ptr<PointLightComponent>& light)
+void Renderer::SubmitLightMeshWireframe(std::shared_ptr<PointLightComponent> light)
 {
 	m_Context->EnableFaceCulling();
 
@@ -480,7 +480,7 @@ void Renderer::SubmitLightMeshWireframe(const std::shared_ptr<PointLightComponen
 	m_Context->DisableFaceCulling();
 }
 
-void Renderer::SubmitLightMeshWireframe(const std::shared_ptr<SpotLightComponent>& light)
+void Renderer::SubmitLightMeshWireframe(std::shared_ptr<SpotLightComponent> light)
 {
 	const float angle = light->GetOuterAngle();
 	const float length = light->GetMaxDistance();
@@ -496,15 +496,15 @@ void Renderer::SubmitLightMeshWireframe(const std::shared_ptr<SpotLightComponent
 	m_Context->Draw(DrawMode::LineStrip);
 }
 
-void Renderer::SubmitMesh(const std::shared_ptr<StaticMesh>& mesh, const Transform& transform, const Transform& previousTransform)
+void Renderer::SubmitMesh(std::shared_ptr<StaticMesh> mesh, const Transform& transform, const Transform& previousTransform)
 {
-	for (const std::shared_ptr<StaticSubmesh>& submesh : mesh->GetSubmeshes())
+	for (std::shared_ptr<StaticSubmesh> submesh : mesh->GetSubmeshes())
 	{
 		SubmitSubmesh(submesh, transform, previousTransform);
 	}
 }
 
-void Renderer::SubmitSubmesh(const std::shared_ptr<StaticSubmesh>& submesh, const Transform& transform, const Transform& previousTransform)
+void Renderer::SubmitSubmesh(std::shared_ptr<StaticSubmesh> submesh, const Transform& transform, const Transform& previousTransform)
 {
 	if (std::shared_ptr<Material> material = submesh->GetMaterial()) {
         m_Context->SetVertexBuffer(submesh->GetVertexBuffer());
@@ -522,7 +522,7 @@ void Renderer::SubmitSubmesh(const std::shared_ptr<StaticSubmesh>& submesh, cons
 
 void Renderer::SubmitMeshesRaw(const std::vector<std::shared_ptr<Component>>& components)
 {
-	for (const std::shared_ptr<Component>& component : components)
+	for (std::shared_ptr<Component> component : components)
 	{
 		if (component->GetType() == ComponentType::StaticMesh)
 		{
@@ -532,18 +532,18 @@ void Renderer::SubmitMeshesRaw(const std::vector<std::shared_ptr<Component>>& co
 	}
 }
 
-void Renderer::SubmitMeshRaw(const std::shared_ptr<StaticMesh>& mesh, const Transform& transform, const Transform& previousTransform)
+void Renderer::SubmitMeshRaw(std::shared_ptr<StaticMesh> mesh, const Transform& transform, const Transform& previousTransform)
 {
 	if (mesh)
 	{
-		for (const std::shared_ptr<StaticSubmesh>& submesh : mesh->GetSubmeshes())
+		for (std::shared_ptr<StaticSubmesh> submesh : mesh->GetSubmeshes())
 		{
 			SubmitSubmeshRaw(submesh, transform, previousTransform);
 		}
 	}
 }
 
-void Renderer::SubmitSubmeshRaw(const std::shared_ptr<StaticSubmesh>& submesh, const Transform& transform, const Transform& previousTransform)
+void Renderer::SubmitSubmeshRaw(std::shared_ptr<StaticSubmesh> submesh, const Transform& transform, const Transform& previousTransform)
 {
 	if (std::shared_ptr<Material> material = submesh->GetMaterial()) {
 		m_Context->SetVertexBuffer(submesh->GetVertexBuffer());
@@ -575,7 +575,7 @@ void Renderer::SubmitQuad(float x1, float y1, float x2, float y2, float x3, floa
     m_Context->Draw();
 }
 
-void Renderer::SubmitIcon(const std::shared_ptr<Texture2D>& texture, const glm::mat4& transform)
+void Renderer::SubmitIcon(std::shared_ptr<Texture2D> texture, const glm::mat4& transform)
 {
 	float quad[32] = {
 		-1.0f, -1.0f, 0.0f, 0.0f,
@@ -639,7 +639,7 @@ bool Renderer::IsLightMeshVisible(const std::vector<glm::vec3>& vertices, const 
 
 
 /*
-void RendererAPI::SetFramebuffer(const std::shared_ptr<Framebuffer>& framebuffer)
+void RendererAPI::SetFramebuffer(std::shared_ptr<Framebuffer> framebuffer)
 {
 	if (m_Framebuffer)
 	{
@@ -655,7 +655,7 @@ void RendererAPI::SetFramebuffer(const std::shared_ptr<Framebuffer>& framebuffer
 	}
 }
 
-void RendererAPI::SubmitComponent(const std::shared_ptr<Component>& component, const glm::mat4& Transform)
+void RendererAPI::SubmitComponent(std::shared_ptr<Component> component, const glm::mat4& Transform)
 {
 	glm::mat4 componentTransform = glm::mat4(1);
 
@@ -665,14 +665,14 @@ void RendererAPI::SubmitComponent(const std::shared_ptr<Component>& component, c
 		SubmitMesh(staticMeshComponent, Transform);
 	}
 
-	for (const std::shared_ptr<Component>& child: component->GetChildren())
+	for (std::shared_ptr<Component> child: component->GetChildren())
 	{
 		SubmitComponent(child, Transform * componentTransform);
 	}
 }*/
 
 /*
-void RendererAPI::SubmitScene(const std::shared_ptr<Scene>& scene)
+void RendererAPI::SubmitScene(std::shared_ptr<Scene> scene)
 {
 	std::vector<std::shared_ptr<Component>> components = scene->GetAllComponents();
 	for (const auto& component: components)
@@ -685,7 +685,7 @@ void RendererAPI::SubmitScene(const std::shared_ptr<Scene>& scene)
 
 	for (const auto& actor: scene->GetActors())
 	{
-		for (const std::shared_ptr<Component>& component: actor->GetComponents())
+		for (std::shared_ptr<Component> component: actor->GetComponents())
 		{
 			SubmitComponent(component, actor->GetTransform());
 		}
@@ -706,12 +706,12 @@ void RendererAPI::SubmitScene(const std::shared_ptr<Scene>& scene)
 */
 
 /*
-void RendererAPI::Submit(const std::shared_ptr<Shader>& shader, const std::shared_ptr<VertexArray>& vertexArray, const glm::mat4& Transform)
+void RendererAPI::Submit(std::shared_ptr<Shader> shader, std::shared_ptr<VertexArray> vertexArray, const glm::mat4& Transform)
 {
 	Submit(shader, *vertexArray, Transform);
 }
 
-void RendererAPI::Submit(const std::shared_ptr<Shader>& shader, const VertexArray& vertexArray, const glm::mat4& Transform)
+void RendererAPI::Submit(std::shared_ptr<Shader> shader, const VertexArray& vertexArray, const glm::mat4& Transform)
 {
 	shader->SetMat4("u_CameraMatrix", m_ProjectionViewMatrix);
 	shader->SetMat4("u_Transformation", Transform);
@@ -722,7 +722,7 @@ void RendererAPI::Submit(const std::shared_ptr<Shader>& shader, const VertexArra
 
 /*
 void RendererAPI::Submit(const std::string& text, const Font& font, float x, float y, float scale, glm::vec3 color,
-					  const std::shared_ptr<Shader>& shader)
+					  std::shared_ptr<Shader> shader)
 {
 	shader->Bind();
 	shader->SetMat4("u_CameraMatrix", m_ProjectionViewMatrix);
@@ -733,7 +733,7 @@ void RendererAPI::Submit(const std::string& text, const Font& font, float x, flo
 
 	for (const char& c: text)
 	{
-		const std::shared_ptr<Character>& texture = font.GetCharacterTexture(c);
+		std::shared_ptr<Character> texture = font.GetCharacterTexture(c);
 
 		float width = texture->GetWidth();
 		float height = texture->GetHeight();

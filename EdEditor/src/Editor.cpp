@@ -91,7 +91,7 @@ void Editor::Update(float DeltaTime)
         m_Renderer->BeginRenderPass(m_IconsPassSpecification, camera->GetView(), camera->GetProjection());
         
         glm::vec3 viewPosition = camera->GetPosition();
-        for (const std::shared_ptr<Component>& component : components)
+        for (std::shared_ptr<Component> component : components)
         {
             if (std::shared_ptr<LightComponent> light = std::dynamic_pointer_cast<LightComponent>(component))
             {
@@ -134,7 +134,7 @@ void Editor::SetUpInputs(Engine* engine)
     engine->SubscribeToInput(Key::B, Action::Press, [this]() { m_Renderer->SetAAMethod(m_Renderer->GetAAMethod() == AAMethod::None ? AAMethod::TAA : AAMethod::None); });
 }
 
-void Editor::SetSelectedActor(const std::shared_ptr<Actor>& actor)
+void Editor::SetSelectedActor(std::shared_ptr<Actor> actor)
 {
     if (m_SelectedActor == actor)
     {
@@ -153,7 +153,7 @@ std::shared_ptr<Actor> Editor::GetSelectedActor() const
     return m_SelectedActor;
 }
 
-void Editor::SetSelectedComponent(const std::shared_ptr<Component>& component)
+void Editor::SetSelectedComponent(std::shared_ptr<Component> component)
 {
     if (m_SelectedComponent == component)
     {
@@ -190,7 +190,7 @@ void Editor::SetCameraRotationSpeed(glm::vec2 speed)
     m_CameraRotationSpeed = speed;
 }
 
-void Editor::SetSelectedAssetDescriptor(const std::shared_ptr<AssetDescriptor>& descriptor)
+void Editor::SetSelectedAssetDescriptor(std::shared_ptr<AssetDescriptor> descriptor)
 {
     m_SelectedAssetDescriptor = descriptor;
 }

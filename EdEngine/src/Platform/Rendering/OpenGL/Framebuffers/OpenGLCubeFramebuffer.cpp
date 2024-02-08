@@ -63,7 +63,7 @@ void OpenGLCubeFramebuffer::CreateAttachment(FramebufferAttachmentType type)
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 }
 
-void OpenGLCubeFramebuffer::SetAttachment(int32_t index, const std::shared_ptr<Texture>& texture, bool bResizeFramebufferToTextureSize)
+void OpenGLCubeFramebuffer::SetAttachment(int32_t index, std::shared_ptr<Texture> texture, bool bResizeFramebufferToTextureSize)
 {
 	ED_ASSERT(index < m_Attachments.size(), "SetAttachment can only replace an attachment")
 
@@ -143,7 +143,7 @@ void OpenGLCubeFramebuffer::Resize(uint32_t size)
 
 		m_Size = size;
 
-		for (const std::shared_ptr<Texture>& attachment : m_Attachments)
+		for (std::shared_ptr<Texture> attachment : m_Attachments)
 		{
 			std::static_pointer_cast<CubeTexture>(attachment)->Resize(size);
 

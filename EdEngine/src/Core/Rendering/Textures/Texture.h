@@ -15,7 +15,7 @@ public:
 protected:
     uint32_t m_Id = 0;
 
-    Texture(const std::shared_ptr<TextureDescriptor>& descriptor);
+    Texture(std::shared_ptr<TextureDescriptor> descriptor);
 
 
 	const TextureImportParameters& GetImportParameters() const;

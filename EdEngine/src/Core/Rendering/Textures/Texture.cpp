@@ -1,6 +1,6 @@
 ﻿#include "Texture.h"
 
-Texture::Texture(const std::shared_ptr<TextureDescriptor>& descriptor)
+Texture::Texture(std::shared_ptr<TextureDescriptor> descriptor)
 {
 	SetDescriptor(descriptor);
 }

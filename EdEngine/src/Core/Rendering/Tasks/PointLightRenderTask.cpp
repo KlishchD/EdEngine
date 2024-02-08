@@ -55,7 +55,7 @@ void PointLightRenderTask::Run(const std::vector<std::shared_ptr<Component>>& co
 {
 	m_LightPassSpecification.ViewPosition = camera->GetPosition();
 
-	for (const std::shared_ptr<Component>& component : components)
+	for (std::shared_ptr<Component> component : components)
 	{
 		if (component->GetType() == ComponentType::PointLight)
 		{
@@ -77,7 +77,7 @@ void PointLightRenderTask::Resize(glm::ivec2 size, float upscale)
 	framebuffer->Resize(std::max(size.x, size.y) * upscale);
 }
 
-void PointLightRenderTask::DrawShadowMap(const std::vector<std::shared_ptr<Component>>& components, const std::shared_ptr<PointLightComponent>& light)
+void PointLightRenderTask::DrawShadowMap(const std::vector<std::shared_ptr<Component>>& components, std::shared_ptr<PointLightComponent> light)
 {
 	if (light->IsShadowCasting())
 	{
@@ -99,7 +99,7 @@ void PointLightRenderTask::DrawShadowMap(const std::vector<std::shared_ptr<Compo
 	}
 }
 
-void PointLightRenderTask::DrawLight(const std::shared_ptr<PointLightComponent>& light, Camera* camera)
+void PointLightRenderTask::DrawLight(std::shared_ptr<PointLightComponent> light, Camera* camera)
 {
 	m_Renderer->BeginRenderPass(m_LightPassSpecification, camera->GetView(), camera->GetProjection());
 
@@ -153,7 +153,7 @@ void PointLightRenderTask::DrawLight(const std::shared_ptr<PointLightComponent>&
 	m_Renderer->EndRenderPass();
 }
 
-void PointLightRenderTask::DrawWireframe(const std::shared_ptr<PointLightComponent>& light, Camera* camera)
+void PointLightRenderTask::DrawWireframe(std::shared_ptr<PointLightComponent> light, Camera* camera)
 {
 	if (light->ShouldShowWireframe())
 	{

@@ -26,7 +26,7 @@ public:
     std::shared_ptr<Texture> GetDepthAttachment() const;
     std::shared_ptr<Texture> GetDepthStencilAttachment() const;
     
-    virtual void SetAttachment(int32_t index, const std::shared_ptr<Texture>& texture, bool bResizeFramebufferToTextureSize = false) = 0;
+    virtual void SetAttachment(int32_t index, std::shared_ptr<Texture> texture, bool bResizeFramebufferToTextureSize = false) = 0;
 
     uint32_t GetID() const;
 

@@ -19,13 +19,13 @@ void OpenGLRenderingContext::SetDefaultFramebuffer()
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 }
 
-void OpenGLRenderingContext::SetFramebuffer(const std::shared_ptr<BaseFramebuffer>& framebuffer)
+void OpenGLRenderingContext::SetFramebuffer(std::shared_ptr<BaseFramebuffer> framebuffer)
 {
 	glBindFramebuffer(GL_FRAMEBUFFER, framebuffer->GetID());
 	glViewport(0, 0, framebuffer->GetWidth(), framebuffer->GetHeight());
 }
 
-void OpenGLRenderingContext::SetVertexBuffer(const std::shared_ptr<class VertexBuffer>& buffer)
+void OpenGLRenderingContext::SetVertexBuffer(std::shared_ptr<VertexBuffer> buffer)
 {
 	if (m_VBO == buffer) return;
 
@@ -57,7 +57,7 @@ void OpenGLRenderingContext::SetVertexBuffer(const std::shared_ptr<class VertexB
 	}
 }
 
-void OpenGLRenderingContext::SetIndexBuffer(const std::shared_ptr<class IndexBuffer>& buffer)
+void OpenGLRenderingContext::SetIndexBuffer(std::shared_ptr<IndexBuffer> buffer)
 {
 	if (m_IBO == buffer) return;
 
@@ -72,7 +72,7 @@ void OpenGLRenderingContext::SetIndexBuffer(const std::shared_ptr<class IndexBuf
 	}
 }
 
-void OpenGLRenderingContext::SetShader(const std::shared_ptr<Shader>& shader)
+void OpenGLRenderingContext::SetShader(std::shared_ptr<Shader> shader)
 {
 	if (m_Shader == shader) return;
 
@@ -81,7 +81,7 @@ void OpenGLRenderingContext::SetShader(const std::shared_ptr<Shader>& shader)
 	glUseProgram(m_ShaderID);
 }
 
-void OpenGLRenderingContext::SetShaderDataTexture(const std::string& name, const std::shared_ptr<Texture>& texture)
+void OpenGLRenderingContext::SetShaderDataTexture(const std::string& name, std::shared_ptr<Texture> texture)
 {
 	glActiveTexture(GL_TEXTURE0 + m_LastTextureSlot);
 	glBindTexture(OpenGLTypes::ConverTextureType(texture->GetType()), texture->GetID());
@@ -92,7 +92,7 @@ void OpenGLRenderingContext::SetShaderDataTexture(const std::string& name, const
 	m_LastTextureSlot = (m_LastTextureSlot + 1) % MaxTextureSlots;
 }
 
-void OpenGLRenderingContext::SetShaderDataImage(const std::string& name, const std::shared_ptr<Texture>& texture)
+void OpenGLRenderingContext::SetShaderDataImage(const std::string& name, std::shared_ptr<Texture> texture)
 {
 	glBindImageTexture(m_LastTextureSlot, texture->GetID(), 0, GL_FALSE, 0, GL_READ_WRITE, OpenGLTypes::ConvertPixelFormat(texture->GetPixelFormat()));
 	m_LastTextureSlot = (m_LastTextureSlot + 1) % MaxTextureSlots;
@@ -104,7 +104,7 @@ void OpenGLRenderingContext::SetShaderDataInt(const std::string& name, int32_t v
 	glUniform1i(location, value);
 }
 
-void OpenGLRenderingContext::SetShaderDataTexture(const char* name, const std::shared_ptr<Texture>& texture)
+void OpenGLRenderingContext::SetShaderDataTexture(const char* name, std::shared_ptr<Texture> texture)
 {
 	glActiveTexture(GL_TEXTURE0 + m_LastTextureSlot);
 	glBindTexture(OpenGLTypes::ConverTextureType(texture->GetType()), texture->GetID());
@@ -115,7 +115,7 @@ void OpenGLRenderingContext::SetShaderDataTexture(const char* name, const std::s
 	m_LastTextureSlot = (m_LastTextureSlot + 1) % MaxTextureSlots;
 }
 
-void OpenGLRenderingContext::SetShaderDataImage(const char* name, const std::shared_ptr<Texture>& texture)
+void OpenGLRenderingContext::SetShaderDataImage(const char* name, std::shared_ptr<Texture> texture)
 {
  	glBindImageTexture(0, texture->GetID(), 0, GL_FALSE, 0, GL_READ_WRITE, OpenGLTypes::ConvertPixelFormat(texture->GetPixelFormat()));
 }

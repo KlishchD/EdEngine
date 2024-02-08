@@ -8,14 +8,14 @@
 #include "RenderingHelper.h"
 #include "Core/Macros.h"
 
-std::shared_ptr<Material> AssetUtils::CreateMaterial(const std::shared_ptr<MaterialDescriptor>& descriptor)
+std::shared_ptr<Material> AssetUtils::CreateMaterial(std::shared_ptr<MaterialDescriptor> descriptor)
 {
 	std::shared_ptr<Material> material = std::make_shared<Material>();
 	material->SetDescriptor(descriptor);
     return material;
 }
 
-std::shared_ptr<StaticMesh> AssetUtils::CreateStaticMesh(const std::shared_ptr<StaticMeshDescriptor>& descriptor)
+std::shared_ptr<StaticMesh> AssetUtils::CreateStaticMesh(std::shared_ptr<StaticMeshDescriptor> descriptor)
 {
     std::shared_ptr<StaticMesh> mesh = std::make_shared<StaticMesh>();
     mesh->SetDescriptor(descriptor);
@@ -75,12 +75,12 @@ bool AssetUtils::IsAssetExtension(const std::string& extension)
 	return extension == ".edmesh" || extension == ".edmaterial" || extension == ".edtexture";
 }
 
-std::string AssetUtils::GetSelectTextureLable(const std::shared_ptr<Texture2D>& texture)
+std::string AssetUtils::GetSelectTextureLable(std::shared_ptr<Texture2D> texture)
 {
 	return texture ? texture->GetAssetName() : "None";
 }
 
-std::string AssetUtils::GetAssetNameLable(const std::shared_ptr<AssetDescriptor>& descriptor)
+std::string AssetUtils::GetAssetNameLable(std::shared_ptr<AssetDescriptor> descriptor)
 {
 	return descriptor->AssetName + "##" + std::to_string((int32_t)descriptor.get());
 }

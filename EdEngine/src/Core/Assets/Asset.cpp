@@ -5,7 +5,7 @@
 #include "Descriptors/StaticMeshDescriptor.h"
 #include "Core/Macros.h"
 
-void Asset::SetDescriptor(const std::shared_ptr<AssetDescriptor>& descriptor)
+void Asset::SetDescriptor(std::shared_ptr<AssetDescriptor> descriptor)
 {
     m_Descriptor = descriptor;
 }

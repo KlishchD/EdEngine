@@ -40,28 +40,28 @@ void AssetDescriptorDetails::Tick(float DeltaTime)
     }
 }
 
-void AssetDescriptorDetails::BaseDescriptorDetails(const std::shared_ptr<AssetDescriptor>& descriptor)
+void AssetDescriptorDetails::BaseDescriptorDetails(std::shared_ptr<AssetDescriptor> descriptor)
 {
     ImGui::Text("Descriptor %s", descriptor->AssetName.data());
 
 }
 
-void AssetDescriptorDetails::StaticMeshDescriptorDetails(const std::shared_ptr<StaticMeshDescriptor>& descriptor)
+void AssetDescriptorDetails::StaticMeshDescriptorDetails(std::shared_ptr<StaticMeshDescriptor> descriptor)
 {
     BaseDescriptorDetails(descriptor);
 }
 
-void AssetDescriptorDetails::Texture2DDescriptorDetails(const std::shared_ptr<Texture2DDescriptor>& descriptor)
+void AssetDescriptorDetails::Texture2DDescriptorDetails(std::shared_ptr<Texture2DDescriptor> descriptor)
 {
     BaseDescriptorDetails(descriptor);
 }
 
-void AssetDescriptorDetails::CubeTextureDescriptorDetails(const std::shared_ptr<CubeTextureDescriptor>& descriptor)
+void AssetDescriptorDetails::CubeTextureDescriptorDetails(std::shared_ptr<CubeTextureDescriptor> descriptor)
 {
     BaseDescriptorDetails(descriptor);
 }
 
-void AssetDescriptorDetails::MaterialDescriptorDetails(const std::shared_ptr<MaterialDescriptor>& materialDescriptor)
+void AssetDescriptorDetails::MaterialDescriptorDetails(std::shared_ptr<MaterialDescriptor> materialDescriptor)
 {
     BaseDescriptorDetails(materialDescriptor);
 

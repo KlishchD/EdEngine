@@ -16,7 +16,7 @@ void ComponentDetailsWidget::Initialize()
     m_AssetManager = Engine::Get().GetManager<AssetManager>();
 }
 
-void ComponentDetailsWidget::SetComponent(const std::shared_ptr<Component>& component)
+void ComponentDetailsWidget::SetComponent(std::shared_ptr<Component> component)
 {
     m_Component = component;
 }
@@ -89,7 +89,7 @@ void ComponentDetailsWidget::StaticMeshDetails()
     {
         if (ImGui::BeginTable("Static mesh parameters", 2))
         {
-            for (const std::shared_ptr<StaticSubmesh>& submesh: mesh->GetSubmeshes())
+            for (std::shared_ptr<StaticSubmesh> submesh: mesh->GetSubmeshes())
             {
                 {
                     std::shared_ptr<Material> material = submesh->GetMaterial();

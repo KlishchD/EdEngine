@@ -9,7 +9,7 @@ public:
 
 	virtual void CreateAttachment(FramebufferAttachmentType type) override;
 
-	virtual void SetAttachment(int32_t index, const std::shared_ptr<Texture>& texture, bool bResizeFramebufferToTextureSize = false) override;
+	virtual void SetAttachment(int32_t index, std::shared_ptr<Texture> texture, bool bResizeFramebufferToTextureSize = false) override;
 
 	virtual void AttachFace(int32_t face) override;
 	virtual void AttachLayers() override;

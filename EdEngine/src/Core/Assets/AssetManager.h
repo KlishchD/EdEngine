@@ -40,10 +40,10 @@ public:
     
     std::shared_ptr<MaterialDescriptor> CreateMaterial(const std::string& materialPath);
     
-    std::shared_ptr<StaticMesh> LoadMesh(const std::shared_ptr<StaticMeshDescriptor>& descriptor);
-    std::shared_ptr<Texture2D> LoadTexture(const std::shared_ptr<Texture2DDescriptor>& descriptor);
+    std::shared_ptr<StaticMesh> LoadMesh(std::shared_ptr<StaticMeshDescriptor> descriptor);
+    std::shared_ptr<Texture2D> LoadTexture(std::shared_ptr<Texture2DDescriptor> descriptor);
     std::shared_ptr<Texture2D> LoadTexture(const Texture2DImportParameters& parameters);
-    std::shared_ptr<Material> LoadMaterial(const std::shared_ptr<MaterialDescriptor>& descriptor);
+    std::shared_ptr<Material> LoadMaterial(std::shared_ptr<MaterialDescriptor> descriptor);
 
     std::shared_ptr<StaticMesh> LoadMesh(UUID assetId);
     std::shared_ptr<Texture2D> LoadTexture(UUID assetId);
@@ -74,14 +74,14 @@ private:
     
     std::vector<std::shared_ptr<Material>> GetAllMaterials() const;
     
-    void SaveAsset(const std::shared_ptr<Asset>& asset);
+    void SaveAsset(std::shared_ptr<Asset> asset);
     
     template<class T>
     std::shared_ptr<AssetDescriptor> LoadDescriptor(const std::string& path, bool bLoadData);
     
-    void AddDescriptor(const std::shared_ptr<AssetDescriptor>& descriptor, const std::string& path);
+    void AddDescriptor(std::shared_ptr<AssetDescriptor> descriptor, const std::string& path);
     
-    void SaveScene(const std::string& path, const std::shared_ptr<Scene>& scene);
+    void SaveScene(const std::string& path, std::shared_ptr<Scene> scene);
 
     void ParseNodesAndCombineInOneMesh(aiNode* node, const aiScene* scene, const Transform& parentTransform, const std::vector<std::shared_ptr<MaterialDescriptor>>& materials, std::vector<StaticSubmeshData>& datas);
     void ParseMeshesSeparately(aiNode* node, const aiScene* scene, const std::vector<std::shared_ptr<MaterialDescriptor>>& materials, std::vector<StaticSubmeshData>& datas);

@@ -5,7 +5,7 @@
 class Asset
 {
 public:
-    virtual void SetDescriptor(const std::shared_ptr<AssetDescriptor>& descriptor);
+    virtual void SetDescriptor(std::shared_ptr<AssetDescriptor> descriptor);
 
     virtual void SyncDescriptor();
 

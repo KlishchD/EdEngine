@@ -31,9 +31,9 @@ class StaticMeshComponent : public Component
 public:
     StaticMeshComponent();
     StaticMeshComponent(const StaticMeshComponent& submesh);
-    StaticMeshComponent(const std::shared_ptr<StaticMesh>& mesh);
+    StaticMeshComponent(std::shared_ptr<StaticMesh> mesh);
     
-    void SetStaticMesh(const std::shared_ptr<StaticMesh>& mesh);
+    void SetStaticMesh(std::shared_ptr<StaticMesh> mesh);
     std::shared_ptr<StaticMesh> GetStaticMesh() const;
     
    

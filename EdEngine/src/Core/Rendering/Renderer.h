@@ -123,29 +123,29 @@ private:
     std::shared_ptr<VertexBuffer> m_SpotLightMeshVBO;
     std::shared_ptr<IndexBuffer> m_SpotLightMeshIBO;
 public:
-	void BeginRenderPass(const std::string& name, const std::shared_ptr<BaseFramebuffer>& framebuffer, const std::shared_ptr<Shader>& shader, const glm::mat4& view = glm::mat4(1.0f), const glm::mat4 projection = glm::mat4(1.0f), glm::vec3 viewPosition = glm::vec3(0.0f));
+	void BeginRenderPass(const std::string& name, std::shared_ptr<BaseFramebuffer> framebuffer, std::shared_ptr<Shader> shader, const glm::mat4& view = glm::mat4(1.0f), const glm::mat4 projection = glm::mat4(1.0f), glm::vec3 viewPosition = glm::vec3(0.0f));
 	void BeginRenderPass(RenderPassSpecification& specification, const glm::mat4& view = glm::mat4(1.0f), const glm::mat4& projection = glm::mat4(1.0f));
 
     void SetNewCameraInformation(const glm::mat4& view, const glm::mat4& projection, glm::vec3 viewPosition);
 
-    bool IsLightMeshVisible(const std::shared_ptr<PointLightComponent>& light, Camera* camera) const;
-    bool IsLightMeshVisible(const std::shared_ptr<SpotLightComponent>& light, Camera* camera) const;
+    bool IsLightMeshVisible(std::shared_ptr<PointLightComponent> light, Camera* camera) const;
+    bool IsLightMeshVisible(std::shared_ptr<SpotLightComponent> light, Camera* camera) const;
 
-    void SubmitLightMesh(const std::shared_ptr<PointLightComponent>& light);
-    void SubmitLightMesh(const std::shared_ptr<SpotLightComponent>& light);
+    void SubmitLightMesh(std::shared_ptr<PointLightComponent> light);
+    void SubmitLightMesh(std::shared_ptr<SpotLightComponent> light);
 
-    void SubmitLightMeshWireframe(const std::shared_ptr<PointLightComponent>& light);
-    void SubmitLightMeshWireframe(const std::shared_ptr<SpotLightComponent>& light);
+    void SubmitLightMeshWireframe(std::shared_ptr<PointLightComponent> light);
+    void SubmitLightMeshWireframe(std::shared_ptr<SpotLightComponent> light);
 
-    void SubmitMesh(const std::shared_ptr<StaticMesh>& mesh, const Transform& transform, const Transform& previousTransform);
-    void SubmitSubmesh(const std::shared_ptr<StaticSubmesh>& submesh, const Transform& transform, const Transform& previousTransform);
+    void SubmitMesh(std::shared_ptr<StaticMesh> mesh, const Transform& transform, const Transform& previousTransform);
+    void SubmitSubmesh(std::shared_ptr<StaticSubmesh> submesh, const Transform& transform, const Transform& previousTransform);
 
     void SubmitMeshesRaw(const std::vector<std::shared_ptr<Component>>& components);
-    void SubmitMeshRaw(const std::shared_ptr<StaticMesh>& mesh, const Transform& transform, const Transform& previousTransform);
-    void SubmitSubmeshRaw(const std::shared_ptr<StaticSubmesh>& submesh, const Transform& transform, const Transform& previousTransform);
+    void SubmitMeshRaw(std::shared_ptr<StaticMesh> mesh, const Transform& transform, const Transform& previousTransform);
+    void SubmitSubmeshRaw(std::shared_ptr<StaticSubmesh> submesh, const Transform& transform, const Transform& previousTransform);
 
     void SubmitQuad(float x1, float y1, float x2, float y2, float x3, float y3, float x4, float y4);
-    void SubmitIcon(const std::shared_ptr<Texture2D>& texture, const glm::mat4& Transform);
+    void SubmitIcon(std::shared_ptr<Texture2D> texture, const glm::mat4& Transform);
 
     void BeginUIFrame();
     void EndUIFrame();
@@ -158,7 +158,7 @@ public:
 template<class T>
 inline std::shared_ptr<T> Renderer::GetTask() const
 {
-	for (const std::shared_ptr<RenderTask>& task : m_Tasks)
+	for (std::shared_ptr<RenderTask> task : m_Tasks)
 	{
 		if (std::shared_ptr<T> casted = std::dynamic_pointer_cast<T>(task))
 		{

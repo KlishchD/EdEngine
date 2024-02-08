@@ -12,7 +12,7 @@ ComponentType Component::GetType() const
 
 void Component::ClearChildren()
 {
-    for (const std::shared_ptr<Component>& component : m_Children)
+    for (std::shared_ptr<Component> component : m_Children)
     {
         component->SetOwnerActor(nullptr);
         component->SetOwnerComponent(nullptr);
@@ -20,7 +20,7 @@ void Component::ClearChildren()
     m_Children.clear();
 }
 
-void Component::AddChild(const std::shared_ptr<Component>& component)
+void Component::AddChild(std::shared_ptr<Component> component)
 {
     component->SetOwnerActor(m_OwnerActor);
     component->SetOwnerComponent(m_OwnerComponent);
@@ -35,9 +35,9 @@ const std::vector<std::shared_ptr<Component>>& Component::GetChildren() const
 std::vector<std::shared_ptr<Component>> Component::GetAllChildren()
 {
     std::vector<std::shared_ptr<Component>> components;
-    for (const std::shared_ptr<Component>& child: m_Children)
+    for (std::shared_ptr<Component> child: m_Children)
     {
-        for (const std::shared_ptr<Component>& component: child->GetAllChildren())
+        for (std::shared_ptr<Component> component: child->GetAllChildren())
         {
             components.push_back(component);
         }
@@ -46,7 +46,7 @@ std::vector<std::shared_ptr<Component>> Component::GetAllChildren()
     return components;
 }
 
-void Component::SetOwnerComponent(const std::shared_ptr<Component>& component)
+void Component::SetOwnerComponent(std::shared_ptr<Component> component)
 {
     m_OwnerComponent = component;
 }
@@ -56,7 +56,7 @@ std::shared_ptr<Component> Component::GetOwnerComponent() const
     return m_OwnerComponent;
 }
 
-void Component::SetOwnerActor(const std::shared_ptr<Actor>& actor)
+void Component::SetOwnerActor(std::shared_ptr<Actor> actor)
 {
     m_OwnerActor = actor;
     for (const std::shared_ptr<Component> component : GetAllChildren())

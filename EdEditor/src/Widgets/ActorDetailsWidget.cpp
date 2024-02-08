@@ -54,15 +54,15 @@ void ActorDetailsWidget::Tick(float DeltaTime)
     }
 }
 
-void ActorDetailsWidget::ComponentTree(const std::shared_ptr<Actor>& actor)
+void ActorDetailsWidget::ComponentTree(std::shared_ptr<Actor> actor)
 {
-    for (const std::shared_ptr<Component>& component: actor->GetComponents())
+    for (std::shared_ptr<Component> component: actor->GetComponents())
     {
         ComponentTreeRecursive(component);
     }
 }
 
-void ActorDetailsWidget::ComponentTreeRecursive(const std::shared_ptr<Component>& component)
+void ActorDetailsWidget::ComponentTreeRecursive(std::shared_ptr<Component> component)
 {
     if (ImGui::TreeNodeEx(component->GetName().data(), component->GetChildren().empty() ? ImGuiTreeNodeFlags_Leaf : ImGuiTreeNodeFlags_None))
     {
@@ -71,7 +71,7 @@ void ActorDetailsWidget::ComponentTreeRecursive(const std::shared_ptr<Component>
             m_Editor->SetSelectedComponent(component);
         }
         
-        for (const std::shared_ptr<Component>& child: component->GetChildren())
+        for (std::shared_ptr<Component> child: component->GetChildren())
         {
             ComponentTreeRecursive(child);
         }
@@ -80,7 +80,7 @@ void ActorDetailsWidget::ComponentTreeRecursive(const std::shared_ptr<Component>
     }
 }
 
-void ActorDetailsWidget::CreateComponent(const std::shared_ptr<Actor>& actor)
+void ActorDetailsWidget::CreateComponent(std::shared_ptr<Actor> actor)
 {
     if (ImGui::BeginCombo("Add component", "Select type"))
     {

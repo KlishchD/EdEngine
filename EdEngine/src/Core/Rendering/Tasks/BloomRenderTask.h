@@ -29,7 +29,7 @@ private:
 
 	glm::ivec2 m_Size;
 
-	void BloomDownscale(const std::shared_ptr<Texture2D>& in, const std::shared_ptr<Texture2D>& out);
-	void BloomDownscale(const std::shared_ptr<Texture2D>& diffuse, const std::shared_ptr<Texture2D>& specular, const std::shared_ptr<Texture2D>& out);
-	void BloomUpscale(const std::shared_ptr<Texture2D>& downscaled, const std::shared_ptr<Texture2D>& upscaled, const std::shared_ptr<Texture2D>& fullsize = nullptr);
+	void BloomDownscale(std::shared_ptr<Texture2D> in, std::shared_ptr<Texture2D> out);
+	void BloomDownscale(std::shared_ptr<Texture2D> diffuse, std::shared_ptr<Texture2D> specular, std::shared_ptr<Texture2D> out);
+	void BloomUpscale(std::shared_ptr<Texture2D> downscaled, std::shared_ptr<Texture2D> upscaled, std::shared_ptr<Texture2D> fullsize = nullptr);
 };

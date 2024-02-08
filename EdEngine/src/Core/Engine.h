@@ -50,8 +50,8 @@ public:
         m_Widgets.push_back(widget);
     }
     
-    void AddWidget(const std::shared_ptr<Widget>& widget);
-    void AddManager(const std::shared_ptr<BaseManager>& manager);
+    void AddWidget(std::shared_ptr<Widget> widget);
+    void AddManager(std::shared_ptr<BaseManager> manager);
     
     template <class T>
     std::shared_ptr<T> GetManager() const

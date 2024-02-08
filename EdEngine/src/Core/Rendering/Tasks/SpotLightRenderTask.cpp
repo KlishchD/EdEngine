@@ -119,7 +119,7 @@ float SpotLightRenderTask::GetShadowFilterRadius() const
 	return m_ShadowFilterRadius;
 }
 
-void SpotLightRenderTask::DrawShadows(const std::vector<std::shared_ptr<Component>>& components, const std::shared_ptr<SpotLightComponent>& light)
+void SpotLightRenderTask::DrawShadows(const std::vector<std::shared_ptr<Component>>& components, std::shared_ptr<SpotLightComponent> light)
 {
 	if (light->IsShadowCasting())
 	{
@@ -135,7 +135,7 @@ void SpotLightRenderTask::DrawShadows(const std::vector<std::shared_ptr<Componen
 	}
 }
 
-void SpotLightRenderTask::DrawLight(Camera* camera, const std::shared_ptr<SpotLightComponent>& light)
+void SpotLightRenderTask::DrawLight(Camera* camera, std::shared_ptr<SpotLightComponent> light)
 {
 	{
 		m_LightPassSpecification.ViewPosition = camera->GetPosition();
@@ -179,7 +179,7 @@ void SpotLightRenderTask::DrawLight(Camera* camera, const std::shared_ptr<SpotLi
 	}
 }
 
-void SpotLightRenderTask::DrawWireframe(Camera* camera, const std::shared_ptr<SpotLightComponent>& light)
+void SpotLightRenderTask::DrawWireframe(Camera* camera, std::shared_ptr<SpotLightComponent> light)
 {
 	if (light->ShouldShowWireframe())
 	{

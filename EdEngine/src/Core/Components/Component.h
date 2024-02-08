@@ -25,7 +25,7 @@ class Component
 
         ar & m_Children.size();
 
-        for (const std::shared_ptr<Component>& component: m_Children)
+        for (std::shared_ptr<Component> component: m_Children)
         {
             ar & *component;
         }
@@ -57,14 +57,14 @@ public:
     virtual ComponentType GetType() const;
     
     void ClearChildren();
-    void AddChild(const std::shared_ptr<Component>& component);
+    void AddChild(std::shared_ptr<Component> component);
     const std::vector<std::shared_ptr<Component>>& GetChildren() const;
     std::vector<std::shared_ptr<Component>> GetAllChildren();
 
-    void SetOwnerComponent(const std::shared_ptr<Component>& component);
+    void SetOwnerComponent(std::shared_ptr<Component> component);
     std::shared_ptr<Component> GetOwnerComponent() const;
 
-    void SetOwnerActor(const std::shared_ptr<Actor>& actor);
+    void SetOwnerActor(std::shared_ptr<Actor> actor);
     std::shared_ptr<Actor> GetOwnerActor() const;
 
     void SetRelativeTransform(const Transform& transform);

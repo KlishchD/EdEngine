@@ -16,7 +16,7 @@ class Actor : public GameObject, public std::enable_shared_from_this<Actor>
 
         ar & m_Transform;
 
-        for (const std::shared_ptr<Component>& component: GetComponents())
+        for (std::shared_ptr<Component> component: GetComponents())
         {
             ar & component.get();
         }
@@ -51,7 +51,7 @@ public:
 
     virtual void Update(float DeltaSeconds);
 
-    void RegisterComponent(const std::shared_ptr<Component>& component);
+    void RegisterComponent(std::shared_ptr<Component> component);
     const std::vector<std::shared_ptr<Component>>& GetComponents() const;
 
     std::vector<std::shared_ptr<Component>> GetAllComponents() const;

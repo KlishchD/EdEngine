@@ -302,7 +302,7 @@ std::shared_ptr<MaterialDescriptor> AssetManager::CreateMaterial(const std::stri
     return descriptor;
 }
 
-std::shared_ptr<StaticMesh> AssetManager::LoadMesh(const std::shared_ptr<StaticMeshDescriptor>& descriptor)
+std::shared_ptr<StaticMesh> AssetManager::LoadMesh(std::shared_ptr<StaticMeshDescriptor> descriptor)
 {
     if (!descriptor) return nullptr;
     
@@ -324,7 +324,7 @@ std::shared_ptr<StaticMesh> AssetManager::LoadMesh(const std::shared_ptr<StaticM
     return mesh;
 }
 
-std::shared_ptr<Texture2D> AssetManager::LoadTexture(const std::shared_ptr<Texture2DDescriptor>& descriptor)
+std::shared_ptr<Texture2D> AssetManager::LoadTexture(std::shared_ptr<Texture2DDescriptor> descriptor)
 {
     if (!descriptor) return nullptr;
     
@@ -350,7 +350,7 @@ std::shared_ptr<Texture2D> AssetManager::LoadTexture(const Texture2DImportParame
     return LoadTexture(descriptor);
 }
 
-std::shared_ptr<Material> AssetManager::LoadMaterial(const std::shared_ptr<MaterialDescriptor>& descriptor)
+std::shared_ptr<Material> AssetManager::LoadMaterial(std::shared_ptr<MaterialDescriptor> descriptor)
 {
     if (!descriptor) return nullptr;
 
@@ -437,7 +437,7 @@ std::shared_ptr<Scene> AssetManager::LoadScene(const std::string& path)
     return scene;
 }
 
-void AssetManager::SaveAsset(const std::shared_ptr<Asset>& asset)
+void AssetManager::SaveAsset(std::shared_ptr<Asset> asset)
 {
 	std::shared_ptr<AssetDescriptor> descriptor = asset->GetDescriptor();
 
@@ -472,7 +472,7 @@ void AssetManager::SaveAsset(const std::shared_ptr<Asset>& asset)
 	ED_LOG(AssetManager, info, "Finished saving descriptor: {}", path)
 }
 
-void AssetManager::SaveScene(const std::string& path, const std::shared_ptr<Scene>& scene)
+void AssetManager::SaveScene(const std::string& path, std::shared_ptr<Scene> scene)
 {
 	ED_LOG(AssetManager, info, "Started saving scene: {}", path)
 
@@ -497,7 +497,7 @@ std::shared_ptr<AssetDescriptor> AssetManager::LoadDescriptor(const std::string&
     return descriptor;
 }
 
-void AssetManager::AddDescriptor(const std::shared_ptr<AssetDescriptor>& descriptor, const std::string& path)
+void AssetManager::AddDescriptor(std::shared_ptr<AssetDescriptor> descriptor, const std::string& path)
 {
     if (!m_Assets.count(descriptor->AssetId)) {
         m_AssetIdToDescriptorPath[descriptor->AssetId] = path;

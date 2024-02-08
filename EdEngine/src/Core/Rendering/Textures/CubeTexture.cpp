@@ -6,6 +6,6 @@ uint32_t CubeTexture::GetSize() const
     return data.Size;
 }
 
-CubeTexture::CubeTexture(const std::shared_ptr<CubeTextureDescriptor>& descriptor): Texture(descriptor)
+CubeTexture::CubeTexture(std::shared_ptr<CubeTextureDescriptor> descriptor): Texture(descriptor)
 {
 }

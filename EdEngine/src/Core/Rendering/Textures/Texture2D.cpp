@@ -13,6 +13,6 @@ uint32_t Texture2D::GetHeight() const
 	return data.Height;
 }
 
-Texture2D::Texture2D(const std::shared_ptr<TextureDescriptor>& descriptor) : Texture(descriptor)
+Texture2D::Texture2D(std::shared_ptr<TextureDescriptor> descriptor) : Texture(descriptor)
 {
 }

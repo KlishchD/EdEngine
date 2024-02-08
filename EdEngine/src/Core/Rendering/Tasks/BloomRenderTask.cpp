@@ -83,7 +83,7 @@ std::shared_ptr<Texture2D> BloomRenderTask::GetTexture()
 	return m_BloomIntermediateTextrues[0];
 }
 
-void BloomRenderTask::BloomDownscale(const std::shared_ptr<Texture2D>& in, const std::shared_ptr<Texture2D>& out)
+void BloomRenderTask::BloomDownscale(std::shared_ptr<Texture2D> in, std::shared_ptr<Texture2D> out)
 {
 	m_BloomFramebuffer->SetAttachment(0, out, true);
 	
@@ -98,7 +98,7 @@ void BloomRenderTask::BloomDownscale(const std::shared_ptr<Texture2D>& in, const
 	m_Renderer->EndRenderPass();
 }
 
-void BloomRenderTask::BloomUpscale(const std::shared_ptr<Texture2D>& downscaled, const std::shared_ptr<Texture2D>& upscaled, const std::shared_ptr<Texture2D>& fullsize)
+void BloomRenderTask::BloomUpscale(std::shared_ptr<Texture2D> downscaled, std::shared_ptr<Texture2D> upscaled, std::shared_ptr<Texture2D> fullsize)
 {
 	m_BloomFramebuffer->SetAttachment(0, upscaled, true);
 	

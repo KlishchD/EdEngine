@@ -19,17 +19,17 @@ void StaticSubmesh::SetName(const std::string& name)
     m_Name = name;
 }
 
-void StaticSubmesh::SetVertexBuffer(const std::shared_ptr<VertexBuffer>& buffer)
+void StaticSubmesh::SetVertexBuffer(std::shared_ptr<VertexBuffer> buffer)
 {
     m_VertexBuffer = buffer;
 }
 
-void StaticSubmesh::SetIndexBuffer(const std::shared_ptr<IndexBuffer>& buffer)
+void StaticSubmesh::SetIndexBuffer(std::shared_ptr<IndexBuffer> buffer)
 {
 	m_IndexBuffer = buffer;
 }
 
-void StaticSubmesh::SetMaterial(const std::shared_ptr<Material>& material)
+void StaticSubmesh::SetMaterial(std::shared_ptr<Material> material)
 {
     m_Material = material;
 }
@@ -46,7 +46,7 @@ StaticMesh::StaticMesh(const StaticMesh& mesh)
     MarkDirty();
 }
 
-void StaticMesh::SetDescriptor(const std::shared_ptr<AssetDescriptor>& inDescriptor)
+void StaticMesh::SetDescriptor(std::shared_ptr<AssetDescriptor> inDescriptor)
 {
     m_Descriptor = inDescriptor;
 

@@ -7,6 +7,9 @@
 
 class Texture;
 class Shader;
+class BaseFramebuffer;
+class VertexBuffer;
+class IndexBuffer;
 
 class RenderingContext 
 {
@@ -14,16 +17,16 @@ public:
 	static RenderingContext& Get();
 
 	virtual void SetDefaultFramebuffer() = 0;
-	virtual void SetFramebuffer(const std::shared_ptr<class BaseFramebuffer>& framebuffer) = 0;
+	virtual void SetFramebuffer(std::shared_ptr<BaseFramebuffer> framebuffer) = 0;
 
-	virtual void SetVertexBuffer(const std::shared_ptr<class VertexBuffer>& buffer) = 0;
+	virtual void SetVertexBuffer(std::shared_ptr<VertexBuffer> buffer) = 0;
 
-	virtual void SetIndexBuffer(const std::shared_ptr<class IndexBuffer>& buffer) = 0;
+	virtual void SetIndexBuffer(std::shared_ptr<IndexBuffer> buffer) = 0;
 
-	virtual void SetShader(const std::shared_ptr<Shader>& shader) = 0;
+	virtual void SetShader(std::shared_ptr<Shader> shader) = 0;
 
-	virtual void SetShaderDataTexture(const std::string& name, const std::shared_ptr<Texture>& texture) = 0;
-	virtual void SetShaderDataImage(const std::string& name, const std::shared_ptr<Texture>& texture) = 0;
+	virtual void SetShaderDataTexture(const std::string& name, std::shared_ptr<Texture> texture) = 0;
+	virtual void SetShaderDataImage(const std::string& name, std::shared_ptr<Texture> texture) = 0;
 	virtual void SetShaderDataInt(const std::string& name, int32_t value) = 0;
 	virtual void SetShaderDataFloat(const std::string& name, float value) = 0;
 	virtual void SetShaderDataFloat2(const std::string& name, glm::vec2 vector) = 0;
@@ -36,8 +39,8 @@ public:
 	virtual void SetShaderDataMat3(const std::string& name, const glm::mat3& matrix) = 0;
 	virtual void SetShaderDataBool(const std::string& name, bool value) = 0;
 
-	virtual void SetShaderDataTexture(const char* name, const std::shared_ptr<Texture>& texture) = 0;
-	virtual void SetShaderDataImage(const char* name, const std::shared_ptr<Texture>& texture) = 0;
+	virtual void SetShaderDataTexture(const char* name, std::shared_ptr<Texture> texture) = 0;
+	virtual void SetShaderDataImage(const char* name, std::shared_ptr<Texture> texture) = 0;
 	virtual void SetShaderDataInt(const char* name, int32_t value) = 0;
 	virtual void SetShaderDataFloat(const char* name, float value) = 0;
 	virtual void SetShaderDataFloat2(const char* name, glm::vec2 vector) = 0;

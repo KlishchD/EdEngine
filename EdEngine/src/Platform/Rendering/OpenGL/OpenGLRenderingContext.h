@@ -3,6 +3,9 @@
 #include "Core/Rendering/RenderingContex.h"
 
 class Shader;
+class BaseFramebuffer;
+class VertexBuffer;
+class IndexBuffer;
 
 class OpenGLRenderingContext : public RenderingContext
 {
@@ -10,16 +13,16 @@ public:
 	OpenGLRenderingContext(class Window* window);
 
 	virtual void SetDefaultFramebuffer() override;
-	virtual void SetFramebuffer(const std::shared_ptr<class BaseFramebuffer>& framebuffer) override;
+	virtual void SetFramebuffer(std::shared_ptr<BaseFramebuffer> framebuffer) override;
 
-	virtual void SetVertexBuffer(const std::shared_ptr<class VertexBuffer>& buffer) override;
+	virtual void SetVertexBuffer(std::shared_ptr<VertexBuffer> buffer) override;
 	
-	virtual void SetIndexBuffer(const std::shared_ptr<class IndexBuffer>& buffer) override;
+	virtual void SetIndexBuffer(std::shared_ptr<IndexBuffer> buffer) override;
 
-	virtual void SetShader(const std::shared_ptr<Shader>& shader) override;
+	virtual void SetShader(std::shared_ptr<Shader> shader) override;
 
-	virtual void SetShaderDataTexture(const std::string& name, const std::shared_ptr<Texture>& texture) override;
-	virtual void SetShaderDataImage(const std::string& name, const std::shared_ptr<Texture>& texture) override;
+	virtual void SetShaderDataTexture(const std::string& name, std::shared_ptr<Texture> texture) override;
+	virtual void SetShaderDataImage(const std::string& name, std::shared_ptr<Texture> texture) override;
 	virtual void SetShaderDataInt(const std::string& name, int32_t value) override;
 	virtual void SetShaderDataFloat(const std::string& name, float value) override;
 	virtual void SetShaderDataFloat2(const std::string& name, glm::vec2 vector) override;
@@ -32,8 +35,8 @@ public:
 	virtual void SetShaderDataMat3(const std::string& name, const glm::mat3& matrix) override;
 	virtual void SetShaderDataBool(const std::string& name, bool value) override;
 
-	virtual void SetShaderDataTexture(const char* name, const std::shared_ptr<Texture>& texture) override;
-	virtual void SetShaderDataImage(const char* name, const std::shared_ptr<Texture>& texture) override;
+	virtual void SetShaderDataTexture(const char* name, std::shared_ptr<Texture> texture) override;
+	virtual void SetShaderDataImage(const char* name, std::shared_ptr<Texture> texture) override;
 	virtual void SetShaderDataInt(const char* name, int32_t value) override;
 	virtual void SetShaderDataFloat(const char* name, float value) override;
 	virtual void SetShaderDataFloat2(const char* name, glm::vec2 vector) override;

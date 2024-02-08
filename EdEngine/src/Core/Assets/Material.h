@@ -4,6 +4,7 @@
 #include "Descriptors/MaterialDescriptor.h"
 
 class Texture2D;
+class RenderingContext;
 
 class Material : public Asset
 {
@@ -11,20 +12,20 @@ public:
     Material(const Material& material);
     Material();
 
-    virtual void SetDescriptor(const std::shared_ptr<AssetDescriptor>& inDescriptor);
+    virtual void SetDescriptor(std::shared_ptr<AssetDescriptor> inDescriptor);
     virtual void SyncDescriptor() override;
 
-    void SetShaderData(const std::shared_ptr<class RenderingContext>& context);
+    void SetShaderData(std::shared_ptr<RenderingContext> context);
     
     void SetBaseColor(glm::vec3 color) { m_BaseColor = color; }
     void SetRoughness(float roughness) { m_Roughness = roughness; }
     void SetMetalic(float metalic) { m_Metalic = metalic; }
     void SetEmission(float emission);
 
-    void SetBaseColorTexture(const std::shared_ptr<Texture2D>& texture);
-    void SetNormalTexture(const std::shared_ptr<Texture2D>& texture);
-    void SetRoughnessTexture(const std::shared_ptr<Texture2D>& texture);
-    void SetMetalicTexture(const std::shared_ptr<Texture2D>& texture);
+    void SetBaseColorTexture(std::shared_ptr<Texture2D> texture);
+    void SetNormalTexture(std::shared_ptr<Texture2D> texture);
+    void SetRoughnessTexture(std::shared_ptr<Texture2D> texture);
+    void SetMetalicTexture(std::shared_ptr<Texture2D> texture);
 
     glm::vec3 GetBaseColor() const;
     float GetRoughness() const;

@@ -7,8 +7,8 @@ class Framebuffer: public BaseFramebuffer
 public:
     Framebuffer(uint32_t width, uint32_t height);
 
-	virtual void CopyAttachment(const std::shared_ptr<Framebuffer>& framebuffer, int32_t attachment) = 0;
-	virtual void CopyDepthAttachment(const std::shared_ptr<Framebuffer>& framebuffer) = 0;
+	virtual void CopyAttachment(std::shared_ptr<Framebuffer> framebuffer, int32_t attachment) = 0;
+	virtual void CopyDepthAttachment(std::shared_ptr<Framebuffer> framebuffer) = 0;
 
     virtual void Resize(uint32_t width, uint32_t height) = 0;
     

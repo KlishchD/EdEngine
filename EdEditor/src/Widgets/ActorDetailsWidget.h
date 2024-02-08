@@ -16,9 +16,9 @@ private:
     TransformationDetailsWidget m_TransformationDetailsWidget;
     ComponentDetailsWidget m_ComponentDetailsWidget;
     
-    void ComponentTree(const std::shared_ptr<Actor>& actor);
-    void ComponentTreeRecursive(const std::shared_ptr<Component>& component);
+    void ComponentTree(std::shared_ptr<Actor> actor);
+    void ComponentTreeRecursive(std::shared_ptr<Component> component);
 
-    void CreateComponent(const std::shared_ptr<Actor>& actor);
+    void CreateComponent(std::shared_ptr<Actor> actor);
     
 };

@@ -18,7 +18,7 @@ Material::Material()
 {
 }
 
-void Material::SetDescriptor(const std::shared_ptr<AssetDescriptor>& inDescriptor)
+void Material::SetDescriptor(std::shared_ptr<AssetDescriptor> inDescriptor)
 {
     m_Descriptor = inDescriptor;
 
@@ -52,7 +52,7 @@ void Material::SyncDescriptor()
     descritor->MetalicTextureID = m_MetalicTexture ? m_MetalicTexture->GetDescriptor()->AssetId : UUIDs::nil_uuid();
 }
 
-void Material::SetShaderData(const std::shared_ptr<RenderingContext>& context)
+void Material::SetShaderData(std::shared_ptr<RenderingContext> context)
 {
     context->SetShaderDataFloat3("u_Material.BaseColor", m_BaseColor);
     
@@ -80,7 +80,7 @@ void Material::SetEmission(float emission)
     MarkDirty();
 }
 
-void Material::SetMetalicTexture(const std::shared_ptr<Texture2D>& texture)
+void Material::SetMetalicTexture(std::shared_ptr<Texture2D> texture)
 {
     m_MetalicTexture = texture;
     MarkDirty();
@@ -126,19 +126,19 @@ std::shared_ptr<Texture2D> Material::GetMetalicTexture() const
     return m_MetalicTexture;
 }
 
-void Material::SetBaseColorTexture(const std::shared_ptr<Texture2D>& texture)
+void Material::SetBaseColorTexture(std::shared_ptr<Texture2D> texture)
 {
     m_BaseColorTexture = texture;
     MarkDirty();
 }
 
-void Material::SetNormalTexture(const std::shared_ptr<Texture2D>& texture)
+void Material::SetNormalTexture(std::shared_ptr<Texture2D> texture)
 {
     m_NormalTexture = texture;
     MarkDirty();
 }
 
-void Material::SetRoughnessTexture(const std::shared_ptr<Texture2D>& texture)
+void Material::SetRoughnessTexture(std::shared_ptr<Texture2D> texture)
 {
     m_RoughnessTexture = texture;
     MarkDirty();

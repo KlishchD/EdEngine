@@ -12,5 +12,5 @@ public:
 
 	virtual void Resize(uint32_t width, uint32_t height) = 0;
 protected:
-	Texture2D(const std::shared_ptr<TextureDescriptor>& descriptor);
+	Texture2D(std::shared_ptr<TextureDescriptor> descriptor);
 };

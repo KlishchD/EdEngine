@@ -35,9 +35,9 @@ private:
 
 	std::shared_ptr<Texture2D> m_ShadowSamples;
 
-	void DrawShadows(const std::vector<std::shared_ptr<Component>>& components, const std::shared_ptr<SpotLightComponent>& light);
-	void DrawLight(Camera* camera, const std::shared_ptr<SpotLightComponent>& light);
-	void DrawWireframe(Camera* camera, const std::shared_ptr<SpotLightComponent>& light);
+	void DrawShadows(const std::vector<std::shared_ptr<Component>>& components, std::shared_ptr<SpotLightComponent> light);
+	void DrawLight(Camera* camera, std::shared_ptr<SpotLightComponent> light);
+	void DrawWireframe(Camera* camera, std::shared_ptr<SpotLightComponent> light);
 
 	void UpdateShadowSamplesTexture();
 };

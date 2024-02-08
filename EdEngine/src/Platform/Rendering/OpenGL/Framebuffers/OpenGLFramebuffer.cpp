@@ -63,7 +63,7 @@ void OpenGLFramebuffer::CreateAttachment(FramebufferAttachmentType type)
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 }
 
-void OpenGLFramebuffer::SetAttachment(int32_t index, const std::shared_ptr<Texture>& texture, bool bResizeFramebufferToTextureSize)
+void OpenGLFramebuffer::SetAttachment(int32_t index, std::shared_ptr<Texture> texture, bool bResizeFramebufferToTextureSize)
 {
 	ED_ASSERT(index < m_Attachments.size(), "SetAttachment can only replace an attachment")
 
@@ -87,14 +87,14 @@ void OpenGLFramebuffer::SetAttachment(int32_t index, const std::shared_ptr<Textu
 	}
 }
 
-void OpenGLFramebuffer::CopyAttachment(const std::shared_ptr<Framebuffer>& framebuffer, int32_t attachment)
+void OpenGLFramebuffer::CopyAttachment(std::shared_ptr<Framebuffer> framebuffer, int32_t attachment)
 {
 	glBindFramebuffer(GL_READ_FRAMEBUFFER, framebuffer->GetID());
 	glBindFramebuffer(GL_DRAW_FRAMEBUFFER, m_Id);
 	glBlitFramebuffer(0, 0, GetWidth(), GetHeight(), 0, 0, framebuffer->GetWidth(), framebuffer->GetHeight(), GL_COLOR_BUFFER_BIT, GL_LINEAR);
 }
 
-void OpenGLFramebuffer::CopyDepthAttachment(const std::shared_ptr<Framebuffer>& framebuffer)
+void OpenGLFramebuffer::CopyDepthAttachment(std::shared_ptr<Framebuffer> framebuffer)
 {
 	glBindFramebuffer(GL_READ_FRAMEBUFFER, framebuffer->GetID());
 	glBindFramebuffer(GL_DRAW_FRAMEBUFFER, m_Id);

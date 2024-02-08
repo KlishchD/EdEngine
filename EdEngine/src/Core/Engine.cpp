@@ -160,13 +160,13 @@ void Engine::SubscribeToUpdate(std::function<void(float)> function)
 	m_UpdateSubscribers.push_back(function);    
 }
 
-void Engine::AddWidget(const std::shared_ptr<Widget>& widget)
+void Engine::AddWidget(std::shared_ptr<Widget> widget)
 {
 	m_Widgets.push_back(widget);
 	widget->Initialize();
 }
 
-void Engine::AddManager(const std::shared_ptr<BaseManager>& manager)
+void Engine::AddManager(std::shared_ptr<BaseManager> manager)
 {
 	m_Managers.push_back(manager);
 	manager->Initialize(this);

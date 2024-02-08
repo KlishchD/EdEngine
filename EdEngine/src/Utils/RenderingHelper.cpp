@@ -146,7 +146,7 @@ std::shared_ptr<CubeFramebuffer> RenderingHelper::CreateCubeFramebuffer(uint32_t
 	return std::make_shared<OpenGLCubeFramebuffer>(size);
 }
 
-std::shared_ptr<Texture2D> RenderingHelper::CreateTexture2D(const std::shared_ptr<Texture2DDescriptor>& descriptor)
+std::shared_ptr<Texture2D> RenderingHelper::CreateTexture2D(std::shared_ptr<Texture2DDescriptor> descriptor)
 {
 	return std::make_shared<OpenGLTexture2D>(descriptor); // TODO: Add logic for API ;
 }
@@ -171,7 +171,7 @@ std::shared_ptr<Texture2D> RenderingHelper::CreateTexture2D(Texture2DImportParam
 	return texture;
 }
 
-std::shared_ptr<CubeTexture> RenderingHelper::CreateCubeTexture(const std::shared_ptr<CubeTextureDescriptor>& descriptor)
+std::shared_ptr<CubeTexture> RenderingHelper::CreateCubeTexture(std::shared_ptr<CubeTextureDescriptor> descriptor)
 {
 	return std::make_shared<OpenGLCubeTexture>(descriptor);
 }

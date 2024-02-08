@@ -19,10 +19,10 @@ public:
 
     void SetUpInputs(Engine* engine);
     
-    void SetSelectedActor(const std::shared_ptr<Actor>& actor);
+    void SetSelectedActor(std::shared_ptr<Actor> actor);
     std::shared_ptr<Actor> GetSelectedActor() const;
 
-    void SetSelectedComponent(const std::shared_ptr<Component>& component);
+    void SetSelectedComponent(std::shared_ptr<Component> component);
     std::shared_ptr<Component> GetSelectedComponent() const;
 
     float GetCameraSpeed() const;
@@ -31,7 +31,7 @@ public:
     glm::vec2 GetCameraRotationSpeed() const;
     void SetCameraRotationSpeed(glm::vec2 speed);
 
-    void SetSelectedAssetDescriptor(const std::shared_ptr<AssetDescriptor>& descriptor);
+    void SetSelectedAssetDescriptor(std::shared_ptr<AssetDescriptor> descriptor);
     std::shared_ptr<AssetDescriptor> GetSelectedAssetDescriptor() const;
 
     void SetViewportIsActive(bool state);

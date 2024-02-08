@@ -9,5 +9,5 @@ public:
 
     virtual void Resize(uint32_t size) = 0;
 protected:
-    CubeTexture(const std::shared_ptr<CubeTextureDescriptor>& descriptor);
+    CubeTexture(std::shared_ptr<CubeTextureDescriptor> descriptor);
 };
