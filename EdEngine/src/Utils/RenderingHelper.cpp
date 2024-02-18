@@ -10,6 +10,7 @@
 #include "Platform/Rendering/OpenGL/Textures/OpenGLTexture2DArray.h"
 #include "Core/Rendering/Textures/CubeTexture.h"
 #include "Core/Assets/AssetManager.h"
+#include "Core/Rendering/Renderer.h"
 #include "Core/Engine.h"
 #include "Core/Macros.h"
 #include <fstream>
@@ -216,12 +217,19 @@ std::shared_ptr<Texture> RenderingHelper::CreateDefaultFramebufferAttachment(Fra
 	}
 }
 
-std::shared_ptr<Framebuffer> RenderingHelper::CreateFramebuffer(uint32_t width, uint32_t height, uint32_t depth)
+std::shared_ptr<Framebuffer> RenderingHelper::CreateFramebuffer(uint32_t width, uint32_t height, uint32_t depth, bool bRegister)
 {
-	return std::make_shared<OpenGLFramebuffer>(width, height, depth);
+	std::shared_ptr<Framebuffer> framebuffer = std::make_shared<OpenGLFramebuffer>(width, height, depth);
+
+	if (bRegister)
+	{
+		Engine::Get().GetRenderer()->RegisterFrambuffer(framebuffer);
+	}
+	
+	return framebuffer;
 }
 
-std::shared_ptr<Framebuffer> RenderingHelper::CreateFramebuffer(uint32_t width, uint32_t height, uint32_t depth, const std::vector<FramebufferAttachmentType>& initialAttachments, TextureType textureType)
+std::shared_ptr<Framebuffer> RenderingHelper::CreateFramebuffer(uint32_t width, uint32_t height, uint32_t depth, const std::vector<FramebufferAttachmentType>& initialAttachments, TextureType textureType, bool bRegister)
 {
 	std::shared_ptr<Framebuffer> framebuffer = std::make_shared<OpenGLFramebuffer>(width, height, depth);
 
@@ -229,6 +237,11 @@ std::shared_ptr<Framebuffer> RenderingHelper::CreateFramebuffer(uint32_t width, 
 	{
 		std::shared_ptr<Texture> attachment = CreateDefaultFramebufferAttachment(type, textureType);
 		framebuffer->AddAttacment(attachment);
+	}
+
+	if (bRegister)
+	{
+		Engine::Get().GetRenderer()->RegisterFrambuffer(framebuffer);
 	}
 
 	return framebuffer;

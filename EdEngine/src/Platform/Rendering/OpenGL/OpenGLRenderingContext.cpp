@@ -12,6 +12,7 @@
 #include <backends/imgui_impl_opengl3.h>
 #include <backends/imgui_impl_glfw.h>
 #include "Core/Window.h"
+#include "Utils/MathHelper.h"
 
 void OpenGLRenderingContext::SetDefaultFramebuffer()
 {
@@ -21,7 +22,7 @@ void OpenGLRenderingContext::SetDefaultFramebuffer()
 void OpenGLRenderingContext::SetFramebuffer(std::shared_ptr<Framebuffer> framebuffer)
 {
 	glBindFramebuffer(GL_FRAMEBUFFER, framebuffer->GetID());
-	glViewport(0, 0, framebuffer->GetWidth(), framebuffer->GetHeight());
+	glViewport(0, 0, framebuffer->GetWidth() * framebuffer->GetActiveViewportPercentage(), framebuffer->GetHeight() * framebuffer->GetActiveViewportPercentage());
 }
 
 void OpenGLRenderingContext::SetVertexBuffer(std::shared_ptr<VertexBuffer> buffer)
@@ -85,9 +86,18 @@ void OpenGLRenderingContext::SetShaderDataTexture(const std::string& name, std::
 	glActiveTexture(GL_TEXTURE0 + m_LastTextureSlot);
 	glBindTexture(OpenGLTypes::ConverTextureType(texture->GetType()), texture->GetID());
 
-	const int32_t location = glGetUniformLocation(m_ShaderID, name.c_str());
+	int32_t location = glGetUniformLocation(m_ShaderID, name.c_str());
 	glUniform1i(location, m_LastTextureSlot);
 	
+	location = glGetUniformLocation(m_ShaderID, (name + "_ActiveTexturePercentage").c_str());
+	glUniform1f(location, texture->GetActiveTexturePercentage());
+
+	glm::vec3 size = glm::vec3(texture->GetSize()) * texture->GetActiveTexturePercentage();
+	size = MathHelper::MaxPerComponent(size, glm::vec3(1.0f));
+
+	location = glGetUniformLocation(m_ShaderID, (name + "_PixelSize").c_str());
+	glUniform3f(location, 1.0f / size.x, 1.0f / size.y, 1.0f / size.z);
+
 	m_LastTextureSlot = (m_LastTextureSlot + 1) % MaxTextureSlots;
 }
 
@@ -108,9 +118,18 @@ void OpenGLRenderingContext::SetShaderDataTexture(const char* name, std::shared_
 	glActiveTexture(GL_TEXTURE0 + m_LastTextureSlot);
 	glBindTexture(OpenGLTypes::ConverTextureType(texture->GetType()), texture->GetID());
 
-	const int32_t location = glGetUniformLocation(m_ShaderID, name);
+	int32_t location = glGetUniformLocation(m_ShaderID, name);
 	glUniform1i(location, m_LastTextureSlot);
+
+	location = glGetUniformLocation(m_ShaderID, (std::string(name) + "_ActiveTexturePercentage").c_str());
+	glUniform1f(location, texture->GetActiveTexturePercentage());
 	
+	glm::vec3 size = glm::vec3(texture->GetSize()) * texture->GetActiveTexturePercentage();
+	size = MathHelper::MaxPerComponent(size, glm::vec3(1.0f));
+
+	location = glGetUniformLocation(m_ShaderID, (std::string(name) + "_PixelSize").c_str());
+	glUniform3f(location, 1.0f / size.x, 1.0f / size.y, 1.0f / size.z);
+
 	m_LastTextureSlot = (m_LastTextureSlot + 1) % MaxTextureSlots;
 }
 

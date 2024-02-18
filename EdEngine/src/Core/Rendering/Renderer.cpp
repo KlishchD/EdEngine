@@ -315,6 +315,25 @@ float Renderer::GetFarPlane() const
 	return m_FarPlane;
 }
 
+void Renderer::SetActiveViewportPercentage(float percentage)
+{
+	m_ActiveViewportPercentage = percentage;
+	for (std::shared_ptr<Framebuffer> framebuffer : m_Framebuffers)
+	{
+		framebuffer->SetActiveViewportPercentage(percentage);
+	}
+}
+
+float Renderer::GetActiveViewportPercentage() const
+{
+	return m_ActiveViewportPercentage;
+}
+
+void Renderer::RegisterFrambuffer(std::shared_ptr<Framebuffer> framebuffer)
+{
+	m_Framebuffers.push_back(framebuffer);
+}
+
 void Renderer::BeginUIFrame()
 {
     m_Context->BeginUIFrame();
@@ -344,7 +363,9 @@ void Renderer::BeginRenderPass(RenderPassSpecification& specification, const glm
 	m_View = view;
 	m_Projection = projection;
 
-	m_Context->SetFramebuffer(specification.Framebuffer);
+	std::shared_ptr<Framebuffer> framebuffer = m_Specification->Framebuffer;
+
+	m_Context->SetFramebuffer(framebuffer);
 
 	m_Context->SetShader(specification.Shader);
 	m_Context->SetShaderDataMat4("u_ViewMatrix", m_View);
@@ -352,7 +373,7 @@ void Renderer::BeginRenderPass(RenderPassSpecification& specification, const glm
 	m_Context->SetShaderDataMat4("u_ProjectionViewMatrix", m_Projection * m_View);
 	m_Context->SetShaderDataMat4("u_InvProjectionViewMatrix", glm::inverse(m_Projection * m_View));
 	m_Context->SetShaderDataFloat3("u_ViewPosition", m_Specification->ViewPosition);
-	m_Context->SetShaderDataFloat2("u_ScreenSize", m_Specification->Framebuffer->GetWidth(), m_Specification->Framebuffer->GetHeight());
+	m_Context->SetShaderDataFloat2("u_ScreenSize", framebuffer->GetActiveViewportPercentage() * framebuffer->GetWidth(), framebuffer->GetActiveViewportPercentage() * framebuffer->GetHeight());
 	m_Context->SetShaderDataFloat("u_FarPlane", m_FarPlane);
 
 	if (specification.bUseBlending)

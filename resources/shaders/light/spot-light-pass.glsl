@@ -43,6 +43,7 @@ struct SpotLight
     bool IsShadowCasting;
     
     sampler2D ShadowMap;
+    float ShadowMap_ActiveTexturePercentage;
     vec2 ShadowMapPixelSize;
 
     mat4 ShadowProjectionViewMatrix;
@@ -59,9 +60,16 @@ uniform vec2 u_ScreenSize;
 uniform float u_FarPlane;
 
 uniform sampler2D u_Albedo;
+uniform float u_Albedo_ActiveTexturePercentage;
+
 uniform sampler2D u_Position;
+uniform float u_Position_ActiveTexturePercentage;
+
 uniform sampler2D u_Normal;
+uniform float u_Normal_ActiveTexturePercentage;
+
 uniform sampler2D u_RoughnessMetalic;
+uniform float u_RoughnessMetalic_ActiveTexturePercentage;
 
 uniform SpotLight u_SpotLight;
 
@@ -95,7 +103,9 @@ float GetVisibility(vec2 pos, vec3 position, vec3 light, vec3 normal)
             for (int j = l; j < r; ++j)
             {
                 vec2 samplePosition = texture2D(u_SpotLight.ShadowSamples, vec2(projected.x + i * u_SpotLight.ShadowSamplesPixelSize.x, j * u_SpotLight.ShadowSamplesPixelSize.y)).xy;
-                float depth = texture2D(u_SpotLight.ShadowMap, projected.xy + samplePosition * u_SpotLight.ShadowFilterRadius * u_SpotLight.ShadowMapPixelSize).r;
+
+                vec2 depthUV = projected.xy + samplePosition * u_SpotLight.ShadowFilterRadius * u_SpotLight.ShadowMapPixelSize;
+                float depth = texture2D(u_SpotLight.ShadowMap, u_SpotLight.ShadowMap_ActiveTexturePercentage * depthUV).r;
                 visible += depth + 0.001f >= projected.z ? 1.0f : 0.0f;
             }
         }
@@ -110,7 +120,7 @@ float GetVisibility(vec2 pos, vec3 position, vec3 light, vec3 normal)
 
 LightIntensity GetIntensity(vec2 pos, vec3 normal, vec3 view, vec3 light)
 {
-    vec3 albedo = texture(u_Albedo, pos).xyz;
+    vec3 albedo = texture(u_Albedo, pos * u_Albedo_ActiveTexturePercentage).xyz;
 
     vec4 roughnessMetalic = texture(u_RoughnessMetalic, pos);
     float roughness = roughnessMetalic.x;
@@ -173,8 +183,8 @@ void main()
 {    
     vec2 pos = gl_FragCoord.xy / u_ScreenSize;
 
-    vec3 position = texture(u_Position, pos).xyz;
-    vec3 normal = texture(u_Normal, pos).xyz;
+    vec3 position = texture(u_Position, pos * u_Position_ActiveTexturePercentage).xyz;
+    vec3 normal = texture(u_Normal, pos * u_Normal_ActiveTexturePercentage).xyz;
     
     vec3 view = normalize(u_ViewPosition - position);
     vec3 light = normalize(u_SpotLight.Position - position);

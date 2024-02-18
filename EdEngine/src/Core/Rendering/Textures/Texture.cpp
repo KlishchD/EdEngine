@@ -15,6 +15,16 @@ PixelFormat Texture::GetPixelFormat() const
 	return GetDescriptor<TextureDescriptor>()->GetImportParameters()->Format;
 }
 
+void Texture::SetActiveTexturePercentage(float percentage)
+{
+	m_ActiveTexturePercentage = percentage;
+}
+
+float Texture::GetActiveTexturePercentage() const
+{
+	return m_ActiveTexturePercentage;
+}
+
 void Texture::Initialize()
 {
 }

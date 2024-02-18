@@ -77,6 +77,11 @@ public:
 
     float GetFarPlane() const;
 
+    void SetActiveViewportPercentage(float percentage);
+    float GetActiveViewportPercentage() const;
+
+    void RegisterFrambuffer(std::shared_ptr<Framebuffer> framebuffer);
+
 private:
     std::shared_ptr<Framebuffer> m_LightFramebuffer;
     std::shared_ptr<Framebuffer> m_AAFramebuffer;
@@ -86,6 +91,7 @@ private:
     bool m_bIsBloomEnabled = false;
 
     float m_FarPlane = 500.0f;
+    float m_ActiveViewportPercentage = 1.0f;
 
     AAMethod m_AAMethod = AAMethod::TAA;
 
@@ -94,6 +100,7 @@ private:
     RenderTarget m_ActiveRenderTarget = RenderTarget::Resolution;
 
     std::vector<std::shared_ptr<RenderTask>> m_Tasks;
+    std::vector<std::shared_ptr<Framebuffer>> m_Framebuffers;
 
     std::queue<std::function<void(RenderingContext* context)>> m_Commands;
 

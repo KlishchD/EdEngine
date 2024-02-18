@@ -16,9 +16,14 @@ public:
 
     PixelFormat GetPixelFormat() const;
 
+    void SetActiveTexturePercentage(float percentage);
+    float GetActiveTexturePercentage() const;
+
     virtual ~Texture() = default;
 protected:
     uint32_t m_Id = 0;
+
+    float m_ActiveTexturePercentage = 1.0f;
 
     Texture(std::shared_ptr<AssetDescriptor> descriptor);
 

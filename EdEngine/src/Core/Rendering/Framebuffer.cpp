@@ -61,3 +61,23 @@ uint32_t Framebuffer::GetDepth() const
 {
 	return m_Depth;
 }
+
+void Framebuffer::SetActiveViewportPercentage(float percentage)
+{
+	m_ActiveViewportPercentage = percentage;
+
+	if (m_DepthAttachment)
+	{
+		m_DepthAttachment->SetActiveTexturePercentage(percentage);
+	}
+
+	for (std::shared_ptr<Texture> attachment : m_Attachments)
+	{
+		attachment->SetActiveTexturePercentage(percentage);
+	}
+}
+
+float Framebuffer::GetActiveViewportPercentage() const
+{
+	return m_ActiveViewportPercentage;
+}

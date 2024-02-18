@@ -22,6 +22,8 @@ void main()
 in vec2 v_TextureCoordinates;
 
 uniform sampler2D u_Input;
+uniform float u_Input_ActiveTexturePercentage;
+
 uniform vec2 u_PixelSize;
 
 uniform float u_FilerSize;
@@ -35,7 +37,7 @@ void main()
 	int r = int(u_FilerSize / 2.0f);
 	int l = -r + (int(u_FilerSize) % 2 == 0 ? 1 : 0);
 
-	vec4 centerColor = texture2D(u_Input, v_TextureCoordinates);
+	vec4 centerColor = texture2D(u_Input, v_TextureCoordinates * u_Input_ActiveTexturePercentage);
 
 	float totalWeight = 0.0f;
 
@@ -45,7 +47,7 @@ void main()
 		{
 			vec2 position = v_TextureCoordinates + vec2(i, j) * u_PixelSize;
 
-			vec4 currentColor = texture2D(u_Input, position);
+			vec4 currentColor = texture2D(u_Input, position * u_Input_ActiveTexturePercentage);
 			vec4 delta = centerColor - currentColor;
 
 			float weight = (1 - (delta.x * delta.x + delta.y + delta.y + delta.z * delta.z)) > 0.93 ? 1.0f : 0.0f; 

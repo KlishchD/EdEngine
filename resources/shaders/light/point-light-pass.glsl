@@ -42,9 +42,16 @@ uniform vec3 u_ViewPosition;
 uniform float u_FarPlane;
 
 uniform sampler2D u_Albedo;
+uniform float u_Albedo_ActiveTexturePercentage;
+
 uniform sampler2D u_Position;
+uniform float u_Position_ActiveTexturePercentage;
+
 uniform sampler2D u_Normal;
+uniform float u_Normal_ActiveTexturePercentage;
+
 uniform sampler2D u_RoughnessMetalic;
+uniform float u_RoughnessMetalic_ActiveTexturePercentage;
 
 uniform sampler2D u_RandomSamples;
 uniform float u_FilterSize;
@@ -120,9 +127,9 @@ float GetVisibility(vec2 pos, vec3 position, vec3 light, vec3 normal)
 
 LightIntensity GetIntensity(vec2 pos, vec3 normal, vec3 view, vec3 light)
 {
-    vec3 albedo = texture(u_Albedo, pos).xyz;
+    vec3 albedo = texture(u_Albedo, pos * u_Albedo_ActiveTexturePercentage).xyz;
 
-    vec4 roughnessMetalic = texture(u_RoughnessMetalic, pos);
+    vec4 roughnessMetalic = texture(u_RoughnessMetalic, pos * u_RoughnessMetalic_ActiveTexturePercentage);
     float roughness = roughnessMetalic.x;
     float metalic = roughnessMetalic.y;
 
@@ -179,8 +186,8 @@ void main()
 {
     vec2 pos = gl_FragCoord.xy / u_ScreenSize;
     
-    vec3 position = texture(u_Position, pos).xyz;
-    vec3 normal = texture(u_Normal, pos).xyz;
+    vec3 position = texture(u_Position, pos * u_Position_ActiveTexturePercentage).xyz;
+    vec3 normal = texture(u_Normal, pos * u_Normal_ActiveTexturePercentage).xyz;
     
     vec3 view = normalize(u_ViewPosition - position);
     vec3 light = normalize(u_PointLight.Position - position);

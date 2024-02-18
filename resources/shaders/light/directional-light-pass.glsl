@@ -34,6 +34,7 @@ struct Light
     bool IsShadowCasting;
 
     sampler2DArray ShadowMap;
+    float ShadowMap_ActiveTexturePercentage;
     float ShadowMapPixelSize;
 
     float ShadowFilterSize;
@@ -49,9 +50,16 @@ uniform vec3 u_ViewPosition;
 uniform float u_FarPlane;
 
 uniform sampler2D u_Albedo;
+uniform float u_Albedo_ActiveTexturePercentage;
+
 uniform sampler2D u_Position;
+uniform float u_Position_ActiveTexturePercentage;
+
 uniform sampler2D u_Normal;
+uniform float u_Normal_ActiveTexturePercentage;
+
 uniform sampler2D u_RoughnessMetalic;
+uniform float u_RoughnessMetalic_ActiveTexturePercentage;
 
 uniform mat4 u_ViewMatrix;
 uniform mat4 u_ProjectionViewMatrix;
@@ -90,7 +98,8 @@ float GetVisibility(vec2 pos, vec3 position, vec3 light, vec3 normal)
                 {
                     for (int j = l; j < r; ++j)
                     {
-                        float depth = texture(u_Light.ShadowMap, vec3(samplePosition.xy + u_Light.ShadowFilterRadius * u_Light.ShadowMapPixelSize * vec2(i, j) / (r - 1), layer)).r;
+                        vec2 depthUV = samplePosition.xy + u_Light.ShadowFilterRadius * u_Light.ShadowMapPixelSize * vec2(i, j) / (r - 1);
+                        float depth = texture(u_Light.ShadowMap, vec3(depthUV * u_Light.ShadowMap_ActiveTexturePercentage, layer)).r;
         
                         visibility += depth + bias >= samplePosition.z ? 1.0f : 0.0f;
                     }
@@ -108,9 +117,9 @@ float GetVisibility(vec2 pos, vec3 position, vec3 light, vec3 normal)
 
 LightIntensity GetIntensity(vec2 pos, vec3 normal, vec3 view, vec3 light)
 {
-    vec3 albedo = texture(u_Albedo, pos).xyz;
+    vec3 albedo = texture(u_Albedo, pos * u_Albedo_ActiveTexturePercentage).xyz;
 
-    vec4 roughnessMetalic = texture(u_RoughnessMetalic, pos);
+    vec4 roughnessMetalic = texture(u_RoughnessMetalic, pos * u_RoughnessMetalic_ActiveTexturePercentage);
     float roughness = roughnessMetalic.x;
     float metalic = roughnessMetalic.y;
 
@@ -155,8 +164,8 @@ void main()
 {
     vec2 pos = gl_FragCoord.xy / u_ScreenSize;
     
-    vec3 position = texture(u_Position, pos).xyz;
-    vec3 normal = texture(u_Normal, pos).xyz;
+    vec3 position = texture(u_Position, pos * u_Position_ActiveTexturePercentage).xyz;
+    vec3 normal = texture(u_Normal, pos * u_Normal_ActiveTexturePercentage).xyz;
     
     vec3 view = normalize(u_ViewPosition - position);
     vec3 light = -u_Light.Direction;

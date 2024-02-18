@@ -8,9 +8,10 @@
 
 #include <imgui.h>
 #include <glm/gtc/type_ptr.hpp>
-#include <Core/Rendering/Tasks/FXAARenderTask.h>
-#include <Core/Rendering/Tasks/TAARenderTask.h>
-#include <Core/Rendering/Tasks/SSDORenderTask.h>
+#include "Core/Rendering/Tasks/FXAARenderTask.h"
+#include "Core/Rendering/Tasks/TAARenderTask.h"
+#include "Core/Rendering/Tasks/SSDORenderTask.h"
+#include "Core/Rendering/Tasks/SSAORenderTask.h"
 
 CameraDetailsWidget::CameraDetailsWidget()
 {
@@ -148,7 +149,30 @@ void CameraDetailsWidget::Tick(float DeltaTime)
         m_Renderer->SetSSAOEnabled(enabled);
     }
 
-    // TODO: Add parameters for SSAO ;)
+    if (m_Renderer->IsSSAOEnabled())
+    {
+        std::shared_ptr<SSAORenderTask> ssao = m_Renderer->GetTask<SSAORenderTask>();
+
+        if (int32_t samples = ssao->GetSamplesCount(); ImGui::SliderInt("SSAO samples count", &samples, 1, 32))
+        {
+            ssao->SetSamplesCount(samples);
+        }
+
+        if (int32_t size = ssao->GetNosiseSize(); ImGui::SliderInt("SSAO noise size", &size, 10, 64))
+        {
+            ssao->SetNoiseSize(size);
+        }
+
+        if (float radius = ssao->GetRadius(); ImGui::SliderFloat("SSAO radius", &radius, 0.5f, 10.0f))
+        {
+            ssao->SetRadius(radius);
+        }
+
+        if (float bias = ssao->GetBias(); ImGui::SliderFloat("SSAO bias", &bias, 0.001f, 1.0f))
+        {
+            ssao->SetBias(bias);
+        }
+    }
 
     if (bool enabled = m_Renderer->IsSSDOEnabled(); ImGui::Checkbox("SSDO enabled", &enabled))
     {
@@ -203,6 +227,13 @@ void CameraDetailsWidget::Tick(float DeltaTime)
 	{
         resoultion->SetGamma(gamma);
 	}
+
+    if (float percentage = m_Renderer->GetActiveViewportPercentage(); ImGui::SliderFloat("Active viewport percentage", &percentage, 0.0f, 1.0f))
+    {
+        m_Renderer->SetActiveViewportPercentage(percentage);
+    }
+
+    ImGui::Text("FPS: %f", 1 / DeltaTime);
 
     ImGui::End();
 }

@@ -58,8 +58,8 @@ public:
 
 	static std::shared_ptr<Texture> CreateDefaultFramebufferAttachment(FramebufferAttachmentType type, TextureType textureType);
 
-	static std::shared_ptr<Framebuffer> CreateFramebuffer(uint32_t width, uint32_t height, uint32_t depth);
-	static std::shared_ptr<Framebuffer> CreateFramebuffer(uint32_t width, uint32_t height, uint32_t depth, const std::vector<FramebufferAttachmentType>& initialAttachments, TextureType textureType);
+	static std::shared_ptr<Framebuffer> CreateFramebuffer(uint32_t width, uint32_t height, uint32_t depth, bool bRegister = true);
+	static std::shared_ptr<Framebuffer> CreateFramebuffer(uint32_t width, uint32_t height, uint32_t depth, const std::vector<FramebufferAttachmentType>& initialAttachments, TextureType textureType, bool bRegister = true);
 
 	static std::shared_ptr<Texture2D> CreateTexture2D(std::shared_ptr<Texture2DDescriptor> descriptor);
 	static std::shared_ptr<Texture2D> CreateTexture2D(const Texture2DImportParameters& parameters, const Texture2DData& data, const std::string& name);

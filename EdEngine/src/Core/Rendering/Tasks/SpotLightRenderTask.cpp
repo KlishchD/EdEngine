@@ -19,7 +19,6 @@ void SpotLightRenderTask::Setup(Renderer* renderer)
 
 		m_ShadowPassSpecification.bUseBlending = false;
 		m_ShadowPassSpecification.bClearDepth = true;
-
 	}
 
 	{

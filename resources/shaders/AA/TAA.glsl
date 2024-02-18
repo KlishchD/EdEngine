@@ -3,10 +3,14 @@
 #version 460 core
 
 layout(location = 0) in vec2 position;
+layout(location = 1) in vec2 textureCoordinates;
+
+out vec2 v_TextureCoordinates;
 
 void main()
 {
 	gl_Position = vec4(position.x, position.y, 0.0f, 1.0f);
+	v_TextureCoordinates = textureCoordinates;
 }
 
 // type fragment
@@ -15,12 +19,19 @@ void main()
 
 uniform vec2 u_ScreenSize;
 
+in vec2 v_TextureCoordinates;
+
 uniform sampler2D u_CurrentColor;
+uniform float u_CurrentColor_ActiveTexturePercentage;
+
 uniform sampler2D u_PreviousColor;
+uniform float u_PreviousColor_ActiveTexturePercentage;
 
 uniform sampler2D u_CurrentDepth;
+uniform float u_CurrentDepth_ActiveTexturePercentage;
 
 uniform sampler2D u_Velocity;
+uniform float u_Velocity_ActiveTexturePercentage;
 
 uniform vec2 u_PixelSize;
 
@@ -49,8 +60,10 @@ float Mitchell(float x)
 
 // Samples a texture with Catmull-Rom filtering, using 9 texture fetches instead of 16.
 // See http://vec3.ca/bicubic-filtering-in-fewer-taps/ for more details
-vec4 SampleTextureCatmullRom(sampler2D tex, vec2 uv, vec2 texSize)
+vec4 SampleTextureCatmullRom(sampler2D tex, vec2 uv, vec2 texSize, float activeTexturePercentage)
 {
+	texSize /= activeTexturePercentage;
+
     // We're going to sample a a 4x4 grid of texels surrounding the target UV coordinate. We'll do this by rounding
     // down the sample location to get the exact center of our "starting" texel. The starting texel will be at
     // location [1, 1] in the grid, where [0, 0] is the top left corner.
@@ -84,17 +97,17 @@ vec4 SampleTextureCatmullRom(sampler2D tex, vec2 uv, vec2 texSize)
     texPos12 /= texSize;
 
     vec4 result = vec4(0.0f);
-    result += texture2D(tex, vec2(texPos0.x, texPos0.y), 0.0f) * w0.x * w0.y;
-    result += texture2D(tex, vec2(texPos12.x, texPos0.y), 0.0f) * w12.x * w0.y;
-    result += texture2D(tex, vec2(texPos3.x, texPos0.y), 0.0f) * w3.x * w0.y;
+    result += texture2D(tex, vec2(texPos0.x, texPos0.y) * activeTexturePercentage, 0.0f) * w0.x * w0.y;
+    result += texture2D(tex, vec2(texPos12.x, texPos0.y) * activeTexturePercentage, 0.0f) * w12.x * w0.y;
+    result += texture2D(tex, vec2(texPos3.x, texPos0.y) * activeTexturePercentage, 0.0f) * w3.x * w0.y;
 
-    result += texture2D(tex,vec2(texPos0.x, texPos12.y), 0.0f) * w0.x * w12.y;
-    result += texture2D(tex,vec2(texPos12.x, texPos12.y), 0.0f) * w12.x * w12.y;
-    result += texture2D(tex,vec2(texPos3.x, texPos12.y), 0.0f) * w3.x * w12.y;
+    result += texture2D(tex, vec2(texPos0.x, texPos12.y) * activeTexturePercentage, 0.0f) * w0.x * w12.y;
+    result += texture2D(tex, vec2(texPos12.x, texPos12.y) * activeTexturePercentage, 0.0f) * w12.x * w12.y;
+    result += texture2D(tex, vec2(texPos3.x, texPos12.y) * activeTexturePercentage, 0.0f) * w3.x * w12.y;
 
-    result += texture2D(tex, vec2(texPos0.x, texPos3.y), 0.0f) * w0.x * w3.y;
-    result += texture2D(tex, vec2(texPos12.x, texPos3.y), 0.0f) * w12.x * w3.y;
-    result += texture2D(tex, vec2(texPos3.x, texPos3.y), 0.0f) * w3.x * w3.y;
+    result += texture2D(tex, vec2(texPos0.x, texPos3.y) * activeTexturePercentage, 0.0f) * w0.x * w3.y;
+    result += texture2D(tex, vec2(texPos12.x, texPos3.y) * activeTexturePercentage, 0.0f) * w12.x * w3.y;
+    result += texture2D(tex, vec2(texPos3.x, texPos3.y) * activeTexturePercentage, 0.0f) * w3.x * w3.y;
 
     return result;
 }
@@ -119,8 +132,6 @@ vec3 clip_aabb(vec3 aabbMin, vec3 aabbMax, vec3 prevSample)
 
 void main() 
 {
-	vec2 location = gl_FragCoord.xy * u_PixelSize;
-
 	float alpha = 0.05f;
 
 	vec3 totalColor = vec3(0.0f);
@@ -143,7 +154,7 @@ void main()
 		{
 			vec2 delta = vec2(i, j) * u_PixelSize;
 			
-			vec3 color = texture2D(u_CurrentColor, location + delta).rgb;
+			vec3 color = texture2D(u_CurrentColor, (v_TextureCoordinates + delta) * u_CurrentColor_ActiveTexturePercentage).rgb;
 			float weight = Mitchell(length(vec2(i, j)));
 
 			totalColor += color * weight;
@@ -155,7 +166,7 @@ void main()
 			m1 += color;
 			m2 += color * color;
 		
-			float depth = texture2D(u_CurrentDepth, location + delta).r;
+			float depth = texture2D(u_CurrentDepth, (v_TextureCoordinates + delta) * u_CurrentDepth_ActiveTexturePercentage).r;
 
 			if (closestDepth > depth || (i == -1 && j == -1))
 			{
@@ -171,8 +182,8 @@ void main()
 
 	vec3 currentColor = totalColor / totalWeight;
 
-	vec2 velocity = texture2D(u_Velocity, location + closestDepthDelta).rg;
-	vec2 historyCoordinates = location - velocity;
+	vec2 velocity = texture2D(u_Velocity, (v_TextureCoordinates + closestDepthDelta) * u_Velocity_ActiveTexturePercentage).rg;
+	vec2 historyCoordinates = v_TextureCoordinates - velocity;
 
 	if (historyCoordinates != clamp(historyCoordinates, vec2(0.0f), vec2(1.0f)))
 	{
@@ -180,7 +191,7 @@ void main()
 		return;
 	}
 
-	vec3 historyColor = SampleTextureCatmullRom(u_PreviousColor, historyCoordinates, u_ScreenSize).rgb;
+	vec3 historyColor = SampleTextureCatmullRom(u_PreviousColor, historyCoordinates, u_ScreenSize, u_PreviousColor_ActiveTexturePercentage).rgb;
 
 	vec3 mu = m1 * oneDividedBySampleCount;
 	vec3 sigma = sqrt(abs((m2 * oneDividedBySampleCount) - (mu * mu)));

@@ -31,7 +31,8 @@ void ViewportWidget::Tick(float DeltaTime)
 
     m_Editor->SetViewportIsActive(ImGui::IsWindowHovered());
     
-    ImGui::Image((void*)m_Renderer->GetViewportTexture()->GetID(), viewportSize, { 0, 1 }, { 1, 0 });
+    std::shared_ptr<Texture> texture = m_Renderer->GetViewportTexture();
+    ImGui::Image((void*)texture->GetID(), viewportSize, { 0, texture->GetActiveTexturePercentage() }, { texture->GetActiveTexturePercentage(), 0 });
     
     ImGui::End();
 

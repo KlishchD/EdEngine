@@ -35,6 +35,9 @@ public:
     virtual uint32_t GetHeight() const;
     virtual uint32_t GetDepth() const;
 
+    void SetActiveViewportPercentage(float percentage);
+    float GetActiveViewportPercentage() const;
+
     virtual ~Framebuffer() = default;
 protected:
     uint32_t m_Id = 0;
@@ -44,7 +47,9 @@ protected:
     
     std::shared_ptr<Texture> m_DepthAttachment;
 
-	uint32_t m_Width;
-	uint32_t m_Height;
+    uint32_t m_Width;
+    uint32_t m_Height;
     uint32_t m_Depth;
+
+    float m_ActiveViewportPercentage = 1.0f;
 };

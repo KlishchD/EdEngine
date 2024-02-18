@@ -20,8 +20,11 @@ void main()
 in vec2 v_TextureCoordinates;
 
 uniform sampler2D u_Light;
+uniform float u_Light_ActiveTexturePercentage;
 
 uniform sampler2D u_Bloom;
+uniform float u_Bloom_ActiveTexturePercentage;
+
 uniform float u_BloomStrength;
 uniform float u_BloomIntensity;
 
@@ -41,8 +44,8 @@ vec3 ACESFilm(vec3 x)
 
 void main()
 {
-    vec3 color = texture(u_Light, v_TextureCoordinates).xyz;
-    vec3 bloom = texture(u_Bloom, v_TextureCoordinates).xyz * u_BloomIntensity;
+    vec3 color = texture(u_Light, v_TextureCoordinates * u_Light_ActiveTexturePercentage).xyz;
+    vec3 bloom = texture(u_Bloom, v_TextureCoordinates * u_Bloom_ActiveTexturePercentage).xyz * u_BloomIntensity;
 
     color = mix(color, bloom, u_BloomStrength);
 

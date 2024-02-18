@@ -12,6 +12,8 @@ void OpenGLFramebuffer::AddAttacment(std::shared_ptr<Texture> attachment)
 {
 	glBindFramebuffer(GL_FRAMEBUFFER, m_Id);
 
+	attachment->SetActiveTexturePercentage(m_ActiveViewportPercentage);
+
 	if (attachment->GetPixelFormat() == PixelFormat::Depth)
 	{
 		m_DepthAttachment = attachment;
@@ -44,6 +46,8 @@ void OpenGLFramebuffer::SetAttachment(int32_t index, std::shared_ptr<Texture> at
 
 	glBindFramebuffer(GL_FRAMEBUFFER, m_Id);
 
+	attachment->SetActiveTexturePercentage(m_ActiveViewportPercentage);
+
 	if (mode == FramebufferSizeAdjustmentMode::ResizeTextureToFramebufferSize)
 	{
 		attachment->Resize(m_Width, m_Height, m_Depth);
@@ -63,6 +67,8 @@ void OpenGLFramebuffer::SetAttachment(int32_t index, std::shared_ptr<Texture> at
 void OpenGLFramebuffer::SetDepthAttachment(std::shared_ptr<Texture> attachment, FramebufferSizeAdjustmentMode mode)
 {
 	glBindFramebuffer(GL_FRAMEBUFFER, m_Id);
+
+	attachment->SetActiveTexturePercentage(m_ActiveViewportPercentage);
 
 	if (mode == FramebufferSizeAdjustmentMode::ResizeTextureToFramebufferSize)
 	{

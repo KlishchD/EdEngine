@@ -36,7 +36,7 @@ void PointLightRenderTask::Setup(Renderer* renderer)
 	{
 		m_ShadowPassSpecification.Name = "Shadow pass";
 
-		std::shared_ptr<Framebuffer> framebuffer = RenderingHelper::CreateFramebuffer(1, 1, 1, { FramebufferAttachmentType::Depth }, TextureType::CubeTexture);
+		std::shared_ptr<Framebuffer> framebuffer = RenderingHelper::CreateFramebuffer(1, 1, 1, { FramebufferAttachmentType::Depth }, TextureType::CubeTexture, false);
 
 		m_ShadowPassSpecification.Framebuffer = framebuffer;
 

@@ -5,12 +5,9 @@
 layout(location = 0) in vec2 position;
 layout(location = 1) in vec2 textureCoordinates;
 
-out vec2 v_TextureCoordinates;
-
 void main() 
 {
 	gl_Position = vec4(position.x, position.y, 0.0f, 1.0f);
-	v_TextureCoordinates = textureCoordinates;
 }
 
 // type fragment
@@ -19,8 +16,6 @@ void main()
 
 #define MAX_SAMPLES_COUNT 64
 #define PI 3.1415926535897932384626433832795
-
-in vec2 v_TextureCoordinates;
 
 uniform sampler2D u_Albedo;
 uniform sampler2D u_RoughnessMetalic;
@@ -37,6 +32,8 @@ uniform mat4 u_ViewMatrix;
 uniform mat4 u_NormalMatrix;
 uniform mat4 u_ProjectionMatrix;
 uniform mat4 u_ProjectionViewMatrix;
+
+uniform vec2 u_ScreenSize;
 
 uniform vec3 u_ViewPosition;
 
@@ -105,8 +102,10 @@ LightIntensity GetIntensity(vec2 pos, vec3 normal, vec3 view, vec3 light)
 
 void main() 
 {
-	vec3 position = ToView(texture2D(u_Position, v_TextureCoordinates).xyz);
-	vec3 normal = ToViewNormal(texture2D(u_Normal, v_TextureCoordinates).xyz);
+    vec2 pos = gl_FragCoord.xy / u_ScreenSize;
+
+	vec3 position = ToView(texture2D(u_Position, pos).xyz);
+	vec3 normal = ToViewNormal(texture2D(u_Normal, pos).xyz);
 
     vec3 view = ToView(u_ViewPosition) - position;
 
@@ -141,7 +140,7 @@ void main()
 		    float F = A * senderTerm * recieverTerm;
 		    float attenuation = clamp(1.0f / dot(transmissionVector, transmissionVector), 0.0f, 1.0f);
 
-            LightIntensity intensity = GetIntensity(v_TextureCoordinates, normal, view, -transmissionDirection);
+            LightIntensity intensity = GetIntensity(pos, normal, view, -transmissionDirection);
 
 		    direct += visibility * screenAlbedo * (intensity.specular + intensity.diffuse) * recieverTerm * recieverTerm;
 		    indirect += (1 - visibility) * screenDiffuse * (intensity.specular + intensity.diffuse) * attenuation * F;
