@@ -16,8 +16,6 @@ private:
 	RenderPassSpecification m_LightPassSpecification;
 	RenderPassSpecification m_LightWireframePassSpecification;
 
-	int32_t m_FilterSize = 5;
-
 	glm::mat4 m_ShadowMapPerspective;
 
 	void DrawShadowMap(const std::vector<std::shared_ptr<Component>>& components, std::shared_ptr<PointLightComponent> light);

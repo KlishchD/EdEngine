@@ -92,7 +92,8 @@ enum class Face
 enum class TextureType
 {
 	Texture2D,
-	CubeTexture
+	CubeTexture,
+	Texture2DArray
 };
 
 enum class BarrierType

@@ -1,5 +1,5 @@
 #include "AmbientRenderTask.h"
-#include "Core/Rendering/Framebuffers/Framebuffer.h"
+#include "Core/Rendering/Framebuffer.h"
 #include "Utils/RenderingHelper.h"
 #include "Utils/Files.h"
 

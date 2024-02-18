@@ -11,14 +11,11 @@ public:
 	virtual void Run(const std::vector<std::shared_ptr<Component>>& components, Camera* camera) override;
 	virtual void Resize(glm::ivec2 size, float upscale) override;
 
-	void SetShadowSamplesBlockCount(int32_t count);
-	int32_t GetShadowSamplesBlocksCount() const;
+	void SetShadowSamplesBlockCount(uint32_t count);
+	uint32_t GetShadowSamplesBlocksCount() const;
 
-	void SetShadowFilterSize(int32_t size);
-	int32_t GetShadowFilterSize() const;
-
-	void SetShadowFilterRadius(float radius);
-	float GetShadowFilterRadius() const;
+	void SetShadowSamplesBlockSize(uint32_t size);
+	uint32_t GetShadowSamplesBlockSize() const;
 private:
 	RenderPassSpecification m_ShadowPassSpecification;
 	RenderPassSpecification m_LightPassSpecification;
@@ -29,9 +26,8 @@ private:
 	float m_Aspect = 1.0f;
 	glm::vec2 m_ShadowMapPixelSize;
 
-	int32_t m_ShadowFilterSize = 4;
-	int32_t m_ShadowSamplesBlockCount = 4;
-	float m_ShadowFilterRadius = 4.0f;
+	uint32_t m_ShadowSamplesBlockCount = 10;
+	uint32_t m_ShadowSamplesBlockSize = 32;
 
 	std::shared_ptr<Texture2D> m_ShadowSamples;
 

@@ -42,4 +42,7 @@ public:
 
     static std::vector<glm::vec3> GenerateHalfSphereSamples(int32_t count, bool bShiftTowardsCenter = true);
     static std::vector<glm::vec2> GenerateCircleSamples(int32_t count);
+
+    static glm::vec3 MinPerComponent(const glm::vec3& a, const glm::vec3& b);
+    static glm::vec3 MaxPerComponent(const glm::vec3& a, const glm::vec3& b);
 };

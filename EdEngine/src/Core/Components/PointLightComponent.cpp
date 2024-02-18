@@ -26,6 +26,16 @@ glm::mat4 PointLightComponent::GetShadowMapPassCameraTransformation(int32_t inde
     }
 }
 
+uint32_t PointLightComponent::GetShadowFilterSize() const
+{
+    return m_ShadowFilterSize;
+}
+
+void PointLightComponent::SetShadowFilterSize(uint32_t size)
+{
+    m_ShadowFilterSize = size;
+}
+
 void PointLightComponent::SetRadius(float radius)
 {
     m_Radius = radius;

@@ -231,8 +231,9 @@ uint32_t OpenGLTypes::ConverTextureType(TextureType type)
 {
 	switch (type)
 	{
-	case TextureType::Texture2D:   return GL_TEXTURE_2D;
-	case TextureType::CubeTexture: return GL_TEXTURE_CUBE_MAP;
+	case TextureType::Texture2D:      return GL_TEXTURE_2D;
+	case TextureType::CubeTexture:    return GL_TEXTURE_CUBE_MAP;
+	case TextureType::Texture2DArray: return GL_TEXTURE_2D_ARRAY;
 	default:
 		ED_ASSERT_CONTEXT(OpenGLAPI, 0, "Texture type is not supported")
 		return 0;

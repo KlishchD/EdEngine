@@ -1,14 +1,12 @@
 #include "BloomRenderTask.h"
 #include "Utils/Files.h"
 #include "Utils/RenderingHelper.h"
-#include "Core/Rendering/Framebuffers/Framebuffer.h"
 
 void BloomRenderTask::Setup(Renderer* renderer)
 {
 	RenderTask::Setup(renderer);
 
-	m_BloomFramebuffer = RenderingHelper::CreateFramebuffer(1, 1);
-	m_BloomFramebuffer->CreateAttachment(FramebufferAttachmentType::Bloom);
+	m_BloomFramebuffer = RenderingHelper::CreateFramebuffer(1, 1, 1, { FramebufferAttachmentType::Bloom }, TextureType::Texture2D);
 
 	m_BloomIntermediateTextrues.push_back(std::static_pointer_cast<Texture2D>(m_BloomFramebuffer->GetAttachment(0)));
 	for (int32_t i = 0; i < m_BloomDownscaleCount; ++i)
@@ -85,7 +83,7 @@ std::shared_ptr<Texture2D> BloomRenderTask::GetTexture()
 
 void BloomRenderTask::BloomDownscale(std::shared_ptr<Texture2D> in, std::shared_ptr<Texture2D> out)
 {
-	m_BloomFramebuffer->SetAttachment(0, out, true);
+	m_BloomFramebuffer->SetAttachment(0, out, FramebufferSizeAdjustmentMode::ResizeFramebufferToTexutreSize);
 	
 	m_Renderer->BeginRenderPass("Bloom downscale", m_BloomFramebuffer, m_BloomDownscaleShader, glm::mat4(1.0f), glm::mat4(1.0f), glm::vec3(0.0f));
 	
@@ -100,7 +98,7 @@ void BloomRenderTask::BloomDownscale(std::shared_ptr<Texture2D> in, std::shared_
 
 void BloomRenderTask::BloomUpscale(std::shared_ptr<Texture2D> downscaled, std::shared_ptr<Texture2D> upscaled, std::shared_ptr<Texture2D> fullsize)
 {
-	m_BloomFramebuffer->SetAttachment(0, upscaled, true);
+	m_BloomFramebuffer->SetAttachment(0, upscaled, FramebufferSizeAdjustmentMode::ResizeFramebufferToTexutreSize);
 	
 	m_Renderer->BeginRenderPass("Bloom downscale", m_BloomFramebuffer, m_BloomUpscaleShader, glm::mat4(1.0f), glm::mat4(1.0f), glm::vec3(0.0f));
 	

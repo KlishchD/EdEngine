@@ -2,7 +2,6 @@
 #include "Editor.h"
 #include "Core/Engine.h"
 #include "Core/Rendering/Renderer.h"
-#include "Core/Rendering/Framebuffers/Framebuffer.h"
 #include <imgui.h>
 
 void ViewportWidget::Initialize()

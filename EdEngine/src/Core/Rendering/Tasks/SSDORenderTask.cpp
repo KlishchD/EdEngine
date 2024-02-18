@@ -2,7 +2,6 @@
 #include "Utils/RenderingHelper.h"
 #include "Utils/MathHelper.h"
 #include "Utils/Files.h"
-#include "Core/Rendering/Framebuffers/Framebuffer.h"
 
 void SSDORenderTask::Setup(Renderer* renderer)
 {
@@ -11,8 +10,7 @@ void SSDORenderTask::Setup(Renderer* renderer)
 	{
 		m_SSDOPassSpecification.Name = "SSDO pass";
 
-		m_SSDOPassSpecification.Framebuffer = RenderingHelper::CreateFramebuffer(1, 1);
-		m_SSDOPassSpecification.Framebuffer->CreateAttachment(FramebufferAttachmentType::Color16);
+		m_SSDOPassSpecification.Framebuffer = RenderingHelper::CreateFramebuffer(1, 1, 1, { FramebufferAttachmentType::Color16 }, TextureType::Texture2D);
 
 		m_SSDOPassSpecification.Shader = RenderingHelper::CreateShader(Files::ContentFolderPath + R"(\shaders\SSDO.glsl)");
 
@@ -23,8 +21,7 @@ void SSDORenderTask::Setup(Renderer* renderer)
 	{
 		m_SSDOBlurPassSpecification.Name = "SSDO blur pass";
 
-		m_SSDOBlurPassSpecification.Framebuffer = RenderingHelper::CreateFramebuffer(1, 1);
-		m_SSDOBlurPassSpecification.Framebuffer->CreateAttachment(FramebufferAttachmentType::Color16);
+		m_SSDOBlurPassSpecification.Framebuffer = RenderingHelper::CreateFramebuffer(1, 1, 1, { FramebufferAttachmentType::Color16 }, TextureType::Texture2D);
 
 		m_SSDOBlurPassSpecification.Shader = RenderingHelper::CreateShader(Files::ContentFolderPath + R"(\shaders\SSDO-blur.glsl)");
 
@@ -59,14 +56,8 @@ void SSDORenderTask::Run(const std::vector<std::shared_ptr<Component>>& componen
 
 void SSDORenderTask::Resize(glm::ivec2 size, float upscale)
 {
-	{
-		std::shared_ptr<Framebuffer> framebuffer = std::static_pointer_cast<Framebuffer>(m_SSDOPassSpecification.Framebuffer);
-		framebuffer->Resize(size.x, size.y);
-	}
-	{
-		std::shared_ptr<Framebuffer> framebuffer = std::static_pointer_cast<Framebuffer>(m_SSDOBlurPassSpecification.Framebuffer);
-		framebuffer->Resize(size.x, size.y);
-	}
+	m_SSDOPassSpecification.Framebuffer->Resize(size.x, size.y, 1);
+	m_SSDOBlurPassSpecification.Framebuffer->Resize(size.x, size.y, 1);
 }
 
 void SSDORenderTask::SetSamplesCount(int32_t count)

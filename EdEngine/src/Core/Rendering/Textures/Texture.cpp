@@ -1,6 +1,6 @@
 ﻿#include "Texture.h"
 
-Texture::Texture(std::shared_ptr<TextureDescriptor> descriptor)
+Texture::Texture(std::shared_ptr<AssetDescriptor> descriptor)
 {
 	SetDescriptor(descriptor);
 }
@@ -12,24 +12,9 @@ uint32_t Texture::GetID() const
 
 PixelFormat Texture::GetPixelFormat() const
 {
-	return GetImportParameters().Format;
-}
-
-const TextureImportParameters& Texture::GetImportParameters() const
-{
-	return *GetDescriptor<TextureDescriptor>()->GetImportParameters();
-}
-
-TextureData& Texture::GetData() const
-{
-	return *GetDescriptor<TextureDescriptor>()->GetData();
+	return GetDescriptor<TextureDescriptor>()->GetImportParameters()->Format;
 }
 
 void Texture::Initialize()
-{
-	Initialize(GetDescriptor<TextureDescriptor>()->GetImportParameters(), GetDescriptor<TextureDescriptor>()->GetData());
-}
-
-void Texture::Initialize(TextureImportParameters* parameters, TextureData* data)
 {
 }

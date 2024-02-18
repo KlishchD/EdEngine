@@ -1,7 +1,5 @@
 #include "PointLightRenderTask.h"
 #include "Utils/RenderingHelper.h"
-#include "Core/Rendering/Framebuffers/Framebuffer.h"
-#include "Core/Rendering/Framebuffers/CubeFramebuffer.h"
 #include "Core/Components/PointLightComponent.h"
 #include "Core/Components/StaticMeshComponent.h"
 #include "Utils/Files.h"
@@ -38,8 +36,7 @@ void PointLightRenderTask::Setup(Renderer* renderer)
 	{
 		m_ShadowPassSpecification.Name = "Shadow pass";
 
-		std::shared_ptr<CubeFramebuffer> framebuffer = RenderingHelper::CreateCubeFramebuffer(1);
-		framebuffer->CreateAttachment(FramebufferAttachmentType::Depth);
+		std::shared_ptr<Framebuffer> framebuffer = RenderingHelper::CreateFramebuffer(1, 1, 1, { FramebufferAttachmentType::Depth }, TextureType::CubeTexture);
 
 		m_ShadowPassSpecification.Framebuffer = framebuffer;
 
@@ -73,8 +70,7 @@ void PointLightRenderTask::Run(const std::vector<std::shared_ptr<Component>>& co
 
 void PointLightRenderTask::Resize(glm::ivec2 size, float upscale)
 {
-	std::shared_ptr<CubeFramebuffer> framebuffer = std::static_pointer_cast<CubeFramebuffer>(m_ShadowPassSpecification.Framebuffer);
-	framebuffer->Resize(std::max(size.x, size.y) * upscale);
+	m_ShadowPassSpecification.Framebuffer->Resize(size.x, size.x, size.x);
 }
 
 void PointLightRenderTask::DrawShadowMap(const std::vector<std::shared_ptr<Component>>& components, std::shared_ptr<PointLightComponent> light)
@@ -90,8 +86,6 @@ void PointLightRenderTask::DrawShadowMap(const std::vector<std::shared_ptr<Compo
 		for (int32_t i = 0; i < 6; ++i) {
 			m_Context->SetShaderDataMat4("u_ViewProjection[" + std::to_string(i) + "]", m_ShadowMapPerspective * light->GetShadowMapPassCameraTransformation(i));
 		}
-
-		std::static_pointer_cast<CubeFramebuffer>(m_ShadowPassSpecification.Framebuffer)->AttachLayers();
 
 		m_Renderer->SubmitMeshesRaw(components);
 
@@ -110,7 +104,7 @@ void PointLightRenderTask::DrawLight(std::shared_ptr<PointLightComponent> light,
 
 	m_Context->SetShaderDataFloat("u_FarPlane", m_Renderer->GetFarPlane());
 
-	m_Context->SetShaderDataFloat("u_FilterSize", m_FilterSize);
+	m_Context->SetShaderDataFloat("u_FilterSize", light->GetShadowFilterSize());
 	m_Context->SetShaderDataFloat("u_ShadowMapPixelSize", 1.0f / m_ShadowPassSpecification.Framebuffer->GetWidth()); // TODO : make it vec2
 
 	m_Context->SetShaderDataFloat3("u_PointLight.Position", light->GetPosition());

@@ -93,7 +93,7 @@ private:
     
     bool m_IsRunning = true;
 
-    Camera m_Camera = Camera(glm::radians(90.0f), 1240.0f / 960.0f, 1.0f, 1500.0f);
+    Camera m_Camera;
 
     Engine() = default;
 

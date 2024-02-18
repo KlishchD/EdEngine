@@ -1,7 +1,6 @@
 #include "GBufferRenderTask.h"
 #include "Utils/RenderingHelper.h"
 #include "Utils/MathHelper.h"
-#include "Core/Rendering/Framebuffers/Framebuffer.h"
 #include "Core/Components/StaticMeshComponent.h"
 #include "Utils/Files.h"
 
@@ -10,14 +9,9 @@ void GBufferRenderTask::Setup(Renderer* renderer)
 	RenderTask::Setup(renderer);
 
 	m_GBufferPassSpecification.Name = "Geometry pass";
-
-	std::shared_ptr<Framebuffer> framebuffer = RenderingHelper::CreateFramebuffer(1, 1);
-	framebuffer->CreateAttachment(FramebufferAttachmentType::Color);
-	framebuffer->CreateAttachment(FramebufferAttachmentType::Position);
-	framebuffer->CreateAttachment(FramebufferAttachmentType::Direction);
-	framebuffer->CreateAttachment(FramebufferAttachmentType::Color16);
-	framebuffer->CreateAttachment(FramebufferAttachmentType::Velocity);
-	framebuffer->CreateAttachment(FramebufferAttachmentType::Depth);
+	std::vector<FramebufferAttachmentType> attachments = { FramebufferAttachmentType::Color, FramebufferAttachmentType::Position, FramebufferAttachmentType::Direction,
+														   FramebufferAttachmentType::Color16, FramebufferAttachmentType::Velocity, FramebufferAttachmentType::Depth };
+	std::shared_ptr<Framebuffer> framebuffer = RenderingHelper::CreateFramebuffer(1, 1, 1, attachments, TextureType::Texture2D);
 
 	m_GBufferPassSpecification.Framebuffer = framebuffer;
 
@@ -87,8 +81,7 @@ void GBufferRenderTask::Run(const std::vector<std::shared_ptr<Component>>& compo
 
 void GBufferRenderTask::Resize(glm::ivec2 size, float upscale)
 {
-	std::shared_ptr<Framebuffer> framebuffer = std::static_pointer_cast<Framebuffer>(m_GBufferPassSpecification.Framebuffer);
-	framebuffer->Resize(size.x * upscale, size.y * upscale);
+	m_GBufferPassSpecification.Framebuffer->Resize(size.x * upscale, size.y * upscale, 0);
 }
 
 std::shared_ptr<Texture2D> GBufferRenderTask::GetAlbedoTexture() const

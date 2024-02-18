@@ -192,14 +192,9 @@ void CameraDetailsWidget::Tick(float DeltaTime)
             task->SetShadowSamplesBlockCount(count);
         }
 
-        if (int32_t size = task->GetShadowFilterSize(); ImGui::SliderInt("Spot light samples filter size", &size, 1, 32))
+        if (int32_t size = task->GetShadowSamplesBlockSize(); ImGui::SliderInt("Spot light samples block size", &size, 1, 32))
         {
-            task->SetShadowFilterSize(size);
-        }
-
-        if (float radius = task->GetShadowFilterRadius(); ImGui::SliderFloat("Spot light samples radius", &radius, 0.5f, 10.0f))
-        {
-            task->SetShadowFilterRadius(radius);
+            task->SetShadowSamplesBlockSize(size);
         }
     }
 

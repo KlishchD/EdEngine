@@ -3,7 +3,6 @@
 #include "Utils/Files.h"
 #include "Utils/MathHelper.h"
 #include "Utils/RenderingHelper.h"
-#include "Core/Rendering/Framebuffers/Framebuffer.h"
 
 void SSAORenderTask::Setup(Renderer* renderer)
 {
@@ -12,8 +11,7 @@ void SSAORenderTask::Setup(Renderer* renderer)
 	{
 		m_SSAOPassSpecification.Name = "SSAO pass";
 
-		m_SSAOPassSpecification.Framebuffer = RenderingHelper::CreateFramebuffer(1, 1);
-		m_SSAOPassSpecification.Framebuffer->CreateAttachment(FramebufferAttachmentType::Distance);
+		m_SSAOPassSpecification.Framebuffer = RenderingHelper::CreateFramebuffer(1, 1, 1, { FramebufferAttachmentType::Distance }, TextureType::Texture2D);
 
 		m_SSAOPassSpecification.Shader = RenderingHelper::CreateShader(Files::ContentFolderPath + R"(\shaders\SSAO.glsl)");
 
@@ -24,8 +22,7 @@ void SSAORenderTask::Setup(Renderer* renderer)
 	{
 		m_SSAOBlurPassSpecification.Name = "SSAO blur";
 
-		m_SSAOBlurPassSpecification.Framebuffer = RenderingHelper::CreateFramebuffer(1, 1);
-		m_SSAOBlurPassSpecification.Framebuffer->CreateAttachment(FramebufferAttachmentType::Distance);
+		m_SSAOBlurPassSpecification.Framebuffer = RenderingHelper::CreateFramebuffer(1, 1, 1, { FramebufferAttachmentType::Distance }, TextureType::Texture2D);
 
 		m_SSAOBlurPassSpecification.Shader = RenderingHelper::CreateShader(Files::ContentFolderPath + R"(\shaders\SSAOBlur.glsl)");
 
@@ -39,16 +36,10 @@ void SSAORenderTask::Setup(Renderer* renderer)
 		std::uniform_real_distribution<float> distribution(0.0f, 1.0f);
 		std::default_random_engine generator;
 
-		float* noise = (float*)std::malloc(3 * m_NoiseSize * m_NoiseSize * sizeof(float));
+		std::vector<glm::vec3> noise;
 		for (int32_t i = 0; i < m_NoiseSize * m_NoiseSize; ++i)
 		{
-			float x = distribution(generator) * 2.0f - 1.0f;
-			float y = distribution(generator) * 2.0f - 1.0f;
-			float z = 0.0f;
-
-			noise[i * 3] = x;
-			noise[i * 3 + 1] = y;
-			noise[i * 3 + 2] = z;
+			noise.emplace_back(distribution(generator) * 2.0f - 1.0f, distribution(generator) * 2.0f - 1.0f, 0.0f);
 		}
 
 		Texture2DImportParameters parameters;
@@ -57,12 +48,9 @@ void SSAORenderTask::Setup(Renderer* renderer)
 		parameters.Format = PixelFormat::RGB16F;
 		parameters.Filtering = FilteringMode::Linear;
 
-		Texture2DData data;
-		data.Data = reinterpret_cast<uint8_t*>(noise);
-		data.Width = m_NoiseSize;
-		data.Height = m_NoiseSize;
+		Texture2DData data(m_NoiseSize, m_NoiseSize, noise.data(), noise.size() * sizeof(glm::vec3), false);
 
-		m_SSAONoise = RenderingHelper::CreateTexture2D(parameters, data, "SSAO noise");
+		m_SSAONoise = RenderingHelper::CreateTexture2D(std::move(parameters), std::move(data), "SSAO noise");
 	}
 }
 
@@ -82,15 +70,8 @@ void SSAORenderTask::Resize(glm::ivec2 size, float upscale)
 	newSize.x = std::max(newSize.x, 1);
 	newSize.y = std::max(newSize.y, 1);
 
-	{
-		std::shared_ptr<Framebuffer> framebuffer = std::static_pointer_cast<Framebuffer>(m_SSAOPassSpecification.Framebuffer);
-		framebuffer->Resize(newSize.x, newSize.y);
-	}
-
-	{
-		std::shared_ptr<Framebuffer> framebuffer = std::static_pointer_cast<Framebuffer>(m_SSAOBlurPassSpecification.Framebuffer);
-		framebuffer->Resize(newSize.x, newSize.y);
-	}
+	m_SSAOPassSpecification.Framebuffer->Resize(newSize.x, newSize.y, 1);
+	m_SSAOBlurPassSpecification.Framebuffer->Resize(newSize.x, newSize.y, 1);
 }
 
 std::shared_ptr<Texture2D> SSAORenderTask::GetRawTexture() const

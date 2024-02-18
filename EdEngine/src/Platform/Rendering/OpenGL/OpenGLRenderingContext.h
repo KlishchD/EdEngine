@@ -2,18 +2,13 @@
 
 #include "Core/Rendering/RenderingContex.h"
 
-class Shader;
-class BaseFramebuffer;
-class VertexBuffer;
-class IndexBuffer;
-
 class OpenGLRenderingContext : public RenderingContext
 {
 public:
 	OpenGLRenderingContext(class Window* window);
 
 	virtual void SetDefaultFramebuffer() override;
-	virtual void SetFramebuffer(std::shared_ptr<BaseFramebuffer> framebuffer) override;
+	virtual void SetFramebuffer(std::shared_ptr<Framebuffer> framebuffer) override;
 
 	virtual void SetVertexBuffer(std::shared_ptr<VertexBuffer> buffer) override;
 	

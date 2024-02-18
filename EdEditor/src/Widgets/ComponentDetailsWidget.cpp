@@ -1,6 +1,7 @@
 ﻿#include "ComponentDetailsWidget.h"
 #include "Core/Engine.h"
 #include "Core/Assets/AssetManager.h"
+#include "Core/Components/DirectionalLightComponent.h"
 #include "Core/Components/StaticMeshComponent.h"
 #include "Core/Components/PointLightComponent.h"
 #include "Core/Components/SpotLightComponent.h"
@@ -43,9 +44,10 @@ void ComponentDetailsWidget::Tick(float DeltaTime)
     
         switch (m_Component->GetType())
         {
-        case ComponentType::StaticMesh: StaticMeshDetails(); break;
-        case ComponentType::PointLight: PointLightDetails(); break;
-        case ComponentType::SpotLight:  SpotLightDetails(); break;
+        case ComponentType::StaticMesh:       StaticMeshDetails();       break;
+        case ComponentType::PointLight:       PointLightDetails();       break;
+        case ComponentType::SpotLight:        SpotLightDetails();        break;
+        case ComponentType::DirectionalLight: DirectionalLightDetails(); break;
         }
     }
 }
@@ -178,30 +180,72 @@ void ComponentDetailsWidget::PointLightDetails()
 
     LightComponentDetails();
 
-	if (float radius = component->GetRadius(); ImGui::SliderFloat("Light Radius", &radius, 0.0f, 1000.0f))
-	{
-		component->SetRadius(radius);
-	}
+    if (float radius = component->GetRadius(); ImGui::SliderFloat("Light Radius", &radius, 0.0f, 1000.0f))
+    {
+        component->SetRadius(radius);
+    }
+
+    if (int32_t size = component->GetShadowFilterSize(); ImGui::SliderInt("PFC filter size", &size, 1, 64))
+    {
+        component->SetShadowFilterSize(size);
+    }
 }
 
 void ComponentDetailsWidget::SpotLightDetails()
 {
-	std::shared_ptr<SpotLightComponent> component = std::static_pointer_cast<SpotLightComponent>(m_Component);
+    std::shared_ptr<SpotLightComponent> component = std::static_pointer_cast<SpotLightComponent>(m_Component);
 
-	LightComponentDetails();
+    LightComponentDetails();
 
-	if (float angle = glm::degrees(component->GetInnerAngle()); ImGui::SliderFloat("Light inner angle", &angle, 0.0f, 89.0f))
-	{
-		component->SetInnerAngle(glm::radians(angle));
-	}
+    if (float angle = glm::degrees(component->GetInnerAngle()); ImGui::SliderFloat("Light inner angle", &angle, 0.0f, 89.0f))
+    {
+        component->SetInnerAngle(glm::radians(angle));
+    }
 
-	if (float angle = glm::degrees(component->GetOuterAngle()); ImGui::SliderFloat("Light outer angle", &angle, 0.0f, 89.0f))
-	{
-		component->SetOuterAngle(glm::radians(angle));
-	}
+    if (float angle = glm::degrees(component->GetOuterAngle()); ImGui::SliderFloat("Light outer angle", &angle, 0.0f, 89.0f))
+    {
+        component->SetOuterAngle(glm::radians(angle));
+    }
 
-	if (float distance = component->GetMaxDistance(); ImGui::SliderFloat("Light max effective distance", &distance, 0.0f, 1000.0f))
-	{
-		component->SetMaxDistance(distance);
-	}
+    if (float distance = component->GetMaxDistance(); ImGui::SliderFloat("Light max effective distance", &distance, 0.0f, 1000.0f))
+    {
+        component->SetMaxDistance(distance);
+    }
+
+    if (int32_t size = component->GetShadowFilterSize(); ImGui::SliderInt("PCF filter size", &size, 1, 64))
+    {
+        component->SetShadowFilterSize(size);
+    }
+
+    if (float radius = component->GetShadowFilterRadius(); ImGui::SliderFloat("PCF filter radius", &radius, 1.0f, 10.0f))
+    {
+        component->SetShadowFilterRadius(radius);
+    }
+}
+
+void ComponentDetailsWidget::DirectionalLightDetails()
+{
+    LightComponentDetails();
+
+    std::shared_ptr<DirectionalLightComponent> component = std::static_pointer_cast<DirectionalLightComponent>(m_Component);
+
+    if (int32_t count = component->GetShadowCascadesCount(); ImGui::SliderInt("CSM cascades", &count, 1, 4))
+    {
+        component->SetShadowCascadesCount(count);
+    }
+
+    if (float multiplier = component->GetShadowMapZMultiplier(); ImGui::SliderFloat("CSM cascade z multiplier", &multiplier, 1.0f, 100.0f, "%.10f"))
+    {
+        component->SetShadowMapZMultiplier(multiplier);
+    }
+
+    if (int32_t size = component->GetShadowFilterSize(); ImGui::SliderInt("PCF filter size", &size, 1, 64))
+    {
+        component->SetShadowFilterSize(size);
+    }
+
+    if (float radius = component->GetShadowFilterRadius(); ImGui::SliderFloat("PCF filter radius", &radius, 1.0f, 10.0f))
+    {
+        component->SetShadowFilterRadius(radius);
+    }
 }

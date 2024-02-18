@@ -108,3 +108,21 @@ std::vector<glm::vec2> MathHelper::GenerateCircleSamples(int32_t count)
 
 	return smaples;
 }
+
+glm::vec3 MathHelper::MinPerComponent(const glm::vec3& a, const glm::vec3& b)
+{
+	return {
+		glm::min(a.x, b.x),
+		glm::min(a.y, b.y),
+		glm::min(a.z, b.z)
+	};
+}
+
+glm::vec3 MathHelper::MaxPerComponent(const glm::vec3& a, const glm::vec3& b)
+{
+	return {
+		glm::max(a.x, b.x),
+		glm::max(a.y, b.y),
+		glm::max(a.z, b.z)
+	};
+}

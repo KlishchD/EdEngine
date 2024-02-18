@@ -1,5 +1,4 @@
 #include "EmissionRenderTask.h"
-#include "Core/Rendering/Framebuffers/Framebuffer.h"
 #include "Utils/RenderingHelper.h"
 #include "Utils/Files.h"
 

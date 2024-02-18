@@ -22,4 +22,5 @@ private:
     void LightComponentDetails();
     void PointLightDetails();
     void SpotLightDetails();
+    void DirectionalLightDetails();
 };

@@ -35,6 +35,26 @@ float SpotLightComponent::GetMaxDistance() const
 	return m_MaxDistance;
 }
 
+void SpotLightComponent::SetShadowFilterSize(uint32_t size)
+{
+	m_ShadowFilterSize = size;
+}
+
+uint32_t SpotLightComponent::GetShadowFilterSize() const
+{
+	return m_ShadowFilterSize;
+}
+
+void SpotLightComponent::SetShadowFilterRadius(float radius)
+{
+	m_ShadowFilterRadius = radius;
+}
+
+float SpotLightComponent::GetShadowFilterRadius() const
+{
+	return m_ShadowFilterRadius;
+}
+
 ComponentType SpotLightComponent::GetType() const
 {
 	return ComponentType::SpotLight;

@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup Label="ProjectConfigurations">
     <ProjectConfiguration Include="Debug|Win32">
@@ -163,11 +163,13 @@
     <ClCompile Include="src\Core\Assets\FontManager.cpp" />
     <ClCompile Include="src\Core\Assets\ImportParameters\StaticMeshImportParameters.h" />
     <ClCompile Include="src\Core\Assets\Material.cpp" />
+    <ClCompile Include="src\Core\Components\DirectionalLightComponent.cpp" />
     <ClCompile Include="src\Core\Components\LightComponent.cpp" />
     <ClCompile Include="src\Core\Components\SpotLightComponent.cpp" />
     <ClCompile Include="src\Core\Input.cpp" />
     <ClCompile Include="src\Core\Rendering\Tasks\AmbientRenderTask.cpp" />
     <ClCompile Include="src\Core\Rendering\Tasks\BloomRenderTask.cpp" />
+    <ClCompile Include="src\Core\Rendering\Tasks\DirectionalLightRenderTask.cpp" />
     <ClCompile Include="src\Core\Rendering\Tasks\EmissionRenderTask.cpp" />
     <ClCompile Include="src\Core\Rendering\Tasks\FXAARenderTask.cpp" />
     <ClCompile Include="src\Core\Rendering\Tasks\GBufferRenderTask.cpp" />
@@ -185,6 +187,7 @@
     <ClCompile Include="src\Core\Rendering\Textures\Texture.cpp" />
     <ClCompile Include="src\Core\Rendering\Textures\Texture2D.cpp" />
     <ClCompile Include="src\Core\Rendering\Textures\CubeTexture.cpp" />
+    <ClCompile Include="src\Core\Rendering\Textures\Texture2DArray.cpp" />
     <ClCompile Include="src\Core\Rendering\Textures\TextureData.cpp" />
     <ClCompile Include="src\Core\BaseManager.cpp" />
     <ClCompile Include="src\Core\Components\Component.cpp" />
@@ -202,8 +205,7 @@
     <ClCompile Include="src\Core\Window.cpp" />
     <ClCompile Include="src\Platform\Rendering\OpenGL\Buffers\OpenGLIndexBuffer.cpp" />
     <ClCompile Include="src\Platform\Rendering\OpenGL\Buffers\OpenGLVertexBuffer.cpp" />
-    <ClCompile Include="src\Platform\Rendering\OpenGL\Framebuffers\OpenGLCubeFramebuffer.cpp" />
-    <ClCompile Include="src\Platform\Rendering\OpenGL\Framebuffers\OpenGLFramebuffer.cpp" />
+    <ClCompile Include="src\Platform\Rendering\OpenGL\OpenGLFramebuffer.cpp" />
     <ClCompile Include="src\Platform\Rendering\OpenGL\OpenGLRenderingContext.cpp" />
     <ClCompile Include="src\Platform\Rendering\OpenGL\OpenGLShader.cpp" />
     <ClCompile Include="src\Platform\Rendering\OpenGL\OpenGLWindow.cpp" />
@@ -211,10 +213,9 @@
     <ClCompile Include="src\Platform\Rendering\OpenGL\Textures\OpenGLSampler.cpp" />
     <ClCompile Include="src\Platform\Rendering\OpenGL\Textures\OpenGLTexture2D.cpp" />
     <ClCompile Include="src\Platform\Rendering\OpenGL\OpenGLTypes.cpp" />
+    <ClCompile Include="src\Platform\Rendering\OpenGL\Textures\OpenGLTexture2DArray.cpp" />
     <ClCompile Include="src\Platform\WindowsPlatformUtils.cpp" />
-    <ClCompile Include="src\Core\Rendering\Framebuffers\BaseFramebuffer.cpp" />
-    <ClCompile Include="src\Core\Rendering\Framebuffers\CubeFramebuffer.cpp" />
-    <ClCompile Include="src\Core\Rendering\Framebuffers\Framebuffer.cpp" />
+    <ClCompile Include="src\Core\Rendering\Framebuffer.cpp" />
     <ClCompile Include="src\Core\Rendering\Buffers\IndexBuffer.cpp" />
     <ClCompile Include="src\Core\Rendering\Renderer.cpp" />
     <ClCompile Include="src\Core\Rendering\Buffers\VertexBuffer.cpp" />
@@ -246,11 +247,13 @@
     <ClInclude Include="src\Core\Assets\Font.h" />
     <ClInclude Include="src\Core\Assets\FontManager.h" />
     <ClInclude Include="src\Core\Assets\Material.h" />
+    <ClInclude Include="src\Core\Components\DirectionalLightComponent.h" />
     <ClInclude Include="src\Core\Components\LightComponent.h" />
     <ClInclude Include="src\Core\Components\SpotLightComponent.h" />
     <ClInclude Include="src\Core\Rendering\EdRendering.h" />
     <ClInclude Include="src\Core\Rendering\Tasks\AmbientRenderTask.h" />
     <ClInclude Include="src\Core\Rendering\Tasks\BloomRenderTask.h" />
+    <ClInclude Include="src\Core\Rendering\Tasks\DirectionalLightRenderTask.h" />
     <ClInclude Include="src\Core\Rendering\Tasks\EmissionRenderTask.h" />
     <ClInclude Include="src\Core\Rendering\Tasks\FXAARenderTask.h" />
     <ClInclude Include="src\Core\Rendering\Tasks\GBufferRenderTask.h" />
@@ -269,6 +272,7 @@
     <ClInclude Include="src\Core\Rendering\Textures\Texture.h" />
     <ClInclude Include="src\Core\Rendering\Textures\Texture2D.h" />
     <ClInclude Include="src\Core\Rendering\Textures\CubeTexture.h" />
+    <ClInclude Include="src\Core\Rendering\Textures\Texture2DArray.h" />
     <ClInclude Include="src\Core\Rendering\Textures\TextureData.h" />
     <ClInclude Include="src\Core\Assets\ImportParameters\TextureImportParameters.h" />
     <ClInclude Include="src\Core\BaseManager.h" />
@@ -287,9 +291,7 @@
     <ClInclude Include="src\Core\Scene.h" />
     <ClInclude Include="src\Core\Widget.h" />
     <ClInclude Include="src\Core\Window.h" />
-    <ClInclude Include="src\Core\Rendering\Framebuffers\BaseFramebuffer.h" />
-    <ClInclude Include="src\Core\Rendering\Framebuffers\CubeFramebuffer.h" />
-    <ClInclude Include="src\Core\Rendering\Framebuffers\Framebuffer.h" />
+    <ClInclude Include="src\Core\Rendering\Framebuffer.h" />
     <ClInclude Include="src\Core\Rendering\Buffers\IndexBuffer.h" />
     <ClInclude Include="src\Core\Rendering\Renderer.h" />
     <ClInclude Include="src\Core\Rendering\Types.h" />
@@ -297,8 +299,7 @@
     <ClInclude Include="src\Core\Rendering\Buffers\VertexBufferLayout.h" />
     <ClInclude Include="src\Platform\Rendering\OpenGL\Buffers\OpenGLIndexBuffer.h" />
     <ClInclude Include="src\Platform\Rendering\OpenGL\Buffers\OpenGLVertexBuffer.h" />
-    <ClInclude Include="src\Platform\Rendering\OpenGL\Framebuffers\OpenGLCubeFramebuffer.h" />
-    <ClInclude Include="src\Platform\Rendering\OpenGL\Framebuffers\OpenGLFramebuffer.h" />
+    <ClInclude Include="src\Platform\Rendering\OpenGL\OpenGLFramebuffer.h" />
     <ClInclude Include="src\Platform\Rendering\OpenGL\OpenGLRenderingContext.h" />
     <ClInclude Include="src\Platform\Rendering\OpenGL\OpenGLShader.h" />
     <ClInclude Include="src\Platform\Rendering\OpenGL\OpenGLWindow.h" />
@@ -306,6 +307,7 @@
     <ClInclude Include="src\Platform\Rendering\OpenGL\Textures\OpenGLSampler.h" />
     <ClInclude Include="src\Platform\Rendering\OpenGL\Textures\OpenGLTexture2D.h" />
     <ClInclude Include="src\Platform\Rendering\OpenGL\OpenGLTypes.h" />
+    <ClInclude Include="src\Platform\Rendering\OpenGL\Textures\OpenGLTexture2DArray.h" />
     <ClInclude Include="src\Utils\AssetUtils.h" />
     <ClInclude Include="src\Utils\Files.h" />
     <ClInclude Include="src\Utils\GeometryBuilder.h" />

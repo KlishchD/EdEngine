@@ -177,11 +177,15 @@ std::shared_ptr<Texture2DDescriptor> AssetManager::ImportTexture(const Texture2D
 
     stbi_set_flip_vertically_on_load(true);
     
+    int32_t width;
+    int32_t height;
     int32_t channals;
-    Texture2DData& data = descriptor->Data;
+    int32_t pixelSize = Types::GetPixelSize(parameters.Format);
 
-    data.Data = stbi_load(texturePath.c_str(), &data.Width, &data.Height, &channals, Types::GetChannelNumber(parameters.Format));
-    data.PixelSize = Types::GetPixelSize(parameters.Format);
+    void* imageData = stbi_load(texturePath.c_str(), &width, &height, &channals, Types::GetChannelNumber(parameters.Format));
+
+    Texture2DData data(width, height, imageData, width * height * pixelSize, true);
+    descriptor->Data = std::move(data);
 
     std::string savePath = Files::GetSavePath(texturePath, AssetType::Texture2D);
     Serialization::SaveDescriptor(savePath, descriptor);

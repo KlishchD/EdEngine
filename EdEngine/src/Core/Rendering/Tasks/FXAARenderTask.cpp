@@ -1,7 +1,6 @@
 #include "FXAARenderTask.h"
 #include "Utils/Files.h"
 #include "Utils/RenderingHelper.h"
-#include "Core/Rendering/Framebuffers/Framebuffer.h"
 
 void FXAARenderTask::Setup(Renderer* renderer)
 {

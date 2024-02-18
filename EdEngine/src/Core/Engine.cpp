@@ -77,7 +77,7 @@ void Engine::Initialize()
 		m_Scene = assetManager->CreateScene(Files::ContentFolderPath + R"(scenes\main_test.edscene)");
 	}
 
-	m_Camera = Camera(90.0f, 1240.0f / 960.0f, 1.0f, 15000.0f);
+	m_Camera = Camera(90.0f, 1240.0f / 960.0f, 1.0f, m_Renderer->GetFarPlane());
 
 	ED_LOG(Engine, info, "Finished initializing")
 }

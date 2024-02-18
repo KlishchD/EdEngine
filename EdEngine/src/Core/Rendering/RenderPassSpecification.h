@@ -4,12 +4,13 @@
 #include <memory>
 #include <glm/ext/matrix_float4x4.hpp>
 #include "Types.h"
+#include "Framebuffer.h"
 
 struct RenderPassSpecification
 {
 	std::string Name;
 	
-	std::shared_ptr<class BaseFramebuffer> Framebuffer;
+	std::shared_ptr<Framebuffer> Framebuffer;
 
 	std::shared_ptr<class Shader> Shader;
 	glm::vec3 ViewPosition = glm::vec3(0.0f);

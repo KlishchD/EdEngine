@@ -12,5 +12,5 @@ public:
 
 	virtual ~OpenGLCubeTexture() override;
 protected:
-	virtual void Initialize(TextureImportParameters* inParameters, TextureData* inData) override;
+	virtual void Initialize() override;
 };

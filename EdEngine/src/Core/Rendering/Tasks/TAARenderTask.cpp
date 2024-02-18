@@ -1,7 +1,6 @@
 #include "TAARenderTask.h"
 #include "Utils/Files.h"
 #include "Utils/RenderingHelper.h"
-#include "Core/Rendering/Framebuffers/Framebuffer.h"
 
 void TAARenderTask::Setup(Renderer* renderer)
 {
@@ -20,11 +19,7 @@ void TAARenderTask::Setup(Renderer* renderer)
 		parameters.Format = PixelFormat::RGBA16F;
 
 		Texture2DData data;
-		data.Width = 1;
-		data.Height = 1;
-		data.Data = nullptr;
-
-		m_HistoryBuffer.push_back(RenderingHelper::CreateTexture2D(parameters, data, "History buffer texture"));
+		m_HistoryBuffer.push_back(RenderingHelper::CreateTexture2D(std::move(parameters), std::move(data), "History buffer texture"));
 	}
 }
 
@@ -35,7 +30,7 @@ void TAARenderTask::Run(const std::vector<std::shared_ptr<Component>>& component
 		if (m_HistoryBufferSize > 1)
 		{
 			m_ActiveHistoryBufferTextureIndex = (m_ActiveHistoryBufferTextureIndex + 1) % m_HistoryBufferSize;
-			m_AAFramebuffer->SetAttachment(0, m_HistoryBuffer[m_ActiveHistoryBufferTextureIndex]);
+			m_AAFramebuffer->SetAttachment(0, m_HistoryBuffer[m_ActiveHistoryBufferTextureIndex], FramebufferSizeAdjustmentMode::ResizeFramebufferToTexutreSize);
 		}
 
 		m_Renderer->BeginRenderPass("TAA", m_AAFramebuffer, m_TAAShader);

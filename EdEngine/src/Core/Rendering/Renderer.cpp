@@ -17,8 +17,6 @@
 
 #include "RenderingContex.h"
 #include "RenderPassSpecification.h"
-#include "Framebuffers/Framebuffer.h"
-#include "Framebuffers/CubeFramebuffer.h"
 #include "Buffers/VertexBufferLayout.h"
 #include "Shader.h"
 
@@ -34,6 +32,7 @@
 #include "Tasks/BloomRenderTask.h"
 #include "Tasks/ResolutionRenderTask.h"
 #include "Tasks/SpotLightRenderTask.h"
+#include "Tasks/DirectionalLightRenderTask.h"
 
 void Renderer::Initialize(Engine* engine)
 {
@@ -80,22 +79,8 @@ void Renderer::Initialize(Engine* engine)
 		m_SpotLightVerticies = std::move(vertices);
 	}
 
-	m_LightFramebuffer = RenderingHelper::CreateFramebuffer(1, 1);
-	m_LightFramebuffer->CreateAttachment(FramebufferAttachmentType::Color16);
-	m_LightFramebuffer->CreateAttachment(FramebufferAttachmentType::Color16);
-	m_LightFramebuffer->CreateAttachment(FramebufferAttachmentType::Color16);
-
-	{
-		Texture2DImportParameters pararmeters = RenderingHelper::GetDefaultNormalTexture2DImportParameters("");
-
-		Texture2DData data;
-		data.Width = 1;
-		data.Height = 1;
-		data.Data = nullptr;
-
-		m_AAFramebuffer = RenderingHelper::CreateFramebuffer(1, 1);
-		m_AAFramebuffer->CreateAttachment(FramebufferAttachmentType::Color16);
-	}
+	m_LightFramebuffer = RenderingHelper::CreateFramebuffer(1, 1, 1, { FramebufferAttachmentType::Color16, FramebufferAttachmentType::Color16, FramebufferAttachmentType::Color16 }, TextureType::Texture2D);
+	m_AAFramebuffer = RenderingHelper::CreateFramebuffer(1, 1, 1, { FramebufferAttachmentType::Color16 }, TextureType::Texture2D);
 
 	{
 		m_Tasks.push_back(std::make_shared<GBufferRenderTask>());
@@ -104,6 +89,7 @@ void Renderer::Initialize(Engine* engine)
 
 		m_Tasks.push_back(std::make_shared<EmissionRenderTask>());
 
+		m_Tasks.push_back(std::make_shared<DirectionalLightRenderTask>());
 		m_Tasks.push_back(std::make_shared<SpotLightRenderTask>());
 		m_Tasks.push_back(std::make_shared<PointLightRenderTask>());
 
@@ -149,8 +135,8 @@ void Renderer::Update()
 			task->Resize(m_ViewportSize, m_UpsampleScale);
 		}
 
-		m_LightFramebuffer->Resize(m_ViewportSize.x * m_UpsampleScale, m_ViewportSize.y * m_UpsampleScale);
-		m_AAFramebuffer->Resize(m_ViewportSize.x * m_UpsampleScale, m_ViewportSize.y * m_UpsampleScale);
+		m_LightFramebuffer->Resize(m_ViewportSize.x * m_UpsampleScale, m_ViewportSize.y * m_UpsampleScale, 1);
+		m_AAFramebuffer->Resize(m_ViewportSize.x * m_UpsampleScale, m_ViewportSize.y * m_UpsampleScale, 1);
 
 		m_Engine->GetCamera()->SetProjection(90.0f, 1.0f * m_ViewportSize.x / m_ViewportSize.y, 1.0f, m_FarPlane);
 
@@ -180,6 +166,11 @@ void Renderer::ResizeViewport(glm::vec2 size)
 		m_bIsViewportSizeDirty = true;
 		m_ViewportSize = size;
 	}
+}
+
+glm::vec2 Renderer::GetViewportSize() const
+{
+	return m_ViewportSize;
 }
 
 void Renderer::SubmitRenderCommand(const std::function<void(RenderingContext* context)>& command)
@@ -334,7 +325,7 @@ void Renderer::EndUIFrame()
 	 m_Context->EndUIFrame();
 }
 
-void Renderer::BeginRenderPass(const std::string& name, std::shared_ptr<BaseFramebuffer> framebuffer, std::shared_ptr<Shader> shader, const glm::mat4& view, glm::mat4 projection, glm::vec3 viewPosition)
+void Renderer::BeginRenderPass(const std::string& name, std::shared_ptr<Framebuffer> framebuffer, std::shared_ptr<Shader> shader, const glm::mat4& view, glm::mat4 projection, glm::vec3 viewPosition)
 {
 	m_TemporarySpecification = RenderPassSpecification();
 
@@ -362,6 +353,7 @@ void Renderer::BeginRenderPass(RenderPassSpecification& specification, const glm
 	m_Context->SetShaderDataMat4("u_InvProjectionViewMatrix", glm::inverse(m_Projection * m_View));
 	m_Context->SetShaderDataFloat3("u_ViewPosition", m_Specification->ViewPosition);
 	m_Context->SetShaderDataFloat2("u_ScreenSize", m_Specification->Framebuffer->GetWidth(), m_Specification->Framebuffer->GetHeight());
+	m_Context->SetShaderDataFloat("u_FarPlane", m_FarPlane);
 
 	if (specification.bUseBlending)
 	{
@@ -605,7 +597,7 @@ void Renderer::EndRenderPass()
 
 bool Renderer::IsLightMeshVisible(const std::vector<glm::vec3>& vertices, const Transform& transform, Camera* camera) const
 {
-	glm::mat4 projectionViewModelMatrix = camera->GetViewPojection() * transform.GetMatrix();
+	glm::mat4 projectionViewModelMatrix = camera->GetProjectionView() * transform.GetMatrix();
 
 	glm::vec3 leftBottonCorner(std::numeric_limits<float>::max());
 	glm::vec3 rightTopCorner(std::numeric_limits<float>::min());

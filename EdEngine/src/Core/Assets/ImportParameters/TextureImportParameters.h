@@ -19,6 +19,11 @@ struct Texture2DImportParameters : public TextureImportParameters
 	bool GenerateMipMaps = false;
 };
 
+struct Texture2DArrayImportParameters : public TextureImportParameters
+{
+
+};
+
 struct CubeTextureImportParameters: public TextureImportParameters
 {
 	WrapMode WrapR = WrapMode::Repeat;
@@ -50,6 +55,12 @@ namespace boost
 			ar & parameters.WrapR;
 			ar & parameters.Format;
 			ar & parameters.Filtering;
+		}
+
+		template <class Archive>
+		void serialize(Archive& ar, Texture2DArrayImportParameters& parameters, uint32_t version)
+		{
+			ar & base_object<Texture2DImportParameters>(*this);
 		}
 	}
 }

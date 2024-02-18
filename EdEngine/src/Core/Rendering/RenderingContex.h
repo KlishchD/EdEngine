@@ -7,7 +7,7 @@
 
 class Texture;
 class Shader;
-class BaseFramebuffer;
+class Framebuffer;
 class VertexBuffer;
 class IndexBuffer;
 
@@ -17,7 +17,7 @@ public:
 	static RenderingContext& Get();
 
 	virtual void SetDefaultFramebuffer() = 0;
-	virtual void SetFramebuffer(std::shared_ptr<BaseFramebuffer> framebuffer) = 0;
+	virtual void SetFramebuffer(std::shared_ptr<Framebuffer> framebuffer) = 0;
 
 	virtual void SetVertexBuffer(std::shared_ptr<VertexBuffer> buffer) = 0;
 

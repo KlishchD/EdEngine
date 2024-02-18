@@ -1,6 +1,5 @@
 #include "ResolutionRenderTask.h"
 #include "Utils/RenderingHelper.h"
-#include "Core/Rendering/Framebuffers/Framebuffer.h"
 #include "Utils/Files.h"
 
 void ResolutionRenderTask::Setup(Renderer* renderer)
@@ -9,9 +8,8 @@ void ResolutionRenderTask::Setup(Renderer* renderer)
 
 	m_ResolutionRenderPassSpecification.Name = "Resolution pass";
 
-	m_ResolutionRenderPassSpecification.Framebuffer = RenderingHelper::CreateFramebuffer(1, 1);
-	m_ResolutionRenderPassSpecification.Framebuffer->CreateAttachment(FramebufferAttachmentType::Color16);
-	m_ResolutionRenderPassSpecification.Framebuffer->CreateAttachment(FramebufferAttachmentType::Depth); // todo: think if it is necessary (it is just for icons)
+	m_ResolutionRenderPassSpecification.Framebuffer = RenderingHelper::CreateFramebuffer(1, 1, 1, { FramebufferAttachmentType::Color16, FramebufferAttachmentType::Depth }, TextureType::Texture2D);
+	// todo: think if depth is necessary (it is just for icons)
 
 	m_ResolutionRenderPassSpecification.Shader = RenderingHelper::CreateShader(Files::ContentFolderPath + R"(\shaders\deferred\resolution-pass.glsl)");
 }
@@ -42,8 +40,7 @@ void ResolutionRenderTask::Run(const std::vector<std::shared_ptr<Component>>& co
 
 void ResolutionRenderTask::Resize(glm::ivec2 size, float upscale)
 {
-	std::shared_ptr<Framebuffer> framebuffer = std::static_pointer_cast<Framebuffer>(m_ResolutionRenderPassSpecification.Framebuffer);
-	framebuffer->Resize(size.x * upscale, size.y * upscale);
+	m_ResolutionRenderPassSpecification.Framebuffer->Resize(size.x * upscale, size.y * upscale, 1);
 }
 
 void ResolutionRenderTask::SetGamma(float gamma)

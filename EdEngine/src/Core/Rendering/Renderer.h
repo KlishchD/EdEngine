@@ -4,6 +4,7 @@
 #include "RenderPassSpecification.h"
 #include "Core/Math/Camera.h"
 #include "Core/Math/Transform.h"
+#include "Framebuffer.h"
 #include <queue>
 #include <functional>
 
@@ -16,8 +17,6 @@ class SpotLightComponent;
 class VertexBuffer;
 class IndexBuffer;
 
-class Framebuffer;
-class CubeFramebuffer;
 class Shader;
 
 class Texture;
@@ -41,6 +40,7 @@ public:
     void Update();
 
     void ResizeViewport(glm::vec2 size);
+    glm::vec2 GetViewportSize() const;
 
     void SubmitRenderCommand(const std::function<void(RenderingContext* context)>& command);
 
@@ -85,7 +85,7 @@ private:
     bool m_bSSAOEnabled = true;
     bool m_bIsBloomEnabled = false;
 
-    float m_FarPlane = 15000.0f;
+    float m_FarPlane = 500.0f;
 
     AAMethod m_AAMethod = AAMethod::TAA;
 
@@ -123,7 +123,7 @@ private:
     std::shared_ptr<VertexBuffer> m_SpotLightMeshVBO;
     std::shared_ptr<IndexBuffer> m_SpotLightMeshIBO;
 public:
-	void BeginRenderPass(const std::string& name, std::shared_ptr<BaseFramebuffer> framebuffer, std::shared_ptr<Shader> shader, const glm::mat4& view = glm::mat4(1.0f), const glm::mat4 projection = glm::mat4(1.0f), glm::vec3 viewPosition = glm::vec3(0.0f));
+	void BeginRenderPass(const std::string& name, std::shared_ptr<Framebuffer> framebuffer, std::shared_ptr<Shader> shader, const glm::mat4& view = glm::mat4(1.0f), const glm::mat4 projection = glm::mat4(1.0f), glm::vec3 viewPosition = glm::vec3(0.0f));
 	void BeginRenderPass(RenderPassSpecification& specification, const glm::mat4& view = glm::mat4(1.0f), const glm::mat4& projection = glm::mat4(1.0f));
 
     void SetNewCameraInformation(const glm::mat4& view, const glm::mat4& projection, glm::vec3 viewPosition);

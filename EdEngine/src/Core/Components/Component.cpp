@@ -80,6 +80,11 @@ Transform& Component::GetRelativeTransform()
     return m_Transform;
 }
 
+Transform Component::GetRelativeTransform() const
+{
+    return m_Transform;
+}
+
 Transform Component::GetPreviousRelativeTransform() const
 {
     return m_PreviousTransform;

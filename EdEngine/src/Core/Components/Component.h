@@ -7,7 +7,8 @@ enum class ComponentType: uint8_t
     Base,
     StaticMesh,
     PointLight,
-    SpotLight
+    SpotLight,
+    DirectionalLight
 };
 
 class Actor;
@@ -69,6 +70,7 @@ public:
 
     void SetRelativeTransform(const Transform& transform);
     Transform& GetRelativeTransform();
+    Transform GetRelativeTransform() const;
     Transform GetPreviousRelativeTransform() const;
 
     Transform GetWorldTransform() const;

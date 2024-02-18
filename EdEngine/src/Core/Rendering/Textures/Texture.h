@@ -9,18 +9,18 @@ public:
 
     virtual TextureType GetType() const = 0;
 
+    virtual void Resize(uint32_t width, uint32_t height, uint32_t depth) = 0;
+    virtual void Resize(glm::u32vec3 size) = 0;
+
+    virtual glm::u32vec3 GetSize() const = 0;
+
     PixelFormat GetPixelFormat() const;
 
     virtual ~Texture() = default;
 protected:
     uint32_t m_Id = 0;
 
-    Texture(std::shared_ptr<TextureDescriptor> descriptor);
+    Texture(std::shared_ptr<AssetDescriptor> descriptor);
 
-
-	const TextureImportParameters& GetImportParameters() const;
-	TextureData& GetData() const;
-
-    void Initialize();
-	virtual void Initialize(TextureImportParameters* parameters, TextureData* data);
+    virtual void Initialize();
 };

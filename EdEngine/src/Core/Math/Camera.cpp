@@ -3,18 +3,29 @@
 #include <glm/gtc/quaternion.hpp>
 #include "glm/gtx/rotate_vector.hpp"
 
-Camera::Camera(float fov, float aspect, float near, float far): m_Projection(glm::perspective(glm::radians(fov), aspect, near, far))
+Camera::Camera() : m_Projection(glm::mat4(1))
 {
+
 }
 
-Camera::Camera(float fov, float aspect, float near, float far, glm::vec3 rotation, glm::vec3 position): m_Projection(glm::perspective(glm::radians(fov), aspect, near, far)), m_Position(position)
+Camera::Camera(float fovDegrees, float aspect, float near, float far): m_Fov(glm::radians(fovDegrees)), m_Aspect(aspect), m_Near(near), m_Far(far)
+{
+    CalculateProjectionMatrix();
+}
+
+Camera::Camera(float fovDegrees, float aspect, float near, float far, glm::vec3 rotation, glm::vec3 position): m_Fov(glm::radians(fovDegrees)), m_Aspect(aspect), m_Near(near), m_Far(far), m_Position(position)
 {
     SetRotation(rotation);
+    CalculateProjectionMatrix();
 }
 
 void Camera::SetProjection(float fov, float aspect, float near, float far)
 {
-    m_Projection = glm::perspective(glm::radians(fov), aspect, near, far);
+    m_Fov = glm::radians(fov);
+    m_Aspect = aspect;
+    m_Near = near;
+    m_Far = far;
+    CalculateProjectionMatrix();
 }
 
 void Camera::SetProjection(const glm::mat4& projection)
@@ -107,9 +118,9 @@ glm::mat4 Camera::GetProjection() const
     return m_Projection;
 }
 
-glm::mat4 Camera::GetViewPojection() const
+glm::mat4 Camera::GetProjectionView() const
 {
-    return m_Projection * glm::lookAt(m_Position, m_Position + m_Orientation, m_Up); // TODO: May be add some checks here ;)
+    return m_Projection * GetView(); // TODO: May be add some checks here ;)
 }
 
 glm::vec3 Camera::GetForward() const
@@ -125,4 +136,76 @@ glm::vec3 Camera::GetRight() const
 glm::vec3 Camera::GetUp() const
 {
     return m_Up;
+}
+
+glm::mat4 Camera::GetProjection(float near, float far) const
+{
+    return glm::perspective(m_Fov, m_Aspect, near, far);
+}
+
+glm::mat4 Camera::GetProjectionView(float near, float far) const
+{
+    glm::mat4 projection = GetProjection(near, far);
+    glm::mat4 view = GetView();
+    return projection * view;
+}
+
+void Camera::SetFOVRadians(float fov)
+{
+    m_Fov = fov;
+    CalculateProjectionMatrix();
+}
+
+void Camera::SetFOVDegress(float fov)
+{
+    m_Fov = glm::radians(fov);
+    CalculateProjectionMatrix();
+}
+
+float Camera::GetFOVRadians() const
+{
+    return m_Fov;
+}
+
+float Camera::GetFOVDegrees() const
+{
+    return glm::degrees(m_Fov);
+}
+
+void Camera::SetAspect(float aspect)
+{
+    m_Aspect = aspect;
+    CalculateProjectionMatrix();
+}
+
+float Camera::GetAspect() const
+{
+    return m_Aspect;
+}
+
+void Camera::SetNear(float near)
+{
+    m_Near = near;
+    CalculateProjectionMatrix();
+}
+
+float Camera::GetNear() const
+{
+    return m_Near;
+}
+
+void Camera::SetFar(float far)
+{
+    m_Far = far;
+    CalculateProjectionMatrix();
+}
+
+float Camera::GetFar() const
+{
+    return m_Far;
+}
+
+void Camera::CalculateProjectionMatrix()
+{
+    m_Projection = glm::perspective(m_Fov, m_Aspect, m_Near, m_Far);
 }

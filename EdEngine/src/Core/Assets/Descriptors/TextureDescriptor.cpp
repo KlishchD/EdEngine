@@ -3,32 +3,47 @@
 BOOST_CLASS_EXPORT_IMPLEMENT(Texture2DDescriptor)
 BOOST_CLASS_EXPORT_IMPLEMENT(CubeTextureDescriptor)
 
-TextureImportParameters* Texture2DDescriptor::GetImportParameters() const
+const TextureImportParameters* Texture2DDescriptor::GetImportParameters() const
 {
-    return (TextureImportParameters*) &ImportParameters;
+    return &ImportParameters;
 }
 
-TextureData* Texture2DDescriptor::GetData() const
+const TextureData* Texture2DDescriptor::GetData() const
 {
-    return (TextureData*) &Data;
+    return &Data;
 }
 
 bool Texture2DDescriptor::HasData() const
 {
-    return Data.Data != nullptr;
+    return Data.GetData();
 }
 
-TextureImportParameters* CubeTextureDescriptor::GetImportParameters() const
+const TextureImportParameters* CubeTextureDescriptor::GetImportParameters() const
 {
-    return (TextureImportParameters*) &ImportParameters;
+    return &ImportParameters;
 }
 
-TextureData* CubeTextureDescriptor::GetData() const
+const TextureData* CubeTextureDescriptor::GetData() const
 {
-    return (TextureData*) &Data;
+    return &Data;
 }
 
 bool CubeTextureDescriptor::HasData() const
 {
-    return Data.Data[0] != nullptr;
+    return Data.GetData();
+}
+
+const TextureImportParameters* Texture2DArrayDescriptor::GetImportParameters() const
+{
+    return &ImportParameters;
+}
+
+const TextureData* Texture2DArrayDescriptor::GetData() const
+{
+    return &Data;
+}
+
+bool Texture2DArrayDescriptor::HasData() const
+{
+    return false;
 }

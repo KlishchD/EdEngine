@@ -11,6 +11,11 @@ class PointLightComponent: public LightComponent
     {
         ar & boost::serialization::base_object<LightComponent>(*this);
         ar & m_Radius;
+
+        if (version > 1)
+        {
+            ar & m_ShadowFilterSize;
+        }
     }
 
 public:
@@ -22,9 +27,13 @@ public:
     virtual ComponentType GetType() const override;
     
     glm::mat4 GetShadowMapPassCameraTransformation(int32_t index) const;
+
+    uint32_t GetShadowFilterSize() const;
+    void SetShadowFilterSize(uint32_t size);
 private:
     float m_Radius = 1.0f;
+    uint32_t m_ShadowFilterSize = 3;
 };
 
 BOOST_CLASS_EXPORT_KEY(PointLightComponent)
-BOOST_CLASS_VERSION(PointLightComponent, 1)
+BOOST_CLASS_VERSION(PointLightComponent, 2)

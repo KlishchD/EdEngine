@@ -1,7 +1,6 @@
 #include "OpenGLRenderingContext.h"
 #include "Core/Rendering/EdRendering.h"
-#include "Core/Rendering/Framebuffers/Framebuffer.h"
-#include "Core/Rendering/Framebuffers/CubeFramebuffer.h"
+#include "Core/Rendering/Framebuffer.h"
 #include "Core/Ed.h"
 #include "Core/Macros.h"
 #include "Buffers/OpenGLVertexBuffer.h"
@@ -19,7 +18,7 @@ void OpenGLRenderingContext::SetDefaultFramebuffer()
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 }
 
-void OpenGLRenderingContext::SetFramebuffer(std::shared_ptr<BaseFramebuffer> framebuffer)
+void OpenGLRenderingContext::SetFramebuffer(std::shared_ptr<Framebuffer> framebuffer)
 {
 	glBindFramebuffer(GL_FRAMEBUFFER, framebuffer->GetID());
 	glViewport(0, 0, framebuffer->GetWidth(), framebuffer->GetHeight());

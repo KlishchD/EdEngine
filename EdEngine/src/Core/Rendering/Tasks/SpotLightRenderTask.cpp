@@ -1,5 +1,4 @@
 #include "SpotLightRenderTask.h"
-#include "Core/Rendering/Framebuffers/Framebuffer.h"
 #include "Core/Components/StaticMeshComponent.h"
 #include "Core/Components/SpotLightComponent.h"
 #include "Utils/RenderingHelper.h"
@@ -14,8 +13,7 @@ void SpotLightRenderTask::Setup(Renderer* renderer)
 	{
 		m_ShadowPassSpecification.Name = "Spot light shadow pass";
 
-		m_ShadowPassSpecification.Framebuffer = RenderingHelper::CreateFramebuffer(1, 1);
-		m_ShadowPassSpecification.Framebuffer->CreateAttachment(FramebufferAttachmentType::Depth);
+		m_ShadowPassSpecification.Framebuffer = RenderingHelper::CreateFramebuffer(1, 1, 1, { FramebufferAttachmentType::Depth }, TextureType::Texture2D);
 
 		m_ShadowPassSpecification.Shader = RenderingHelper::CreateShader(Files::ContentFolderPath + R"(\shaders\light\spot-light-shadow-pass.glsl)");
 
@@ -25,14 +23,11 @@ void SpotLightRenderTask::Setup(Renderer* renderer)
 	}
 
 	{
-		Texture2DData data;
-		data.Width = 1;
-		data.Height = 1;
-		data.Data = nullptr;
-
 		Texture2DImportParameters parameters;
 		parameters.Format = PixelFormat::RG32F;
 		parameters.Filtering = FilteringMode::Nearest;
+
+		Texture2DData data;
 
 		m_ShadowSamples = RenderingHelper::CreateTexture2D(std::move(parameters), std::move(data), "Spot light shadow samples");
 
@@ -81,42 +76,31 @@ void SpotLightRenderTask::Run(const std::vector<std::shared_ptr<Component>>& com
 
 void SpotLightRenderTask::Resize(glm::ivec2 size, float upscale)
 {
-	std::shared_ptr<Framebuffer> framebuffer = std::static_pointer_cast<Framebuffer>(m_ShadowPassSpecification.Framebuffer);
-	framebuffer->Resize(size.x, size.y);
+	m_ShadowPassSpecification.Framebuffer->Resize(size.x, size.y, 1);
 	m_Aspect = 1.0f * size.x / size.y;
 	m_ShadowMapPixelSize = glm::vec2(1.0f / size.x, 1.0f / size.y);
 }
 
-void SpotLightRenderTask::SetShadowSamplesBlockCount(int32_t count)
+void SpotLightRenderTask::SetShadowSamplesBlockCount(uint32_t count)
 {
 	m_ShadowSamplesBlockCount = count;
 	UpdateShadowSamplesTexture();
 }
 
-int32_t SpotLightRenderTask::GetShadowSamplesBlocksCount() const
+uint32_t SpotLightRenderTask::GetShadowSamplesBlocksCount() const
 {
 	return m_ShadowSamplesBlockCount;
 }
 
-void SpotLightRenderTask::SetShadowFilterSize(int32_t size)
+void SpotLightRenderTask::SetShadowSamplesBlockSize(uint32_t size)
 {
-	m_ShadowFilterSize = size;
+	m_ShadowSamplesBlockSize = size;
 	UpdateShadowSamplesTexture();
 }
 
-int32_t SpotLightRenderTask::GetShadowFilterSize() const
+uint32_t SpotLightRenderTask::GetShadowSamplesBlockSize() const
 {
-	return m_ShadowFilterSize;
-}
-
-void SpotLightRenderTask::SetShadowFilterRadius(float radius)
-{
-	m_ShadowFilterRadius = radius;
-}
-
-float SpotLightRenderTask::GetShadowFilterRadius() const
-{
-	return m_ShadowFilterRadius;
+	return m_ShadowSamplesBlockSize;
 }
 
 void SpotLightRenderTask::DrawShadows(const std::vector<std::shared_ptr<Component>>& components, std::shared_ptr<SpotLightComponent> light)
@@ -164,9 +148,9 @@ void SpotLightRenderTask::DrawLight(Camera* camera, std::shared_ptr<SpotLightCom
 			m_Context->SetShaderDataMat4("u_SpotLight.ShadowProjectionViewMatrix", m_ShadowProjectionViewMatrix);
 
 			m_Context->SetShaderDataTexture("u_SpotLight.ShadowSamples", m_ShadowSamples);
-			m_Context->SetShaderDataFloat2("u_SpotLight.ShadowSamplesPixelSize", glm::vec2(1.0f / (m_ShadowFilterSize * m_ShadowSamplesBlockCount), 1.0f / m_ShadowFilterSize));
-			m_Context->SetShaderDataFloat("u_SpotLight.ShadowFilterSize", m_ShadowFilterSize);
-			m_Context->SetShaderDataFloat("u_SpotLight.ShadowFilterRadius", m_ShadowFilterRadius);
+			m_Context->SetShaderDataFloat2("u_SpotLight.ShadowSamplesPixelSize", glm::vec2(1.0f / (m_ShadowSamplesBlockSize * m_ShadowSamplesBlockCount), 1.0f / m_ShadowSamplesBlockSize));
+			m_Context->SetShaderDataFloat("u_SpotLight.ShadowFilterSize", light->GetShadowFilterSize());
+			m_Context->SetShaderDataFloat("u_SpotLight.ShadowFilterRadius", light->GetShadowFilterRadius());
 		}
 		else
 		{
@@ -194,16 +178,7 @@ void SpotLightRenderTask::DrawWireframe(Camera* camera, std::shared_ptr<SpotLigh
 
 void SpotLightRenderTask::UpdateShadowSamplesTexture()
 {
-	std::vector<glm::vec2> samples = MathHelper::GenerateCircleSamples(m_ShadowFilterSize * m_ShadowFilterSize * m_ShadowSamplesBlockCount);
-
-	Texture2DData data;
-
-	data.Width = m_ShadowFilterSize * m_ShadowSamplesBlockCount;
-	data.Height = m_ShadowFilterSize;
-	data.Data = (uint8_t*) samples.data();
-	data.PixelSize = Types::GetPixelSize(m_ShadowSamples->GetPixelFormat());
-
-	m_ShadowSamples->SetData(data);
-
-	data.Data = nullptr;
+	std::vector<glm::vec2> samples = MathHelper::GenerateCircleSamples(m_ShadowSamplesBlockSize * m_ShadowSamplesBlockSize * m_ShadowSamplesBlockCount);
+	Texture2DData data(m_ShadowSamplesBlockSize * m_ShadowSamplesBlockCount, m_ShadowSamplesBlockSize, samples.data(), samples.size() * sizeof(glm::vec2), false);
+	m_ShadowSamples->SetData(std::move(data));
 }

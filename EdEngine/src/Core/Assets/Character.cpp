@@ -11,12 +11,9 @@ Character::Character(FT_GlyphSlot glyph): m_Bearing(glyph->bitmap_left, glyph->b
     parameters.Format = PixelFormat::R8F;
     parameters.Filtering = FilteringMode::Linear;
 
-    Texture2DData data;
-    data.Width = glyph->bitmap.width;
-    data.Height = glyph->bitmap.rows;
-    data.Data = glyph->bitmap.buffer;
+    Texture2DData data(glyph->bitmap.width, glyph->bitmap.rows, glyph->bitmap.buffer, glyph->bitmap.width * glyph->bitmap.rows * sizeof(uint8_t), false);
 
-    m_Texture = RenderingHelper::CreateTexture2D(parameters, data, "character");
+    m_Texture = RenderingHelper::CreateTexture2D(std::move(parameters), std::move(data), "character");
 }
 
 std::shared_ptr<Texture2D> Character::GetTexture() const

@@ -87,9 +87,12 @@ float GetVisibility(vec2 pos, vec3 position, vec3 light, vec3 normal)
 
         float visible = 0.0f;
 
-        for (int i = 0; i < u_SpotLight.ShadowFilterSize && i < MAX_SAMPLES_COUNT; ++i)
+        int r = int(u_SpotLight.ShadowFilterSize / 2) + 1;
+        int l = -r + (int(u_SpotLight.ShadowFilterSize) % 2 == 0 ? 1 : 0);
+
+        for (int i = l; i < r; ++i)
         {
-            for (int j = 0; j < u_SpotLight.ShadowFilterSize && j < MAX_SAMPLES_COUNT; ++j)
+            for (int j = l; j < r; ++j)
             {
                 vec2 samplePosition = texture2D(u_SpotLight.ShadowSamples, vec2(projected.x + i * u_SpotLight.ShadowSamplesPixelSize.x, j * u_SpotLight.ShadowSamplesPixelSize.y)).xy;
                 float depth = texture2D(u_SpotLight.ShadowMap, projected.xy + samplePosition * u_SpotLight.ShadowFilterRadius * u_SpotLight.ShadowMapPixelSize).r;
