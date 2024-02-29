@@ -102,7 +102,7 @@ TextureData& TextureData::operator=(TextureData&& data)
 	m_DataSize = data.m_DataSize;
 	m_Data = data.m_Data;
 
-	m_DataSize = data.m_bDataOwner;
+	m_bDataOwner = data.m_bDataOwner;
 
 	data.m_Data = nullptr;
 	data.m_DataSize = 0;
