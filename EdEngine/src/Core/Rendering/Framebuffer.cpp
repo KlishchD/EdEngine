@@ -1,9 +1,9 @@
 ﻿#include "Framebuffer.h"
 #include "Core/Macros.h"
-#include "Framebuffer.h"
 
-Framebuffer::Framebuffer(uint32_t width, uint32_t height, uint32_t depth) : m_Width(width), m_Height(height), m_Depth(depth)
+Framebuffer::Framebuffer(const FramebufferSpecification& specification) : Resource(specification), m_Width(specification.Size.x), m_Height(specification.Size.y), m_Depth(specification.Size.z)
 {
+
 }
 
 std::shared_ptr<Texture> Framebuffer::GetAttachment(int32_t index) const
@@ -22,7 +22,7 @@ uint32_t Framebuffer::GetID() const
     return m_Id;
 }
 
-void Framebuffer::Resize(uint32_t width, uint32_t height, uint32_t depth)
+bool Framebuffer::Resize(uint32_t width, uint32_t height, uint32_t depth)
 {
 	if (m_Width != width || m_Height != height || m_Depth != depth)
 	{
@@ -39,12 +39,16 @@ void Framebuffer::Resize(uint32_t width, uint32_t height, uint32_t depth)
 		{
 			m_DepthAttachment->Resize(width, height, depth);
 		}
+
+		return true;
 	}
+
+	return false;
 }
 
-void Framebuffer::Resize(glm::u32vec3 size)
+bool Framebuffer::Resize(glm::u32vec3 size)
 {
-	Resize(size.x, size.y, size.z);
+	return Resize(size.x, size.y, size.z);
 }
 
 uint32_t Framebuffer::GetWidth() const

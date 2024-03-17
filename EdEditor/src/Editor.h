@@ -38,8 +38,6 @@ public:
 private:
     std::shared_ptr<class AssetManager> m_AssetManager;
 
-    RenderPassSpecification m_IconsPassSpecification;
-    
     glm::vec3 m_MovementDirection = glm::vec3(0.0f);
     
     float m_CameraSpeed = 100.0f;

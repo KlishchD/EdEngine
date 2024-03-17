@@ -1,6 +1,6 @@
 ﻿#include "Texture.h"
 
-Texture::Texture(std::shared_ptr<AssetDescriptor> descriptor)
+Texture::Texture(std::shared_ptr<AssetDescriptor> descriptor) : Resource( { descriptor->AssetName } )
 {
 	SetDescriptor(descriptor);
 }

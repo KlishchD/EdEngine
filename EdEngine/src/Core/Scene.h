@@ -2,6 +2,7 @@
 
 #include "Core/Ed.h"
 #include "Objects/Actor.h"
+#include "Objects/PlayerActor.h"
 
 class Scene
 {
@@ -10,6 +11,7 @@ class Scene
     template <class Archive>
     void save(Archive& ar, const uint32_t version) const
     {
+        ar & m_Name;
         ar & m_Actors.size();
     
         for (const std::shared_ptr<Actor> actor: m_Actors)
@@ -21,6 +23,8 @@ class Scene
     template <class Archive>
     void load(Archive& ar, const uint32_t version)
     {
+        ar & m_Name;
+
         int32_t actorsNumber;
         ar & actorsNumber;
 
@@ -34,6 +38,7 @@ class Scene
     
     BOOST_SERIALIZATION_SPLIT_MEMBER()
 public:
+    Scene(std::string name = "New Scene");
 
     void AddActor(std::shared_ptr<Actor> actor) 
     {
@@ -48,12 +53,17 @@ public:
         return actor;
     }
     
-    virtual void Update(float DeltaSeconds);
+    virtual void Update(float deltaSeconds);
 
     const std::vector<std::shared_ptr<Actor>>& GetActors() const { return m_Actors; }
 
     std::vector<std::shared_ptr<class Component>> GetAllComponents() const;
+
+    std::shared_ptr<PlayerActor> GetPlayerActor() const;
 private:
+    std::string m_Name;
+
+	std::shared_ptr<PlayerActor> m_PlayerActor;
     std::vector<std::shared_ptr<Actor>> m_Actors; 
 };
 

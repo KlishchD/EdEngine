@@ -126,6 +126,11 @@ std::shared_ptr<Texture2D> Material::GetMetalicTexture() const
     return m_MetalicTexture;
 }
 
+bool Material::ShouldPerformNormalMapping() const
+{
+    return m_NormalTexture != nullptr;
+}
+
 void Material::SetBaseColorTexture(std::shared_ptr<Texture2D> texture)
 {
     m_BaseColorTexture = texture;

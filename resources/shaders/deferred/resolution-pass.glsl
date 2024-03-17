@@ -23,7 +23,8 @@ uniform sampler2D u_Light;
 
 uniform sampler2D u_Bloom;
 uniform float u_BloomStrength;
-uniform float u_BloomIntensity;
+uniform float u_BloomIntensity = 1.0f;
+uniform bool u_IsBloomEnabled;
 
 uniform float u_Gamma;
 
@@ -42,9 +43,12 @@ vec3 ACESFilm(vec3 x)
 void main()
 {
     vec3 color = texture(u_Light, v_TextureCoordinates).xyz;
-    vec3 bloom = texture(u_Bloom, v_TextureCoordinates).xyz * u_BloomIntensity;
-
-    color = mix(color, bloom, u_BloomStrength);
+    
+    if (u_IsBloomEnabled)
+    {
+        vec3 bloom = texture(u_Bloom, v_TextureCoordinates).xyz * u_BloomIntensity;
+        color = mix(color, bloom, u_BloomStrength);
+    }
 
     color = ACESFilm(color);
     

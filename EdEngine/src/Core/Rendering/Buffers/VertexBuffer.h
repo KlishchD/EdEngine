@@ -4,8 +4,9 @@
 #include "Buffer.h"
 #include "Core/Rendering/Types.h"
 #include "VertexBufferLayout.h"
+#include "Core/Rendering/Resource.h"
 
-class VertexBuffer : public Buffer
+class VertexBuffer : public Buffer, public Resource
 {
 public:
 	virtual void SetLayout(const VertexBufferLayout& layout) = 0;

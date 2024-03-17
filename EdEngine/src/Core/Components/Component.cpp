@@ -128,7 +128,7 @@ Transform Component::GetPreviousWorldTransform() const
 	return transform;
 }
 
-void Component::Update(float DeltaSeconds)
+void Component::Update(float deltaSeconds)
 {
     m_PreviousTransform = m_Transform;
 }

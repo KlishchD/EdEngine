@@ -6,7 +6,6 @@
 
 #include "Input.h"
 #include "BaseManager.h"
-#include "Math/Camera.h"
 
 class Scene;
 class Renderer;
@@ -68,8 +67,6 @@ public:
 
     std::shared_ptr<Scene> GetLoadedScene() const;
 
-    Camera* GetCamera();
-    
 	std::shared_ptr<Window> GetWindow() const;
 
     std::shared_ptr<Renderer> GetRenderer();
@@ -92,8 +89,6 @@ private:
     std::shared_ptr<Renderer> m_Renderer;
     
     bool m_IsRunning = true;
-
-    Camera m_Camera;
 
     Engine() = default;
 

@@ -38,16 +38,8 @@ void main()
 
 	vec2 location = gl_FragCoord.xy * u_UpscaledPixelSize;
 
-	vec3 upsacledColor;
-	if (u_UseFullsize)
-	{
-		upsacledColor = texture2D(u_Fullsize, location).rgb;
-	}
-	else
-	{
-		upsacledColor = texture2D(u_Upscaled, location).rgb;
-	}
-
+	vec3 upsacledColor = texture2D(u_Upscaled, location).rgb;
+	
 	vec3 a = texture2D(u_Downscaled, location + vec2(-u_DownscaledPixelSize.x, u_DownscaledPixelSize.y)).rgb;
 	vec3 b = texture2D(u_Downscaled, location + vec2(0.0f,           u_DownscaledPixelSize.y)).rgb;
 	vec3 c = texture2D(u_Downscaled, location + vec2(u_DownscaledPixelSize.x,  u_DownscaledPixelSize.y)).rgb;

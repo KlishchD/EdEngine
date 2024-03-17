@@ -15,8 +15,6 @@
 #include "Core/Scene.h"
 #include "Utils/RenderingHelper.h"
 #include "Core/Components/PointLightComponent.h"
-#include "Core/Rendering/Tasks/ResolutionRenderTask.h"
-#include <Core/Rendering/Tasks/GBufferRenderTask.h>
 
 void Editor::Deinitialize()
 {
@@ -36,8 +34,6 @@ void Editor::Initialize(Engine* engine)
 
     m_MousePosition = m_Window->GetMousePosition();
 
-    m_LightIcon = m_AssetManager->LoadTexture(RenderingHelper::GetDefaultBaseColorTexture2DImportParameters(Files::ContentFolderPath + R"(Editor\icons\light-bulb.png)"));
-
     m_Engine->AddWidget<OptionsMenuWidget>();
     m_Engine->AddWidget<SceneTreeWidget>();
     m_Engine->AddWidget<ActorDetailsWidget>();
@@ -46,10 +42,7 @@ void Editor::Initialize(Engine* engine)
     m_Engine->AddWidget<ContentBrowserWidget>();
     m_Engine->AddWidget<AssetDescriptorDetails>();
 
-    m_IconsPassSpecification.Name = "Editor icons";
-    m_IconsPassSpecification.Framebuffer = m_Renderer->GetTask<ResolutionRenderTask>()->GetFramebuffer();
-    m_IconsPassSpecification.Shader = RenderingHelper::CreateShader(Files::ContentFolderPath + R"(Editor\shaders\IconShader.glsl)");
-// 
+   // 
 //     std::shared_ptr<Actor> actor = engine->GetLoadedScene()->CreateActor<Actor>("Lights");
 // 
 //     for (int32_t i = -60; i <= 50; i += 10)
@@ -68,39 +61,13 @@ void Editor::Update(float DeltaTime)
 {
     UpdateMousePosition(DeltaTime);
 
-    Camera* camera = m_Engine->GetCamera();
-
-    if (camera) {
-        camera->AddPositionOffset(camera->GetForward() * m_MovementDirection.z * m_CameraSpeed * DeltaTime);
-        camera->AddPositionOffset(camera->GetRight() * m_MovementDirection.x * m_CameraSpeed * DeltaTime);
-        camera->AddPositionOffset(camera->GetUp() * m_MovementDirection.y * m_CameraSpeed * DeltaTime);
-    }
+    Camera& camera = m_Engine->GetLoadedScene()->GetPlayerActor()->GetCameraComponent()->GetCamera();
+    camera.AddPositionOffset(camera.GetForward() * m_MovementDirection.z * m_CameraSpeed * DeltaTime);
+    camera.AddPositionOffset(camera.GetRight() * m_MovementDirection.x * m_CameraSpeed * DeltaTime);
+    camera.AddPositionOffset(camera.GetUp() * m_MovementDirection.y * m_CameraSpeed * DeltaTime);
 
 //    std::shared_ptr<Actor> cube = m_Engine->GetLoadedScene()->GetActors().back();
 //    cube->GetTransform().AddTranslation(DeltaTime * glm::vec3(-1.0f, 0.0f, 0.0f));
-
-    m_Renderer->SubmitRenderCommand([this, camera](RenderingContext* context) {
-        std::vector<std::shared_ptr<Component>> components = m_Engine->GetLoadedScene()->GetAllComponents();
-
-        m_IconsPassSpecification.ViewPosition = camera->GetPosition();
-
-        std::shared_ptr<Framebuffer> framebuffer = std::static_pointer_cast<Framebuffer>(m_IconsPassSpecification.Framebuffer);
-        framebuffer->CopyDepthAttachment(m_Renderer->GetTask<GBufferRenderTask>()->GetFramebuffer());
-        
-        m_Renderer->BeginRenderPass(m_IconsPassSpecification, camera->GetView(), camera->GetProjection());
-        
-        glm::vec3 viewPosition = camera->GetPosition();
-        for (std::shared_ptr<Component> component : components)
-        {
-            if (std::shared_ptr<LightComponent> light = std::dynamic_pointer_cast<LightComponent>(component))
-            {
-                glm::mat4 view = glm::lookAt(light->GetRelativeTransform().GetTranslation(), viewPosition, glm::vec3(0.0f, 1.0f, 0.0f));
-                m_Renderer->SubmitIcon(m_LightIcon, glm::scale(glm::inverse(view), light->GetRelativeTransform().GetScale()));
-            }
-        }
-
-        m_Renderer->EndRenderPass();
-    });
 }
 
 void Editor::SetUpInputs(Engine* engine)
@@ -215,7 +182,8 @@ void Editor::UpdateMousePosition(float DeltaTime)
         float yaw = DeltaTime * m_CameraRotationSpeed.x * delta.x;
         float pitch = DeltaTime * m_CameraRotationSpeed.y * delta.y;
 
-        m_Engine->GetCamera()->AddRotation(glm::vec3(pitch, yaw, 0.0f));
+        Camera& camera = m_Engine->GetLoadedScene()->GetPlayerActor()->GetCameraComponent()->GetCamera();
+        camera.AddRotation(glm::vec3(pitch, yaw, 0.0f));
     }
 
     m_MousePosition = newMousePosition;

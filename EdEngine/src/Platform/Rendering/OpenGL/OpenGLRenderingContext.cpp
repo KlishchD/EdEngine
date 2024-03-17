@@ -30,7 +30,7 @@ void OpenGLRenderingContext::SetVertexBuffer(std::shared_ptr<VertexBuffer> buffe
 
 	if (m_VBO)
 	{
-		for (int32_t i = 0; i < buffer->GetLayout().GetElements().size(); ++i)
+		for (int32_t i = 0; i < m_VBO->GetLayout().GetElements().size(); ++i)
 		{
 			glDisableVertexAttribArray(i);
 		}

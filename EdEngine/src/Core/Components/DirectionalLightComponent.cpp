@@ -11,7 +11,7 @@ glm::vec3 DirectionalLightComponent::GetDirection() const
 {
 	const glm::quat rotation = GetRelativeTransform().GetRotation();
 	const glm::vec3 direction(0.0f, -1.0f, 0.0f);
-	return rotation * direction;
+	return glm::normalize(rotation * direction);
 }
 
 uint32_t DirectionalLightComponent::GetShadowCascadesCount() const

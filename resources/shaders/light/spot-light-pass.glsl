@@ -29,7 +29,7 @@ struct LightIntensity
     vec3 specular;
 };
 
-struct SpotLight 
+struct Light 
 {
     vec3 Color;
     float InnerAngleCos;
@@ -54,7 +54,7 @@ struct SpotLight
 };
 
 uniform vec3 u_ViewPosition;
-uniform vec2 u_ScreenSize;
+uniform vec2 u_PixelSize;
 
 uniform float u_FarPlane;
 
@@ -63,7 +63,7 @@ uniform sampler2D u_Position;
 uniform sampler2D u_Normal;
 uniform sampler2D u_RoughnessMetalic;
 
-uniform SpotLight u_SpotLight;
+uniform Light u_Light;
 
 in vec2 v_TextureCoordinates;
 
@@ -78,29 +78,29 @@ float GX(float dot, float r) {
 
 float GetVisibility(vec2 pos, vec3 position, vec3 light, vec3 normal)
 {
-    if (u_SpotLight.IsShadowCasting)
+    if (u_Light.IsShadowCasting)
     {
-        vec4 projected = u_SpotLight.ShadowProjectionViewMatrix * vec4(position, 1.0f);
+        vec4 projected = u_Light.ShadowProjectionViewMatrix * vec4(position, 1.0f);
         projected /= projected.w;
 
         projected.xyz = projected.xyz * 0.5f + 0.5f;
 
         float visible = 0.0f;
 
-        int r = int(u_SpotLight.ShadowFilterSize / 2) + 1;
-        int l = -r + (int(u_SpotLight.ShadowFilterSize) % 2 == 0 ? 1 : 0);
+        int r = int(u_Light.ShadowFilterSize / 2) + 1;
+        int l = -r + (int(u_Light.ShadowFilterSize) % 2 == 0 ? 1 : 0);
 
         for (int i = l; i < r; ++i)
         {
             for (int j = l; j < r; ++j)
             {
-                vec2 samplePosition = texture2D(u_SpotLight.ShadowSamples, vec2(projected.x + i * u_SpotLight.ShadowSamplesPixelSize.x, j * u_SpotLight.ShadowSamplesPixelSize.y)).xy;
-                float depth = texture2D(u_SpotLight.ShadowMap, projected.xy + samplePosition * u_SpotLight.ShadowFilterRadius * u_SpotLight.ShadowMapPixelSize).r;
+                vec2 samplePosition = texture2D(u_Light.ShadowSamples, vec2(projected.x + i * u_Light.ShadowSamplesPixelSize.x, j * u_Light.ShadowSamplesPixelSize.y)).xy;
+                float depth = texture2D(u_Light.ShadowMap, projected.xy + samplePosition * u_Light.ShadowFilterRadius * u_Light.ShadowMapPixelSize).r;
                 visible += depth + 0.001f >= projected.z ? 1.0f : 0.0f;
             }
         }
 
-        return visible / (u_SpotLight.ShadowFilterSize * u_SpotLight.ShadowFilterSize);
+        return visible / (u_Light.ShadowFilterSize * u_Light.ShadowFilterSize);
     }
     else
     {
@@ -139,7 +139,7 @@ LightIntensity GetIntensity(vec2 pos, vec3 normal, vec3 view, vec3 light)
     vec3 diffuseIntensity = (vec3(1.0f) - F) * albedo / M_PI;
     vec3 specularIntensity = F * G * D / (4.0f * NdotV * NdotL + 0.0001f);
 
-    vec3 baseIntensity = u_SpotLight.Intensity * u_SpotLight.Color * NdotL;
+    vec3 baseIntensity = u_Light.Intensity * u_Light.Color * NdotL;
 
     LightIntensity intensity;
     intensity.diffuse = baseIntensity * diffuseIntensity; 
@@ -150,19 +150,19 @@ LightIntensity GetIntensity(vec2 pos, vec3 normal, vec3 view, vec3 light)
 
 float GetAttenuation(vec2 pos, vec3 position, vec3 light, vec3 normal)
 {
-    vec3 l = normalize(position - u_SpotLight.Position);
-    float angle = dot(l, u_SpotLight.Direction);
+    vec3 l = normalize(position - u_Light.Position);
+    float angle = dot(l, u_Light.Direction);
 
-    vec3 pointLightVector = u_SpotLight.Position - position;
+    vec3 pointLightVector = u_Light.Position - position;
     float distanceSqr = dot(pointLightVector, pointLightVector);
 
-    if (u_SpotLight.OuterAngleCos > angle || distanceSqr >= u_SpotLight.MaxDistance * u_SpotLight.MaxDistance)
+    if (u_Light.OuterAngleCos > angle || distanceSqr >= u_Light.MaxDistance * u_Light.MaxDistance)
     {
         return 0.0f;
     }
 
-    float a = 1.0f / (u_SpotLight.InnerAngleCos - u_SpotLight.OuterAngleCos);
-    float b = -u_SpotLight.OuterAngleCos * a;
+    float a = 1.0f / (u_Light.InnerAngleCos - u_Light.OuterAngleCos);
+    float b = -u_Light.OuterAngleCos * a;
     float softness = clamp((a * angle + b) * (a * angle + b), 0.0f, 1.0f);
 
     float visibility = GetVisibility(pos, position, light, normal);
@@ -171,13 +171,13 @@ float GetAttenuation(vec2 pos, vec3 position, vec3 light, vec3 normal)
 
 void main()
 {    
-    vec2 pos = gl_FragCoord.xy / u_ScreenSize;
+    vec2 pos = gl_FragCoord.xy * u_PixelSize;
 
     vec3 position = texture(u_Position, pos).xyz;
     vec3 normal = texture(u_Normal, pos).xyz;
     
     vec3 view = normalize(u_ViewPosition - position);
-    vec3 light = normalize(u_SpotLight.Position - position);
+    vec3 light = normalize(u_Light.Position - position);
 
     LightIntensity intensity = GetIntensity(pos, normal, view, light);
     float attenuation = GetAttenuation(pos, position, light, normal);

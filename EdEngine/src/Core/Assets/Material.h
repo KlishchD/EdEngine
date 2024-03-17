@@ -36,6 +36,8 @@ public:
     std::shared_ptr<Texture2D> GetNormalTexture() const;
     std::shared_ptr<Texture2D> GetRoughnessTexture() const;
     std::shared_ptr<Texture2D> GetMetalicTexture() const;
+
+    bool ShouldPerformNormalMapping() const;
 private:
 
     std::shared_ptr<Texture2D> m_BaseColorTexture;

@@ -3,12 +3,12 @@
 #include "Utils/RenderingHelper.h"
 #include "Core/Macros.h"
 
-OpenGLFramebuffer::OpenGLFramebuffer(uint32_t width, uint32_t height, uint32_t depth) : Framebuffer(width, height, depth)
+OpenGLFramebuffer::OpenGLFramebuffer(const FramebufferSpecification& specification) : Framebuffer(specification)
 {
 	glCreateFramebuffers(1, &m_Id);
 }
 
-void OpenGLFramebuffer::AddAttacment(std::shared_ptr<Texture> attachment)
+void OpenGLFramebuffer::AddAttachment(std::shared_ptr<Texture> attachment)
 {
 	glBindFramebuffer(GL_FRAMEBUFFER, m_Id);
 

@@ -5,9 +5,9 @@
 class OpenGLFramebuffer : public Framebuffer
 {
 public:
-	OpenGLFramebuffer(uint32_t width, uint32_t height, uint32_t depth);
+	OpenGLFramebuffer(const FramebufferSpecification& specification);
 
-	virtual void AddAttacment(std::shared_ptr<Texture> attachment);
+	virtual void AddAttachment(std::shared_ptr<Texture> attachment);
 	
 	virtual void SetAttachment(int32_t index, std::shared_ptr<Texture> attachment, FramebufferSizeAdjustmentMode mode) override;
 	virtual void SetDepthAttachment(std::shared_ptr<Texture> attachment, FramebufferSizeAdjustmentMode mode) override;

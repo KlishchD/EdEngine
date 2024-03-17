@@ -76,7 +76,7 @@ public:
     Transform GetWorldTransform() const;
     Transform GetPreviousWorldTransform() const;
 
-    virtual void Update(float DeltaSeconds);
+    virtual void Update(float deltaSeconds);
 
     const std::string& GetName() const;
     void SetName(const std::string& name);

@@ -49,7 +49,7 @@ public:
     Transform& GetTransform();
     Transform GetPreviousTransform() const;
 
-    virtual void Update(float DeltaSeconds);
+    virtual void Update(float deltaSeconds);
 
     void RegisterComponent(std::shared_ptr<Component> component);
     const std::vector<std::shared_ptr<Component>>& GetComponents() const;

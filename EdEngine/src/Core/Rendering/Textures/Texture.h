@@ -2,8 +2,9 @@
 
 #include "Core/Assets/Asset.h"
 #include "Core/Assets/Descriptors/TextureDescriptor.h"
+#include "Core/Rendering/Resource.h"
 
-class Texture : public Asset {
+class Texture : public Asset, public Resource {
 public:
     uint32_t GetID() const;
 

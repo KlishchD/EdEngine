@@ -60,9 +60,6 @@ void Engine::Initialize()
 	m_Window = RenderingHelper::CreateWindow({ "EdEngine", 1280, 720 });
 #define CreateWindow CreateWindowW
 
-	m_Renderer = std::make_shared<Renderer>();
-	m_Renderer->Initialize(this);
-	
 	std::shared_ptr<AssetManager> assetManager = std::make_shared<AssetManager>();
 	m_Managers.push_back(assetManager);
 
@@ -77,7 +74,8 @@ void Engine::Initialize()
 		m_Scene = assetManager->CreateScene(Files::ContentFolderPath + R"(scenes\main_test.edscene)");
 	}
 
-	m_Camera = Camera(90.0f, 1240.0f / 960.0f, 1.0f, m_Renderer->GetFarPlane());
+	m_Renderer = std::make_shared<Renderer>();
+	m_Renderer->Initialize(this);
 
 	ED_LOG(Engine, info, "Finished initializing")
 }
@@ -103,21 +101,21 @@ void Engine::Update()
 {
 	std::chrono::time_point now = std::chrono::system_clock::now();
 
-	float DeltaTime = std::chrono::duration_cast<std::chrono::microseconds>(now - m_PreviousFrameTime).count() / 1000000.0f;
+	float deltaSeconds = std::chrono::duration_cast<std::chrono::microseconds>(now - m_PreviousFrameTime).count() / 1000000.0f;
 
 	m_PreviousFrameTime = now;
 
-	m_Scene->Update(DeltaTime);
+	m_Scene->Update(deltaSeconds);
 
-	PushUpdate(DeltaTime);
+	PushUpdate(deltaSeconds);
 	
-	m_Renderer->Update();
+	m_Renderer->Update(deltaSeconds);
    
 	m_Renderer->BeginUIFrame();
 	
 	for (std::shared_ptr<Widget>& widget: m_Widgets)
 	{
-		widget->Tick(DeltaTime);
+		widget->Tick(deltaSeconds);
 	}
 	
 	m_Renderer->EndUIFrame();
@@ -175,11 +173,6 @@ void Engine::AddManager(std::shared_ptr<BaseManager> manager)
 std::shared_ptr<Scene> Engine::GetLoadedScene() const
 {
 	return m_Scene;
-}
-
-Camera* Engine::GetCamera()
-{
-	return &m_Camera;
 }
 
 std::shared_ptr<Window> Engine::GetWindow() const

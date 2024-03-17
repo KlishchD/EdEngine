@@ -22,13 +22,13 @@ Transform Actor::GetPreviousTransform() const
     return m_PreviousTransform;
 }
 
-void Actor::Update(float DeltaSeconds)
+void Actor::Update(float deltaSeconds)
 {
     m_PreviousTransform = m_Transform;
 
     for (std::shared_ptr<Component> component : m_Components)
     {
-        component->Update(DeltaSeconds);
+        component->Update(deltaSeconds);
     }
 }
 

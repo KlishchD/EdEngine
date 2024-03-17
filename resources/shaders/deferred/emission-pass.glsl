@@ -12,7 +12,7 @@ void main() {
 
 #version 460 core
 
-uniform vec2 u_ScreenSize;
+uniform vec2 u_PixelSize;
 
 uniform sampler2D u_Albedo;
 uniform sampler2D u_RoughnessMetalic;
@@ -22,7 +22,7 @@ layout(location = 1) out vec4 specular;
 layout(location = 2) out vec4 combined;
 
 void main() {
-    vec2 pos = gl_FragCoord.xy / u_ScreenSize;
+    vec2 pos = gl_FragCoord.xy * u_PixelSize;
     
     vec3 albedo = texture(u_Albedo, pos).xyz;
     

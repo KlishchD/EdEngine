@@ -9,6 +9,7 @@
 #include "Platform/Rendering/OpenGL/Textures/OpenGLCubeTexture.h"
 #include "Platform/Rendering/OpenGL/Textures/OpenGLTexture2DArray.h"
 #include "Core/Rendering/Textures/CubeTexture.h"
+#include "Core/Rendering/RenderGraph.h"
 #include "Core/Assets/AssetManager.h"
 #include "Core/Engine.h"
 #include "Core/Macros.h"
@@ -88,12 +89,13 @@ std::shared_ptr<Shader> RenderingHelper::CreateShader(const std::string& path)
 {
 	std::string source;
 	ShaderType currentShaderType = ShaderType::None;
-
-	std::fstream file(path, std::ios_base::in);
+	
+	std::string fullPath = Files::ContentFolderPath + path;
+	std::fstream file(fullPath, std::ios_base::in);
 	std::string line;
 
 	ED_ASSERT(file.is_open(), "Couldn't find a shader")
-
+		
 	std::shared_ptr<OpenGLShader> shader = std::make_shared<OpenGLShader>();
 
 	while (std::getline(file, line)) {
@@ -136,7 +138,7 @@ std::shared_ptr<Shader> RenderingHelper::CreateShader(const std::string& path)
 	return shader;
 }
 
-std::shared_ptr<Texture> RenderingHelper::CreateDefaultFramebufferAttachment(FramebufferAttachmentType type, TextureType textureType)
+std::shared_ptr<Texture> RenderingHelper::CreateRenderTarget(const RenderTargetSpecification& specification, TextureType textureType)
 {
 	switch (textureType)
 	{
@@ -144,7 +146,7 @@ std::shared_ptr<Texture> RenderingHelper::CreateDefaultFramebufferAttachment(Fra
 	{
 		Texture2DImportParameters parameters;
 
-		switch (type)
+		switch (specification.Type)
 		{
 		case FramebufferAttachmentType::Color:        parameters = { "", WrapMode::ClampToEdge,    WrapMode::ClampToEdge,    PixelFormat::RGBA8F,       FilteringMode::Linear }; break;
 		case FramebufferAttachmentType::Color16:      parameters = { "", WrapMode::ClampToEdge,    WrapMode::ClampToEdge,    PixelFormat::RGBA16F,      FilteringMode::Linear }; break;
@@ -162,13 +164,13 @@ std::shared_ptr<Texture> RenderingHelper::CreateDefaultFramebufferAttachment(Fra
 
 		Texture2DData data(1, 1);
 
-		return CreateTexture2D(std::move(parameters), std::move(data), "Framebuffer attachment");
+		return CreateTexture2D(std::move(parameters), std::move(data), specification.Name);
 	}
 	case TextureType::CubeTexture:
 	{
 		CubeTextureImportParameters parameters;
 
-		switch (type)
+		switch (specification.Type)
 		{
 		case FramebufferAttachmentType::Color:        parameters = { "", WrapMode::ClampToEdge, WrapMode::ClampToEdge, PixelFormat::RGBA8F,        FilteringMode::Linear,  WrapMode::ClampToEdge }; break;
 		case FramebufferAttachmentType::Color16:      parameters = { "", WrapMode::ClampToEdge, WrapMode::ClampToEdge, PixelFormat::RGBA16F,       FilteringMode::Linear,  WrapMode::ClampToEdge }; break;
@@ -184,13 +186,13 @@ std::shared_ptr<Texture> RenderingHelper::CreateDefaultFramebufferAttachment(Fra
 
 		CubeTextureData data(1);
 
-		return CreateCubeTexture(std::move(parameters), std::move(data), "Cubeframebuffer attachment");
+		return CreateCubeTexture(std::move(parameters), std::move(data), specification.Name);
 	}
 	case TextureType::Texture2DArray:
 	{
 		Texture2DArrayImportParameters parameters;
 
-		switch (type)
+		switch (specification.Type)
 		{
 		case FramebufferAttachmentType::Color:        parameters = { "", WrapMode::ClampToEdge,    WrapMode::ClampToEdge,    PixelFormat::RGBA8F,       FilteringMode::Linear }; break;
 		case FramebufferAttachmentType::Color16:      parameters = { "", WrapMode::ClampToEdge,    WrapMode::ClampToEdge,    PixelFormat::RGBA16F,      FilteringMode::Linear }; break;
@@ -208,7 +210,7 @@ std::shared_ptr<Texture> RenderingHelper::CreateDefaultFramebufferAttachment(Fra
 
 		Texture2DArrayData data(1, 1, 1);
 
-		return CreateTexture2DArray(std::move(parameters), std::move(data), "Framebuffer attachment");
+		return CreateTexture2DArray(std::move(parameters), std::move(data), specification.Name);
 	}
 	default:
 		ED_ASSERT_CONTEXT(OpenGLAPI, 0, "Unsupported texutre type")
@@ -216,19 +218,25 @@ std::shared_ptr<Texture> RenderingHelper::CreateDefaultFramebufferAttachment(Fra
 	}
 }
 
-std::shared_ptr<Framebuffer> RenderingHelper::CreateFramebuffer(uint32_t width, uint32_t height, uint32_t depth)
+std::shared_ptr<Framebuffer> RenderingHelper::CreateFramebuffer(const std::string& name, uint32_t width, uint32_t height, uint32_t depth, const std::vector<RenderTargetSpecification>& renderTargets, TextureType textureType)
 {
-	return std::make_shared<OpenGLFramebuffer>(width, height, depth);
+	FramebufferSpecification specification;
+	specification.Name = name;
+	specification.Size = { width, height, depth };
+	specification.RenderTargets = renderTargets;
+	specification.TextureType = textureType;
+
+	return CreateFramebuffer(specification);
 }
 
-std::shared_ptr<Framebuffer> RenderingHelper::CreateFramebuffer(uint32_t width, uint32_t height, uint32_t depth, const std::vector<FramebufferAttachmentType>& initialAttachments, TextureType textureType)
+std::shared_ptr<Framebuffer> RenderingHelper::CreateFramebuffer(const FramebufferSpecification& specification)
 {
-	std::shared_ptr<Framebuffer> framebuffer = std::make_shared<OpenGLFramebuffer>(width, height, depth);
+	std::shared_ptr<Framebuffer> framebuffer = std::make_shared<OpenGLFramebuffer>(specification);
 
-	for (FramebufferAttachmentType type : initialAttachments)
+	for (const RenderTargetSpecification& targetSpecification : specification.RenderTargets)
 	{
-		std::shared_ptr<Texture> attachment = CreateDefaultFramebufferAttachment(type, textureType);
-		framebuffer->AddAttacment(attachment);
+		std::shared_ptr<Texture> attachment = CreateRenderTarget(targetSpecification, specification.TextureType);
+		framebuffer->AddAttachment(attachment);
 	}
 
 	return framebuffer;
@@ -367,7 +375,6 @@ Texture2DImportParameters RenderingHelper::GetDefaultRoughnessTexture2DImportPar
 	return parameters;
 }
 
-
 std::shared_ptr<Texture2D> RenderingHelper::GetWhiteTexture()
 {
 	static bool isInitialized = false;
@@ -390,4 +397,38 @@ std::shared_ptr<Texture2D> RenderingHelper::GetWhiteTexture()
 	}
 
 	return texutre;
+}
+
+bool RenderingHelper::IsLightMeshVisible(const std::vector<glm::vec3>& vertices, const Transform& transform, const Camera& camera)
+{
+	glm::mat4 projectionViewModelMatrix = camera.GetProjectionView() * transform.GetMatrix();
+
+	glm::vec3 leftBottonCorner(std::numeric_limits<float>::max());
+	glm::vec3 rightTopCorner(std::numeric_limits<float>::min());
+
+	for (const glm::vec3& point : vertices)
+	{
+		glm::vec4 transformed = projectionViewModelMatrix * glm::vec4(point, 1.0f);
+		transformed /= transformed.w;
+
+		leftBottonCorner.x = glm::min(leftBottonCorner.x, transformed.x);
+		leftBottonCorner.y = glm::min(leftBottonCorner.y, transformed.y);
+		leftBottonCorner.z = glm::min(leftBottonCorner.z, transformed.z);
+
+		rightTopCorner.x = glm::max(rightTopCorner.x, transformed.x);
+		rightTopCorner.y = glm::max(rightTopCorner.y, transformed.y);
+		rightTopCorner.z = glm::max(rightTopCorner.z, transformed.z);
+	}
+
+	bool xChangesSign = leftBottonCorner.x * rightTopCorner.x < 0;
+	bool yChangesSign = leftBottonCorner.y * rightTopCorner.y < 0;
+	bool zChangesSign = leftBottonCorner.z * rightTopCorner.z < 0;
+
+	bool xInViewRange = (leftBottonCorner.x >= -1.0f && leftBottonCorner.x <= 1.0f) || (rightTopCorner.x >= -1.0f && rightTopCorner.x <= 1.0f);
+	bool yInViewRange = (leftBottonCorner.y >= -1.0f && leftBottonCorner.y <= 1.0f) || (rightTopCorner.y >= -1.0f && rightTopCorner.y <= 1.0f);
+	bool zInViewRange = (leftBottonCorner.z >= 0.0f && leftBottonCorner.z <= 1.0f) || (rightTopCorner.z >= 0.0f && rightTopCorner.z <= 1.0f);
+
+	return (xChangesSign && yChangesSign && zChangesSign) || (xInViewRange && yInViewRange && zInViewRange) ||
+		(xChangesSign && yChangesSign && zInViewRange) || (yChangesSign && zChangesSign && xInViewRange) || (xChangesSign && zChangesSign && yInViewRange) ||
+		(xChangesSign && yInViewRange && zInViewRange) || (yChangesSign && xInViewRange && zInViewRange) || (zChangesSign && yInViewRange && xInViewRange);
 }
