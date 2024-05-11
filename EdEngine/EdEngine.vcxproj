@@ -78,6 +78,7 @@
       <ConformanceMode>true</ConformanceMode>
       <AdditionalIncludeDirectories>$(SolutionDir)EdEngine\Dependencies\ImGui;$(SolutionDir)EdEngine\src;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp20</LanguageStandard>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -96,6 +97,7 @@
       <ConformanceMode>true</ConformanceMode>
       <AdditionalIncludeDirectories>$(SolutionDir)EdEngine\Dependencies\ImGui;$(SolutionDir)EdEngine\src;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp20</LanguageStandard>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -108,12 +110,13 @@
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
-      <WarningLevel>Level3</WarningLevel>
+      <WarningLevel>Level1</WarningLevel>
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>GLEW_STATIC;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <AdditionalIncludeDirectories>$(SolutionDir)EdEngine\Dependencies\ImGui;$(SolutionDir)EdEngine\src;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp20</LanguageStandard>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -132,6 +135,7 @@
       <ConformanceMode>true</ConformanceMode>
       <AdditionalIncludeDirectories>$(SolutionDir)EdEngine\Dependencies\ImGui;$(SolutionDir)EdEngine\src;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp20</LanguageStandard>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -151,35 +155,54 @@
     <ClCompile Include="Dependencies\ImGui\imgui_tables.cpp" />
     <ClCompile Include="Dependencies\ImGui\imgui_widgets.cpp" />
     <ClCompile Include="EdEngine.cpp" />
+    <ClCompile Include="src\Core\Assets\Factories\AssetFactory.cpp" />
+    <ClCompile Include="src\Core\Assets\Importers\AssetImporter.cpp" />
+    <ClCompile Include="src\Core\Assets\Importers\MaterialAssetImporter.cpp" />
+    <ClCompile Include="src\Core\Assets\Importers\StaticMeshImporter.cpp" />
+    <ClCompile Include="src\Core\Assets\Importers\Texture2DAssetImporter.cpp" />
+    <ClCompile Include="src\Core\Assets\ImportParameters\AssetImportParameters.cpp" />
+    <ClCompile Include="src\Core\Assets\ImportParameters\StaticMeshImportParameters.cpp" />
+    <ClCompile Include="src\Core\Assets\ImportParameters\TextureImportParameters.cpp" />
+    <ClCompile Include="src\Core\Rendering\Passes\Bloom\BloomDownscalePass.cpp" />
+    <ClCompile Include="src\Core\Rendering\Passes\Bloom\BloomMultiPass.cpp" />
+    <ClCompile Include="src\Core\Rendering\Passes\Bloom\BloomUpscalePass.cpp" />
+    <ClCompile Include="src\Core\Rendering\Passes\Editor\IconsPass.cpp" />
+    <ClCompile Include="src\Core\Rendering\Passes\GrayscalePass.cpp" />
+    <ClCompile Include="src\Core\Rendering\Passes\Lighting\DirectionalLight\DirectionalLightMultiPass.cpp" />
+    <ClCompile Include="src\Core\Rendering\Passes\Lighting\PointLight\PointLightMultiPass.cpp" />
+    <ClCompile Include="src\Core\Rendering\Passes\Lighting\SpotLight\SpotLightMultiPass.cpp" />
+    <ClCompile Include="src\Core\Rendering\Passes\Lighting\SpotLight\SpotLightWireframePass.cpp" />
+    <ClCompile Include="src\Core\Rendering\Passes\Lighting\SpotLight\SpotLightShadingPass.cpp" />
+    <ClCompile Include="src\Core\Rendering\Passes\Lighting\SpotLight\SpotLightShadowPass.cpp" />
     <ClCompile Include="src\Core\Assets\Asset.cpp" />
     <ClCompile Include="src\Core\Assets\AssetManager.cpp" />
     <ClCompile Include="src\Core\Assets\Character.cpp" />
-    <ClCompile Include="src\Core\Assets\Descriptors\AssetDescriptor.cpp" />
-    <ClCompile Include="src\Core\Assets\Descriptors\MaterialDescriptor.cpp" />
-    <ClCompile Include="src\Core\Assets\Descriptors\StaticMeshDescriptor.cpp" />
-    <ClCompile Include="src\Core\Assets\Descriptors\TextureDescriptor.cpp" />
-    <ClCompile Include="src\Core\Assets\Descriptors\TextureDescriptor.h" />
     <ClCompile Include="src\Core\Assets\Font.cpp" />
     <ClCompile Include="src\Core\Assets\FontManager.cpp" />
     <ClCompile Include="src\Core\Assets\ImportParameters\StaticMeshImportParameters.h" />
     <ClCompile Include="src\Core\Assets\Material.cpp" />
+    <ClCompile Include="src\Core\Components\CameraComponent.cpp" />
     <ClCompile Include="src\Core\Components\DirectionalLightComponent.cpp" />
     <ClCompile Include="src\Core\Components\LightComponent.cpp" />
     <ClCompile Include="src\Core\Components\SpotLightComponent.cpp" />
     <ClCompile Include="src\Core\Input.cpp" />
-    <ClCompile Include="src\Core\Rendering\Tasks\AmbientRenderTask.cpp" />
-    <ClCompile Include="src\Core\Rendering\Tasks\BloomRenderTask.cpp" />
-    <ClCompile Include="src\Core\Rendering\Tasks\DirectionalLightRenderTask.cpp" />
-    <ClCompile Include="src\Core\Rendering\Tasks\EmissionRenderTask.cpp" />
-    <ClCompile Include="src\Core\Rendering\Tasks\FXAARenderTask.cpp" />
-    <ClCompile Include="src\Core\Rendering\Tasks\GBufferRenderTask.cpp" />
-    <ClCompile Include="src\Core\Rendering\Tasks\PointLightRenderTask.cpp" />
-    <ClCompile Include="src\Core\Rendering\Tasks\RenderTask.cpp" />
-    <ClCompile Include="src\Core\Rendering\Tasks\ResolutionRenderTask.cpp" />
-    <ClCompile Include="src\Core\Rendering\Tasks\SpotLightRenderTask.cpp" />
-    <ClCompile Include="src\Core\Rendering\Tasks\SSAORenderTask.cpp" />
-    <ClCompile Include="src\Core\Rendering\Tasks\SSDORenderTask.cpp" />
-    <ClCompile Include="src\Core\Rendering\Tasks\TAARenderTask.cpp" />
+    <ClCompile Include="src\Core\Objects\PlayerActor.cpp" />
+    <ClCompile Include="src\Core\Rendering\Passes\Lighting\DirectionalLight\DirectionalLightShadingPass.cpp" />
+    <ClCompile Include="src\Core\Rendering\Passes\Lighting\DirectionalLight\DirectionalLightShadowPass.cpp" />
+    <ClCompile Include="src\Core\Rendering\Passes\Lighting\PointLight\PointLightShadingPass.cpp" />
+    <ClCompile Include="src\Core\Rendering\Passes\Lighting\PointLight\PointLightShadowPass.cpp" />
+    <ClCompile Include="src\Core\Rendering\Passes\Lighting\PointLight\PointLightWireframePass.cpp" />
+    <ClCompile Include="src\Core\Rendering\Passes\SSAO\SSAOBlurPass.cpp" />
+    <ClCompile Include="src\Core\Rendering\Passes\SSAO\SSAOMultiPass.cpp" />
+    <ClCompile Include="src\Core\Rendering\Passes\SSAO\SSAOPass.cpp" />
+    <ClCompile Include="src\Core\Rendering\RenderGraph.cpp" />
+    <ClCompile Include="src\Core\Rendering\Passes\RenderPass.cpp" />
+    <ClCompile Include="src\Core\Rendering\Passes\AmbientPass.cpp" />
+    <ClCompile Include="src\Core\Rendering\Passes\EmissionPass.cpp" />
+    <ClCompile Include="src\Core\Rendering\Passes\FXAAPass.cpp" />
+    <ClCompile Include="src\Core\Rendering\Passes\GBufferPass.cpp" />
+    <ClCompile Include="src\Core\Rendering\Passes\ResolutionPass.cpp" />
+    <ClCompile Include="src\Core\Rendering\Passes\TAAPass.cpp" />
     <ClCompile Include="src\Core\Rendering\Textures\Sampler.cpp" />
     <ClCompile Include="src\Core\Rendering\Shader.cpp" />
     <ClCompile Include="src\Core\Assets\StaticMesh.cpp" />
@@ -225,7 +248,8 @@
     <ClCompile Include="src\Utils\GeometryBuilder.cpp" />
     <ClCompile Include="src\Utils\MathHelper.cpp" />
     <ClCompile Include="src\Utils\RenderingHelper.cpp" />
-    <ClCompile Include="src\Utils\SerializationUtils.cpp" />
+    <ClCompile Include="src\Utils\Serializable.cpp" />
+    <ClCompile Include="src\Utils\SerializationHelper.cpp" />
     <ClCompile Include="src\Utils\stb_image.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -240,30 +264,57 @@
     <ClInclude Include="Dependencies\ImGui\imstb_truetype.h" />
     <ClInclude Include="src\Core\Assets\Asset.h" />
     <ClInclude Include="src\Core\Assets\AssetManager.h" />
+    <ClInclude Include="src\Core\Assets\Factories\AssetFactory.h" />
     <ClInclude Include="src\Core\Assets\Character.h" />
-    <ClInclude Include="src\Core\Assets\Descriptors\AssetDescriptor.h" />
-    <ClInclude Include="src\Core\Assets\Descriptors\MaterialDescriptor.h" />
-    <ClInclude Include="src\Core\Assets\Descriptors\StaticMeshDescriptor.h" />
+    <ClInclude Include="src\Core\Assets\Factories\TemplatedAssetFactory.h" />
     <ClInclude Include="src\Core\Assets\Font.h" />
     <ClInclude Include="src\Core\Assets\FontManager.h" />
+    <ClInclude Include="src\Core\Assets\Importers\AssetImporter.h" />
+    <ClInclude Include="src\Core\Assets\Importers\MaterialAssetImporter.h" />
+    <ClInclude Include="src\Core\Assets\Importers\StaticMeshImporter.h" />
+    <ClInclude Include="src\Core\Assets\Importers\Texture2DAssetImporter.h" />
+    <ClInclude Include="src\Core\Assets\ImportParameters\AssetImportParameters.h" />
+    <ClInclude Include="src\Core\Assets\ImportParameters\MaterialImportParameters.h" />
     <ClInclude Include="src\Core\Assets\Material.h" />
+    <ClInclude Include="src\Core\Components\CameraComponent.h" />
     <ClInclude Include="src\Core\Components\DirectionalLightComponent.h" />
     <ClInclude Include="src\Core\Components\LightComponent.h" />
     <ClInclude Include="src\Core\Components\SpotLightComponent.h" />
+    <ClInclude Include="src\Core\Object.h" />
+    <ClInclude Include="src\Core\Objects\PlayerActor.h" />
     <ClInclude Include="src\Core\Rendering\EdRendering.h" />
-    <ClInclude Include="src\Core\Rendering\Tasks\AmbientRenderTask.h" />
-    <ClInclude Include="src\Core\Rendering\Tasks\BloomRenderTask.h" />
-    <ClInclude Include="src\Core\Rendering\Tasks\DirectionalLightRenderTask.h" />
-    <ClInclude Include="src\Core\Rendering\Tasks\EmissionRenderTask.h" />
-    <ClInclude Include="src\Core\Rendering\Tasks\FXAARenderTask.h" />
-    <ClInclude Include="src\Core\Rendering\Tasks\GBufferRenderTask.h" />
-    <ClInclude Include="src\Core\Rendering\Tasks\PointLightRenderTask.h" />
-    <ClInclude Include="src\Core\Rendering\Tasks\RenderTask.h" />
-    <ClInclude Include="src\Core\Rendering\Tasks\ResolutionRenderTask.h" />
-    <ClInclude Include="src\Core\Rendering\Tasks\SpotLightRenderTask.h" />
-    <ClInclude Include="src\Core\Rendering\Tasks\SSAORenderTask.h" />
-    <ClInclude Include="src\Core\Rendering\Tasks\SSDORenderTask.h" />
-    <ClInclude Include="src\Core\Rendering\Tasks\TAARenderTask.h" />
+    <ClInclude Include="src\Core\Rendering\Passes\Bloom\BloomDownscalePass.h" />
+    <ClInclude Include="src\Core\Rendering\Passes\Bloom\BloomMultiPass.h" />
+    <ClInclude Include="src\Core\Rendering\Passes\Bloom\BloomUpscalePass.h" />
+    <ClInclude Include="src\Core\Rendering\Passes\Editor\IconsPass.h" />
+    <ClInclude Include="src\Core\Rendering\Passes\GrayscalePass.h" />
+    <ClInclude Include="src\Core\Rendering\Passes\Lighting\DirectionalLight\DirectionalLightMultiPass.h" />
+    <ClInclude Include="src\Core\Rendering\Passes\Lighting\DirectionalLight\DirectionalLightShadingPass.h" />
+    <ClInclude Include="src\Core\Rendering\Passes\Lighting\DirectionalLight\DirectionalLightShadowPass.h" />
+    <ClInclude Include="src\Core\Rendering\Passes\Lighting\PointLight\PointLightMultiPass.h" />
+    <ClInclude Include="src\Core\Rendering\Passes\Lighting\PointLight\PointLightShadingPass.h" />
+    <ClInclude Include="src\Core\Rendering\Passes\Lighting\PointLight\PointLightShadowPass.h" />
+    <ClInclude Include="src\Core\Rendering\Passes\Lighting\PointLight\PointLightWireframePass.h" />
+    <ClInclude Include="src\Core\Rendering\Passes\Lighting\SpotLight\SpotLightMultiPass.h" />
+    <ClInclude Include="src\Core\Rendering\Passes\Lighting\SpotLight\SpotLightShadingPass.h" />
+    <ClInclude Include="src\Core\Rendering\Passes\Lighting\SpotLight\SpotLightShadowPass.h" />
+    <ClInclude Include="src\Core\Rendering\Passes\Lighting\SpotLight\SpotLightWireframePass.h" />
+    <ClInclude Include="src\Core\Rendering\Passes\Parameters\ParametersCommon.h" />
+    <ClInclude Include="src\Core\Rendering\Passes\Parameters\RenderPassParameters.h" />
+    <ClInclude Include="src\Core\Rendering\Passes\Parameters\ShaderParameters.h" />
+    <ClInclude Include="src\Core\Rendering\Passes\SSAO\SSAOBlurPass.h" />
+    <ClInclude Include="src\Core\Rendering\Passes\SSAO\SSAOMultiPass.h" />
+    <ClInclude Include="src\Core\Rendering\Passes\SSAO\SSAOPass.h" />
+    <ClInclude Include="src\Core\Rendering\RenderGraph.h" />
+    <ClInclude Include="src\Core\Rendering\Passes\Parameters\RenderGraphParameters.h" />
+    <ClInclude Include="src\Core\Rendering\Passes\RenderPass.h" />
+    <ClInclude Include="src\Core\Rendering\Resource.h" />
+    <ClInclude Include="src\Core\Rendering\Passes\AmbientPass.h" />
+    <ClInclude Include="src\Core\Rendering\Passes\EmissionPass.h" />
+    <ClInclude Include="src\Core\Rendering\Passes\FXAAPass.h" />
+    <ClInclude Include="src\Core\Rendering\Passes\GBufferPass.h" />
+    <ClInclude Include="src\Core\Rendering\Passes\ResolutionPass.h" />
+    <ClInclude Include="src\Core\Rendering\Passes\TAAPass.h" />
     <ClInclude Include="src\Core\Rendering\Textures\Sampler.h" />
     <ClInclude Include="src\Core\Rendering\Shader.h" />
     <ClInclude Include="src\Core\Assets\StaticMesh.h" />
@@ -314,7 +365,8 @@
     <ClInclude Include="src\Utils\MathHelper.h" />
     <ClInclude Include="src\Utils\PlatformUtils.h" />
     <ClInclude Include="src\Utils\RenderingHelper.h" />
-    <ClInclude Include="src\Utils\SerializationUtils.h" />
+    <ClInclude Include="src\Utils\Serializable.h" />
+    <ClInclude Include="src\Utils\SerializationHelper.h" />
     <ClInclude Include="src\Utils\stb_image.h" />
   </ItemGroup>
   <ItemGroup>

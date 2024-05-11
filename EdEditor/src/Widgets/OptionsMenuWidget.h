@@ -17,10 +17,10 @@ private:
 
     std::shared_ptr<class Texture2D> m_Icon;
 
-    StaticMeshImportParameters m_StaticMeshImportParameters;
+    std::shared_ptr<StaticMeshImportParameters> m_StaticMeshImportParameters;
     bool m_StaticMeshImportPopupIsOpened = false;
 
-    Texture2DImportParameters m_TextureImportParameters;
+    std::shared_ptr<Texture2DImportParameters> m_TextureImportParameters;
     bool m_TextureImportPopupIsOpened = false;
 
     void StaticMeshImportPopup();

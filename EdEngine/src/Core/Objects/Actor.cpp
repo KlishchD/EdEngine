@@ -1,10 +1,13 @@
 ﻿#include "Actor.h"
 
-BOOST_CLASS_EXPORT_IMPLEMENT(Actor)
-
 Actor::Actor(const std::string& name): GameObject(name)
 {
     
+}
+
+void Actor::Intialize()
+{
+
 }
 
 void Actor::SetTransform(const Transform& transform)
@@ -22,13 +25,13 @@ Transform Actor::GetPreviousTransform() const
     return m_PreviousTransform;
 }
 
-void Actor::Update(float DeltaSeconds)
+void Actor::Update(float deltaSeconds)
 {
     m_PreviousTransform = m_Transform;
 
     for (std::shared_ptr<Component> component : m_Components)
     {
-        component->Update(DeltaSeconds);
+        component->Update(deltaSeconds);
     }
 }
 
@@ -56,4 +59,17 @@ std::vector<std::shared_ptr<Component>> Actor::GetAllComponents() const
     }
 
     return components;
+}
+
+void Actor::Serialize(Archive& archive)
+{
+    GameObject::Serialize(archive);
+
+	archive & m_Transform;
+
+    if (archive.GetMode() == ArchiveMode::Read)
+    {
+	    throw std::logic_error("Fix it using ObjectFactory ;)");
+	    archive & m_Components;
+    }
 }

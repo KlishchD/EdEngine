@@ -13,44 +13,8 @@ enum class ComponentType: uint8_t
 
 class Actor;
 
-class Component
+class Component : public Serializable
 {
-    friend class boost::serialization::access;
-
-    template <class Archive>
-    void save(Archive& ar, uint32_t version) const
-    {
-        ar & m_Name;
-
-        ar & m_Transform;
-
-        ar & m_Children.size();
-
-        for (std::shared_ptr<Component> component: m_Children)
-        {
-            ar & *component;
-        }
-    }
-
-    template <class Archive>
-    void load(Archive& ar, uint32_t version)
-    {
-        ar & m_Name;
-        
-        ar& m_Transform;
-
-        int32_t size;
-        ar & size;
-        
-        for (int32_t i = 0; i < size; ++i)
-        {
-            Component* component;
-            ar & component;
-            m_Children.push_back(std::shared_ptr<Component>(component));
-        }
-    }
-    
-    BOOST_SERIALIZATION_SPLIT_MEMBER()
 public:
     virtual ~Component() = default;
     Component(const std::string& name = "None");
@@ -76,10 +40,12 @@ public:
     Transform GetWorldTransform() const;
     Transform GetPreviousWorldTransform() const;
 
-    virtual void Update(float DeltaSeconds);
+    virtual void Update(float deltaSeconds);
 
     const std::string& GetName() const;
     void SetName(const std::string& name);
+
+    virtual void Serialize(Archive& archive) override;
 protected:
     std::string m_Name;
 
@@ -91,6 +57,3 @@ protected:
     
     std::vector<std::shared_ptr<Component>> m_Children;
 };
-
-BOOST_SERIALIZATION_ASSUME_ABSTRACT(Component)
-BOOST_CLASS_VERSION(Component, 1)

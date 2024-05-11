@@ -1,50 +1,55 @@
 ﻿#pragma once
 
 #include "Asset.h"
-#include "Descriptors/MaterialDescriptor.h"
-
-class Texture2D;
-class RenderingContext;
+#include "Core/Rendering/Textures/Texture2D.h"
+#include "ImportParameters/MaterialImportParameters.h"
+#include <glm/vec2.hpp>
+#include <glm/vec3.hpp>
 
 class Material : public Asset
 {
 public:
-    Material(const Material& material);
-    Material();
+	typedef ImportParametersClass MaterialImportParameters;
 
-    virtual void SetDescriptor(std::shared_ptr<AssetDescriptor> inDescriptor);
-    virtual void SyncDescriptor() override;
+    Material(const std::string& name = "Empty");
 
-    void SetShaderData(std::shared_ptr<RenderingContext> context);
-    
-    void SetBaseColor(glm::vec3 color) { m_BaseColor = color; }
-    void SetRoughness(float roughness) { m_Roughness = roughness; }
-    void SetMetalic(float metalic) { m_Metalic = metalic; }
+	virtual AssetType GetType() const;
+
+    void SetBaseColor(glm::vec3 color);
+    void SetRoughness(float roughness);
+    void SetMetalic(float metalic);
     void SetEmission(float emission);
-
-    void SetBaseColorTexture(std::shared_ptr<Texture2D> texture);
-    void SetNormalTexture(std::shared_ptr<Texture2D> texture);
-    void SetRoughnessTexture(std::shared_ptr<Texture2D> texture);
-    void SetMetalicTexture(std::shared_ptr<Texture2D> texture);
 
     glm::vec3 GetBaseColor() const;
     float GetRoughness() const;
     float GetMetalic() const;
     float GetEmission() const;
 
+	void SetBaseColorTexture(std::shared_ptr<Texture2D> texture);
+	void SetNormalTexture(std::shared_ptr<Texture2D> texture);
+	void SetRoughnessTexture(std::shared_ptr<Texture2D> texture);
+	void SetMetalicTexture(std::shared_ptr<Texture2D> texture);
+
     std::shared_ptr<Texture2D> GetBaseColorTexture() const;
     std::shared_ptr<Texture2D> GetNormalTexture() const;
     std::shared_ptr<Texture2D> GetRoughnessTexture() const;
     std::shared_ptr<Texture2D> GetMetalicTexture() const;
-private:
 
+    bool ShouldPerformNormalMapping() const;
+
+    virtual void ResetState() override;
+
+    virtual void Serialize(Archive& archive) override;
+    virtual void SerializeData(Archive& archive) override;
+
+protected:
     std::shared_ptr<Texture2D> m_BaseColorTexture;
     std::shared_ptr<Texture2D> m_NormalTexture;
     
     std::shared_ptr<Texture2D> m_RoughnessTexture;
     std::shared_ptr<Texture2D> m_MetalicTexture;
     
-    glm::vec3 m_BaseColor = glm::vec4(1.0f, 1.0f, 1.0f, 1.0f);
+    glm::vec3 m_BaseColor = glm::vec3(1.0f, 1.0f, 1.0f);
 
     float m_Roughness = 1.0f;
     float m_Metalic = 1.0f;

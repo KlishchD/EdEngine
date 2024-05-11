@@ -1,32 +1,30 @@
 ﻿#include "StaticMesh.h"
 #include "Core/Ed.h"
+#include "Core/Rendering/Buffers/VertexBuffer.h"
+#include "Core/Rendering/Buffers/IndexBuffer.h"
+#include "Utils/RenderingHelper.h"
 
-StaticSubmesh::StaticSubmesh(const std::string& name): m_Name(name)
+StaticSubmesh::StaticSubmesh(const std::string& name) : Asset(name)
 {
 }
 
-StaticSubmesh::StaticSubmesh(const StaticSubmesh& submesh): m_Name(submesh.m_Name), m_VertexBuffer(submesh.m_VertexBuffer), m_Material(submesh.m_Material)
+AssetType StaticSubmesh::GetType() const
 {
+    return AssetType::StaticSubmesh;
 }
 
-std::string StaticSubmesh::GetName() const
+void StaticSubmesh::SetData(const std::vector<Vertex>& vertices, const std::vector<int32_t>& indices)
 {
-    return m_Name;
+    m_Vertices = vertices;
+    m_Indices = indices;
+    CreateBuffers();
 }
 
-void StaticSubmesh::SetName(const std::string& name)
+void StaticSubmesh::SetData(std::vector<Vertex>&& vertices, std::vector<int32_t>&& indices)
 {
-    m_Name = name;
-}
-
-void StaticSubmesh::SetVertexBuffer(std::shared_ptr<VertexBuffer> buffer)
-{
-    m_VertexBuffer = buffer;
-}
-
-void StaticSubmesh::SetIndexBuffer(std::shared_ptr<IndexBuffer> buffer)
-{
-	m_IndexBuffer = buffer;
+	m_Vertices = std::move(vertices);
+	m_Indices = std::move(indices);
+	CreateBuffers();
 }
 
 void StaticSubmesh::SetMaterial(std::shared_ptr<Material> material)
@@ -34,37 +32,95 @@ void StaticSubmesh::SetMaterial(std::shared_ptr<Material> material)
     m_Material = material;
 }
 
-StaticMesh::StaticMesh(const StaticMesh& mesh)
+void StaticSubmesh::ResetState()
 {
-    SetDescriptor(mesh.GetDescriptor());
+
+}
+
+void StaticSubmesh::Serialize(Archive& archive)
+{
+	if (archive.GetMode() == ArchiveMode::Write)
+	{
+		archive & GetType();
+	}
+
+	Serializable::Serialize(archive);
+
+	archive & m_Id;
+	archive & m_Name;
+}
+
+void StaticSubmesh::SerializeData(Archive& archive)
+{
+    Asset::SerializeData(archive);
+
+    m_Material = SerializationHelper::SerializeAsset(archive, m_Material);
+
+    archive & m_Vertices;
+    archive & m_Indices;
+}
+
+void StaticSubmesh::FreeData()
+{
+    Asset::FreeData();
+
+    m_Indices.clear();
+    m_Vertices.clear();
+}
+
+void StaticSubmesh::CreateBuffers()
+{
+	static VertexBufferLayout layout = {
+			{ "Position",            ShaderDataType::Float3 },
+			{ "Color",               ShaderDataType::Float4 },
+			{ "TextureCoordinates",  ShaderDataType::Float3 },
+			{ "Normal",              ShaderDataType::Float3 },
+			{ "Tangent",             ShaderDataType::Float3 },
+			{ "Bitangent",           ShaderDataType::Float3 }
+	};
+
+	m_VertexBuffer = RenderingHelper::CreateVertexBuffer((void*)m_Vertices.data(), m_Vertices.size() * sizeof(Vertex), layout, BufferUsage::StaticDraw);
+	m_IndexBuffer = RenderingHelper::CreateIndexBuffer((void*)m_Indices.data(), m_Indices.size() * sizeof(int32_t), BufferUsage::StaticDraw);
+}
+
+StaticMesh::StaticMesh(const std::string& name) : Asset(name)
+{
+
+}
+
+AssetType StaticMesh::GetType() const
+{
+    return AssetType::StaticMesh;
+}
+
+void StaticMesh::SetSubmeshes(const std::vector<std::shared_ptr<StaticSubmesh>>& submeshes)
+{
+    m_Submeshes = submeshes;
+}
+
+void StaticMesh::AddSubmesh(std::shared_ptr<StaticSubmesh> submesh)
+{
+	m_Submeshes.push_back(submesh);
+}
+
+void StaticMesh::ResetState()
+{
     
-    for (const std::shared_ptr<StaticSubmesh> submesh: mesh.m_Submeshes)
-    {
-        m_Submeshes.push_back(std::make_shared<StaticSubmesh>(*submesh));
-    }
-
-    MarkDirty();
 }
 
-void StaticMesh::SetDescriptor(std::shared_ptr<AssetDescriptor> inDescriptor)
+void StaticMesh::SerializeData(Archive& archive)
 {
-    m_Descriptor = inDescriptor;
+    Asset::SerializeData(archive);
 
-    std::shared_ptr<StaticMeshDescriptor> descriptor = std::static_pointer_cast<StaticMeshDescriptor>(inDescriptor);
-    for (const StaticSubmeshData& data : descriptor->MeshData)
-    {
-        m_Submeshes.push_back(AssetUtils::CreateStaticSubmesh(data));
-    }
+    archive & m_Submeshes;
 }
 
-void StaticMesh::SyncDescriptor()
+void StaticMesh::FreeData()
 {
-    Asset::SyncDescriptor();
+    Asset::FreeData();
 
-    std::shared_ptr<StaticMeshDescriptor> descriptor = GetDescriptor<StaticMeshDescriptor>();
-
-    for (int32_t i = 0; i < m_Submeshes.size(); ++i)
+    for (std::shared_ptr<StaticSubmesh> submesh : m_Submeshes)
     {
-        descriptor->MeshData[i].MaterialID = m_Submeshes[i]->GetMaterial()->GetDescriptor()->AssetId;
+        submesh->FreeData();
     }
 }

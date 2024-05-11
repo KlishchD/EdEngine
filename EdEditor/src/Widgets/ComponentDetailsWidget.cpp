@@ -5,8 +5,7 @@
 #include "Core/Components/StaticMeshComponent.h"
 #include "Core/Components/PointLightComponent.h"
 #include "Core/Components/SpotLightComponent.h"
-#include "Core/Assets/Descriptors/MaterialDescriptor.h"
-
+#include "Utils/AssetUtils.h"
 #include <imgui.h>
 #include <glm/gtc/type_ptr.hpp>
 
@@ -58,7 +57,7 @@ void ComponentDetailsWidget::StaticMeshDetails()
     std::shared_ptr<StaticMesh> mesh = component->GetStaticMesh();
     
     {
-        std::string meshSelectionLabel = mesh ? mesh->GetAssetName() : "Select Static Mesh";
+        std::string meshSelectionLabel = mesh ? mesh->GetName() : "Select Static Mesh";
 
         if (ImGui::BeginTable("##StaticMesh", 2))
         {
@@ -72,12 +71,11 @@ void ComponentDetailsWidget::StaticMeshDetails()
                     component->SetStaticMesh(nullptr);
                 }
                 
-                for (const auto& descriptor: m_AssetManager->GetDescriptors<StaticMeshDescriptor>(AssetType::StaticMesh))
+                for (const auto& asset: m_AssetManager->GetAssets<StaticMesh>(AssetType::StaticMesh))
                 {
-                    if (ImGui::Selectable(AssetUtils::GetAssetNameLable(descriptor).c_str(), mesh && mesh->GetDescriptor() == descriptor))
+                    if (ImGui::Selectable(AssetUtils::GetAssetNameLable(asset).c_str(), mesh == asset))
                     {
-                        std::shared_ptr<StaticMesh> newStaticMesh = m_AssetManager->LoadMesh(descriptor);
-                        component->SetStaticMesh(newStaticMesh);
+                        component->SetStaticMesh(asset);
                     }
                 }
                 ImGui::EndCombo();
@@ -95,7 +93,7 @@ void ComponentDetailsWidget::StaticMeshDetails()
             {
                 {
                     std::shared_ptr<Material> material = submesh->GetMaterial();
-                    std::string materialSelectionLabel = material ? material->GetAssetName() : "Select Material";
+                    std::string materialSelectionLabel = material ? material->GetName() : "Select Material";
 
                     ImGui::TableNextColumn();
                     ImGui::Text((submesh->GetName() + " material").c_str());
@@ -107,12 +105,11 @@ void ComponentDetailsWidget::StaticMeshDetails()
                         {
                             submesh->SetMaterial(nullptr);
                         }
-                        for (const auto& descriptor: m_AssetManager->GetDescriptors<MaterialDescriptor>(AssetType::Material))
+                        for (const auto& asset: m_AssetManager->GetAssets<Material>(AssetType::Material))
                         {
-                            if (ImGui::Selectable(AssetUtils::GetAssetNameLable(descriptor).c_str(), material && material->GetDescriptor() == descriptor))
+                            if (ImGui::Selectable(AssetUtils::GetAssetNameLable(asset).c_str(), material == asset))
                             {
-                                std::shared_ptr<Material> newMaterial = m_AssetManager->LoadMaterial(descriptor);
-                                submesh->SetMaterial(newMaterial);
+                                submesh->SetMaterial(asset);
                             }
                         }
                         

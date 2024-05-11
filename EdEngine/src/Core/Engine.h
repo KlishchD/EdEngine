@@ -6,7 +6,6 @@
 
 #include "Input.h"
 #include "BaseManager.h"
-#include "Math/Camera.h"
 
 class Scene;
 class Renderer;
@@ -68,18 +67,22 @@ public:
 
     std::shared_ptr<Scene> GetLoadedScene() const;
 
-    Camera* GetCamera();
-    
 	std::shared_ptr<Window> GetWindow() const;
 
-    std::shared_ptr<Renderer> GetRenderer();
+    std::shared_ptr<Renderer> GetRenderer() const;
+
+    float GetDeltaSeconds() const;
 
     ~Engine();
-private:
+protected:
+	void PushUpdate(float DeltaTime);
+
+protected:
     std::shared_ptr<Window> m_Window;
     
     std::chrono::time_point<std::chrono::system_clock> m_PreviousFrameTime = std::chrono::system_clock::now();
-    
+    float m_DeltaSeconds;
+
     std::vector<InputEvent> m_InputEvents;
 
     std::vector<std::function<void(float)>> m_UpdateSubscribers;
@@ -93,10 +96,6 @@ private:
     
     bool m_IsRunning = true;
 
-    Camera m_Camera;
-
     Engine() = default;
-
-    void PushUpdate(float DeltaTime);
 };
 

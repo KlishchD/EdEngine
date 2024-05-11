@@ -1,8 +1,6 @@
 ﻿#include "PointLightComponent.h"
 #include <glm/gtx/quaternion.hpp>
 
-BOOST_CLASS_EXPORT_IMPLEMENT(PointLightComponent)
-
 PointLightComponent::PointLightComponent()
 {
 }
@@ -34,6 +32,14 @@ uint32_t PointLightComponent::GetShadowFilterSize() const
 void PointLightComponent::SetShadowFilterSize(uint32_t size)
 {
     m_ShadowFilterSize = size;
+}
+
+void PointLightComponent::Serialize(Archive& archive)
+{
+    LightComponent::Serialize(archive);
+
+	archive & m_Radius;
+	archive & m_ShadowFilterSize;
 }
 
 void PointLightComponent::SetRadius(float radius)

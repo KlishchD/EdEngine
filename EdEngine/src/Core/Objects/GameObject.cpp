@@ -1,13 +1,18 @@
 ﻿#include "GameObject.h"
 
-BOOST_CLASS_EXPORT_IMPLEMENT(GameObject)
-
 GameObject::GameObject(const std::string& name)
 {
-    memcpy(m_Name.data(), name.data(), 1024);
+    memcpy(m_Name.data(), name.data(), 1024); // TODO: What ???? Why ???
 }
 
 void GameObject::SetName(const std::string& name)
 {
-    memcpy(m_Name.data(), name.data(), 1024);
+    memcpy(m_Name.data(), name.data(), 1024); // TODO: What ???? Why ???
+}
+
+void GameObject::Serialize(Archive& archive)
+{
+    Serializable::Serialize(archive);
+
+	archive & m_Name;
 }

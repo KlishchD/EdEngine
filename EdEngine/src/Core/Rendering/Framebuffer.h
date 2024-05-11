@@ -1,8 +1,34 @@
 ﻿#pragma once
 
-#include <Core/Ed.h>
+#include "Core/Ed.h"
 #include "Core/Rendering/Textures/Texture.h"
 #include "Core/Rendering/Textures/Texture2D.h"
+#include "Resource.h"
+
+enum class FramebufferAttachmentType
+{
+	Color,
+	Color16,
+	Depth,
+	DepthStencil,
+	Position,
+	Direction,
+	Velocity,
+	Distance,
+	Bloom
+};
+
+struct RenderTargetSpecification : public ResourceSpecification
+{
+    FramebufferAttachmentType Type;
+};
+
+struct FramebufferSpecification : public ResourceSpecification
+{
+    glm::u32vec3 Size = glm::u32vec3(1);
+    TextureType TextureType = TextureType::Texture2D;
+    std::vector<RenderTargetSpecification> RenderTargets;
+};
 
 enum class FramebufferSizeAdjustmentMode
 {
@@ -10,12 +36,24 @@ enum class FramebufferSizeAdjustmentMode
     ResizeFramebufferToTexutreSize
 };
 
-class Framebuffer
+class Framebuffer : public Resource
 {
 public:
-    Framebuffer(uint32_t width, uint32_t height, uint32_t depth);
+    Framebuffer(const FramebufferSpecification& specification);
 
-    virtual void AddAttacment(std::shared_ptr<Texture> attachment) = 0;
+    virtual void AddAttachment(std::shared_ptr<Texture> attachment) = 0;
+
+    template<typename T>
+    std::shared_ptr<T> GetAttachment(int32_t index) const
+    {
+        return std::static_pointer_cast<T>(GetAttachment(index));
+    }
+
+    template<typename T>
+    std::shared_ptr<T> GetDepthAttachment() const
+    {
+        return std::static_pointer_cast<T>(GetDepthAttachment());
+    }
 
     std::shared_ptr<Texture> GetAttachment(int32_t index) const;
     std::shared_ptr<Texture> GetDepthAttachment() const;
@@ -28,8 +66,8 @@ public:
 
     uint32_t GetID() const;
 
-	virtual void Resize(uint32_t width, uint32_t height, uint32_t depth);
-	virtual void Resize(glm::u32vec3 size);
+	virtual bool Resize(uint32_t width, uint32_t height, uint32_t depth);
+	virtual bool Resize(glm::u32vec3 size);
 
     virtual uint32_t GetWidth() const;
     virtual uint32_t GetHeight() const;

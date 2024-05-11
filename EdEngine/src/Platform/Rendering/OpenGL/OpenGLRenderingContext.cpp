@@ -30,7 +30,7 @@ void OpenGLRenderingContext::SetVertexBuffer(std::shared_ptr<VertexBuffer> buffe
 
 	if (m_VBO)
 	{
-		for (int32_t i = 0; i < buffer->GetLayout().GetElements().size(); ++i)
+		for (int32_t i = 0; i < m_VBO->GetLayout().GetElements().size(); ++i)
 		{
 			glDisableVertexAttribArray(i);
 		}
@@ -83,7 +83,7 @@ void OpenGLRenderingContext::SetShader(std::shared_ptr<Shader> shader)
 void OpenGLRenderingContext::SetShaderDataTexture(const std::string& name, std::shared_ptr<Texture> texture)
 {
 	glActiveTexture(GL_TEXTURE0 + m_LastTextureSlot);
-	glBindTexture(OpenGLTypes::ConverTextureType(texture->GetType()), texture->GetID());
+	glBindTexture(OpenGLTypes::ConverTextureType(texture->GetTextureType()), texture->GetID());
 
 	const int32_t location = glGetUniformLocation(m_ShaderID, name.c_str());
 	glUniform1i(location, m_LastTextureSlot);
@@ -106,7 +106,7 @@ void OpenGLRenderingContext::SetShaderDataInt(const std::string& name, int32_t v
 void OpenGLRenderingContext::SetShaderDataTexture(const char* name, std::shared_ptr<Texture> texture)
 {
 	glActiveTexture(GL_TEXTURE0 + m_LastTextureSlot);
-	glBindTexture(OpenGLTypes::ConverTextureType(texture->GetType()), texture->GetID());
+	glBindTexture(OpenGLTypes::ConverTextureType(texture->GetTextureType()), texture->GetID());
 
 	const int32_t location = glGetUniformLocation(m_ShaderID, name);
 	glUniform1i(location, m_LastTextureSlot);

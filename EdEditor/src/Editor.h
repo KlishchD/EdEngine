@@ -5,7 +5,6 @@
 
 class Actor;
 class Component;
-struct AssetDescriptor;
 class Texture2D;
 class Shader;
 
@@ -31,15 +30,16 @@ public:
     glm::vec2 GetCameraRotationSpeed() const;
     void SetCameraRotationSpeed(glm::vec2 speed);
 
-    void SetSelectedAssetDescriptor(std::shared_ptr<AssetDescriptor> descriptor);
-    std::shared_ptr<AssetDescriptor> GetSelectedAssetDescriptor() const;
+    void SetSelectedAsset(std::shared_ptr<Asset> asset);
+    std::shared_ptr<Asset> GetSelectedAsset() const;
 
     void SetViewportIsActive(bool state);
-private:
+protected:
+	void UpdateMousePosition(float DeltaTime);
+
+protected:
     std::shared_ptr<class AssetManager> m_AssetManager;
 
-    RenderPassSpecification m_IconsPassSpecification;
-    
     glm::vec3 m_MovementDirection = glm::vec3(0.0f);
     
     float m_CameraSpeed = 100.0f;
@@ -52,7 +52,7 @@ private:
 
     std::shared_ptr<Texture2D> m_LightIcon;
 
-    std::shared_ptr<AssetDescriptor> m_SelectedAssetDescriptor;
+    std::shared_ptr<Asset> m_SelectedAsset;
     
     std::shared_ptr<Actor> m_SelectedActor;
     std::shared_ptr<Component> m_SelectedComponent;
@@ -63,6 +63,4 @@ private:
     std::shared_ptr<class Renderer> m_Renderer;
     std::shared_ptr<class Window> m_Window;
     Engine* m_Engine = nullptr;
-    
-    void UpdateMousePosition(float DeltaTime);
 };

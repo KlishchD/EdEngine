@@ -43,7 +43,7 @@ struct Light
     mat4 ShadowProjectionViewMatries[MAX_CASCADES_COUNT];
 };
 
-uniform vec2 u_ScreenSize;
+uniform vec2 u_PixelSize;
 
 uniform vec3 u_ViewPosition;
 uniform float u_FarPlane;
@@ -153,7 +153,7 @@ float GetAttenuation(vec2 pos, vec3 position, vec3 light, vec3 normal)
 
 void main()
 {
-    vec2 pos = gl_FragCoord.xy / u_ScreenSize;
+    vec2 pos = gl_FragCoord.xy * u_PixelSize;
     
     vec3 position = texture(u_Position, pos).xyz;
     vec3 normal = texture(u_Normal, pos).xyz;

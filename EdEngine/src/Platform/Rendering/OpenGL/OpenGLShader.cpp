@@ -23,7 +23,7 @@ void OpenGLShader::SetShaderCode(ShaderType type, const std::string& code)
 		char message[1024];
 		int32_t messageLength;
 		glGetShaderInfoLog(shaderId, 1024, &messageLength, message);
-		ED_LOG(Shader, err, "Shader {}: faild to compile shader: {}", m_Id, message);
+		ED_LOG(Shader, err, "Shader {}: failed to compile shader: {}", m_Id, message);
 	}
 
 	glAttachShader(m_Id, shaderId);
@@ -43,7 +43,7 @@ void OpenGLShader::LinkProgram()
 		char message[1024];
 		int32_t messageLength;
 		glGetProgramInfoLog(m_Id, 1024, &messageLength, message);
-		ED_LOG(Shader, err, "Shader {}: faild to link shaders: {}", m_Id, message);
+		ED_LOG(Shader, err, "Shader {}: failed to link shaders: {}", m_Id, message);
 	}
 
 	for (const auto& shaderId : m_ShadersIds) {

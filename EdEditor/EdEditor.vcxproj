@@ -153,7 +153,7 @@
     <ClCompile Include="EdEditor.cpp" />
     <ClCompile Include="src\Editor.cpp" />
     <ClCompile Include="src\Widgets\ActorDetailsWidget.cpp" />
-    <ClCompile Include="src\Widgets\AssetDescriptorDetails.cpp" />
+    <ClCompile Include="src\Widgets\AssetDetails.cpp" />
     <ClCompile Include="src\Widgets\CameraDetailsWidget.cpp" />
     <ClCompile Include="src\Widgets\ComponentDetailsWidget.cpp" />
     <ClCompile Include="src\Widgets\ContentBrowserWidget.cpp" />
@@ -173,7 +173,7 @@
     <ClInclude Include="Dependencies\ImGui\imstb_truetype.h" />
     <ClInclude Include="src\Editor.h" />
     <ClInclude Include="src\Widgets\ActorDetailsWidget.h" />
-    <ClInclude Include="src\Widgets\AssetDescriptorDetails.h" />
+    <ClInclude Include="src\Widgets\AssetDetails.h" />
     <ClInclude Include="src\Widgets\CameraDetailsWidget.h" />
     <ClInclude Include="src\Widgets\ComponentDetailsWidget.h" />
     <ClInclude Include="src\Widgets\ContentBrowserWidget.h" />

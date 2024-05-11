@@ -4,26 +4,22 @@
 
 #include "Core/Ed.h"
 
-#include <assimp/Importer.hpp>
-#include <assimp/scene.h>
-
 #include "Asset.h"
 #include "StaticMesh.h"
 #include "Core/BaseManager.h"
 #include "Core/Math/Transform.h"
 
+#include "Factories/AssetFactory.h"
+#include "Importers/AssetImporter.h"
+
 struct Texture2DImportParameters;
 struct StaticMeshImportParameters;
 
-struct DescriptorStaticMeshData;
 struct StaticMeshImportParameters;
 class VertexArray;
 class Shader;
 class Scene;
 class Texture2D;
-struct MaterialDescriptor;
-struct Texture2DDescriptor;
-struct StaticMeshDescriptor;
 class Material;
 
 class AssetManager: public BaseManager
@@ -32,66 +28,106 @@ public:
     virtual void Initialize(Engine* engine) override;
     virtual void Deinitialize() override;
     
-    void LoadDescriptors(const std::string& contentPath);
-    
-    std::vector<std::shared_ptr<StaticMeshDescriptor>> ImportMesh(const StaticMeshImportParameters& parameters);
-    std::shared_ptr<Texture2DDescriptor> ImportTexture(const Texture2DImportParameters& parameters);
-    std::vector<std::shared_ptr<MaterialDescriptor>> ImportMaterial(const std::string& materialPath);
-    
-    std::shared_ptr<MaterialDescriptor> CreateMaterial(const std::string& materialPath);
-    
-    std::shared_ptr<StaticMesh> LoadMesh(std::shared_ptr<StaticMeshDescriptor> descriptor);
-    std::shared_ptr<Texture2D> LoadTexture(std::shared_ptr<Texture2DDescriptor> descriptor);
-    std::shared_ptr<Texture2D> LoadTexture(const Texture2DImportParameters& parameters);
-    std::shared_ptr<Material> LoadMaterial(std::shared_ptr<MaterialDescriptor> descriptor);
-
-    std::shared_ptr<StaticMesh> LoadMesh(UUID assetId);
-    std::shared_ptr<Texture2D> LoadTexture(UUID assetId);
-    std::shared_ptr<Material> LoadMaterial(UUID assetId);
-
-    template<class T>
-    const std::vector<std::shared_ptr<T>>& GetDescriptors(AssetType type) const;
-
-    std::shared_ptr<AssetDescriptor> GetAssetDescriptor(const std::string& path) const;
-    std::shared_ptr<AssetDescriptor> GetAssetDescriptor(UUID assetId);
-    
     std::shared_ptr<Scene> CreateScene(const std::string& path);
     std::shared_ptr<Scene> LoadScene(const std::string& path);
+   
+    template <typename T> requires(std::is_base_of_v<Asset, T>)
+    void RegisterAsset(std::shared_ptr<T> asset, const std::string& path = "");
+    void RegisterAsset(std::shared_ptr<Asset> asset, const std::string& path = "");
+
+    template<typename T> requires(std::is_base_of_v<Asset, T>)
+    std::vector<std::shared_ptr<T>> GetAssets(AssetType type) const;
+
+	template<typename T> requires(std::is_base_of_v<Asset, T>)
+	std::shared_ptr<T> GetAsset(const std::string& path) const;
+	std::shared_ptr<Asset> GetAsset(const std::string& path) const;
+
+    template<typename T> requires(std::is_base_of_v<Asset, T>)
+    std::shared_ptr<T> GetAsset(UUID id) const;
+    std::shared_ptr<Asset> GetAsset(UUID id) const;
+
+    template <typename T> requires(std::is_base_of_v<Asset, T>)
+    std::shared_ptr<T> LoadAsset(UUID id) const;
+	std::shared_ptr<Asset> LoadAsset(UUID id) const;
+
+	template <typename T> requires(std::is_base_of_v<Asset, T>)
+	std::shared_ptr<T> LoadAsset(const std::string& path) const;
+	std::shared_ptr<Asset> LoadAsset(const std::string& path) const;
+
+    template<typename T, typename E> requires(std::is_base_of_v<Asset, T> && std::is_base_of_v<AssetImportParameters, E>)
+    std::shared_ptr<T> ImportAsset(AssetType type, std::shared_ptr<E> paramters);
+
+	template<typename T> requires(std::is_base_of_v<Asset, T>)
+    std::shared_ptr<T> CreateAsset(AssetType type, const std::string& path);
+
+	const std::map<UUID, std::shared_ptr<Asset>>& GetAssets() const;
+
+    AssetTypeFactory& GetFactory();
+    AssetTypeImporter& GetImporter();
 private:
-    Assimp::Importer m_Importer;
+    AssetTypeFactory m_Factory;
+    AssetTypeImporter m_Importer;
 
-    std::map<UUID, std::shared_ptr<AssetDescriptor>> m_Descriptors;
     std::map<UUID, std::shared_ptr<Asset>> m_Assets;
-    
-    std::map<AssetType, std::vector<std::shared_ptr<AssetDescriptor>>> m_DescriptorsByType;
-    
-    std::map<UUID, std::string> m_AssetIdToDescriptorPath;
-    std::map<std::string, UUID> m_DescriptorPathToAssetId;
+    std::map<std::string, std::shared_ptr<Asset>> m_PathToAsset;
 
-    std::vector<std::pair<std::string, std::shared_ptr<Scene>>> m_ScenesPaths;
-
-    std::vector<std::shared_ptr<MaterialDescriptor>> ImportMaterialInternal(const aiScene* scene, const std::string& materialPath);
-    
-    std::vector<std::shared_ptr<Material>> GetAllMaterials() const;
-    
-    void SaveAsset(std::shared_ptr<Asset> asset);
-    
-    template<class T>
-    std::shared_ptr<AssetDescriptor> LoadDescriptor(const std::string& path, bool bLoadData);
-    
-    void AddDescriptor(std::shared_ptr<AssetDescriptor> descriptor, const std::string& path);
-    
-    void SaveScene(const std::string& path, std::shared_ptr<Scene> scene);
-
-    void ParseNodesAndCombineInOneMesh(aiNode* node, const aiScene* scene, const Transform& parentTransform, const std::vector<std::shared_ptr<MaterialDescriptor>>& materials, std::vector<StaticSubmeshData>& datas);
-    void ParseMeshesSeparately(aiNode* node, const aiScene* scene, const std::vector<std::shared_ptr<MaterialDescriptor>>& materials, std::vector<StaticSubmeshData>& datas);
-    StaticSubmeshData ParseMesh(aiMesh* mesh, const Transform& transform, const std::vector<std::shared_ptr<MaterialDescriptor>>& materials, bool dropTranslation);
-    Transform ParseSubmeshTransformation(aiNode* node);
-    int32_t GetImportParametersIntegerRepresentation(const StaticMeshImportParameters& parameters);
+    std::map<std::string, std::shared_ptr<Scene>> m_Scenes;
 };
 
-template<class T>
-const std::vector<std::shared_ptr<T>>& AssetManager::GetDescriptors(AssetType type) const
+template <typename T> requires(std::is_base_of_v<Asset, T>)
+void AssetManager::RegisterAsset(std::shared_ptr<T> asset, const std::string& path)
 {
-	return *reinterpret_cast<const std::vector<std::shared_ptr<T>>*>(&m_DescriptorsByType.at(type));
+	RegisterAsset(std::static_pointer_cast<Asset>(asset), path);
+}
+
+template<typename T> requires(std::is_base_of_v<Asset, T>)
+std::vector<std::shared_ptr<T>> AssetManager::GetAssets(AssetType type) const
+{
+    std::vector<std::shared_ptr<T>> assets;
+
+    for (const auto& [id, asset] : m_Assets)
+    {
+        if (asset->GetType() == type)
+        {
+            assets.push_back(std::static_pointer_cast<T>(asset));            
+        }
+    }
+
+    return assets;
+}
+
+template<typename T, typename E> requires(std::is_base_of_v<Asset, T> && std::is_base_of_v<AssetImportParameters, E>)
+std::shared_ptr<T> AssetManager::ImportAsset(AssetType type, std::shared_ptr<E> paramters)
+{
+	return m_Importer.Import<T>(type, std::static_pointer_cast<AssetImportParameters>(paramters));
+}
+
+template<typename T> requires(std::is_base_of_v<Asset, T>)
+std::shared_ptr<T> AssetManager::CreateAsset(AssetType type, const std::string& path)
+{
+	return m_Factory.Create<T>(type);
+}
+
+template<typename T> requires(std::is_base_of_v<Asset, T>)
+std::shared_ptr<T> AssetManager::GetAsset(const std::string& path) const
+{
+	return std::static_pointer_cast<T>(GetAsset(path));
+}
+
+template<typename T> requires(std::is_base_of_v<Asset, T>)
+std::shared_ptr<T> AssetManager::GetAsset(UUID id) const
+{
+    return std::static_pointer_cast<T>(GetAsset(id));
+}
+
+template<typename T> requires(std::is_base_of_v<Asset, T>)
+std::shared_ptr<T> AssetManager::LoadAsset(UUID id) const
+{
+	return std::static_pointer_cast<T>(LoadAsset(id));
+}
+
+template<typename T> requires(std::is_base_of_v<Asset, T>)
+std::shared_ptr<T> AssetManager::LoadAsset(const std::string& path) const
+{
+	return std::static_pointer_cast<T>(LoadAsset(path));
 }

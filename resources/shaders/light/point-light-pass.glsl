@@ -25,18 +25,21 @@ struct LightIntensity
     vec3 specular;
 };
 
-struct PointLight 
+struct Light 
 {
     vec3 Position;
     float Radius;
     vec3 Color;
     float Intensity;
     
-    samplerCube ShadowMap;
     bool UseShadowMap;
+
+    samplerCube ShadowMap;
+    float ShadowMapPixelSize;
+    float FilterSize;
 };
 
-uniform vec2 u_ScreenSize;
+uniform vec2 u_PixelSize;
 
 uniform vec3 u_ViewPosition;
 uniform float u_FarPlane;
@@ -46,20 +49,14 @@ uniform sampler2D u_Position;
 uniform sampler2D u_Normal;
 uniform sampler2D u_RoughnessMetalic;
 
-uniform sampler2D u_RandomSamples;
-uniform float u_FilterSize;
-uniform float u_ShadowMapPixelSize;
-
 uniform float u_Radius;
 uniform float u_SampleCount;
 uniform vec3 u_Samples[MAX_SAMPLES_COUNT];
 
-uniform float u_DriectLightStrength = 1.0f;
-
 uniform mat4 u_ViewMatrix;
 uniform mat4 u_ProjectionViewMatrix;
 
-uniform PointLight u_PointLight;
+uniform Light u_Light;
 
 vec3 sampleOffsetDirections[20] = vec3[]
 (
@@ -81,17 +78,17 @@ float GX(float dot, float r) {
 
 float GetVisibility(vec2 pos, vec3 position, vec3 light, vec3 normal)
 {
-    if (u_PointLight.UseShadowMap)
+    if (u_Light.UseShadowMap)
     {
         float NdotL = max(dot(normal, light), 0.0f);
 
-        float distance = length(u_PointLight.Position - position); // TODO: use sqr
+        float distance = length(u_Light.Position - position); // TODO: use sqr
 
         float bias = max(5.0f * (1.0f - NdotL), 1.0f);
         float shadowIntensity = 0;
 
         float offset = 0.01f;
-        float delta = (2.0f * offset) / u_FilterSize;
+        float delta = (2.0f * offset) / u_Light.FilterSize;
     
         for (float i = -offset; i < offset; i += delta)
         {
@@ -99,7 +96,7 @@ float GetVisibility(vec2 pos, vec3 position, vec3 light, vec3 normal)
             {
                 for (float k = -offset; k < offset; k += delta)
                 {
-                    float nearest = texture(u_PointLight.ShadowMap, -light.xyz + vec3(i, j, k)).r * u_FarPlane;
+                    float nearest = texture(u_Light.ShadowMap, -light.xyz + vec3(i, j, k)).r * u_FarPlane;
                     if (nearest + bias < distance)
                     {
                         shadowIntensity += 1;
@@ -108,7 +105,7 @@ float GetVisibility(vec2 pos, vec3 position, vec3 light, vec3 normal)
             }
         }
     
-        shadowIntensity /= u_FilterSize * u_FilterSize * u_FilterSize;
+        shadowIntensity /= u_Light.FilterSize * u_Light.FilterSize * u_Light.FilterSize;
 
         return 1.0f - shadowIntensity;
     }
@@ -149,7 +146,7 @@ LightIntensity GetIntensity(vec2 pos, vec3 normal, vec3 view, vec3 light)
     vec3 diffuseIntensity = (vec3(1.0f) - F) * albedo / M_PI;
     vec3 specularIntensity = F * G * D / (4.0f * NdotV * NdotL + 0.0001f);
 
-    vec3 baseIntensity = u_PointLight.Intensity * u_PointLight.Color * NdotL;
+    vec3 baseIntensity = u_Light.Intensity * u_Light.Color * NdotL;
 
     LightIntensity intensity;
     intensity.diffuse = baseIntensity * diffuseIntensity; 
@@ -162,9 +159,9 @@ float GetAttenuation(vec2 pos, vec3 position, vec3 light, vec3 normal)
 {
     float visibility = GetVisibility(pos, position, light, normal);
 
-    vec3 pointLightVector = u_PointLight.Position - position;
+    vec3 pointLightVector = u_Light.Position - position;
     float distanceSqr = dot(pointLightVector, pointLightVector);
-    float radiusSqr = u_PointLight.Radius * u_PointLight.Radius;
+    float radiusSqr = u_Light.Radius * u_Light.Radius;
 
     float A = distanceSqr / radiusSqr;
     float B = clamp(1 - A * A, 0.0f, 1.0f);
@@ -177,51 +174,18 @@ float GetAttenuation(vec2 pos, vec3 position, vec3 light, vec3 normal)
 
 void main()
 {
-    vec2 pos = gl_FragCoord.xy / u_ScreenSize;
+    vec2 pos = gl_FragCoord.xy * u_PixelSize;
     
     vec3 position = texture(u_Position, pos).xyz;
     vec3 normal = texture(u_Normal, pos).xyz;
     
     vec3 view = normalize(u_ViewPosition - position);
-    vec3 light = normalize(u_PointLight.Position - position);
+    vec3 light = normalize(u_Light.Position - position);
 
     LightIntensity intensity = GetIntensity(pos, normal, view, light);
     float attenuation = GetAttenuation(pos, position, light, normal);
 
-    vec3 direct = vec3(0.0f);
-    /* TODO: Check it again later :)
-	for (int i = 0; i < u_SampleCount && i < MAX_SAMPLES_COUNT; ++i)
-	{
-	    vec3 samplePosition = position + u_Samples[i] * u_Radius;
-
-	    vec4 screen = u_ProjectionViewMatrix * vec4(samplePosition, 1.0f);
-	    screen.xyz /= screen.w;
-	    screen = screen * 0.5f + 0.5f;
-
-        if (screen.x <= 1.0f && screen.y <= 1.0f && screen.x >= 0.0f && screen.y >= 0.0f)
-        {
-	        vec3 screenPosition = texture2D(u_Position, screen.xy).xyz;
-
-            float Depth = (u_ViewMatrix * vec4(position, 1.0f)).z;
-            float screenDepth = (u_ViewMatrix * vec4(screenPosition, 1.0f)).z;
-            float sampleDepth = (u_ViewMatrix * vec4(samplePosition, 1.0f)).z;
-
-	        float visibility = screenDepth >= sampleDepth ? 1.0f : 0.0f;
-
-	        vec3 transmissionDirection = normalize(samplePosition - position);
-
-	        float recieverTerm = clamp(dot(transmissionDirection, normal), 0.0f, 1.0f);
-
-            float rangeCheck = smoothstep(0.0f, 1.0f, u_Radius / abs(Depth - screenDepth));
-
-            LightIntensity intensity = GetIntensity(screen.xy, normal, view, transmissionDirection);
-
-	        direct += vec3(visibility * intensity.diffuse / (u_PointLight.Intensity * u_SampleCount));
-        }
-    }
-    */
-
-    diffuse = vec4(intensity.diffuse * attenuation + direct * u_DriectLightStrength, 0.0f);
+    diffuse = vec4(intensity.diffuse * attenuation, 0.0f);
     specular = vec4(intensity.specular * attenuation, 0.0f);
     combined = diffuse + specular;
 }

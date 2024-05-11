@@ -1,9 +1,10 @@
 #pragma once
 
 #include <cstdint>
+#include "Core/Rendering/Resource.h"
 #include "Core/Rendering/Types.h"
 
-class Buffer {
+class Buffer : public Resource {
 public:
 	virtual void SetData(void* data, BufferUsage usage) = 0;
 	virtual void SetData(void* data, int32_t size, BufferUsage usage) = 0;

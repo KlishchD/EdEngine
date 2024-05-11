@@ -1,6 +1,6 @@
 #include "TextureData.h"
 
-Texture2DData::Texture2DData() : TextureData(nullptr, 0, false)
+Texture2DData::Texture2DData() : TextureData(nullptr, 0, false), m_Width(1), m_Height(1)
 {
 }
 
@@ -50,7 +50,7 @@ void Texture2DData::SetHeight(uint32_t height)
 	m_Height = height;
 }
 
-uint32_t Texture2DData::GetHeight()
+uint32_t Texture2DData::GetHeight() const
 {
 	return m_Height;
 }
@@ -148,7 +148,7 @@ void TextureData::FreeData()
 	}
 }
 
-CubeTextureData::CubeTextureData() : TextureData(nullptr, 0, false)
+CubeTextureData::CubeTextureData() : TextureData(nullptr, 0, false), m_Size(1)
 {
 }
 
@@ -189,7 +189,7 @@ uint32_t CubeTextureData::GetSize() const
 	return m_Size;
 }
 
-Texture2DArrayData::Texture2DArrayData() : TextureData(nullptr, 0, false)
+Texture2DArrayData::Texture2DArrayData() : TextureData(nullptr, 0, false), m_Width(1), m_Height(1), m_Depth(1)
 {
 }
 
@@ -242,7 +242,7 @@ void Texture2DArrayData::SetHeight(uint32_t height)
 	m_Height = height;
 }
 
-uint32_t Texture2DArrayData::GetHeight()
+uint32_t Texture2DArrayData::GetHeight() const
 {
 	return m_Height;
 }

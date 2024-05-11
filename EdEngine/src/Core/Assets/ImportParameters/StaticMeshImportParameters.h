@@ -1,11 +1,10 @@
 #pragma once
 
+#include "AssetImportParameters.h"
 #include <string>
 
-struct StaticMeshImportParameters
+struct StaticMeshImportParameters : public AssetImportParameters
 {
-	std::string MeshPath;
-
 	bool JoinIdenticalVertices = true;
 	bool GenUVCoords = true;
 	bool CalculateTangentSpace = true;
@@ -13,23 +12,6 @@ struct StaticMeshImportParameters
 
 	bool ImportAsOneMesh = true;
 	bool ImportMaterials = true;
+
+	virtual void Serialize(Archive& archive) override;
 };
-
-
-namespace boost
-{
-	namespace serialization
-	{
-		template <class Archive>
-		void serialize(Archive& ar, StaticMeshImportParameters& parameters, uint32_t version)
-		{
-			ar & parameters.MeshPath;
-
-			ar & parameters.JoinIdenticalVertices;
-			ar & parameters.GenUVCoords;
-			ar & parameters.CalculateTangentSpace;
-			ar & parameters.FixInfacingNormals;
-			ar & parameters.ImportAsOneMesh;
-		}
-	}
-}

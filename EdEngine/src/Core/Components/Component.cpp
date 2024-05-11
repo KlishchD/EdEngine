@@ -128,7 +128,7 @@ Transform Component::GetPreviousWorldTransform() const
 	return transform;
 }
 
-void Component::Update(float DeltaSeconds)
+void Component::Update(float deltaSeconds)
 {
     m_PreviousTransform = m_Transform;
 }
@@ -141,4 +141,31 @@ const std::string& Component::GetName() const
 void Component::SetName(const std::string& name)
 {
     m_Name = name;
+}
+
+void Component::Serialize(Archive& archive)
+{
+    archive & GetType();
+
+    Serializable::Serialize(archive);
+
+	archive & m_Name;
+	archive & m_Transform;
+    
+	// TODO: make if better ;)
+	if (archive.GetMode() == ArchiveMode::Write)
+	{
+		archive & m_Children.size();
+
+		for (const std::shared_ptr<Component>& component : m_Children)
+		{
+            component->Serialize(archive);
+		}
+	}
+	else
+	{
+        throw std::logic_error("Fix it using ObjectFactory ;)");
+	}
+
+	archive & m_Children;
 }

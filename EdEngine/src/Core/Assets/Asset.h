@@ -1,29 +1,65 @@
 ﻿#pragma once
 
-#include "Descriptors/AssetDescriptor.h"
+#include "Core/Assets/ImportParameters/AssetImportParameters.h"
 
-class Asset
+enum class AssetType : uint8_t
+{
+	None,
+	Texture2D,
+	CubeTexture,
+	Texture2DArray,
+	Material,
+	StaticMesh,
+	StaticSubmesh
+};
+
+class Asset : public Serializable
 {
 public:
-    virtual void SetDescriptor(std::shared_ptr<AssetDescriptor> descriptor);
+	using ImportParametersClass = AssetImportParameters;
 
-    virtual void SyncDescriptor();
+	Asset(const std::string& name = "Empty");
 
-    template <class T>
-    std::shared_ptr<T> GetDescriptor() const;
+	UUID GetId() const;
+    std::string GetName() const;
+	virtual AssetType GetType() const;
 
-    std::shared_ptr<AssetDescriptor> GetDescriptor() const;
-
-    std::string GetAssetName() const;
+	virtual bool HasData() const;
+	virtual void ClaimData();
+	virtual void UnclaimData();
 
     void MarkDirty();
     bool IsDirty() const;
-protected:
-    std::shared_ptr<AssetDescriptor> m_Descriptor;
-};
 
-template <class T>
-std::shared_ptr<T> Asset::GetDescriptor() const
-{
-    return std::static_pointer_cast<T>(m_Descriptor);
-}
+	void SetShouldLoadData(bool status);
+	bool ShouldHaveData() const;
+
+	void SetImportParameters(std::shared_ptr<AssetImportParameters> parameters);
+	std::shared_ptr<AssetImportParameters> GetImportParameters() const;
+
+	virtual void ResetState();
+
+	template<typename T>
+	std::shared_ptr<T> GetImportParameters() const
+	{
+		return std::static_pointer_cast<T>(GetImportParameters());
+	}
+
+	virtual void Serialize(Archive& archive) override;
+	virtual void SerializeData(Archive& archive);
+	virtual void FreeData();
+
+	virtual ~Asset() = default;
+protected:
+	UUID m_Id;
+
+	std::string m_Name;
+
+	bool m_bHasData = false;
+
+	int32_t m_DataClaims = 0;
+	bool m_bIsDirty = false;
+	bool m_bShouldHaveData = false;
+
+	std::shared_ptr<AssetImportParameters> m_ImportParameters;
+};

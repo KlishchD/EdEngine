@@ -123,8 +123,6 @@ enum class RenderTarget
 	Specular,
 	Light,
 
-	SSDO,
-
 	Bloom,
 
 	AAOutput,
@@ -136,15 +134,6 @@ enum class DrawMode
 	Triangles,
 	Lines,
 	LineStrip
-};
-
-struct Vertex {
-	glm::vec3 Position;
-	glm::vec4 Color;
-	glm::vec3 TextureCoordinates;
-	glm::vec3 Normal;
-	glm::vec3 Tangent;
-	glm::vec3 Bitangent;
 };
 
 class Types

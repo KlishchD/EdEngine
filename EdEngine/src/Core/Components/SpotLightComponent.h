@@ -10,15 +10,7 @@ class SpotLightComponent : public LightComponent
 	void serialize(Archive& ar, const uint32_t version)
 	{
 		ar & boost::serialization::base_object<LightComponent>(*this);
-		ar & m_InnerAngle;
-		ar & m_OuterAngle;
-		ar & m_MaxDistance;
-
-		if (version > 1)
-		{
-			ar & m_ShadowFilterSize;
-			ar & m_ShadowFilterRadius;
-		}
+		
 	}
 public:
 	void SetInnerAngle(float angle);
@@ -37,6 +29,8 @@ public:
 	float GetShadowFilterRadius() const;
 
 	virtual ComponentType GetType() const override;
+
+	virtual void Serialize(Archive& archive) override;
 private:
 	float m_InnerAngle = 1.0f;
 	float m_OuterAngle = 1.0f;
@@ -45,6 +39,3 @@ private:
 	uint32_t m_ShadowFilterSize = 4;
 	float m_ShadowFilterRadius = 3.0f;
 };
-
-BOOST_CLASS_EXPORT_KEY(SpotLightComponent)
-BOOST_CLASS_VERSION(SpotLightComponent, 2)

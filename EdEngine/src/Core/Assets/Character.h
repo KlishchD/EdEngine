@@ -3,8 +3,7 @@
 #include <memory>
 #include <glm/vec2.hpp>
 #include "freetype/ftglyph.h"
-
-class Texture2D;
+#include "Core/Rendering/Textures/Texture2D.h"
 
 class Character
 {

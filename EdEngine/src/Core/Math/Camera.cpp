@@ -3,6 +3,9 @@
 #include <glm/gtc/quaternion.hpp>
 #include "glm/gtx/rotate_vector.hpp"
 
+#undef far
+#undef near
+
 Camera::Camera() : m_Projection(glm::mat4(1))
 {
 

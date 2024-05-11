@@ -7,7 +7,7 @@
 #include <glm/detail/type_quat.hpp>
 #include <glm/ext/quaternion_trigonometric.hpp>
 
-#include "Utils/SerializationUtils.h"
+#include "Utils/SerializationHelper.h"
 
 class Transform
 {

@@ -20,19 +20,20 @@
 #include "Buffers/VertexBufferLayout.h"
 #include "Shader.h"
 
-#include "Tasks/RenderTask.h"
-#include "Tasks/GBufferRenderTask.h"
-#include "Tasks/SSAORenderTask.h"
-#include "Tasks/EmissionRenderTask.h"
-#include "Tasks/PointLightRenderTask.h"
-#include "Tasks/AmbientRenderTask.h"
-#include "Tasks/SSDORenderTask.h"
-#include "Tasks/FXAARenderTask.h"
-#include "Tasks/TAARenderTask.h"
-#include "Tasks/BloomRenderTask.h"
-#include "Tasks/ResolutionRenderTask.h"
-#include "Tasks/SpotLightRenderTask.h"
-#include "Tasks/DirectionalLightRenderTask.h"
+#include "Passes/GBufferPass.h"
+#include "Passes/SSAO/SSAOMultiPass.h"
+#include "Passes/SSAO/SSAOBlurPass.h"
+#include "Passes/EmissionPass.h"
+#include "Passes/AmbientPass.h"
+#include "Passes/Lighting/DirectionalLight/DirectionalLightMultiPass.h"
+#include "Passes/Lighting/SpotLight/SpotLightMultiPass.h"
+#include "Passes/Lighting/PointLight/PointLightMultiPass.h"
+#include "Passes/FXAAPass.h"
+#include "Passes/TAAPass.h"
+#include "Passes/Bloom/BloomMultiPass.h"
+#include "Passes/ResolutionPass.h"
+#include "Passes/GrayscalePass.h"
+#include "Passes/Editor/IconsPass.h"
 
 void Renderer::Initialize(Engine* engine)
 {
@@ -61,57 +62,45 @@ void Renderer::Initialize(Engine* engine)
 	m_TextVBO = RenderingHelper::CreateVertexBuffer(nullptr, 20 * sizeof(float), textVBOlayout, BufferUsage::DynamicDraw);
 	m_QuadVBO = RenderingHelper::CreateVertexBuffer(square, 24 * sizeof(float), textVBOlayout, BufferUsage::StaticDraw);
 
-	VertexBufferLayout lightVBOLayout = { { "position", ShaderDataType::Float3 } };
-
 	{
-		auto [vertices, indices] = GeometryBuilder::MakeSphere(1, PointLightMeshSectorsCount, PointLightMeshStackCount);
+		m_Graph = std::make_shared<RenderGraph>();
+		m_Graph->Initilaize(std::static_pointer_cast<Renderer>(shared_from_this()));
 
-		m_PointLightMeshVBO = RenderingHelper::CreateVertexBuffer(vertices.data(), 3.0f * sizeof(float) * vertices.size(), lightVBOLayout, BufferUsage::StaticDraw);
-		m_PointLightMeshIBO = RenderingHelper::CreateIndexBuffer(indices.data(), sizeof(int32_t) * indices.size(), BufferUsage::StaticDraw);
-		m_PointLightVerticies = std::move(vertices);
-	}
+		m_Camera = m_Engine->GetLoadedScene()->GetPlayerActor()->GetCameraComponent();
+		m_Graph->DeclareObjectPtrParameter("Camera", m_Camera); // Level transitions ? Will it crash here ? ;) yes it did :)
 
-	{
-		auto [vertices, indices] = GeometryBuilder::MakeCone(SpotLightMeshSectorsCount);
+		m_Graph->DeclareParameter("Scene.Component", m_Components);
+		m_Graph->DeclareParameter("Scene.StaticMesh", m_StaticMeshes);
+		m_Graph->DeclareParameter("Scene.PointLight", m_PointLights);
+		m_Graph->DeclareParameter("Scene.DirectionalLight", m_DirectionalLights);
+		m_Graph->DeclareParameter("Scene.SpotLight", m_SpotLights);
 
-		m_SpotLightMeshVBO = RenderingHelper::CreateVertexBuffer(vertices.data(), 3.0f * sizeof(float) * vertices.size(), lightVBOLayout, BufferUsage::StaticDraw);
-		m_SpotLightMeshIBO = RenderingHelper::CreateIndexBuffer(indices.data(), sizeof(int32_t) * indices.size(), BufferUsage::StaticDraw);
-		m_SpotLightVerticies = std::move(vertices);
-	}
+		m_Graph->AddPass<GBufferPass>();
+		
+		m_Graph->AddPass<SSAOMultiPass>();
 
-	m_LightFramebuffer = RenderingHelper::CreateFramebuffer(1, 1, 1, { FramebufferAttachmentType::Color16, FramebufferAttachmentType::Color16, FramebufferAttachmentType::Color16 }, TextureType::Texture2D);
-	m_AAFramebuffer = RenderingHelper::CreateFramebuffer(1, 1, 1, { FramebufferAttachmentType::Color16 }, TextureType::Texture2D);
+		m_Graph->AddPass<AmbientPass>();
+		m_Graph->AddPass<EmissionPass>();
+		
+		m_Graph->AddPass<DirectionalLightMultiPass>();
+		m_Graph->AddPass<SpotLightMultiPass>();
+		m_Graph->AddPass<PointLightMultiPass>();
 
-	{
-		m_Tasks.push_back(std::make_shared<GBufferRenderTask>());
+		m_Graph->AddPass<FXAAPass>();
+		m_Graph->AddPass<TAAPass>();
 
-		m_Tasks.push_back(std::make_shared<SSAORenderTask>());
+		m_Graph->AddPass<BloomMultiPass>();
 
-		m_Tasks.push_back(std::make_shared<EmissionRenderTask>());
+		m_Graph->AddPass<ResolutionPass>();
 
-		m_Tasks.push_back(std::make_shared<DirectionalLightRenderTask>());
-		m_Tasks.push_back(std::make_shared<SpotLightRenderTask>());
-		m_Tasks.push_back(std::make_shared<PointLightRenderTask>());
+		m_Graph->AddPass<GrayscalePass>();
 
-		m_Tasks.push_back(std::make_shared<SSDORenderTask>());
+		m_Graph->AddPass<IconsPass>();
 
-		m_Tasks.push_back(std::make_shared<AmbientRenderTask>());
-
-		m_Tasks.push_back(std::make_shared<FXAARenderTask>());
-		m_Tasks.push_back(std::make_shared<TAARenderTask>());
-
-		m_Tasks.push_back(std::make_shared<BloomRenderTask>());
-
-		m_Tasks.push_back(std::make_shared<ResolutionRenderTask>());
-
-		for (std::shared_ptr<RenderTask> task : m_Tasks)
-		{
-			task->Setup(this);
-		}
+		m_Graph->Build();
 	}
 
 	SetSSAOEnabled(m_bSSAOEnabled);
-	SetSSDOEnabled(m_bIsSSDOEnabled);
 	SetBloomEnabled(m_bIsBloomEnabled);
 
 	SetAAMethod(m_AAMethod);
@@ -124,39 +113,58 @@ void Renderer::Deinitialize()
     
 }
 
-void Renderer::Update()
+void Renderer::Update(float deltaSeconds)
 {
 	m_Context->SwapBuffers();
 
+	std::shared_ptr<Scene> scene = m_Engine->GetLoadedScene();
+
+	// TODO: This is probably not the best way to do it :)
+
+	m_Components = scene->GetAllComponents();
+	m_StaticMeshes.clear();
+	m_DirectionalLights.clear();
+	m_SpotLights.clear();
+	m_PointLights.clear();
+
+	for (const std::shared_ptr<Component>& component : m_Components)
+	{
+		switch (component->GetType())
+		{
+		case ComponentType::StaticMesh:
+			m_StaticMeshes.push_back(std::static_pointer_cast<StaticMeshComponent>(component));
+			break;
+		case ComponentType::DirectionalLight:
+			m_DirectionalLights.push_back(std::static_pointer_cast<DirectionalLightComponent>(component));
+			break;
+		case ComponentType::SpotLight:
+			m_SpotLights.push_back(std::static_pointer_cast<SpotLightComponent>(component));
+			break;
+		case ComponentType::PointLight:
+			m_PointLights.push_back(std::static_pointer_cast<PointLightComponent>(component));
+			break;
+		}
+	}
+
 	if (m_bIsViewportSizeDirty)
 	{
-		for (std::shared_ptr<RenderTask> task : m_Tasks)
-		{
-			task->Resize(m_ViewportSize, m_UpsampleScale);
-		}
-
-		m_LightFramebuffer->Resize(m_ViewportSize.x * m_UpsampleScale, m_ViewportSize.y * m_UpsampleScale, 1);
-		m_AAFramebuffer->Resize(m_ViewportSize.x * m_UpsampleScale, m_ViewportSize.y * m_UpsampleScale, 1);
-
-		m_Engine->GetCamera()->SetProjection(90.0f, 1.0f * m_ViewportSize.x / m_ViewportSize.y, 1.0f, m_FarPlane);
-
-		m_bIsViewportSizeDirty = false;
+		Camera& camera = m_Engine->GetLoadedScene()->GetPlayerActor()->GetCameraComponent()->GetCamera();
+		camera.SetProjection(90.0f, 1.0f * m_ViewportSize.x / m_ViewportSize.y, 1.0f, m_FarPlane);
 	}
 
-	std::shared_ptr<Scene> scene = m_Engine->GetLoadedScene();
-	Camera* camera = m_Engine->GetCamera();
+	m_Graph->Update(deltaSeconds);
 
-	std::vector<std::shared_ptr<Component>> components = scene->GetAllComponents();
-
-	for (std::shared_ptr<RenderTask> task : m_Tasks)
-	{
-		task->Run(components, camera);
-	}
-
-	while (m_Commands.size()) {
+	while (!m_Commands.empty()) {
 		m_Commands.front()(m_Context.get());
 		m_Commands.pop();
 	}
+
+	m_bIsViewportSizeDirty = false;
+}
+
+bool Renderer::IsViewportSizeDirty() const
+{
+	return m_bIsViewportSizeDirty;
 }
 
 void Renderer::ResizeViewport(glm::vec2 size)
@@ -168,7 +176,7 @@ void Renderer::ResizeViewport(glm::vec2 size)
 	}
 }
 
-glm::vec2 Renderer::GetViewportSize() const
+glm::u32vec2 Renderer::GetViewportSize() const
 {
 	return m_ViewportSize;
 }
@@ -178,41 +186,19 @@ void Renderer::SubmitRenderCommand(const std::function<void(RenderingContext* co
     m_Commands.push(command);
 }
 
-std::shared_ptr<RenderingContext> Renderer::GetRenderContext() const
+std::shared_ptr<RenderingContext> Renderer::GetContext() const
 {
 	return m_Context;
 }
 
-std::shared_ptr<Framebuffer> Renderer::GetLightFramebuffer() const
+std::shared_ptr<RenderGraph> Renderer::GetGraph() const
 {
-	return m_LightFramebuffer;
-}
-
-std::shared_ptr<Framebuffer> Renderer::GetAntiAliasingFramebuffer() const
-{
-	return m_AAFramebuffer;
-}
-
-std::shared_ptr<Texture2D> Renderer::GetAntiAliasingOutputTexture() const
-{
-	return m_AAMethod == AAMethod::None ? GetRenderTarget(RenderTarget::Light) : std::static_pointer_cast<Texture2D>(m_AAFramebuffer->GetAttachment(0));
-}
-
-void Renderer::SetSSDOEnabled(bool enabled)
-{
-	m_bIsSSDOEnabled = enabled;
-	GetTask<SSDORenderTask>()->SetEnabled(enabled);
-}
-
-bool Renderer::IsSSDOEnabled() const
-{
-	return m_bIsSSDOEnabled;
+	return m_Graph;
 }
 
 void Renderer::SetSSAOEnabled(bool enabled)
 {
 	m_bSSAOEnabled = enabled;
-	GetTask<SSAORenderTask>()->SetEnabled(enabled);
 }
 
 bool Renderer::IsSSAOEnabled() const
@@ -223,7 +209,6 @@ bool Renderer::IsSSAOEnabled() const
 void Renderer::SetBloomEnabled(bool enabled)
 {
 	m_bIsBloomEnabled = enabled;
-	GetTask<BloomRenderTask>()->SetEnabled(enabled);
 }
 
 bool Renderer::IsBloomEnabled() const
@@ -259,47 +244,29 @@ RenderTarget Renderer::GetActiveRenderTarget() const
 void Renderer::SetAAMethod(AAMethod method)
 {
 	m_AAMethod = method;
-
-	switch (method)
-	{
-	case AAMethod::None:
-		GetTask<FXAARenderTask>()->SetEnabled(false);
-		GetTask<TAARenderTask>()->SetEnabled(false);
-		break;
-	case AAMethod::TAA:
-		GetTask<FXAARenderTask>()->SetEnabled(false);
-		GetTask<TAARenderTask>()->SetEnabled(true);
-		break;
-	case AAMethod::FXAA:
-		GetTask<FXAARenderTask>()->SetEnabled(true);
-		GetTask<TAARenderTask>()->SetEnabled(false);
-		break;
-	}
 }
 
 std::shared_ptr<Texture2D> Renderer::GetRenderTarget(RenderTarget target) const
 {
 	switch (target)
 	{
-	case RenderTarget::GAlbedo:                   return GetTask<GBufferRenderTask>()->GetAlbedoTexture();
-	case RenderTarget::GPosition:                 return GetTask<GBufferRenderTask>()->GetPositionTexture();
-	case RenderTarget::GNormal:                   return GetTask<GBufferRenderTask>()->GetNormalTexture();
-	case RenderTarget::GRougnessMetalicEmission:  return GetTask<GBufferRenderTask>()->GetRoughnessMetalicEmissionTexture();
-	case RenderTarget::GVelocity:                 return GetTask<GBufferRenderTask>()->GetVelocityTexture();
-	case RenderTarget::GDepth:                    return GetTask<GBufferRenderTask>()->GetDepthTexture();
+	case RenderTarget::GAlbedo:                   return m_Graph->GetPass<GBufferPass>()->GetParameters().DrawFramebuffer->GetAttachment<Texture2D>(0);
+	case RenderTarget::GPosition:                 return m_Graph->GetPass<GBufferPass>()->GetParameters().DrawFramebuffer->GetAttachment<Texture2D>(1);
+	case RenderTarget::GNormal:                   return m_Graph->GetPass<GBufferPass>()->GetParameters().DrawFramebuffer->GetAttachment<Texture2D>(2);
+	case RenderTarget::GRougnessMetalicEmission:  return m_Graph->GetPass<GBufferPass>()->GetParameters().DrawFramebuffer->GetAttachment<Texture2D>(3);
+	case RenderTarget::GVelocity:                 return m_Graph->GetPass<GBufferPass>()->GetParameters().DrawFramebuffer->GetAttachment<Texture2D>(4);
+	case RenderTarget::GDepth:                    return m_Graph->GetPass<GBufferPass>()->GetParameters().DrawFramebuffer->GetDepthAttachment<Texture2D>();
 
-	case RenderTarget::SSAO:                      return GetTask<SSAORenderTask>()->GetBluredTexture();
+	case RenderTarget::SSAO:                      return m_Graph->GetPass<SSAOMultiPass>()->GetPass<SSAOBlurPass>()->GetParameters().DrawFramebuffer->GetAttachment<Texture2D>(0);
 
-	case RenderTarget::Diffuse:                   return std::static_pointer_cast<Texture2D>(m_LightFramebuffer->GetAttachment(0));
-	case RenderTarget::Specular:                  return std::static_pointer_cast<Texture2D>(m_LightFramebuffer->GetAttachment(1));
-	case RenderTarget::Light:                     return std::static_pointer_cast<Texture2D>(m_LightFramebuffer->GetAttachment(2));
+	case RenderTarget::Diffuse:                   return m_Graph->GetPass<AmbientPass>()->GetParameters().DrawFramebuffer->GetAttachment<Texture2D>(0);
+	case RenderTarget::Specular:                  return m_Graph->GetPass<AmbientPass>()->GetParameters().DrawFramebuffer->GetAttachment<Texture2D>(1);
+	case RenderTarget::Light:                     return m_Graph->GetPass<AmbientPass>()->GetParameters().DrawFramebuffer->GetAttachment<Texture2D>(2);
 
-	case RenderTarget::SSDO:                      return GetTask<SSDORenderTask>()->GetTexutre();
+	case RenderTarget::Bloom:                     return m_Graph->GetPass<ResolutionPass>()->GetParameters().Bloom;
 
-	case RenderTarget::Bloom:                     return GetTask<BloomRenderTask>()->GetTexture();
-
-	case RenderTarget::AAOutput:                  return std::static_pointer_cast<Texture2D>(m_AAFramebuffer->GetAttachment(0));
-	case RenderTarget::Resolution:                return GetTask<ResolutionRenderTask>()->GetTexture();
+	case RenderTarget::AAOutput:                  return m_Graph->GetPass<TAAPass>()->GetParameters().DrawFramebuffer->GetAttachment<Texture2D>(0);
+	case RenderTarget::Resolution:                return m_Graph->GetPass<ResolutionPass>()->GetParameters().DrawFramebuffer->GetAttachment<Texture2D>(0);
 	default:
 		ED_ASSERT(0, "Unsuppoerted target")
 	}
@@ -325,232 +292,37 @@ void Renderer::EndUIFrame()
 	 m_Context->EndUIFrame();
 }
 
-void Renderer::BeginRenderPass(const std::string& name, std::shared_ptr<Framebuffer> framebuffer, std::shared_ptr<Shader> shader, const glm::mat4& view, glm::mat4 projection, glm::vec3 viewPosition)
+void Renderer::SetCamera(const Camera& camera)
 {
-	m_TemporarySpecification = RenderPassSpecification();
+	glm::mat4 view = camera.GetView();
+	glm::mat4 projection = camera.GetProjection();
+	
+	m_Context->SetShaderDataMat4("u_ViewMatrix", view);
+	m_Context->SetShaderDataMat4("u_ProjectionMatrix", projection);
+	m_Context->SetShaderDataMat4("u_ProjectionViewMatrix", projection * view);
+	m_Context->SetShaderDataMat4("u_InvProjectionViewMatrix", glm::inverse(projection * view));
 
-	m_TemporarySpecification.Name = name;
-	m_TemporarySpecification.Framebuffer = framebuffer;
-	m_TemporarySpecification.Shader = shader;
-	m_TemporarySpecification.ViewPosition = viewPosition;
+	m_Context->SetShaderDataFloat3("u_ViewPosition", camera.GetPosition());
 
-	BeginRenderPass(m_TemporarySpecification, view, projection);
+	m_Context->SetShaderDataFloat("u_FarPlane", camera.GetFar());
 }
 
-void Renderer::BeginRenderPass(RenderPassSpecification& specification, const glm::mat4& view, const glm::mat4& projection)
+void Renderer::SetCamera(const glm::mat4& view, const glm::mat4& projection, glm::vec3 viewPosition)
 {
-	m_Specification = &specification;
-
-	m_View = view;
-	m_Projection = projection;
-
-	m_Context->SetFramebuffer(specification.Framebuffer);
-
-	m_Context->SetShader(specification.Shader);
-	m_Context->SetShaderDataMat4("u_ViewMatrix", m_View);
-	m_Context->SetShaderDataMat4("u_ProjectionMatrix", m_Projection);
-	m_Context->SetShaderDataMat4("u_ProjectionViewMatrix", m_Projection * m_View);
-	m_Context->SetShaderDataMat4("u_InvProjectionViewMatrix", glm::inverse(m_Projection * m_View));
-	m_Context->SetShaderDataFloat3("u_ViewPosition", m_Specification->ViewPosition);
-	m_Context->SetShaderDataFloat2("u_ScreenSize", m_Specification->Framebuffer->GetWidth(), m_Specification->Framebuffer->GetHeight());
-	m_Context->SetShaderDataFloat("u_FarPlane", m_FarPlane);
-
-	if (specification.bUseBlending)
-	{
-		m_Context->EnableBlending(specification.SourceFactor, specification.DestinationFactor);
-	}
-	else
-	{
-        m_Context->DisableBlending();
-	}
-
-	if (specification.bUseDepthTesting)
-	{
-        m_Context->EnableDethTest(specification.DepthFunction);
-	}
-	else
-	{
-        m_Context->DisableDethTest();
-	}
-
-	if (specification.bClearColors)
-	{
-        m_Context->ClearColorTarget();
-	}
-
-	if (specification.bClearDepth)
-	{
-        m_Context->ClearDepthTarget();
-	}
-}
-
-void Renderer::SetNewCameraInformation(const glm::mat4& view, const glm::mat4& projection, glm::vec3 viewPosition)
-{
-	m_View = view;
-	m_Projection = projection;
-
-	m_Specification->ViewPosition = viewPosition;
-
-	m_Context->SetShaderDataMat4("u_ViewMatrix", m_View);
-	m_Context->SetShaderDataMat4("u_ProjectionMatrix", m_Projection);
-	m_Context->SetShaderDataMat4("u_ProjectionViewMatrix", m_Projection * m_View);
+	m_Context->SetShaderDataMat4("u_ViewMatrix", view);
+	m_Context->SetShaderDataMat4("u_ProjectionMatrix", projection);
+	m_Context->SetShaderDataMat4("u_ProjectionViewMatrix", projection * view);
 	m_Context->SetShaderDataFloat3("u_ViewPosition", viewPosition);
 }
 
-bool Renderer::IsLightMeshVisible(std::shared_ptr<PointLightComponent> light, Camera* camera) const
+void Renderer::SubmitFullScreenQuad()
 {
-	Transform transform = light->GetWorldTransform();
-	transform.SetScale(glm::vec3(light->GetRadius()));
-
-	return IsLightMeshVisible(m_PointLightVerticies, transform, camera);
-}
-
-bool Renderer::IsLightMeshVisible(std::shared_ptr<SpotLightComponent> light, Camera* camera) const
-{
-	const float angle = light->GetOuterAngle();
-	const float length = light->GetMaxDistance();
-	const float radius = glm::tan(angle) * length;
-
-	Transform transform = light->GetWorldTransform();
-	transform.SetScale(glm::vec3(radius, length, radius));
-
-	return IsLightMeshVisible(m_SpotLightVerticies, transform, camera);
-}
-
-void Renderer::SubmitLightMesh(std::shared_ptr<PointLightComponent> light)
-{
-	m_Context->EnableFaceCulling(Face::Front);
-
-	Transform transform = light->GetWorldTransform();
-	transform.SetScale(glm::vec3(light->GetRadius()));
-
-	m_Context->SetShaderDataMat4("u_ModelMatrix", transform.GetMatrix());
-
-	m_Context->SetVertexBuffer(m_PointLightMeshVBO);
-	m_Context->SetIndexBuffer(m_PointLightMeshIBO);
-	m_Context->Draw();
-
-	m_Context->DisableFaceCulling();
-}
-
-void Renderer::SubmitLightMesh(std::shared_ptr<SpotLightComponent> light)
-{
-	m_Context->EnableFaceCulling(Face::Front);
-
-	const float angle = light->GetOuterAngle();
-	const float length = light->GetMaxDistance();
-	const float radius = glm::tan(angle) * length;
-
-	Transform transform = light->GetWorldTransform();
-	transform.SetScale(glm::vec3(radius, length, radius));
-
-	glm::vec3 directionTransformed = glm::normalize(transform.GetRotation() * SpotLightMeshDirection);
-	m_Context->SetShaderDataFloat3("u_SpotLight.Direction", directionTransformed);
-
-	m_Context->SetShaderDataMat4("u_ModelMatrix", transform.GetMatrix());
-
-	m_Context->SetVertexBuffer(m_SpotLightMeshVBO);
-	m_Context->SetIndexBuffer(m_SpotLightMeshIBO);
-	m_Context->Draw();
-
-	m_Context->DisableFaceCulling();
-}
-
-void Renderer::SubmitLightMeshWireframe(std::shared_ptr<PointLightComponent> light)
-{
-	m_Context->EnableFaceCulling();
-
-	Transform transform = light->GetWorldTransform();
-	transform.SetScale(glm::vec3(light->GetRadius()));
-
-	m_Context->SetShaderDataMat4("u_ModelMatrix", transform.GetMatrix());
-
-	m_Context->SetVertexBuffer(m_PointLightMeshVBO);
-	m_Context->SetIndexBuffer(m_PointLightMeshIBO);
-	m_Context->Draw(DrawMode::LineStrip);
-
-	m_Context->DisableFaceCulling();
-}
-
-void Renderer::SubmitLightMeshWireframe(std::shared_ptr<SpotLightComponent> light)
-{
-	const float angle = light->GetOuterAngle();
-	const float length = light->GetMaxDistance();
-	const float radius = glm::tan(angle) * length;
-
-	Transform transform = light->GetWorldTransform();
-	transform.SetScale(glm::vec3(radius, length, radius));
-
-	m_Context->SetShaderDataMat4("u_ModelMatrix", transform.GetMatrix());
-
-	m_Context->SetVertexBuffer(m_SpotLightMeshVBO);
-	m_Context->SetIndexBuffer(m_SpotLightMeshIBO);
-	m_Context->Draw(DrawMode::LineStrip);
-}
-
-void Renderer::SubmitMesh(std::shared_ptr<StaticMesh> mesh, const Transform& transform, const Transform& previousTransform)
-{
-	for (std::shared_ptr<StaticSubmesh> submesh : mesh->GetSubmeshes())
-	{
-		SubmitSubmesh(submesh, transform, previousTransform);
-	}
-}
-
-void Renderer::SubmitSubmesh(std::shared_ptr<StaticSubmesh> submesh, const Transform& transform, const Transform& previousTransform)
-{
-	if (std::shared_ptr<Material> material = submesh->GetMaterial()) {
-        m_Context->SetVertexBuffer(submesh->GetVertexBuffer());
-        m_Context->SetIndexBuffer(submesh->GetIndexBuffer());
-		
-        material->SetShaderData(m_Context);
-
-		m_Context->SetShaderDataMat4("u_PreviousModelMatrix", previousTransform.GetMatrix());
-		m_Context->SetShaderDataMat4("u_ModelMatrix", transform.GetMatrix());
-		m_Context->SetShaderDataMat3("u_NormalMatrix", transform.GetInversedTransposedMatrix());
-
-        m_Context->Draw();
-	}
-}
-
-void Renderer::SubmitMeshesRaw(const std::vector<std::shared_ptr<Component>>& components)
-{
-	for (std::shared_ptr<Component> component : components)
-	{
-		if (component->GetType() == ComponentType::StaticMesh)
-		{
-			std::shared_ptr<StaticMeshComponent> mesh = std::static_pointer_cast<StaticMeshComponent>(component);
-			SubmitMeshRaw(mesh->GetStaticMesh(), mesh->GetWorldTransform(), mesh->GetPreviousWorldTransform());
-		}
-	}
-}
-
-void Renderer::SubmitMeshRaw(std::shared_ptr<StaticMesh> mesh, const Transform& transform, const Transform& previousTransform)
-{
-	if (mesh)
-	{
-		for (std::shared_ptr<StaticSubmesh> submesh : mesh->GetSubmeshes())
-		{
-			SubmitSubmeshRaw(submesh, transform, previousTransform);
-		}
-	}
-}
-
-void Renderer::SubmitSubmeshRaw(std::shared_ptr<StaticSubmesh> submesh, const Transform& transform, const Transform& previousTransform)
-{
-	if (std::shared_ptr<Material> material = submesh->GetMaterial()) {
-		m_Context->SetVertexBuffer(submesh->GetVertexBuffer());
-		m_Context->SetIndexBuffer(submesh->GetIndexBuffer());
-
-        m_Context->SetShaderDataMat4("u_ModelMatrix", transform.GetMatrix());
-        m_Context->SetShaderDataMat4("u_PreviousModelMatrix", previousTransform.GetMatrix());
-
-        m_Context->Draw();
-	}
+	SubmitQuad(-1.0f, -1.0f, -1.0f, 1.0f, 1.0f, 1.0f, 1.0f, -1.0f);
 }
 
 void Renderer::SubmitQuad(float x1, float y1, float x2, float y2, float x3, float y3, float x4, float y4)
 {
-	float quad[32] = {
+	float quad[24] = {
 		x1, y1, 0.0f, 0.0f,
 		x2, y2, 0.0f, 1.0f,
 		x3, y3, 1.0f, 1.0f,
@@ -560,7 +332,7 @@ void Renderer::SubmitQuad(float x1, float y1, float x2, float y2, float x3, floa
 		x1, y1, 0.0f, 0.0f
 	};
 
-	m_QuadVBO->SetData(quad, 32 * sizeof(float), BufferUsage::DynamicDraw);
+	m_QuadVBO->SetData(quad, 24 * sizeof(float), BufferUsage::DynamicDraw);
     m_Context->SetVertexBuffer(m_QuadVBO);
 	m_Context->SetIndexBuffer(nullptr);
 
@@ -569,7 +341,7 @@ void Renderer::SubmitQuad(float x1, float y1, float x2, float y2, float x3, floa
 
 void Renderer::SubmitIcon(std::shared_ptr<Texture2D> texture, const glm::mat4& transform)
 {
-	float quad[32] = {
+	float quad[24] = {
 		-1.0f, -1.0f, 0.0f, 0.0f,
 		-1.0f,  1.0f, 0.0f, 1.0f,
          1.0f,  1.0f, 1.0f, 1.0f,
@@ -579,7 +351,7 @@ void Renderer::SubmitIcon(std::shared_ptr<Texture2D> texture, const glm::mat4& t
          -1.0f, -1.0f, 0.0f, 0.0f
 	};
 
-	m_QuadVBO->SetData(quad, 32 * sizeof(float), BufferUsage::DynamicDraw);
+	m_QuadVBO->SetData(quad, 24 * sizeof(float), BufferUsage::DynamicDraw);
 	m_Context->SetVertexBuffer(m_QuadVBO);
 
     m_Context->SetShaderDataMat4("u_ModelTransform", transform);
@@ -587,167 +359,3 @@ void Renderer::SubmitIcon(std::shared_ptr<Texture2D> texture, const glm::mat4& t
 
     m_Context->Draw();
 }
-
-void Renderer::EndRenderPass()
-{
-    m_Context->SetDefaultFramebuffer();
-
-	m_Specification = nullptr;
-}
-
-bool Renderer::IsLightMeshVisible(const std::vector<glm::vec3>& vertices, const Transform& transform, Camera* camera) const
-{
-	glm::mat4 projectionViewModelMatrix = camera->GetProjectionView() * transform.GetMatrix();
-
-	glm::vec3 leftBottonCorner(std::numeric_limits<float>::max());
-	glm::vec3 rightTopCorner(std::numeric_limits<float>::min());
-
-	for (const glm::vec3& point : vertices)
-	{
-		glm::vec4 transformed = projectionViewModelMatrix * glm::vec4(point, 1.0f);
-		transformed /= transformed.w;
-
-		leftBottonCorner.x = glm::min(leftBottonCorner.x, transformed.x);
-		leftBottonCorner.y = glm::min(leftBottonCorner.y, transformed.y);
-		leftBottonCorner.z = glm::min(leftBottonCorner.z, transformed.z);
-
-		rightTopCorner.x = glm::max(rightTopCorner.x, transformed.x);
-		rightTopCorner.y = glm::max(rightTopCorner.y, transformed.y);
-		rightTopCorner.z = glm::max(rightTopCorner.z, transformed.z);
-	}
-
-	bool xChangesSign = leftBottonCorner.x * rightTopCorner.x < 0;
-	bool yChangesSign = leftBottonCorner.y * rightTopCorner.y < 0;
-	bool zChangesSign = leftBottonCorner.z * rightTopCorner.z < 0;
-
-	bool xInViewRange = (leftBottonCorner.x >= -1.0f && leftBottonCorner.x <= 1.0f) || (rightTopCorner.x >= -1.0f && rightTopCorner.x <= 1.0f);
-	bool yInViewRange = (leftBottonCorner.y >= -1.0f && leftBottonCorner.y <= 1.0f) || (rightTopCorner.y >= -1.0f && rightTopCorner.y <= 1.0f);
-	bool zInViewRange = (leftBottonCorner.z >=  0.0f && leftBottonCorner.z <= 1.0f) || (rightTopCorner.z >=  0.0f && rightTopCorner.z <= 1.0f);
-
-	return (xChangesSign && yChangesSign && zChangesSign) || (xInViewRange && yInViewRange && zInViewRange) ||
-           (xChangesSign && yChangesSign && zInViewRange) || (yChangesSign && zChangesSign && xInViewRange) || (xChangesSign && zChangesSign && yInViewRange) ||
-           (xChangesSign && yInViewRange && zInViewRange) || (yChangesSign && xInViewRange && zInViewRange) || (zChangesSign && yInViewRange && xInViewRange);
-}
-
-
-/*
-void RendererAPI::SetFramebuffer(std::shared_ptr<Framebuffer> framebuffer)
-{
-	if (m_Framebuffer)
-	{
-		m_Framebuffer->Unbind();
-	}
-
-	m_Framebuffer = framebuffer;
-
-
-	if (m_Framebuffer)
-	{
-		m_Framebuffer->Bind();
-	}
-}
-
-void RendererAPI::SubmitComponent(std::shared_ptr<Component> component, const glm::mat4& Transform)
-{
-	glm::mat4 componentTransform = glm::mat4(1);
-
-	if (component->GetType() == ComponentType::StaticMesh)
-	{
-		std::shared_ptr<StaticMeshComponent> staticMeshComponent = std::static_pointer_cast<StaticMeshComponent>(component);
-		SubmitMesh(staticMeshComponent, Transform);
-	}
-
-	for (std::shared_ptr<Component> child: component->GetChildren())
-	{
-		SubmitComponent(child, Transform * componentTransform);
-	}
-}*/
-
-/*
-void RendererAPI::SubmitScene(std::shared_ptr<Scene> scene)
-{
-	std::vector<std::shared_ptr<Component>> components = scene->GetAllComponents();
-	for (const auto& component: components)
-	{
-		if (component->GetType() == ComponentType::PointLight)
-		{
-			AddLight(std::static_pointer_cast<PointLightComponent>(component));
-		}
-	}
-
-	for (const auto& actor: scene->GetActors())
-	{
-		for (std::shared_ptr<Component> component: actor->GetComponents())
-		{
-			SubmitComponent(component, actor->GetTransform());
-		}
-	}
-
-#ifdef WITH_EDITOR
-	for (const auto& component: components)
-	{
-		if (component->GetType() == ComponentType::PointLight)
-		{
-			std::shared_ptr<PointLightComponent> pointLightComponent = std::static_pointer_cast<PointLightComponent>(component);
-			SubmitIcon(m_LightIcon, pointLightComponent->GetTransform());
-		}
-	}
-#endif
-
-}
-*/
-
-/*
-void RendererAPI::Submit(std::shared_ptr<Shader> shader, std::shared_ptr<VertexArray> vertexArray, const glm::mat4& Transform)
-{
-	Submit(shader, *vertexArray, Transform);
-}
-
-void RendererAPI::Submit(std::shared_ptr<Shader> shader, const VertexArray& vertexArray, const glm::mat4& Transform)
-{
-	shader->SetMat4("u_CameraMatrix", m_ProjectionViewMatrix);
-	shader->SetMat4("u_Transformation", Transform);
-	vertexArray.Bind();
-	shader->Bind();
-	glDrawArrays(GL_TRIANGLES, 0, vertexArray.GetCount());
-}*/
-
-/*
-void RendererAPI::Submit(const std::string& text, const Font& font, float x, float y, float scale, glm::vec3 color,
-					  std::shared_ptr<Shader> shader)
-{
-	shader->Bind();
-	shader->SetMat4("u_CameraMatrix", m_ProjectionViewMatrix);
-	shader->SetFloat3("u_Color", color);
-	shader->SetInt("u_Texture", 0);
-
-	m_TextVAO.Bind();
-
-	for (const char& c: text)
-	{
-		std::shared_ptr<Character> texture = font.GetCharacterTexture(c);
-
-		float width = texture->GetWidth();
-		float height = texture->GetHeight();
-		glm::vec2 bearing = texture->GetBearing();
-
-		texture->Bind();
-
-		float xPos = x + bearing.x * scale;
-		float yPos = y - (height - bearing.y) * scale;
-
-		float data[20] = {
-			xPos,                 yPos,                  0.0f, 0.0f, 1.0f,
-			xPos,                 yPos + height * scale, 0.0f, 0.0f, 0.0f,
-			xPos + width * scale, yPos + height * scale, 0.0f, 1.0f, 0.0f,
-			xPos + width * scale, yPos,                  0.0f, 1.0f, 1.0f
-		};
-
-		m_TextVAO.GetBuffer(0)->SetData(data);
-
-		x += ((int32_t) texture->GetAdvance().x >> 6) * scale;
-
-		glDrawArrays(GL_QUADS, 0, 4);
-	}
-}
-*/

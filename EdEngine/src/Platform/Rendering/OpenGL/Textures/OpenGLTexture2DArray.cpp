@@ -2,27 +2,39 @@
 #include "Core/Rendering/EdRendering.h"
 #include "Platform/Rendering/OpenGL/OpenGLTypes.h"
 
-OpenGLTexture2DArray::OpenGLTexture2DArray(std::shared_ptr<Texture2DArrayDescriptor> descpriptor) : Texture2DArray(descpriptor)
+OpenGLTexture2DArray::OpenGLTexture2DArray(const std::string& name) : Texture2DArray(name)
 {
 	glGenTextures(1, &m_Id);
-	Initialize();
 }
 
-void OpenGLTexture2DArray::Resize(uint32_t width, uint32_t height, uint32_t depth)
+OpenGLTexture2DArray::~OpenGLTexture2DArray()
 {
-	std::shared_ptr<Texture2DArrayDescriptor> descriptor = GetDescriptor<Texture2DArrayDescriptor>();
-	Texture2DArrayImportParameters& parameters = descriptor->ImportParameters;
-	Texture2DArrayData& data = descriptor->Data;
+	glDeleteTextures(1, &m_Id);
+}
 
-	if (data.GetWidth() != width || data.GetHeight() != height || data.GetDepth() != depth)
+void OpenGLTexture2DArray::RefreshData()
+{
+	if (m_bIsInitialized)
 	{
-		data.SetWidth(width);
-		data.SetHeight(height);
-		data.SetDepth(depth);
-
 		glBindTexture(GL_TEXTURE_2D_ARRAY, m_Id);
 
-		glTexImage3D(GL_TEXTURE_2D_ARRAY, 0, OpenGLTypes::ConvertPixelFormat(parameters.Format), width, height, depth, 0, OpenGLTypes::ConvertPixelExternalFormat(parameters.Format), OpenGLTypes::ConvertDataType(parameters.Format), nullptr);
+		glTexImage3D(GL_TEXTURE_2D_ARRAY, 0, OpenGLTypes::ConvertPixelFormat(m_PixelFormat), m_Data.GetWidth(), m_Data.GetHeight(), m_Data.GetDepth(), 0, OpenGLTypes::ConvertPixelExternalFormat(m_PixelFormat), OpenGLTypes::ConvertDataType(m_PixelFormat), m_Data.GetData());
+
+		glBindTexture(GL_TEXTURE_2D_ARRAY, 0);
+	}
+}
+
+void OpenGLTexture2DArray::RefreshParameters()
+{
+	if (m_bIsInitialized)
+	{
+		glBindTexture(GL_TEXTURE_2D_ARRAY, m_Id);
+
+		glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_WRAP_S, OpenGLTypes::ConvertWrapMode(m_WrapS));
+		glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_WRAP_T, OpenGLTypes::ConvertWrapMode(m_WrapT));
+
+		glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_MAG_FILTER, OpenGLTypes::ConvertFilteringMode(m_FilteringMode));
+		glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_MIN_FILTER, OpenGLTypes::ConvertFilteringMode(m_FilteringMode));
 
 		glBindTexture(GL_TEXTURE_2D_ARRAY, 0);
 	}
@@ -30,19 +42,17 @@ void OpenGLTexture2DArray::Resize(uint32_t width, uint32_t height, uint32_t dept
 
 void OpenGLTexture2DArray::Initialize()
 {
-	std::shared_ptr<Texture2DArrayDescriptor> descriptor = GetDescriptor<Texture2DArrayDescriptor>();
-	Texture2DArrayImportParameters& parameters = descriptor->ImportParameters;
-	Texture2DArrayData& data = descriptor->Data;
-
 	glBindTexture(GL_TEXTURE_2D_ARRAY, m_Id);
 
-	glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_WRAP_S, OpenGLTypes::ConvertWrapMode(parameters.WrapS));
-	glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_WRAP_T, OpenGLTypes::ConvertWrapMode(parameters.WrapT));
+	glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_WRAP_S, OpenGLTypes::ConvertWrapMode(m_WrapS));
+	glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_WRAP_T, OpenGLTypes::ConvertWrapMode(m_WrapT));
 
-	glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_MAG_FILTER, OpenGLTypes::ConvertFilteringMode(parameters.Filtering));
-	glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_MIN_FILTER, OpenGLTypes::ConvertFilteringMode(parameters.Filtering));
+	glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_MAG_FILTER, OpenGLTypes::ConvertFilteringMode(m_FilteringMode));
+	glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_MIN_FILTER, OpenGLTypes::ConvertFilteringMode(m_FilteringMode));
 
-	glTexImage3D(GL_TEXTURE_2D_ARRAY, 0, OpenGLTypes::ConvertPixelFormat(parameters.Format), data.GetWidth(), data.GetHeight(), data.GetDepth(), 0, OpenGLTypes::ConvertPixelExternalFormat(parameters.Format), OpenGLTypes::ConvertDataType(parameters.Format), data.GetData());
+	glTexImage3D(GL_TEXTURE_2D_ARRAY, 0, OpenGLTypes::ConvertPixelFormat(m_PixelFormat), m_Data.GetWidth(), m_Data.GetHeight(), m_Data.GetDepth(), 0, OpenGLTypes::ConvertPixelExternalFormat(m_PixelFormat), OpenGLTypes::ConvertDataType(m_PixelFormat), m_Data.GetData());
 
 	glBindTexture(GL_TEXTURE_2D_ARRAY, 0);
+
+	m_bIsInitialized = true;
 }

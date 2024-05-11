@@ -1,20 +1,62 @@
 #include "Texture2D.h"
 #include "Core/Ed.h"
 
+Texture2D::Texture2D(const std::string& name) : Texture(name)
+{
+}
+
+AssetType Texture2D::GetType() const
+{
+	return AssetType::Texture2D;
+}
+
 uint32_t Texture2D::GetWidth() const
 {
-	return GetDescriptor<Texture2DDescriptor>()->Data.GetWidth();
+	return m_Data.GetWidth();
 }
 
 uint32_t Texture2D::GetHeight() const
 {
-	return GetDescriptor<Texture2DDescriptor>()->Data.GetHeight();
+	return m_Data.GetHeight();
 }
 
 glm::u32vec3 Texture2D::GetSize() const
 {
-	Texture2DData& data = GetDescriptor<Texture2DDescriptor>()->Data;
-	return { data.GetWidth(), data.GetHeight(), 0 };
+	return { m_Data.GetWidth(), m_Data.GetHeight(), 0 };
+}
+
+void Texture2D::SetData(const Texture2DData& data)
+{
+	m_Data = data;
+	MarkDirty();
+	RefreshData();
+}
+
+void Texture2D::SetData(Texture2DData&& data)
+{
+	m_Data = std::move(data);
+	MarkDirty();
+	RefreshData();
+}
+
+void Texture2D::SetMipMapsEnabled(bool enabled)
+{
+	m_bMipMapsEnabled = enabled;
+
+	MarkDirty();
+	if (m_bMipMapsEnabled)
+	{
+		GenerateMipMaps();
+	}
+	else
+	{
+		DeleteMipMaps();
+	}
+}
+
+bool Texture2D::AreMipMapsEnabled() const
+{
+	return m_bMipMapsEnabled;
 }
 
 void Texture2D::Resize(uint32_t width, uint32_t height, uint32_t depth)
@@ -27,6 +69,42 @@ void Texture2D::Resize(glm::u32vec3 size)
 	Resize(size.x, size.y);
 }
 
-Texture2D::Texture2D(std::shared_ptr<Texture2DDescriptor> descriptor) : Texture(descriptor)
+void Texture2D::Resize(uint32_t width, uint32_t height)
 {
+	if (m_Data.GetWidth() != width || m_Data.GetHeight() != height)
+	{
+		m_Data.SetData(nullptr, 0, true);
+		m_Data.SetWidth(width);
+		m_Data.SetHeight(height);
+
+		MarkDirty();
+		RefreshData();
+	}
+}
+
+void Texture2D::ResetState()
+{
+	Texture::ResetState();
+
+	std::shared_ptr<Texture2DImportParameters> paramters = std::static_pointer_cast<Texture2DImportParameters>(m_ImportParameters);
+	SetMipMapsEnabled(paramters->GenerateMipMaps);
+}
+
+void Texture2D::Serialize(Archive& archive)
+{
+	Texture::Serialize(archive);
+
+	archive & m_bMipMapsEnabled;
+}
+
+void Texture2D::SerializeData(Archive& archive)
+{
+	Texture::SerializeData(archive);
+
+	archive & m_Data;
+}
+
+TextureType Texture2D::GetTextureType() const
+{
+	return TextureType::Texture2D;
 }

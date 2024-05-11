@@ -5,16 +5,14 @@
 
 class OpenGLTexture2D : public Texture2D {
 public:
-	OpenGLTexture2D(std::shared_ptr<Texture2DDescriptor> descriptor);
+	OpenGLTexture2D(const std::string& name = "Empty");
 
-	virtual void Resize(uint32_t width, uint32_t height) override;
-
-	virtual TextureType GetType() const override;
-
-	virtual void SetData(const Texture2DData& inData) override;
-	virtual void SetData(Texture2DData&& inData) override;
+	virtual void Initialize() override;
 
 	virtual ~OpenGLTexture2D() override;
 protected:
-	virtual void Initialize() override;
+	virtual void RefreshData() override;
+	virtual void GenerateMipMaps() override;
+	virtual void DeleteMipMaps() override;
+	virtual void RefreshParameters() override;
 };

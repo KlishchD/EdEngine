@@ -1,7 +1,5 @@
 #include "DirectionalLightComponent.h"
 
-BOOST_CLASS_EXPORT_IMPLEMENT(DirectionalLightComponent)
-
 ComponentType DirectionalLightComponent::GetType() const
 {
 	return ComponentType::DirectionalLight;
@@ -11,7 +9,7 @@ glm::vec3 DirectionalLightComponent::GetDirection() const
 {
 	const glm::quat rotation = GetRelativeTransform().GetRotation();
 	const glm::vec3 direction(0.0f, -1.0f, 0.0f);
-	return rotation * direction;
+	return glm::normalize(rotation * direction);
 }
 
 uint32_t DirectionalLightComponent::GetShadowCascadesCount() const
@@ -52,4 +50,14 @@ float DirectionalLightComponent::GetShadowFilterRadius() const
 void DirectionalLightComponent::SetShadowFilterRadius(float radius)
 {
 	m_ShadowFilterRadius = radius;
+}
+
+void DirectionalLightComponent::Serialize(Archive& archive)
+{
+	LightComponent::Serialize(archive);
+
+	archive & m_CascadesCount;
+	archive & m_ShadowMapZMultiplier;
+	archive & m_ShadowFilterSize;
+	archive & m_ShadowFilterRadius;
 }

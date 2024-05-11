@@ -1,8 +1,5 @@
 #include "SpotLightComponent.h"
 
-BOOST_CLASS_EXPORT_IMPLEMENT(SpotLightComponent)
-
-
 void SpotLightComponent::SetInnerAngle(float angle)
 {
 	m_InnerAngle = angle;
@@ -58,4 +55,15 @@ float SpotLightComponent::GetShadowFilterRadius() const
 ComponentType SpotLightComponent::GetType() const
 {
 	return ComponentType::SpotLight;
+}
+
+void SpotLightComponent::Serialize(Archive& archive)
+{
+	LightComponent::Serialize(archive);
+
+	archive & m_InnerAngle;
+	archive & m_OuterAngle;
+	archive & m_MaxDistance;
+	archive & m_ShadowFilterSize;
+	archive & m_ShadowFilterRadius;
 }

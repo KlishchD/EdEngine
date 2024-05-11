@@ -16,10 +16,10 @@ void ContentBrowserWidget::Initialize()
     m_Editor = engine.GetManager<Editor>();
     m_AssetManager = engine.GetManager<AssetManager>();
 
-    m_DirectoryIcon = m_AssetManager->LoadTexture(RenderingHelper::GetDefaultBaseColorTexture2DImportParameters(Files::ContentFolderPath + R"(Editor\icons\directory.png)"));
-    m_TextureIcon = m_AssetManager->LoadTexture(RenderingHelper::GetDefaultBaseColorTexture2DImportParameters(Files::ContentFolderPath + R"(Editor\icons\texture.png)"));
-    m_MaterialIcon = m_AssetManager->LoadTexture(RenderingHelper::GetDefaultBaseColorTexture2DImportParameters(Files::ContentFolderPath + R"(Editor\icons\material.png)"));
-    m_MeshIcon = m_AssetManager->LoadTexture(RenderingHelper::GetDefaultBaseColorTexture2DImportParameters(Files::ContentFolderPath + R"(Editor\icons\mesh.png)"));
+    m_DirectoryIcon = RenderingHelper::ImportBaseColorTexture("Editor\\icons\\directory.png");
+    m_TextureIcon = RenderingHelper::ImportBaseColorTexture("Editor\\icons\\texture.png");
+    m_MaterialIcon = RenderingHelper::ImportBaseColorTexture("Editor\\icons\\material.png");
+    m_MeshIcon = RenderingHelper::ImportBaseColorTexture("Editor\\icons\\mesh.png");
 
     m_CurrentFolder = Files::ContentFolderPath;
 }
@@ -79,8 +79,8 @@ void ContentBrowserWidget::ContentItems()
 
                     if (ImGui::ImageButton(entry.path().string().data(), (void*)icon->GetID(), buttonSize, {0.0f, 1.0f}, {1.0f, 0.0f}))
                     {
-                        std::shared_ptr<AssetDescriptor> descriptor = m_AssetManager->GetAssetDescriptor(entry.path().string());
-                        m_Editor->SetSelectedAssetDescriptor(descriptor);
+                        std::shared_ptr<Asset> asset = m_AssetManager->GetAsset(entry.path().string());
+                        m_Editor->SetSelectedAsset(asset);
                     }
                     ImGui::Text(entry.path().filename().replace_extension().string().data());
                 }

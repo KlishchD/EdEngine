@@ -7,8 +7,8 @@
 #include "Core/Scene.h"
 #include "Utils/Files.h"
 #include "Utils/RenderingHelper.h"
-#include <imgui.h>
 #include "Core/Macros.h"
+#include <imgui.h>
 
 void OptionsMenuWidget::Initialize()
 {
@@ -18,7 +18,7 @@ void OptionsMenuWidget::Initialize()
     m_Window = m_Engine->GetWindow();
     m_AssetManager = m_Engine->GetManager<AssetManager>();
 
-    m_Icon = m_AssetManager->LoadTexture(RenderingHelper::GetDefaultBaseColorTexture2DImportParameters(Files::ContentFolderPath + R"(Editor\icons\icon.png)"));
+    m_Icon = RenderingHelper::ImportBaseColorTexture("Editor\\icons\\icon.png");
 }
 
 void OptionsMenuWidget::Tick(float DeltaTime)
@@ -46,16 +46,16 @@ void OptionsMenuWidget::Tick(float DeltaTime)
         {
             if (ImGui::MenuItem("Import mesh"))
             {
-                m_StaticMeshImportParameters = StaticMeshImportParameters();
-                m_StaticMeshImportParameters.MeshPath = PlatformUtils::OpenFileWindow("Model\0", *m_Window, "Model");
+                m_StaticMeshImportParameters = std::make_shared<StaticMeshImportParameters>();
+                m_StaticMeshImportParameters->Path = PlatformUtils::OpenFileWindow("Model\0", *m_Window, "Model");
                 m_StaticMeshImportPopupIsOpened = true;
             }
     
             if (ImGui::MenuItem("Import texture"))
             {
-                m_TextureImportParameters = Texture2DImportParameters();
-                m_TextureImportParameters.Format = PixelFormat::SRGBA8F;
-                m_TextureImportParameters.Path = PlatformUtils::OpenFileWindow("Texture\0", *m_Window, "Texture");
+                m_TextureImportParameters = std::make_shared<Texture2DImportParameters>();
+                m_TextureImportParameters->Format = PixelFormat::SRGBA8F;
+                m_TextureImportParameters->Path = PlatformUtils::OpenFileWindow("Texture\0", *m_Window, "Texture");
                 m_TextureImportPopupIsOpened = true;
             }
 
@@ -63,7 +63,7 @@ void OptionsMenuWidget::Tick(float DeltaTime)
             {
                 std::string materialPath = PlatformUtils::OpenFileWindow("Material\0", *m_Window, "Material");
 
-                m_AssetManager->CreateMaterial(materialPath);
+                m_AssetManager->CreateAsset<Material>(AssetType::Material, materialPath);
             }
             
             ImGui::EndMenu();
@@ -91,14 +91,14 @@ void OptionsMenuWidget::StaticMeshImportPopup()
     
     if (ImGui::BeginPopup("Static mesh import parameters"))
     {
-        ImGui::Checkbox("Join Identical Vertices", &m_StaticMeshImportParameters.JoinIdenticalVertices);
-        ImGui::Checkbox("Gen UV Coords", &m_StaticMeshImportParameters.GenUVCoords);
-        ImGui::Checkbox("Calculate Tangent Space", &m_StaticMeshImportParameters.CalculateTangentSpace);
-        ImGui::Checkbox("Fix Infacing Normals", &m_StaticMeshImportParameters.FixInfacingNormals);
+        ImGui::Checkbox("Join Identical Vertices", &m_StaticMeshImportParameters->JoinIdenticalVertices);
+        ImGui::Checkbox("Gen UV Coords", &m_StaticMeshImportParameters->GenUVCoords);
+        ImGui::Checkbox("Calculate Tangent Space", &m_StaticMeshImportParameters->CalculateTangentSpace);
+        ImGui::Checkbox("Fix Infacing Normals", &m_StaticMeshImportParameters->FixInfacingNormals);
                                                  
         if (ImGui::Button("Import"))
         {
-            m_AssetManager->ImportMesh(m_StaticMeshImportParameters);
+            m_AssetManager->ImportAsset<StaticMesh>(AssetType::StaticMesh, m_StaticMeshImportParameters);
             m_StaticMeshImportPopupIsOpened = false;
 
             ImGui::CloseCurrentPopup();
@@ -114,62 +114,62 @@ void OptionsMenuWidget::TextureImportPopup()
 
     if (ImGui::BeginPopup("Texture import parameters"))
 	{
-        if (ImGui::BeginCombo("WrapS", m_TextureImportParameters.WrapS == WrapMode::ClampToEdge ? "Clamp to border" : "Repeat"))
+        if (ImGui::BeginCombo("WrapS", m_TextureImportParameters->WrapS == WrapMode::ClampToEdge ? "Clamp to border" : "Repeat"))
         {
-            if (ImGui::Selectable("Clamp to border", m_TextureImportParameters.WrapS == WrapMode::ClampToEdge))
+            if (ImGui::Selectable("Clamp to border", m_TextureImportParameters->WrapS == WrapMode::ClampToEdge))
             {
-                m_TextureImportParameters.WrapS = WrapMode::ClampToEdge;
+                m_TextureImportParameters->WrapS = WrapMode::ClampToEdge;
             }
-            if (ImGui::Selectable("Repeat", m_TextureImportParameters.WrapS == WrapMode::Repeat))
+            if (ImGui::Selectable("Repeat", m_TextureImportParameters->WrapS == WrapMode::Repeat))
             {
-                m_TextureImportParameters.WrapS = WrapMode::Repeat;
+                m_TextureImportParameters->WrapS = WrapMode::Repeat;
             }
             ImGui::EndCombo();
         }
 
-        if (ImGui::BeginCombo("WrapT", m_TextureImportParameters.WrapT == WrapMode::ClampToEdge ? "Clamp to border" : "Repeat"))
+        if (ImGui::BeginCombo("WrapT", m_TextureImportParameters->WrapT == WrapMode::ClampToEdge ? "Clamp to border" : "Repeat"))
         {
-            if (ImGui::Selectable("Clamp to border", m_TextureImportParameters.WrapT == WrapMode::ClampToEdge))
+            if (ImGui::Selectable("Clamp to border", m_TextureImportParameters->WrapT == WrapMode::ClampToEdge))
             {
-                m_TextureImportParameters.WrapT = WrapMode::ClampToEdge;
+                m_TextureImportParameters->WrapT = WrapMode::ClampToEdge;
             }
-            if (ImGui::Selectable("Repeat", m_TextureImportParameters.WrapT == WrapMode::Repeat))
+            if (ImGui::Selectable("Repeat", m_TextureImportParameters->WrapT == WrapMode::Repeat))
             {
-                m_TextureImportParameters.WrapT = WrapMode::Repeat;
+                m_TextureImportParameters->WrapT = WrapMode::Repeat;
             }
             ImGui::EndCombo();
         }
         
-        if (ImGui::BeginCombo("Format", m_TextureImportParameters.Format == PixelFormat::RGBA8F ? "RGBA8" : "SRGBA8"))
+        if (ImGui::BeginCombo("Format", m_TextureImportParameters->Format == PixelFormat::RGBA8F ? "RGBA8" : "SRGBA8"))
         {
-            if (ImGui::Selectable("RGBA8", m_TextureImportParameters.Format == PixelFormat::RGBA8F))
+            if (ImGui::Selectable("RGBA8", m_TextureImportParameters->Format == PixelFormat::RGBA8F))
             {
-                m_TextureImportParameters.Format = PixelFormat::RGBA8F;
+                m_TextureImportParameters->Format = PixelFormat::RGBA8F;
             }
-            if (ImGui::Selectable("SRGBA8", m_TextureImportParameters.Format == PixelFormat::SRGBA8F))
+            if (ImGui::Selectable("SRGBA8", m_TextureImportParameters->Format == PixelFormat::SRGBA8F))
             {
-                m_TextureImportParameters.Format = PixelFormat::SRGBA8F;
+                m_TextureImportParameters->Format = PixelFormat::SRGBA8F;
             }
             ImGui::EndCombo();
         }
-        if (ImGui::BeginCombo("Filtering", m_TextureImportParameters.Filtering == FilteringMode::Linear ? "Linear" : "Nearest"))
+        if (ImGui::BeginCombo("Filtering", m_TextureImportParameters->Filtering == FilteringMode::Linear ? "Linear" : "Nearest"))
         {
-            if (ImGui::Selectable("Linear", m_TextureImportParameters.Filtering == FilteringMode::Linear))
+            if (ImGui::Selectable("Linear", m_TextureImportParameters->Filtering == FilteringMode::Linear))
             {
-                m_TextureImportParameters.Filtering = FilteringMode::Linear;
+                m_TextureImportParameters->Filtering = FilteringMode::Linear;
             }
             
-            if (ImGui::Selectable("Nearest", m_TextureImportParameters.Filtering == FilteringMode::Nearest))
+            if (ImGui::Selectable("Nearest", m_TextureImportParameters->Filtering == FilteringMode::Nearest))
             {
-                m_TextureImportParameters.Filtering = FilteringMode::Nearest;
+                m_TextureImportParameters->Filtering = FilteringMode::Nearest;
             }
             ImGui::EndCombo();
         }
         
-        ImGui::Checkbox("Generate MipMaps", &m_TextureImportParameters.GenerateMipMaps);
+        ImGui::Checkbox("Generate MipMaps", &m_TextureImportParameters->GenerateMipMaps);
 
         if (ImGui::Button("Import")) {
-            m_AssetManager->ImportTexture(m_TextureImportParameters);
+			m_AssetManager->ImportAsset<Texture2D>(AssetType::Texture2D, m_TextureImportParameters);
 
             m_TextureImportPopupIsOpened = false;
 

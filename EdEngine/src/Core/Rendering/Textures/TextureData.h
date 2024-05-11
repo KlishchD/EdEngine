@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Utils/SerializationUtils.h"
+#include "Utils/SerializationHelper.h"
 
 class TextureData
 {
@@ -56,7 +56,7 @@ public:
 	uint32_t GetWidth() const;
 
 	void SetHeight(uint32_t height);
-	uint32_t GetHeight();
+	uint32_t GetHeight() const;
 
 	void SetSize(glm::u32vec2 size);
 	glm::u32vec2 GetSize() const;
@@ -110,7 +110,7 @@ public:
 	uint32_t GetWidth() const;
 
 	void SetHeight(uint32_t height);
-	uint32_t GetHeight();
+	uint32_t GetHeight() const;
 
 	void SetDepth(uint32_t depth);
 	uint32_t GetDepth() const;

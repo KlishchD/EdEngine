@@ -1,7 +1,5 @@
 #include "LightComponent.h"
 
-BOOST_CLASS_EXPORT_IMPLEMENT(LightComponent)
-
 LightComponent::LightComponent(): Component("Light")
 {
 }
@@ -44,6 +42,17 @@ bool LightComponent::ShouldShowWireframe() const
 glm::vec3 LightComponent::GetPosition() const
 {
 	return GetWorldTransform().GetTranslation();
+}
+
+void LightComponent::Serialize(Archive& archive)
+{
+	Component::Serialize(archive);
+
+	archive & m_Color;
+	archive & m_Intensity;
+	archive & m_bIsCastingShadow;
+
+	m_Color = glm::clamp(m_Color, glm::vec3(0.0f), glm::vec3(1.0f));
 }
 
 void LightComponent::SetShadowCasting(bool enabled)

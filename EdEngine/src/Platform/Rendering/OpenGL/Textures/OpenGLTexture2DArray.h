@@ -5,9 +5,12 @@
 class OpenGLTexture2DArray : public Texture2DArray
 {
 public:
-	OpenGLTexture2DArray(std::shared_ptr<Texture2DArrayDescriptor> descpriptor);
-
-	virtual void Resize(uint32_t width, uint32_t height, uint32_t depth);
-protected:
+	OpenGLTexture2DArray(const std::string& name);
+	
 	virtual void Initialize() override;
+
+	virtual ~OpenGLTexture2DArray() override;
+protected:
+	virtual void RefreshData() override;
+	virtual void RefreshParameters() override;
 };
