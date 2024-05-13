@@ -29,6 +29,9 @@ ED_BEGIN_SHADER_PARAMETERS_DECLARATION(SSAOBasePass)
 	ED_SHADER_PARAMETER(Float, float, NoiseSize)
 	ED_SHADER_PARAMETER_PTR(Texture, Texture2D, Noise)
 
+	ED_SHADER_PARAMETER(Float, float, Radius)
+	ED_SHADER_PARAMETER(Float, float, Bias)
+
 ED_END_SHADER_PARAMETERS_DECLARATION()
 
 class SSAOBasePass : public RenderPass<SSAOBasePassParameters, SSAOBasePassShaderParameters>
@@ -37,4 +40,16 @@ class SSAOBasePass : public RenderPass<SSAOBasePassParameters, SSAOBasePassShade
 public:
 	virtual void Initialize(std::shared_ptr<RenderGraph> graph) override;
 	virtual void Execute() override;
+
+    void SetSamplesCount(uint32_t count);
+    uint32_t GetSamplesCount() const;
+
+    void SetNoiseSize(uint32_t size);
+    uint32_t GetNosiseSize() const;
+
+    void SetRadius(float radius);
+    float GetRadius() const;
+
+    void SetBias(float bias);
+    float GetBias() const;
 };

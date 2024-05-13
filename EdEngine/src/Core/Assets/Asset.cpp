@@ -90,7 +90,8 @@ void Asset::Serialize(Archive& archive)
 
 void Asset::SerializeData(Archive& archive)
 {
-	m_bHasData = archive.GetMode() == ArchiveMode::Read;
+	m_bHasData = true;
+	m_bIsDirty = false;
 }
 
 void Asset::FreeData()

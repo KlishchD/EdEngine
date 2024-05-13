@@ -37,8 +37,8 @@ uniform mat4 u_NormalMatrix;
 uniform mat4 u_ProjectionMatrix;
 uniform mat4 u_ProjectionViewMatrix;
 
-float radius = 1.5f;
-float bias = 0.025f;
+uniform float u_Radius;
+uniform float u_Bias;
 
 out float color;
 
@@ -59,7 +59,7 @@ void main()
 	float occluders = 0.0f;
 	for (int i = 0; i < u_SampleCount && i < MAX_SAMPLES_COUNT; ++i) 
 	{
-		vec3 samplePosition = position + TBN * u_Samples[i] * radius;
+		vec3 samplePosition = position + TBN * u_Samples[i] * u_Radius;
 
 		vec4 screen = u_ProjectionMatrix * vec4(samplePosition, 1.0f);
 		screen.xyz /= screen.w;
@@ -68,9 +68,9 @@ void main()
 		float screenDepth = (u_ViewMatrix * texture2D(u_Position, screen.xy)).z;
 		float sampleDepth = samplePosition.z;
 
-		float rangeCheck = smoothstep(0.0f, 1.0f, radius / abs(position.z - screenDepth));
+		float rangeCheck = smoothstep(0.0f, 1.0f, u_Radius / abs(position.z - screenDepth));
 
-		occluders += (screenDepth - bias >= sampleDepth ? 1.0f : 0.0f) * rangeCheck;
+		occluders += (screenDepth - u_Bias >= sampleDepth ? 1.0f : 0.0f) * rangeCheck;
 	}
 	color = 1.0f - occluders / u_SampleCount;
 }

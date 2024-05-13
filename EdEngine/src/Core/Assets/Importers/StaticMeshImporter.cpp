@@ -27,7 +27,10 @@ std::vector<std::shared_ptr<Asset>> StaticMeshImporter::ImportMultiple(std::shar
 
 	if (const aiScene* scene = m_Importer.ReadFile(path.c_str(), GetParametersIntegerRepresentation(parameters)))
 	{
-		std::vector<std::shared_ptr<Material>> materials = m_Manager->GetImporter().ImportMultiple<Material>(AssetType::Material, inParameters);
+		std::shared_ptr<MaterialImportParameters> materialParameter = std::make_shared<MaterialImportParameters>();
+		materialParameter->Path = parameters->Path;
+		std::vector<std::shared_ptr<Material>> materials = m_Manager->GetImporter().ImportMultiple<Material>(AssetType::Material, materialParameter);
+
 		std::vector<std::shared_ptr<StaticSubmesh>> submeshes;
 
 		if (parameters->ImportAsOneMesh)
@@ -109,16 +112,15 @@ std::shared_ptr<StaticMesh> StaticMeshImporter::CreateMesh(std::shared_ptr<Stati
 {
 	std::shared_ptr<StaticMesh> mesh = std::make_shared<StaticMesh>(name);
 	mesh->AddSubmesh(submesh);
-
+	
 	mesh->SetImportParameters(parameters);
-
+	
 	std::string savePath = Files::GetSavePath(parameters->Path, AssetType::StaticMesh, submesh->GetName());
 	Archive archive(savePath, ArchiveMode::Write);
-	mesh->Serialize(archive);
-	mesh->SerializeData(archive);
+	archive & mesh;
 	
-	m_Manager->RegisterAsset(mesh);
-
+	m_Manager->RegisterAsset(mesh, savePath);
+	
 	return mesh;
 }
 
@@ -126,16 +128,15 @@ std::shared_ptr<StaticMesh> StaticMeshImporter::CreateMesh(std::vector<std::shar
 {
 	std::shared_ptr<StaticMesh> mesh = std::make_shared<StaticMesh>(name);
 	mesh->SetSubmeshes(submeshes);
-
+	
 	mesh->SetImportParameters(parameters);
-
+	
 	std::string savePath = Files::GetSavePath(parameters->Path, AssetType::StaticMesh);
 	Archive archive(savePath, ArchiveMode::Write);
-	mesh->Serialize(archive);
-	mesh->SerializeData(archive);
-
-	m_Manager->RegisterAsset(mesh);
-
+	archive & mesh;
+	
+	m_Manager->RegisterAsset(mesh, savePath);
+	
 	return mesh;
 }
 

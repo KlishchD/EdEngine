@@ -18,7 +18,7 @@ public:
 
 protected:
 	std::shared_ptr<Material> ImportMaterial(const aiMaterial* inMaterial, std::shared_ptr<AssetImportParameters> inParameters);
-	std::shared_ptr<Material> ParseMaterial(const aiMaterial* inMaterial);
+	std::shared_ptr<Material> ParseMaterial(const aiMaterial* inMaterial, const std::string& materialPath);
 
 protected:
 	Assimp::Importer m_Importer;

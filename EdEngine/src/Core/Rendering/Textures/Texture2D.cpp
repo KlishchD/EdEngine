@@ -1,8 +1,9 @@
 #include "Texture2D.h"
-#include "Core/Ed.h"
+#include "Core/Assets/ImportParameters/TextureImportParameters.h"
 
 Texture2D::Texture2D(const std::string& name) : Texture(name)
 {
+    SetImportParameters(std::make_shared<Texture2DImportParameters>()); // TODO: remove with ObjectFactory
 }
 
 AssetType Texture2D::GetType() const
@@ -44,13 +45,16 @@ void Texture2D::SetMipMapsEnabled(bool enabled)
 	m_bMipMapsEnabled = enabled;
 
 	MarkDirty();
-	if (m_bMipMapsEnabled)
+	if (m_bIsInitialized)
 	{
-		GenerateMipMaps();
-	}
-	else
-	{
-		DeleteMipMaps();
+		if (m_bMipMapsEnabled)
+		{
+			GenerateMipMaps();
+		}
+		else
+		{
+			DeleteMipMaps();
+		}
 	}
 }
 
@@ -102,6 +106,19 @@ void Texture2D::SerializeData(Archive& archive)
 	Texture::SerializeData(archive);
 
 	archive & m_Data;
+
+	if (archive.GetMode() == ArchiveMode::Read)
+	{
+		if (m_bIsInitialized)
+		{
+			RefreshParameters();
+			RefreshData();
+		}
+		else
+		{
+			Initialize();
+		}
+	}
 }
 
 TextureType Texture2D::GetTextureType() const

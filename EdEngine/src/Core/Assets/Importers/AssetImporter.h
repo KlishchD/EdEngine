@@ -4,6 +4,8 @@
 
 class AssetManager;
 
+// TODO: Force appropriate import parameters to asset
+
 class AssetImporter
 {
 public:

@@ -15,11 +15,8 @@ void PointLightWireframePass::Execute()
 {
 	RenderPass<PointLightWireframePassParameters, PointLightWireframePassShaderParameters>::Execute();
 
-	if (m_Renderer->IsViewportSizeDirty())
-	{
-		glm::u32vec2 size = m_Renderer->GetViewportSize();
-		m_Parameters.DrawFramebuffer->Resize(size.x, size.y, 1);
-	}
+	glm::u32vec2 size = m_Renderer->GetViewportSize();
+	m_Parameters.DrawFramebuffer->Resize(size.x, size.y, 1);
 
 	if (m_Parameters.Light->ShouldShowWireframe())
 	{

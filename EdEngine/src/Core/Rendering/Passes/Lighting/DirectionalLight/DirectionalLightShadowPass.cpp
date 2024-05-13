@@ -16,12 +16,9 @@ void DirectionalLightShadowPass::Execute()
 {
 	RenderPass<DirectionalLightShadowPassParameters, DirectionalLightShadowPassShaderParameters>::Execute();
 
-	if (m_Renderer->IsViewportSizeDirty())
-	{
-		glm::u32vec2 size = m_Renderer->GetViewportSize();
-		uint32_t sideSize = glm::max((uint32_t)size.x, ShadowCascadeMinSize);
-		m_Parameters.DrawFramebuffer->Resize(sideSize, sideSize, MaxShadowCascadesCount);
-	}
+	glm::u32vec2 size = m_Renderer->GetViewportSize();
+	uint32_t sideSize = glm::max((uint32_t)size.x, ShadowCascadeMinSize);
+	m_Parameters.DrawFramebuffer->Resize(sideSize, sideSize, MaxShadowCascadesCount);
 
 	if (m_Parameters.Light->IsShadowCasting())
 	{

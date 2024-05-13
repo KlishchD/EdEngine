@@ -2,32 +2,16 @@
 
 #include "Utils/SerializationHelper.h"
 
-class TextureData
+class TextureData : public Serializable
 {
 public:
-	BOOST_SERIALIZATION_SPLIT_MEMBER()
-
 	TextureData();
 	TextureData(void* data, uint32_t size, bool bTakeOwnership);
 
 	TextureData& operator=(const TextureData& data);
 	TextureData& operator=(TextureData&& data);
 
-	template <class Archive>
-	void save(Archive& ar, uint32_t version) const
-	{
-		ar & m_DataSize;
-		ar & boost::serialization::make_binary_object(m_Data, m_DataSize);
-	}
-
-	template <class Archive>
-	void load(Archive& ar, uint32_t version)
-	{
-		ar & m_DataSize;
-
-		m_Data = malloc(m_DataSize);
-		ar & boost::serialization::make_binary_object(m_Data, m_DataSize);
-	}
+	virtual void Serialize(Archive& archive) override;
 
 	void SetData(void* data, uint32_t size, bool bTakeOwnership);
 	void* GetData() const;
@@ -61,13 +45,7 @@ public:
 	void SetSize(glm::u32vec2 size);
 	glm::u32vec2 GetSize() const;
 
-	template <class Archive>
-	void serialize(Archive& ar, uint32_t version)
-	{
-		ar & boost::serialization::base_object<TextureData>(*this);
-		ar & m_Width;
-		ar & m_Height;
-	}
+	virtual void Serialize(Archive& archive) override;
 private:
 	uint32_t m_Width = 0;
 	uint32_t m_Height = 0;
@@ -86,12 +64,7 @@ public:
 	void SetSize(uint32_t size);
 	uint32_t GetSize() const;
 
-	template <class Archive>
-	void serialize(Archive& ar, uint32_t version)
-	{
-		ar & boost::serialization::base_object<TextureData>(*this);
-		ar & m_Size;
-	}
+    virtual void Serialize(Archive& archive) override;
 private:
 	uint32_t m_Size = 0;
 };
@@ -118,14 +91,7 @@ public:
 	void SetSize(glm::u32vec3 size);
 	glm::u32vec3 GetSize() const;
 
-	template <class Archive>
-	void serialize(Archive& ar, uint32_t version)
-	{
-		ar & boost::serialization::base_object<TextureData>(*this);
-		ar & m_Width;
-		ar & m_Height;
-		ar & m_Depth;
-	}
+    virtual void Serialize(Archive& archive) override;
 private:
 	uint32_t m_Width = 0;
 	uint32_t m_Height = 0;

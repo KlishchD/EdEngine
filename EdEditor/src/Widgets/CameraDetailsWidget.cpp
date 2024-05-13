@@ -9,6 +9,8 @@
 #include "Core/Rendering/Passes/TAAPass.h"
 #include "Core/Rendering/Passes/Lighting/SpotLight/SpotLightMultiPass.h"
 #include "Core/Rendering/Passes/Lighting/SpotLight/SpotLightShadingPass.h"
+#include "Core/Rendering/Passes/SSAO/SSAOMultiPass.h"
+#include "Core/Rendering/Passes/SSAO/SSAOPass.h"
 #include <imgui.h>
 #include <glm/gtc/type_ptr.hpp>
 
@@ -151,7 +153,30 @@ void CameraDetailsWidget::Tick(float DeltaTime)
 			m_Renderer->SetSSAOEnabled(enabled);
 		}
 
-		// TODO: Add parameters for SSAO ;)
+        if (m_Renderer->IsSSAOEnabled())
+        {
+            std::shared_ptr<SSAOBasePass> ssao = m_Renderer->GetGraph()->GetPass<SSAOMultiPass>()->GetPass<SSAOBasePass>();
+
+            if (int32_t samples = ssao->GetSamplesCount(); ImGui::SliderInt("SSAO samples count", &samples, 1, 32))
+            {
+                ssao->SetSamplesCount(samples);
+            }
+
+            if (int32_t size = ssao->GetNosiseSize(); ImGui::SliderInt("SSAO noise size", &size, 10, 64))
+            {
+                ssao->SetNoiseSize(size);
+            }
+
+            if (float radius = ssao->GetRadius(); ImGui::SliderFloat("SSAO radius", &radius, 0.5f, 10.0f))
+            {
+                ssao->SetRadius(radius);
+            }
+
+            if (float bias = ssao->GetBias(); ImGui::SliderFloat("SSAO bias", &bias, 0.001f, 1.0f))
+            {
+                ssao->SetBias(bias);
+            }
+        }
 
 		if (std::shared_ptr<SpotLightMultiPass> multiPass = graph->GetPass<SpotLightMultiPass>())
 		{

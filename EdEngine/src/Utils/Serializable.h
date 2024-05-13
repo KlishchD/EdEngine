@@ -20,6 +20,9 @@
 
 #include <boost/uuid/uuid_io.hpp>
 #include <boost/uuid/uuid.hpp>
+#include <boost/uuid/nil_generator.hpp>
+#include <boost/uuid/string_generator.hpp>
+#include <boost/uuid/name_generator.hpp>
 #include <boost/uuid/random_generator.hpp>
 #include <boost/uuid/uuid_serialize.hpp>
 
@@ -33,6 +36,7 @@ using UUID = boost::uuids::uuid;
 namespace UUIDs = boost::uuids;
 
 class Asset;
+enum class AssetType : uint8_t;
 
 class Serializable
 {
@@ -59,48 +63,50 @@ class Archive
 {
 public:
 	Archive(const std::string& path, ArchiveMode mode);
-
+	
 	ArchiveMode GetMode() const;
-
+	
 	// TODO: Add using for base types ;)
-
+	
 	const std::string& GetPath() const;
-
-	template<typename E> requires(std::is_enum_v<E> || std::is_integral_v<E>)
+	
+	template<typename E> requires(!std::is_base_of_v<Serializable, E> && !std::is_base_of_v<boost::serialization::basic_traits, E>)
 	Archive& operator&(E&& value);
-
-	template<typename E> requires(std::is_enum_v<E> || std::is_integral_v<E>)
+	
+	template<typename E> requires(!std::is_base_of_v<Serializable, E>)
 	Archive& operator&(E& value);
-
+	
+	template<typename E> requires(std::is_base_of_v<Serializable, E>)
+	Archive& operator&(E&& value);
+	
+	template<typename E> requires(std::is_base_of_v<Serializable, E>)
+	Archive& operator&(E& value);
+	
+	template<typename E> requires(std::is_base_of_v<Asset, E> && !std::is_abstract_v<E>)
+	Archive& operator&(std::shared_ptr<E>& value);
+	
+	template<typename E> requires(std::is_base_of_v<Asset, E> && std::is_abstract_v<E>)
+	Archive& operator&(std::shared_ptr<E>& value);
+	
+	template<typename E> requires(std::is_base_of_v<Serializable, E> && !std::is_base_of_v<Asset, E>)
+	Archive& operator&(std::shared_ptr<E>& value);
+	
 	template<typename E>
 	Archive& operator&(std::vector<E>& values);
-
-	template<typename E> requires(std::is_base_of_v<Asset, E>)
-	Archive& operator&(std::vector<std::shared_ptr<E>>& values);
-
-	template<typename E> requires(!std::is_base_of_v<Asset, E> && std::is_base_of_v<Serializable, E>)
-	Archive& operator&(std::vector<std::shared_ptr<E>>& values);
-
-	template<typename E> requires(!std::is_enum_v<E> && !std::is_integral_v<E> && !std::is_base_of_v<Serializable, E>)
-	Archive& operator&(E& value);
-
-	template<typename E> requires(std::is_base_of_v<Serializable, E>)
-	Archive& operator&(std::shared_ptr<E>& serializable);
-
+	
 private:
 	ArchiveMode m_Mode;
-
+	
 	std::string m_Path;
-
+	
 	std::ifstream m_InputFile;
 	std::ofstream m_OutputFile;
-
+	
 	std::unique_ptr<boost::archive::text_iarchive> m_Input;
 	std::unique_ptr<boost::archive::text_oarchive> m_Output;
 };
 
-
-template<typename E> requires(std::is_enum_v<E> || std::is_integral_v<E>)
+template<typename E> requires(!std::is_base_of_v<Serializable, E> && !std::is_base_of_v<boost::serialization::basic_traits, E>)
 Archive& Archive::operator&(E&& value)
 {
 	ED_ASSERT(m_Mode == ArchiveMode::Write, "Cannot change r-value")
@@ -110,7 +116,7 @@ Archive& Archive::operator&(E&& value)
 	return *this;
 }
 
-template<typename E> requires(std::is_enum_v<E> || std::is_integral_v<E>)
+template<typename E> requires(!std::is_base_of_v<Serializable, E>)
 Archive& Archive::operator&(E& value)
 {
 	if (m_Mode == ArchiveMode::Read)
@@ -121,6 +127,98 @@ Archive& Archive::operator&(E& value)
 	{
 		*m_Output << value;
 	}
+
+	return *this;
+}
+
+
+template<typename E> requires(std::is_base_of_v<Serializable, E>)
+Archive& Archive::operator&(E&& value)
+{
+    ED_ASSERT(m_Mode == ArchiveMode::Write, "Cannot change r-value")
+
+    value.Serialize(*this);
+
+    return *this;
+}
+
+template<typename E> requires(std::is_base_of_v<Serializable, E>)
+Archive& Archive::operator&(E& value)
+{
+    value.Serialize(*this);
+    return *this;
+}
+
+template<typename E> requires(std::is_base_of_v<Asset, E> && !std::is_abstract_v<E>)
+Archive& Archive::operator&(std::shared_ptr<E>& value)
+{
+    AssetType type = AssetType::None;
+
+	if (m_Mode == ArchiveMode::Read)
+	{
+		if (!value)
+		{
+			value = std::make_shared<E>();
+			value->SetShouldLoadData(true);
+		}
+
+        (*this) & type;
+	}
+	else
+	{
+		ED_ASSERT(value, "Cannot serialize nullptr")
+	}
+
+    value->Serialize(*this);
+	if ((!value->HasData() && value->ShouldHaveData()) || m_Mode == ArchiveMode::Write)
+	{
+		value->SerializeData(*this);
+	}
+
+    return *this;
+}
+
+
+template<typename E> requires(std::is_base_of_v<Asset, E> && std::is_abstract_v<E>)
+Archive& Archive::operator&(std::shared_ptr<E>& value)
+{
+    AssetType type = AssetType::None;
+
+    if (m_Mode == ArchiveMode::Read)
+    {
+		ED_ASSERT(value, "Cannot create create abstract class to be serialized")
+        (*this) & type;
+    }
+    else
+    {
+        ED_ASSERT(value, "Cannot serialize nullptr")
+    }
+
+    value->Serialize(*this);
+    if ((!value->HasData() && value->ShouldHaveData()) || m_Mode == ArchiveMode::Write)
+    {
+        value->SerializeData(*this);
+    }
+
+    return *this;
+}
+
+template<typename E> requires(std::is_base_of_v<Serializable, E> && !std::is_base_of_v<Asset, E>)
+Archive& Archive::operator&(std::shared_ptr<E>& value)
+{
+    if (m_Mode == ArchiveMode::Read)
+    {
+        if (!value)
+        {
+            value = std::make_shared<E>();
+        }
+    }
+    else
+    {
+        ED_ASSERT(value, "Cannot serialize nullptr")
+    }
+
+    value->Serialize(*this);
 
 	return *this;
 }
@@ -149,113 +247,6 @@ Archive& Archive::operator&(std::vector<E>& values)
 		{
 			(*this) & value;
 		}
-	}
-
-	return *this;
-}
-
-template<typename E> requires(std::is_base_of_v<Asset, E>)
-Archive& Archive::operator&(std::vector<std::shared_ptr<E>>& values)
-{
-	if (m_Mode == ArchiveMode::Read)
-	{
-		if (values.empty())
-		{
-			int32_t size = 0;
-
-			(*this) & size;
-
-			for (int32_t i = 0; i < size; ++i)
-			{
-				std::shared_ptr<E> value = std::make_shared<E>();
-
-				value->Serialize(*this);
-				value->SerializeData(*this);
-
-				values.push_back(value);
-			}
-		}
-		else
-		{
-			for (std::shared_ptr<E> value : values)
-			{
-				value->SerializeData(*this);
-			}
-		}
-	}
-	else
-	{
-		(*this) & values.size();
-
-		for (std::shared_ptr<E>& value : values)
-		{
-			value->Serialize(*this);
-			value->SerializeData(*this);
-		}
-	}
-
-	return *this;
-}
-
-template<typename E> requires(!std::is_base_of_v<Asset, E>&& std::is_base_of_v<Serializable, E>)
-Archive& Archive::operator&(std::vector<std::shared_ptr<E>>& values)
-{
-	if (m_Mode == ArchiveMode::Read)
-	{
-		int32_t size = 0;
-
-		(*this) & size;
-
-		for (int32_t i = 0; i < size; ++i)
-		{
-			std::shared_ptr<E> value = std::make_shared<E>();
-
-			value->Serialize(*this);
-
-			values.push_back(value);
-		}
-	}
-	else
-	{
-		(*this) & values.size();
-
-		for (std::shared_ptr<E>& value : values)
-		{
-			ED_ASSERT(value, "Cannot write nullptr")
-			value->Serialize(*this);
-		}
-	}
-
-	return *this;
-}
-
-template<typename E> requires(!std::is_enum_v<E> && !std::is_integral_v<E> && !std::is_base_of_v<Serializable, E>)
-Archive& Archive::operator&(E& value)
-{
-	if (m_Mode == ArchiveMode::Read)
-	{
-		*m_Input >> value;
-	}
-	else
-	{
-		*m_Output << value;
-	}
-
-	return *this;
-}
-
-template<typename E> requires(std::is_base_of_v<Serializable, E>)
-Archive& Archive::operator&(std::shared_ptr<E>& serializable)
-{
-	if (m_Mode == ArchiveMode::Write)
-	{
-		ED_ASSERT(serializable, "Cannot write nullptr")
-		serializable->Serialize(*this);
-	}
-	else
-	{
-		serializable = std::make_shared<E>();
-		serializable->Serialize(*this);
 	}
 
 	return *this;

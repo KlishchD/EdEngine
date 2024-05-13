@@ -18,7 +18,7 @@ std::string Files::GetSavePath(const std::string& pathStr, AssetType type, const
 {
     std::filesystem::path path(pathStr);
 
-    std::string filename = name.empty() ? std::filesystem::path(path).stem().string() : name;
+    std::string filename = std::filesystem::path(name.empty() ? path : name).stem().replace_extension().string();
     std::string directoryPath = path.remove_filename().string();
 
     return directoryPath + filename + GetSaveExtensions(type);

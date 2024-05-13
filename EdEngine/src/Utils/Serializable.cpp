@@ -5,12 +5,12 @@ Archive::Archive(const std::string& path, ArchiveMode mode) : m_Mode(mode), m_Pa
 {
 	if (mode == ArchiveMode::Read)
 	{
-		m_InputFile = std::ifstream(path); // , std::ios::binary
+		m_InputFile = std::ifstream(path, std::ios::binary);
 		m_Input = std::make_unique<boost::archive::text_iarchive>(m_InputFile);
 	}
 	else
 	{
-		m_OutputFile = std::ofstream(path); // , std::ios::binary
+		m_OutputFile = std::ofstream(path, std::ios::binary);
 		m_Output = std::make_unique<boost::archive::text_oarchive>(m_OutputFile);
 	}
 }

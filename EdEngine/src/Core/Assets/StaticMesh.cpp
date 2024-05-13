@@ -6,6 +6,7 @@
 
 StaticSubmesh::StaticSubmesh(const std::string& name) : Asset(name)
 {
+    SetImportParameters(std::make_shared<StaticMeshImportParameters>()); // TODO: remove with ObjectFactory
 }
 
 AssetType StaticSubmesh::GetType() const
@@ -37,19 +38,6 @@ void StaticSubmesh::ResetState()
 
 }
 
-void StaticSubmesh::Serialize(Archive& archive)
-{
-	if (archive.GetMode() == ArchiveMode::Write)
-	{
-		archive & GetType();
-	}
-
-	Serializable::Serialize(archive);
-
-	archive & m_Id;
-	archive & m_Name;
-}
-
 void StaticSubmesh::SerializeData(Archive& archive)
 {
     Asset::SerializeData(archive);
@@ -58,6 +46,11 @@ void StaticSubmesh::SerializeData(Archive& archive)
 
     archive & m_Vertices;
     archive & m_Indices;
+
+    if (archive.GetMode() == ArchiveMode::Read)
+    {
+        CreateBuffers();
+    }
 }
 
 void StaticSubmesh::FreeData()
@@ -70,27 +63,52 @@ void StaticSubmesh::FreeData()
 
 void StaticSubmesh::CreateBuffers()
 {
-	static VertexBufferLayout layout = {
-			{ "Position",            ShaderDataType::Float3 },
-			{ "Color",               ShaderDataType::Float4 },
-			{ "TextureCoordinates",  ShaderDataType::Float3 },
-			{ "Normal",              ShaderDataType::Float3 },
-			{ "Tangent",             ShaderDataType::Float3 },
-			{ "Bitangent",           ShaderDataType::Float3 }
-	};
-
-	m_VertexBuffer = RenderingHelper::CreateVertexBuffer((void*)m_Vertices.data(), m_Vertices.size() * sizeof(Vertex), layout, BufferUsage::StaticDraw);
-	m_IndexBuffer = RenderingHelper::CreateIndexBuffer((void*)m_Indices.data(), m_Indices.size() * sizeof(int32_t), BufferUsage::StaticDraw);
+    static VertexBufferLayout layout = {
+    		{ "Position",            ShaderDataType::Float3 },
+    		{ "Color",               ShaderDataType::Float4 },
+    		{ "TextureCoordinates",  ShaderDataType::Float3 },
+    		{ "Normal",              ShaderDataType::Float3 },
+    		{ "Tangent",             ShaderDataType::Float3 },
+    		{ "Bitangent",           ShaderDataType::Float3 }
+    };
+    
+    if (m_VertexBuffer)
+    {
+        m_VertexBuffer->SetData((void*)m_Vertices.data(), m_Vertices.size() * sizeof(Vertex), BufferUsage::StaticDraw);
+    }
+    else
+    {
+        m_VertexBuffer = RenderingHelper::CreateVertexBuffer((void*)m_Vertices.data(), m_Vertices.size() * sizeof(Vertex), layout, BufferUsage::StaticDraw);
+    }
+    
+    if (m_IndexBuffer)
+    {
+        m_IndexBuffer->SetData((void*)m_Indices.data(), m_Indices.size() * sizeof(int32_t), BufferUsage::StaticDraw);
+    }
+    else
+    {
+        m_IndexBuffer = RenderingHelper::CreateIndexBuffer((void*)m_Indices.data(), m_Indices.size() * sizeof(int32_t), BufferUsage::StaticDraw);
+    }
 }
 
 StaticMesh::StaticMesh(const std::string& name) : Asset(name)
 {
-
+    SetImportParameters(std::make_shared<StaticMeshImportParameters>()); // TODO: remove with ObjectFactory
 }
 
 AssetType StaticMesh::GetType() const
 {
     return AssetType::StaticMesh;
+}
+
+void StaticMesh::SetShouldLoadData(bool status)
+{
+    m_bShouldHaveData = status;
+
+    for (const std::shared_ptr<StaticSubmesh>& submesh : m_Submeshes)
+    {
+        submesh->SetShouldLoadData(status);
+    }
 }
 
 void StaticMesh::SetSubmeshes(const std::vector<std::shared_ptr<StaticSubmesh>>& submeshes)

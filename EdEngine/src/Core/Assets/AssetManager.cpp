@@ -24,6 +24,8 @@
 #include "Importers/MaterialAssetImporter.h"
 #include "Importers/StaticMeshImporter.h"
 
+#include <tuple>
+
 void AssetManager::Initialize(Engine* engine)
 {
 	ED_LOG(AssetManager, info, "Started initalizing")
@@ -61,35 +63,40 @@ void AssetManager::Initialize(Engine* engine)
 
 void AssetManager::Deinitialize()
 {
-	ED_LOG(AssetManager, info, "Started deinitializing")
-
-    for (const auto& [id, asset] : m_Assets)
+    ED_LOG(AssetManager, info, "Started deinitializing")
+    
+    for (std::pair<const UUID, std::shared_ptr<Asset>>& input : m_Assets)
     {
-		const std::string& path = asset->GetImportParameters()->Path;
-
-		ED_LOG(AssetManager, info, "Started saving scene: {}", path)
-
-		if (asset->IsDirty())
-		{
-			Archive archive(path, ArchiveMode::Write);
-			asset->Serialize(archive);
-			asset->SerializeData(archive);
-		}
-
-		ED_LOG(AssetManager, info, "Finished saving scene: {}", path)
+        const UUID& id = input.first;
+        std::shared_ptr<Asset>& asset = input.second;
+        
+        std::string path = Files::GetSavePath(asset->GetImportParameters()->Path, asset->GetType(), asset->GetName());
+        
+        ED_LOG(AssetManager, info, "Started saving asset: {}", path)
+        
+        if (asset->IsDirty())
+        {
+            Archive archive(path, ArchiveMode::Write);
+            archive & asset;
+        }
+        
+        ED_LOG(AssetManager, info, "Finished saving asset: {}", path)
     }
-
-    for (const auto& [path, scene]: m_Scenes)
+    
+    for (std::pair<const std::string, std::shared_ptr<Scene>> input: m_Scenes)
     {
-		ED_LOG(AssetManager, info, "Started saving scene: {}", path)
-
-		Archive archive(path, ArchiveMode::Write);
-		scene->Serialize(archive);
-
-		ED_LOG(AssetManager, info, "Finished saving scene: {}", path)
+        const std::string& path = input.first;
+        std::shared_ptr<Scene>& scene = input.second;
+        
+        ED_LOG(AssetManager, info, "Started saving scene: {}", path)
+        
+        Archive archive(path, ArchiveMode::Write);
+        archive & scene;
+        
+        ED_LOG(AssetManager, info, "Finished saving scene: {}", path)
     }
-
-	ED_LOG(AssetManager, info, "Finished deinitializing")
+    
+    ED_LOG(AssetManager, info, "Finished deinitializing")
 }
 
 std::shared_ptr<Scene> AssetManager::CreateScene(const std::string& path)
@@ -100,7 +107,7 @@ std::shared_ptr<Scene> AssetManager::CreateScene(const std::string& path)
 	m_Scenes[path] = scene;
 	
     Archive archive(path, ArchiveMode::Write);
-    scene->Serialize(archive);
+    archive & scene;
 
     ED_LOG(AssetManager, info, "Finished creating scene: {}", path)
 	
@@ -122,7 +129,7 @@ std::shared_ptr<Scene> AssetManager::LoadScene(const std::string& path)
     }
 
 	Archive archive(path, ArchiveMode::Read);
-    scene->Serialize(archive);
+    archive & scene;
     
     m_Scenes[path] = scene;
     
@@ -151,21 +158,21 @@ void AssetManager::RegisterAsset(std::shared_ptr<Asset> asset, const std::string
 
 std::shared_ptr<Asset> AssetManager::LoadAsset(const std::string& path) const
 {
-	if (!m_PathToAsset.count(path))
-	{
-		return nullptr;
-	}
-
-	std::shared_ptr<Asset> asset = m_PathToAsset.at(path);
-
-	if (!asset->HasData())
-	{
-		Archive archive(path, ArchiveMode::Read);
-		asset->Serialize(archive);
-		asset->SerializeData(archive);
-	}
-
-	return asset;
+    if (!m_PathToAsset.count(path))
+    {
+    	return nullptr;
+    }
+    
+    std::shared_ptr<Asset> asset = m_PathToAsset.at(path);
+    asset->SetShouldLoadData(true);
+    
+    if (!asset->HasData())
+    {
+        Archive archive(path, ArchiveMode::Read);
+        archive & asset;
+    }
+    
+    return asset;
 }
 
 std::shared_ptr<Asset> AssetManager::LoadAsset(UUID id) const
@@ -176,12 +183,13 @@ std::shared_ptr<Asset> AssetManager::LoadAsset(UUID id) const
     }
 
     std::shared_ptr<Asset> asset = m_Assets.at(id);
+    asset->SetShouldLoadData(true);
 
     if (!asset->HasData())
     {
-        Archive archive(asset->GetImportParameters()->Path, ArchiveMode::Read);
-        asset->Serialize(archive);
-        asset->SerializeData(archive);
+        std::string path = Files::GetSavePath(asset->GetImportParameters()->Path, asset->GetType(), asset->GetName());
+        Archive archive(path, ArchiveMode::Read);
+        archive & asset;
     }
 
     return asset;

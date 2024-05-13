@@ -31,7 +31,7 @@ public:
     void MarkDirty();
     bool IsDirty() const;
 
-	void SetShouldLoadData(bool status);
+	virtual void SetShouldLoadData(bool status);
 	bool ShouldHaveData() const;
 
 	void SetImportParameters(std::shared_ptr<AssetImportParameters> parameters);

@@ -41,24 +41,23 @@ class StaticSubmesh : public Asset
 {
 public:
 	StaticSubmesh(const std::string& name = "Empty");
-
-	virtual AssetType GetType() const;
-
-    void SetData(const std::vector<Vertex>& vertices, const std::vector<int32_t>& indices);
-    void SetData(std::vector<Vertex>&& vertices, std::vector<int32_t>&& indices);
-
-    void SetMaterial(std::shared_ptr<Material> material);
-    
-    std::shared_ptr<VertexBuffer> GetVertexBuffer() const { return m_VertexBuffer; }
-    std::shared_ptr<IndexBuffer> GetIndexBuffer() const { return m_IndexBuffer; }
-    std::shared_ptr<Material> GetMaterial() const { return m_Material; }
-
+	
+	virtual AssetType GetType() const override;
+	
+	void SetData(const std::vector<Vertex>& vertices, const std::vector<int32_t>& indices);
+	void SetData(std::vector<Vertex>&& vertices, std::vector<int32_t>&& indices);
+	
+	void SetMaterial(std::shared_ptr<Material> material);
+	
+	std::shared_ptr<VertexBuffer> GetVertexBuffer() const { return m_VertexBuffer; }
+	std::shared_ptr<IndexBuffer> GetIndexBuffer() const { return m_IndexBuffer; }
+	std::shared_ptr<Material> GetMaterial() const { return m_Material; }
+	
 	virtual void ResetState() override;
-
-    virtual void Serialize(Archive& archive) override;
-    virtual void SerializeData(Archive& archive) override;
+	
+	virtual void SerializeData(Archive& archive) override;
 	virtual void FreeData() override;
-
+	
 protected:
     void CreateBuffers();
 
@@ -75,20 +74,20 @@ protected:
 class StaticMesh: public Asset
 {
 public:
-	typedef ImportParametersClass StaticMeshImportParameters;
-
 	StaticMesh(const std::string& name = "Empty");
-
-	virtual AssetType GetType() const;
-
-    void SetSubmeshes(const std::vector<std::shared_ptr<StaticSubmesh>>& submeshes);
-    void AddSubmesh(std::shared_ptr<StaticSubmesh> submesh);
-    const std::vector<std::shared_ptr<StaticSubmesh>>& GetSubmeshes() const { return m_Submeshes; }
-
+	
+	virtual AssetType GetType() const override;
+	
+	virtual void SetShouldLoadData(bool status) override;
+	
+	void SetSubmeshes(const std::vector<std::shared_ptr<StaticSubmesh>>& submeshes);
+	void AddSubmesh(std::shared_ptr<StaticSubmesh> submesh);
+	const std::vector<std::shared_ptr<StaticSubmesh>>& GetSubmeshes() const { return m_Submeshes; }
+	
 	virtual void ResetState() override;
-
-    virtual void SerializeData(Archive& archive) override;
-    virtual void FreeData() override;
+	
+	virtual void SerializeData(Archive& archive) override;
+	virtual void FreeData() override;
 private:
     std::vector<std::shared_ptr<StaticSubmesh>> m_Submeshes;
 };

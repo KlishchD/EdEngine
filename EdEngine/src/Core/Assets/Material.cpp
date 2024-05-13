@@ -8,7 +8,7 @@
 
 Material::Material(const std::string& name) : Asset(name)
 {
-
+    SetImportParameters(std::make_shared<MaterialImportParameters>()); // TODO: remove with ObjectFactory
 }
 
 AssetType Material::GetType() const
@@ -18,31 +18,25 @@ AssetType Material::GetType() const
 
 void Material::SetBaseColor(glm::vec3 color)
 {
-	m_BaseColor = color;
+	m_BaseColor = glm::clamp(color, glm::vec3(0.0f), glm::vec3(1.0f));
 	MarkDirty();
 }
 
 void Material::SetRoughness(float roughness)
 {
-	m_Roughness = roughness;
+	m_Roughness = glm::clamp(roughness, 0.0f, 1.0f);
 	MarkDirty();
 }
 
 void Material::SetMetalic(float metalic)
 {
-	m_Metalic = metalic;
+	m_Metalic = glm::clamp(metalic, 0.0f, 1.0f);
 	MarkDirty();
 }
 
 void Material::SetEmission(float emission)
 {
     m_Emission = emission;
-    MarkDirty();
-}
-
-void Material::SetMetalicTexture(std::shared_ptr<Texture2D> texture)
-{
-    m_MetalicTexture = texture;
     MarkDirty();
 }
 
@@ -132,5 +126,11 @@ void Material::SetNormalTexture(std::shared_ptr<Texture2D> texture)
 void Material::SetRoughnessTexture(std::shared_ptr<Texture2D> texture)
 {
     m_RoughnessTexture = texture;
+    MarkDirty();
+}
+
+void Material::SetMetalicTexture(std::shared_ptr<Texture2D> texture)
+{
+    m_MetalicTexture = texture;
     MarkDirty();
 }

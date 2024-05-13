@@ -10,7 +10,7 @@ public:
 
 	Texture2D(const std::string& name);
 
-	virtual AssetType GetType() const;
+	virtual AssetType GetType() const override;
 
 	uint32_t GetWidth() const;
 	uint32_t GetHeight() const;

@@ -9,11 +9,9 @@
 class Material : public Asset
 {
 public:
-	typedef ImportParametersClass MaterialImportParameters;
-
     Material(const std::string& name = "Empty");
 
-	virtual AssetType GetType() const;
+	virtual AssetType GetType() const override;
 
     void SetBaseColor(glm::vec3 color);
     void SetRoughness(float roughness);

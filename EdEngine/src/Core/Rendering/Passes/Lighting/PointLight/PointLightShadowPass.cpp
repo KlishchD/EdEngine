@@ -18,11 +18,8 @@ void PointLightShadowPass::Execute()
 
 	std::shared_ptr<PointLightComponent> light = m_Parameters.Light;
 
-	if (m_Renderer->IsViewportSizeDirty())
-	{
-		glm::u32vec2 size = m_Renderer->GetViewportSize();
-		m_Parameters.DrawFramebuffer->Resize(size.x, size.x, size.x);
-	}
+	glm::u32vec2 size = m_Renderer->GetViewportSize();
+	m_Parameters.DrawFramebuffer->Resize(size.x, size.x, size.x);
 
 	if (light->IsShadowCasting())
 	{

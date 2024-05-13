@@ -66,12 +66,38 @@ glm::u32vec2 Texture2DData::GetSize() const
 	return { m_Width, m_Height };
 }
 
+void Texture2DData::Serialize(Archive& archive)
+{
+	TextureData::Serialize(archive);
+
+    archive & m_Width;
+    archive & m_Height;
+}
+
 TextureData::TextureData() : m_Data(nullptr), m_DataSize(0), m_bDataOwner(true)
 {
 }
 
 TextureData::TextureData(void* data, uint32_t size, bool bTakeOwnership) : m_DataSize(size), m_Data(data), m_bDataOwner(bTakeOwnership)
 {
+}
+
+void TextureData::Serialize(Archive& archive)
+{
+	Serializable::Serialize(archive);
+
+	if (archive.GetMode() == ArchiveMode::Write)
+	{
+        archive & m_DataSize;
+        archive & boost::serialization::make_binary_object(m_Data, m_DataSize);
+	}
+	else
+	{
+        archive & m_DataSize;
+
+        m_Data = malloc(m_DataSize);
+		archive & boost::serialization::make_binary_object(m_Data, m_DataSize);
+	}
 }
 
 TextureData& TextureData::operator=(const TextureData& data)
@@ -189,6 +215,13 @@ uint32_t CubeTextureData::GetSize() const
 	return m_Size;
 }
 
+void CubeTextureData::Serialize(Archive& archive)
+{
+	TextureData::Serialize(archive);
+
+    archive & m_Size;
+}
+
 Texture2DArrayData::Texture2DArrayData() : TextureData(nullptr, 0, false), m_Width(1), m_Height(1), m_Depth(1)
 {
 }
@@ -267,4 +300,13 @@ void Texture2DArrayData::SetSize(glm::u32vec3 size)
 glm::u32vec3 Texture2DArrayData::GetSize() const
 {
 	return { m_Width, m_Height, m_Depth };
+}
+
+void Texture2DArrayData::Serialize(Archive& archive)
+{
+	TextureData::Serialize(archive);
+
+    archive & m_Width;
+    archive & m_Height;
+    archive & m_Depth;
 }

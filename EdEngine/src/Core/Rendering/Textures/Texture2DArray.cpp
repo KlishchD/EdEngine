@@ -1,7 +1,9 @@
 #include "Texture2DArray.h"
+#include "Core/Assets/ImportParameters/TextureImportParameters.h"
 
 Texture2DArray::Texture2DArray(const std::string& name) : Texture(name)
 {
+    SetImportParameters(std::make_shared<Texture2DImportParameters>()); // TODO: remove with ObjectFactory
 }
 
 AssetType Texture2DArray::GetType() const
@@ -77,4 +79,10 @@ void Texture2DArray::SerializeData(Archive& archive)
 	Texture::SerializeData(archive);
 
 	archive & m_Data;
+
+    if (archive.GetMode() == ArchiveMode::Read)
+    {
+        RefreshParameters();
+        RefreshData();
+    }
 }

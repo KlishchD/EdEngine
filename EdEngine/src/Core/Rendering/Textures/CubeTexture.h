@@ -8,7 +8,7 @@ class CubeTexture : public Texture
 public:
     CubeTexture(const std::string& name);
 
-	virtual AssetType GetType() const;
+	virtual AssetType GetType() const override;
 
     glm::u32vec3 GetSize() const override;
 

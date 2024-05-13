@@ -29,12 +29,9 @@ void TAAPass::PreExecute()
 		m_HistoryBuffer = newHistoryBuffer;
 	}
 
-	if (m_Renderer->IsViewportSizeDirty())
-	{
-		glm::u32vec2 size = m_Renderer->GetViewportSize();
-		m_Parameters.DrawFramebuffer->Resize(size.x, size.y, 1);
-		m_HistoryBuffer->Resize(size.x, size.y, 1);
-	}
+	glm::u32vec2 size = m_Renderer->GetViewportSize();
+	m_Parameters.DrawFramebuffer->Resize(size.x, size.y, 1);
+	m_HistoryBuffer->Resize(size.x, size.y, 1);
 }
 
 void TAAPass::Execute()

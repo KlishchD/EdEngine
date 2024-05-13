@@ -79,8 +79,11 @@ void Texture::ResetState()
 	m_PixelFormat = paramters->Format;
 	m_FilteringMode = paramters->Filtering;
 
-	RefreshParameters();
-	MarkDirty();
+	if (m_bIsInitialized)
+	{
+		RefreshParameters();
+		MarkDirty();
+	}
 }
 
 bool Texture::IsInitialized() const

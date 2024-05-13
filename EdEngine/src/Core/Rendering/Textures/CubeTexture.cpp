@@ -3,6 +3,7 @@
 
 CubeTexture::CubeTexture(const std::string& name) : Texture(name)
 {
+    SetImportParameters(std::make_shared<CubeTextureImportParameters>()); // TODO: remove with ObjectFactory
 }
 
 AssetType CubeTexture::GetType() const
@@ -88,4 +89,10 @@ void CubeTexture::SerializeData(Archive& archive)
 	Texture::SerializeData(archive);
 
 	archive & m_Data;
+
+    if (archive.GetMode() == ArchiveMode::Read)
+    {
+        RefreshParameters();
+        RefreshData();
+    }
 }

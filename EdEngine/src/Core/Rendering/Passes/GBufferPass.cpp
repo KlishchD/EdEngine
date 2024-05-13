@@ -24,11 +24,8 @@ void GBufferPass::Execute()
 {
 	RenderPass<GBufferPassParameters, GBufferPassShaderParameters>::Execute();
 
-	if (m_Renderer->IsViewportSizeDirty())
-	{
-		glm::vec2 size = m_Renderer->GetViewportSize();
-		m_Parameters.DrawFramebuffer->Resize(size.x, size.y, 1);
-	}
+	glm::vec2 size = m_Renderer->GetViewportSize();
+	m_Parameters.DrawFramebuffer->Resize(size.x, size.y, 1);
 
 	SetCameraInformation();
 

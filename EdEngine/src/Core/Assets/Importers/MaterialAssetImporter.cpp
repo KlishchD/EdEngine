@@ -57,76 +57,83 @@ std::shared_ptr<Material> MaterialAssetImporter::ImportMaterial(const aiMaterial
 {
 	const std::shared_ptr<MaterialImportParameters>& parameters = std::static_pointer_cast<MaterialImportParameters>(inParameters);
 
-	std::shared_ptr<Material> material = ParseMaterial(inMaterial);
+	std::shared_ptr<Material> material = ParseMaterial(inMaterial, inParameters->Path);
 
 	material->SetImportParameters(parameters);
 
 	std::string savePath = Files::GetSavePath(parameters->Path, AssetType::Material, material->GetName());
 	Archive archive(savePath, ArchiveMode::Write);
-	material->Serialize(archive);
-	material->SerializeData(archive);
+	archive & material;
 
-	m_Manager->RegisterAsset(material);
+	m_Manager->RegisterAsset(material, savePath);
 
 	return material;
 }
 
-std::shared_ptr<Material> MaterialAssetImporter::ParseMaterial(const aiMaterial* inMaterial)
+std::shared_ptr<Material> MaterialAssetImporter::ParseMaterial(const aiMaterial* inMaterial, const std::string& materialPath)
 {
 	std::shared_ptr<Material> material = std::make_shared<Material>(inMaterial->GetName().C_Str());
+
+	std::string root = std::filesystem::path(materialPath).remove_filename().string();
 
 	aiString path;
 	if (inMaterial->GetTexture(aiTextureType_BASE_COLOR, 0, &path) == aiReturn_SUCCESS)
 	{
-		std::shared_ptr<Texture2DImportParameters> parameters = RenderingHelper::GetDefaultBaseColorTexture2DImportParameters(path.data);
+		std::shared_ptr<Texture2DImportParameters> parameters = RenderingHelper::GetDefaultBaseColorTexture2DImportParameters(root + path.data);
 		std::shared_ptr<Texture2D> texture = m_Manager->GetImporter().Import<Texture2D>(AssetType::Texture2D, parameters);
 		material->SetBaseColorTexture(texture);
 	}
 
 	if (inMaterial->GetTexture(aiTextureType_DIFFUSE, 0, &path) == aiReturn_SUCCESS)
 	{
-		std::shared_ptr<Texture2DImportParameters> parameters = RenderingHelper::GetDefaultBaseColorTexture2DImportParameters(path.data);
+		std::shared_ptr<Texture2DImportParameters> parameters = RenderingHelper::GetDefaultBaseColorTexture2DImportParameters(root + path.data);
 		std::shared_ptr<Texture2D> texture = m_Manager->GetImporter().Import<Texture2D>(AssetType::Texture2D, parameters);
 		material->SetBaseColorTexture(texture);
 	}
 
 	if (inMaterial->GetTexture(aiTextureType_HEIGHT, 0, &path) == aiReturn_SUCCESS)
 	{
-		std::shared_ptr<Texture2DImportParameters> parameters = RenderingHelper::GetDefaultNormalTexture2DImportParameters(path.data);
+		std::shared_ptr<Texture2DImportParameters> parameters = RenderingHelper::GetDefaultNormalTexture2DImportParameters(root + path.data);
 		std::shared_ptr<Texture2D> texture = m_Manager->GetImporter().Import<Texture2D>(AssetType::Texture2D, parameters);
 		material->SetNormalTexture(texture);
 	}
 
 	if (inMaterial->GetTexture(aiTextureType_DIFFUSE_ROUGHNESS, 0, &path) == aiReturn_SUCCESS)
 	{
-		std::shared_ptr<Texture2DImportParameters> parameters = RenderingHelper::GetDefaultRoughnessTexture2DImportParameters(path.data);
+		std::shared_ptr<Texture2DImportParameters> parameters = RenderingHelper::GetDefaultRoughnessTexture2DImportParameters(root + path.data);
 		std::shared_ptr<Texture2D> texture = m_Manager->GetImporter().Import<Texture2D>(AssetType::Texture2D, parameters);
 		material->SetRoughnessTexture(texture);
 	}
 
 	if (inMaterial->GetTexture(aiTextureType_METALNESS, 0, &path) == aiReturn_SUCCESS)
 	{
-		std::shared_ptr<Texture2DImportParameters> parameters = RenderingHelper::GetDefaultMetalicTexture2DImportParameters(path.data);
+		std::shared_ptr<Texture2DImportParameters> parameters = RenderingHelper::GetDefaultMetalicTexture2DImportParameters(root + path.data);
 		std::shared_ptr<Texture2D> texture = m_Manager->GetImporter().Import<Texture2D>(AssetType::Texture2D, parameters);
 		material->SetMetalicTexture(texture);
 	}
 
 	{
-		glm::vec3 baseColor;
-		inMaterial->Get(AI_MATKEY_BASE_COLOR, baseColor);
-		material->SetBaseColor(baseColor);
+		aiColor3D color(0.f, 0.f, 0.f);
+		if (inMaterial->Get(AI_MATKEY_BASE_COLOR, color) == aiReturn_SUCCESS)
+		{
+			material->SetBaseColor({ color.r, color.g, color.b });
+		}
 	}
 
 	{
 		float roughness;
-		inMaterial->Get(AI_MATKEY_ROUGHNESS_FACTOR, roughness);
-		material->SetRoughness(roughness);
+		if (inMaterial->Get(AI_MATKEY_ROUGHNESS_FACTOR, roughness) == aiReturn_SUCCESS)
+		{
+			material->SetRoughness(roughness);
+		}
 	}
 
 	{
 		float metalic;
-		inMaterial->Get(AI_MATKEY_METALLIC_FACTOR, metalic);
-		material->SetMetalic(metalic);
+		if (inMaterial->Get(AI_MATKEY_METALLIC_FACTOR, metalic) == aiReturn_SUCCESS)
+		{
+			material->SetMetalic(metalic);
+		}
 	}
 
 	return material;

@@ -15,5 +15,5 @@ public:
     virtual void Serialize(Archive& archive) override;
 
 protected:
-    std::string m_Name = std::string(1024, 0);
+    std::string m_Name;
 };

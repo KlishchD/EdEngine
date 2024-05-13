@@ -1,13 +1,12 @@
 ﻿#include "GameObject.h"
 
-GameObject::GameObject(const std::string& name)
+GameObject::GameObject(const std::string& name) : m_Name(name)
 {
-    memcpy(m_Name.data(), name.data(), 1024); // TODO: What ???? Why ???
 }
 
 void GameObject::SetName(const std::string& name)
 {
-    memcpy(m_Name.data(), name.data(), 1024); // TODO: What ???? Why ???
+    m_Name = name;
 }
 
 void GameObject::Serialize(Archive& archive)

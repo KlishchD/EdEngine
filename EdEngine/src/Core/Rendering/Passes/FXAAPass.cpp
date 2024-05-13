@@ -20,11 +20,8 @@ void FXAAPass::Execute()
 {
 	RenderPass<FXAAPassParameters, FXAAPassShaderParameters>::Execute();
 	
-	if (m_Renderer->IsViewportSizeDirty())
-	{
-		glm::u32vec2 size = m_Renderer->GetViewportSize();
-		m_Parameters.Output->Resize(size.x, size.y, 1);
-	}
+	glm::u32vec2 size = m_Renderer->GetViewportSize();
+	m_Parameters.Output->Resize(size.x, size.y, 1);
 
 	if (m_Renderer->GetAAMethod() == AAMethod::FXAA)
 	{

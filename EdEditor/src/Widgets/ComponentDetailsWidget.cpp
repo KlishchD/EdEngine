@@ -75,6 +75,7 @@ void ComponentDetailsWidget::StaticMeshDetails()
                 {
                     if (ImGui::Selectable(AssetUtils::GetAssetNameLable(asset).c_str(), mesh == asset))
                     {
+                        m_AssetManager->LoadAsset(asset->GetId());
                         component->SetStaticMesh(asset);
                     }
                 }
@@ -109,6 +110,7 @@ void ComponentDetailsWidget::StaticMeshDetails()
                         {
                             if (ImGui::Selectable(AssetUtils::GetAssetNameLable(asset).c_str(), material == asset))
                             {
+                                m_AssetManager->LoadAsset(asset->GetId());
                                 submesh->SetMaterial(asset);
                             }
                         }

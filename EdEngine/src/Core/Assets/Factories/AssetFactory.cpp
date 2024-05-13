@@ -22,9 +22,10 @@ std::shared_ptr<Asset> AssetTypeFactory::Load(Archive& arcive, bool bShouldLoadD
 {
 	ED_ASSERT(arcive.GetMode() == ArchiveMode::Read, "Archive must be open for reading")
 
+	Archive tmpArchive(arcive.GetPath(), ArchiveMode::Read);
 	AssetType type = AssetType::None;
-	arcive & type;
-
+	tmpArchive & type;
+	
 	return m_Factories[type]->Load(arcive, bShouldLoadData);
 }
 

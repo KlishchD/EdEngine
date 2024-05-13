@@ -6,14 +6,14 @@ std::shared_ptr<Asset> SerializationHelper::SerializeAssetInternal(Archive& arch
 {
 	if (archive.GetMode() == ArchiveMode::Read)
 	{
-		UUID id;
+		UUID id = UUIDs::nil_uuid();
 		archive & id;
 
 		return Engine::Get().GetManager<AssetManager>()->LoadAsset(id);
 	}
 	else
 	{
-		UUID id;
+		UUID id = UUIDs::nil_uuid();
 
 		if (asset)
 		{

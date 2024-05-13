@@ -26,6 +26,8 @@ void AssetDetails::Tick(float DeltaTime)
 
     if (std::shared_ptr<Asset> asset = m_Editor->GetSelectedAsset())
     {
+        m_AssetManager->LoadAsset(asset->GetId());
+    
         ImGui::Begin("Asset Details");
         
         switch (asset->GetType())
@@ -87,6 +89,7 @@ void AssetDetails::MaterialDetails(std::shared_ptr<Material> material)
         {
             if (ImGui::Selectable(AssetUtils::GetAssetNameLable(texture).c_str(), material->GetBaseColorTexture() == texture))
             {
+                m_AssetManager->LoadAsset(texture->GetId());
                 material->SetBaseColorTexture(texture);
             }
         }
@@ -104,7 +107,8 @@ void AssetDetails::MaterialDetails(std::shared_ptr<Material> material)
         {
             if (ImGui::Selectable(AssetUtils::GetAssetNameLable(texture).c_str(), material->GetNormalTexture() == texture))
             {
-				material->SetNormalTexture(texture);
+                m_AssetManager->LoadAsset(texture->GetId());
+                material->SetNormalTexture(texture);
             }
         }
         ImGui::EndCombo();
@@ -121,6 +125,7 @@ void AssetDetails::MaterialDetails(std::shared_ptr<Material> material)
         {
             if (ImGui::Selectable(AssetUtils::GetAssetNameLable(texture).c_str(), material->GetRoughnessTexture() == texture))
             {
+                m_AssetManager->LoadAsset(texture->GetId());
                 material->SetRoughnessTexture(texture);
             }
         }
@@ -143,6 +148,7 @@ void AssetDetails::MaterialDetails(std::shared_ptr<Material> material)
         {
             if (ImGui::Selectable(AssetUtils::GetAssetNameLable(texture).c_str(), material->GetMetalicTexture() == texture))
             {
+                m_AssetManager->LoadAsset(texture->GetId());
                 material->SetMetalicTexture(texture);
             }
         }

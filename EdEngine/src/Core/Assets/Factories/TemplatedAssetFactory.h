@@ -29,8 +29,8 @@ template<typename T, AssetType m_Type>
 std::shared_ptr<Asset> TemplatedAssetFactory<T, m_Type>::Create(Archive& archive)
 {
 	std::shared_ptr<Asset> asset = Create();
-
-	asset->Serialize(archive);
+	
+	archive & asset;
 
 	return asset;
 }
@@ -46,7 +46,7 @@ std::shared_ptr<Asset> TemplatedAssetFactory<T, m_Type>::Load(Archive& archive, 
 {
 	std::shared_ptr<T> asset = std::make_shared<T>();
 	asset->SetShouldLoadData(bShouldLoadData);
-	asset->Serialize(archive);
+	archive & asset;
 
 	m_Manager->RegisterAsset(asset, archive.GetPath());
 

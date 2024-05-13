@@ -146,26 +146,26 @@ void Component::SetName(const std::string& name)
 void Component::Serialize(Archive& archive)
 {
     archive & GetType();
-
-    Serializable::Serialize(archive);
-
-	archive & m_Name;
-	archive & m_Transform;
     
-	// TODO: make if better ;)
-	if (archive.GetMode() == ArchiveMode::Write)
-	{
-		archive & m_Children.size();
-
-		for (const std::shared_ptr<Component>& component : m_Children)
-		{
-            component->Serialize(archive);
-		}
-	}
-	else
-	{
+    Serializable::Serialize(archive);
+    
+    archive & m_Name;
+    archive & m_Transform;
+    
+    // TODO: make if better ;)
+    if (archive.GetMode() == ArchiveMode::Write)
+    {
+    	archive & m_Children.size();
+    
+    	for (std::shared_ptr<Component>& component : m_Children)
+    	{
+            archive & component;
+    	}
+    }
+    else
+    {
         throw std::logic_error("Fix it using ObjectFactory ;)");
-	}
-
-	archive & m_Children;
+    }
+    
+    archive & m_Children;
 }

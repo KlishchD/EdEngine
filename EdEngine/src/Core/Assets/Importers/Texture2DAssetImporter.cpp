@@ -25,16 +25,17 @@ std::shared_ptr<Asset> Texture2DImporter::Import(std::shared_ptr<AssetImportPara
 
 	void* imageData = stbi_load(texturePath.c_str(), &width, &height, &channals, Types::GetChannelNumber(parameters->Format));
 
+	ED_ASSERT(imageData, "Image data cannot be null")
+
 	std::string name = std::filesystem::path(texturePath).filename().string();
 	Texture2DData data(width, height, imageData, width * height * pixelSize, true);
 	std::shared_ptr<Texture2D> texture = RenderingHelper::CreateTexture2D(name, parameters, std::move(data));
 
 	std::string savePath = Files::GetSavePath(texturePath, AssetType::Texture2D);
 	Archive archive(savePath, ArchiveMode::Write);
-	texture->Serialize(archive);
-	texture->SerializeData(archive);
+	archive & texture;
 
-	m_Manager->RegisterAsset(texture);
+	m_Manager->RegisterAsset(texture, savePath);
 
 	return texture;
 }
