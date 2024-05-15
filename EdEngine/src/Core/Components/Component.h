@@ -1,6 +1,8 @@
 ﻿#pragma once
 
 #include "Core/Ed.h"
+#include "Core/Objects/GameObject.h"
+#include "Core/Math/Transform.h"
 
 enum class ComponentType: uint8_t
 {
@@ -13,8 +15,9 @@ enum class ComponentType: uint8_t
 
 class Actor;
 
-class Component : public Serializable
+ED_CLASS(Component) : public GameObject
 {
+    ED_CLASS_BODY(Component, GameObject)
 public:
     virtual ~Component() = default;
     Component(const std::string& name = "None");
@@ -42,13 +45,8 @@ public:
 
     virtual void Update(float deltaSeconds);
 
-    const std::string& GetName() const;
-    void SetName(const std::string& name);
-
     virtual void Serialize(Archive& archive) override;
 protected:
-    std::string m_Name;
-
     std::shared_ptr<Component> m_OwnerComponent;
     std::shared_ptr<Actor> m_OwnerActor;
 

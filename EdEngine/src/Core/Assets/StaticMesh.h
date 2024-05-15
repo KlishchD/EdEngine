@@ -37,8 +37,9 @@ namespace boost
 	}
 }
 
-class StaticSubmesh : public Asset
+ED_CLASS(StaticSubmesh) : public Asset
 {
+	ED_CLASS_BODY(StaticSubmesh, Asset)
 public:
 	StaticSubmesh(const std::string& name = "Empty");
 	
@@ -55,6 +56,7 @@ public:
 	
 	virtual void ResetState() override;
 	
+	virtual void Serialize(Archive& archive) override;
 	virtual void SerializeData(Archive& archive) override;
 	virtual void FreeData() override;
 	
@@ -71,8 +73,9 @@ protected:
     std::shared_ptr<IndexBuffer> m_IndexBuffer;
 };
 
-class StaticMesh: public Asset
+ED_CLASS(StaticMesh): public Asset
 {
+	ED_CLASS_BODY(StaticMesh, Asset)
 public:
 	StaticMesh(const std::string& name = "Empty");
 	

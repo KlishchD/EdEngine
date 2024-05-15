@@ -54,7 +54,7 @@ void DirectionalLightComponent::SetShadowFilterRadius(float radius)
 
 void DirectionalLightComponent::Serialize(Archive& archive)
 {
-	LightComponent::Serialize(archive);
+	Super::Serialize(archive);
 
 	archive & m_CascadesCount;
 	archive & m_ShadowMapZMultiplier;

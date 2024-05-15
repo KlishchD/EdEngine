@@ -2,16 +2,9 @@
 
 #include "LightComponent.h"
 
-class SpotLightComponent : public LightComponent
+ED_CLASS(SpotLightComponent) : public LightComponent
 {
-	friend class boost::serialization::access;
-
-	template <class Archive>
-	void serialize(Archive& ar, const uint32_t version)
-	{
-		ar & boost::serialization::base_object<LightComponent>(*this);
-		
-	}
+	ED_CLASS_BODY(SpotLightComponent, LightComponent)
 public:
 	void SetInnerAngle(float angle);
 	float GetInnerAngle() const;

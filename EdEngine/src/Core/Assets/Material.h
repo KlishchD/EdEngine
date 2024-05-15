@@ -6,8 +6,9 @@
 #include <glm/vec2.hpp>
 #include <glm/vec3.hpp>
 
-class Material : public Asset
+ED_CLASS(Material) : public Asset
 {
+    ED_CLASS_BODY(Material, Asset)
 public:
     Material(const std::string& name = "Empty");
 

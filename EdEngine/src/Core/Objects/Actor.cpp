@@ -1,6 +1,6 @@
 ﻿#include "Actor.h"
 
-Actor::Actor(const std::string& name): GameObject(name)
+Actor::Actor(const std::string& name): Super(name)
 {
     
 }
@@ -63,13 +63,8 @@ std::vector<std::shared_ptr<Component>> Actor::GetAllComponents() const
 
 void Actor::Serialize(Archive& archive)
 {
-    GameObject::Serialize(archive);
+    Super::Serialize(archive);
 
 	archive & m_Transform;
-
-    if (archive.GetMode() == ArchiveMode::Read)
-    {
-	    throw std::logic_error("Fix it using ObjectFactory ;)");
-	    archive & m_Components;
-    }
+	archive & m_Components;
 }

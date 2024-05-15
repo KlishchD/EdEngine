@@ -1,6 +1,6 @@
 #include "PlayerActor.h"
 
-PlayerActor::PlayerActor(const std::string& name) : Actor(name)
+PlayerActor::PlayerActor(const std::string& name) : Super(name)
 {
 }
 

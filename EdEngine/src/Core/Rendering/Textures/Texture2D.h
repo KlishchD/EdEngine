@@ -4,10 +4,9 @@
 #include "Core/Assets/ImportParameters/TextureImportParameters.h"
 #include "TextureData.h"
 
-class Texture2D : public Texture {
+ED_ABSTRACT_CLASS(Texture2D) : public Texture {
+	ED_CLASS_BODY(Texture2D, Texture)
 public:
-	typedef Texture2DImportParameters ImportParametersClass;
-
 	Texture2D(const std::string& name);
 
 	virtual AssetType GetType() const override;

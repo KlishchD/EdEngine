@@ -1,7 +1,7 @@
 ﻿#include "Asset.h"
 #include "Core/Macros.h"
 
-Asset::Asset(const std::string& name) : m_Id(UUIDs::random_generator()()), m_Name(name)
+Asset::Asset(const std::string& name) : Super(name), m_Id(UUIDs::random_generator()())
 {
 
 }
@@ -9,11 +9,6 @@ Asset::Asset(const std::string& name) : m_Id(UUIDs::random_generator()()), m_Nam
 UUID Asset::GetId() const
 {
 	return m_Id;
-}
-
-std::string Asset::GetName() const
-{
-	return m_Name;
 }
 
 AssetType Asset::GetType() const
@@ -80,7 +75,7 @@ void Asset::Serialize(Archive& archive)
 		archive & GetType();
 	}
 
-	Serializable::Serialize(archive);
+	Super::Serialize(archive);
 
 	archive & m_Id;
 	archive & m_Name;

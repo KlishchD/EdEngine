@@ -21,11 +21,11 @@ class Texture;
 class Texture2DData;
 class Texture2D;
 
-struct CubeTextureImportParameters;
+class CubeTextureImportParameters;
 class CubeTextureData;
 class CubeTexture;
 
-struct Texture2DArrayImportParameters;
+class Texture2DArrayImportParameters;
 class Texture2DArrayData;
 class Texture2DArray;
 

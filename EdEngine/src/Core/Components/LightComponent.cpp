@@ -46,7 +46,7 @@ glm::vec3 LightComponent::GetPosition() const
 
 void LightComponent::Serialize(Archive& archive)
 {
-	Component::Serialize(archive);
+	Super::Serialize(archive);
 
 	archive & m_Color;
 	archive & m_Intensity;

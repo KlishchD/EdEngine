@@ -671,7 +671,7 @@
     <ClInclude Include="src\Core\Assets\Importers\StaticMeshImporter.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\Core\Object.h">
+    <ClInclude Include="src\Core\Objects\Class.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

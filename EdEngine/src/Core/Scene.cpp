@@ -3,9 +3,8 @@
 #include "Components/Component.h"
 #include "Objects/Actor.h"
 
-Scene::Scene(std::string name)
+Scene::Scene(std::string name) : Super(name)
 {
-    m_Name = name;
 }
 
 void Scene::Initialize()
@@ -60,13 +59,7 @@ std::shared_ptr<PlayerActor> Scene::GetPlayerActor() const
 
 void Scene::Serialize(Archive& archive)
 {
-    Serializable::Serialize(archive);
+    Super::Serialize(archive);
 
-	archive & m_Name;
-    if (archive.GetMode() == ArchiveMode::Read)
-    {
-//		throw std::logic_error("Fix it using ObjectFactory ;)");
-
-//		archive & m_Actors;
-    }
+    archive & m_Actors;
 }

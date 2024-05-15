@@ -2,7 +2,7 @@
 #include "Core/Rendering/EdRendering.h"
 #include "Platform/Rendering/OpenGL/OpenGLTypes.h"
 
-OpenGLCubeTexture::OpenGLCubeTexture(const std::string& name) : CubeTexture(name)
+OpenGLCubeTexture::OpenGLCubeTexture(const std::string& name) : Super(name)
 {
 	glGenTextures(1, &m_Id);
 }

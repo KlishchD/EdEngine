@@ -59,7 +59,7 @@ ComponentType SpotLightComponent::GetType() const
 
 void SpotLightComponent::Serialize(Archive& archive)
 {
-	LightComponent::Serialize(archive);
+	Super::Serialize(archive);
 
 	archive & m_InnerAngle;
 	archive & m_OuterAngle;

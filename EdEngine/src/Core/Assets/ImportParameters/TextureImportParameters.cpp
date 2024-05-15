@@ -2,7 +2,7 @@
 
 void TextureImportParameters::Serialize(Archive& archive)
 {
-	AssetImportParameters::Serialize(archive);
+	Super::Serialize(archive);
 
 	archive & WrapS;
 	archive & WrapT;
@@ -13,14 +13,14 @@ void TextureImportParameters::Serialize(Archive& archive)
 
 void Texture2DImportParameters::Serialize(Archive& archive)
 {
-	TextureImportParameters::Serialize(archive);
+	Super::Serialize(archive);
 
 	archive & GenerateMipMaps;
 }
 
 void CubeTextureImportParameters::Serialize(Archive& archive)
 {
-	TextureImportParameters::Serialize(archive);
+	Super::Serialize(archive);
 
 	archive & WrapR;
 }

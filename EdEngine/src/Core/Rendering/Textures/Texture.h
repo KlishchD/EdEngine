@@ -5,7 +5,8 @@
 #include "Core/Rendering/Types.h"
 #include <glm/vec3.hpp>
 
-class Texture : public Asset, public Resource {
+ED_ABSTRACT_CLASS(Texture) : public Asset, public Resource {
+    ED_CLASS_BODY(Texture, Asset)
 public:
 	Texture(const std::string& name);
 

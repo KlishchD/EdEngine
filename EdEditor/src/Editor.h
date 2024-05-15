@@ -8,8 +8,9 @@ class Component;
 class Texture2D;
 class Shader;
 
-class Editor: public BaseManager
+ED_CLASS(Editor) : public BaseManager
 {
+    ED_CLASS_BODY(Editor, BaseManager)
 public:
     virtual void Initialize(Engine* engine) override;
     virtual void Deinitialize() override;

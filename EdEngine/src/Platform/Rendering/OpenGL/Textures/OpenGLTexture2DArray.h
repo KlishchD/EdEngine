@@ -2,10 +2,11 @@
 
 #include "Core/Rendering/Textures/Texture2DArray.h"
 
-class OpenGLTexture2DArray : public Texture2DArray
+ED_CLASS(OpenGLTexture2DArray) : public Texture2DArray
 {
+	ED_CLASS_BODY(OpenGLTexture2DArray, Texture2DArray)
 public:
-	OpenGLTexture2DArray(const std::string& name);
+	OpenGLTexture2DArray(const std::string& name = "Empty");
 	
 	virtual void Initialize() override;
 

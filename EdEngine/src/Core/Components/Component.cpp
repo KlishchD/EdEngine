@@ -1,7 +1,7 @@
 ﻿#include "Component.h"
 #include "Core/Objects/Actor.h"
 
-Component::Component(const std::string& name) : m_Name(name)
+Component::Component(const std::string& name) : Super(name)
 {
 }
 
@@ -133,39 +133,10 @@ void Component::Update(float deltaSeconds)
     m_PreviousTransform = m_Transform;
 }
 
-const std::string& Component::GetName() const
-{
-    return m_Name;
-}
-
-void Component::SetName(const std::string& name)
-{
-    m_Name = name;
-}
-
 void Component::Serialize(Archive& archive)
 {
-    archive & GetType();
+    Super::Serialize(archive);
     
-    Serializable::Serialize(archive);
-    
-    archive & m_Name;
     archive & m_Transform;
-    
-    // TODO: make if better ;)
-    if (archive.GetMode() == ArchiveMode::Write)
-    {
-    	archive & m_Children.size();
-    
-    	for (std::shared_ptr<Component>& component : m_Children)
-    	{
-            archive & component;
-    	}
-    }
-    else
-    {
-        throw std::logic_error("Fix it using ObjectFactory ;)");
-    }
-    
     archive & m_Children;
 }

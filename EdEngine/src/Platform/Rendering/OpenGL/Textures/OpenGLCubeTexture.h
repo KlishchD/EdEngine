@@ -2,8 +2,9 @@
 
 #include "Core/Rendering/Textures/CubeTexture.h"
 
-class OpenGLCubeTexture : public CubeTexture
+ED_CLASS(OpenGLCubeTexture) : public CubeTexture
 {
+	ED_CLASS_BODY(OpenGLCubeTexture, CubeTexture)
 public:
 	OpenGLCubeTexture(const std::string& name = "Empty");
 

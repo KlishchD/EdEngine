@@ -12,18 +12,19 @@
 #include "Factories/AssetFactory.h"
 #include "Importers/AssetImporter.h"
 
-struct Texture2DImportParameters;
-struct StaticMeshImportParameters;
+class Texture2DImportParameters;
+class StaticMeshImportParameters;
 
-struct StaticMeshImportParameters;
+class StaticMeshImportParameters;
 class VertexArray;
 class Shader;
 class Scene;
 class Texture2D;
 class Material;
 
-class AssetManager: public BaseManager
+ED_CLASS(AssetManager) : public BaseManager
 {
+    ED_CLASS_BODY(AssetManager, BaseManager)
 public:
     virtual void Initialize(Engine* engine) override;
     virtual void Deinitialize() override;

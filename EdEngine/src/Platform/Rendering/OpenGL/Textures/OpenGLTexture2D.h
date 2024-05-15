@@ -1,9 +1,10 @@
 #pragma once
 
 #include "Core/Rendering/Textures/Texture2D.h"
-#include "Core/Rendering/Textures/Texture.h"
 
-class OpenGLTexture2D : public Texture2D {
+ED_CLASS(OpenGLTexture2D) : public Texture2D 
+{
+	ED_CLASS_BODY(OpenGLTexture2D, Texture2D)
 public:
 	OpenGLTexture2D(const std::string& name = "Empty");
 

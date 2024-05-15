@@ -1,10 +1,10 @@
 ﻿#pragma once
 
-#include <glm/fwd.hpp>
-#include <glm/detail/type_quat.hpp>
+#include "Core/Ed.h"
 #include "Core/Rendering/Types.h"
-#include "Core/Assets/Asset.h"
 #include "Serializable.h"
+
+class Asset;
 
 namespace boost
 {

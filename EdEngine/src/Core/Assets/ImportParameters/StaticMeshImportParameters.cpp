@@ -2,7 +2,7 @@
 
 void StaticMeshImportParameters::Serialize(Archive& archive)
 {
-	AssetImportParameters::Serialize(archive);
+	Super::Serialize(archive);
 
 	archive & JoinIdenticalVertices;
 	archive & GenUVCoords;

@@ -3,8 +3,9 @@
 #include "Texture.h"
 #include "TextureData.h"
 
-class Texture2DArray : public Texture
+ED_ABSTRACT_CLASS(Texture2DArray) : public Texture
 {
+	ED_CLASS_BODY(Texture2DArray, Texture)
 public:
 	Texture2DArray(const std::string& name);
 

@@ -1,9 +1,8 @@
 #include "Texture2D.h"
 #include "Core/Assets/ImportParameters/TextureImportParameters.h"
 
-Texture2D::Texture2D(const std::string& name) : Texture(name)
+Texture2D::Texture2D(const std::string& name) : Super(name)
 {
-    SetImportParameters(std::make_shared<Texture2DImportParameters>()); // TODO: remove with ObjectFactory
 }
 
 AssetType Texture2D::GetType() const
@@ -88,7 +87,7 @@ void Texture2D::Resize(uint32_t width, uint32_t height)
 
 void Texture2D::ResetState()
 {
-	Texture::ResetState();
+	Super::ResetState();
 
 	std::shared_ptr<Texture2DImportParameters> paramters = std::static_pointer_cast<Texture2DImportParameters>(m_ImportParameters);
 	SetMipMapsEnabled(paramters->GenerateMipMaps);
@@ -96,14 +95,14 @@ void Texture2D::ResetState()
 
 void Texture2D::Serialize(Archive& archive)
 {
-	Texture::Serialize(archive);
+	Super::Serialize(archive);
 
 	archive & m_bMipMapsEnabled;
 }
 
 void Texture2D::SerializeData(Archive& archive)
 {
-	Texture::SerializeData(archive);
+	Super::SerializeData(archive);
 
 	archive & m_Data;
 

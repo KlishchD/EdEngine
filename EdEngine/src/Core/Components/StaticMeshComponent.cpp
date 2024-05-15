@@ -1,11 +1,11 @@
 ﻿#include "StaticMeshComponent.h"
 #include "Core/Assets/StaticMesh.h"
 
-StaticMeshComponent::StaticMeshComponent(): Component("StaticMesh"), m_StaticMesh(nullptr) {}
+StaticMeshComponent::StaticMeshComponent(): Super("StaticMesh"), m_StaticMesh(nullptr) {}
 
-StaticMeshComponent::StaticMeshComponent(const StaticMeshComponent& StaticMesh): Component("StaticMesh"), m_StaticMesh(StaticMesh.m_StaticMesh) {}
+StaticMeshComponent::StaticMeshComponent(const StaticMeshComponent& StaticMesh): Super("StaticMesh"), m_StaticMesh(StaticMesh.m_StaticMesh) {}
 
-StaticMeshComponent::StaticMeshComponent(std::shared_ptr<StaticMesh> mesh): Component("StaticMesh")
+StaticMeshComponent::StaticMeshComponent(std::shared_ptr<StaticMesh> mesh): Super("StaticMesh")
 {
     SetStaticMesh(mesh);
 }
@@ -28,7 +28,7 @@ ComponentType StaticMeshComponent::GetType() const
 
 void StaticMeshComponent::Serialize(Archive& archive)
 {
-    Component::Serialize(archive);
+    Super::Serialize(archive);
 
     m_StaticMesh = SerializationHelper::SerializeAsset(archive, m_StaticMesh);
 }

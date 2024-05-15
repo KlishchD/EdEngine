@@ -36,10 +36,10 @@ void PointLightComponent::SetShadowFilterSize(uint32_t size)
 
 void PointLightComponent::Serialize(Archive& archive)
 {
-    LightComponent::Serialize(archive);
+    Super::Serialize(archive);
 
-	archive & m_Radius;
-	archive & m_ShadowFilterSize;
+    archive & m_Radius;
+    archive & m_ShadowFilterSize;
 }
 
 void PointLightComponent::SetRadius(float radius)

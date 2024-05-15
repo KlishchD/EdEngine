@@ -31,8 +31,9 @@ class StaticSubmesh;
 
 class RenderGraph;
 
-class Renderer: public BaseManager
+ED_CLASS(Renderer) : public BaseManager
 {
+    ED_CLASS_BODY(Renderer, BaseManager)
 public:
     virtual void Initialize(Engine* engine) override;
     virtual void Deinitialize() override;

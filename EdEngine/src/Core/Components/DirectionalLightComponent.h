@@ -2,8 +2,9 @@
 
 #include "LightComponent.h"
 
-class DirectionalLightComponent : public LightComponent
+ED_CLASS(DirectionalLightComponent) : public LightComponent
 {
+	ED_CLASS_BODY(DirectionalLightComponent, LightComponent)
 public:
 	virtual ComponentType GetType() const override;
 

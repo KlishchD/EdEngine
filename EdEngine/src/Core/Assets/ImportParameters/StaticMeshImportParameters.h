@@ -3,8 +3,10 @@
 #include "AssetImportParameters.h"
 #include <string>
 
-struct StaticMeshImportParameters : public AssetImportParameters
+ED_CLASS(StaticMeshImportParameters) : public AssetImportParameters
 {
+	ED_CLASS_BODY(StaticMeshImportParameters, AssetImportParameters)
+public:
 	bool JoinIdenticalVertices = true;
 	bool GenUVCoords = true;
 	bool CalculateTangentSpace = true;

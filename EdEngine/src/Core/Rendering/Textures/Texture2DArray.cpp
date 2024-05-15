@@ -1,9 +1,8 @@
 #include "Texture2DArray.h"
 #include "Core/Assets/ImportParameters/TextureImportParameters.h"
 
-Texture2DArray::Texture2DArray(const std::string& name) : Texture(name)
+Texture2DArray::Texture2DArray(const std::string& name) : Super(name)
 {
-    SetImportParameters(std::make_shared<Texture2DImportParameters>()); // TODO: remove with ObjectFactory
 }
 
 AssetType Texture2DArray::GetType() const
@@ -76,7 +75,7 @@ void Texture2DArray::Resize(uint32_t width, uint32_t height, uint32_t depth)
 
 void Texture2DArray::SerializeData(Archive& archive)
 {
-	Texture::SerializeData(archive);
+	Super::SerializeData(archive);
 
 	archive & m_Data;
 

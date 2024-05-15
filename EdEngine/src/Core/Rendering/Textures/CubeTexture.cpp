@@ -1,9 +1,8 @@
 ﻿#include "CubeTexture.h"
 #include "Core/Assets/ImportParameters/TextureImportParameters.h"
 
-CubeTexture::CubeTexture(const std::string& name) : Texture(name)
+CubeTexture::CubeTexture(const std::string& name) : Super(name)
 {
-    SetImportParameters(std::make_shared<CubeTextureImportParameters>()); // TODO: remove with ObjectFactory
 }
 
 AssetType CubeTexture::GetType() const

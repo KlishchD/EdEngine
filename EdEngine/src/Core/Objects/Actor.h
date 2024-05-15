@@ -3,8 +3,9 @@
 #include "GameObject.h"
 #include "Core/Components/Component.h"
 
-class Actor : public GameObject, public std::enable_shared_from_this<Actor>
+ED_CLASS(Actor) : public GameObject, public std::enable_shared_from_this<Actor>
 {
+    ED_CLASS_BODY(Actor, GameObject)
 public:
     Actor(const std::string& name = "empty");
 

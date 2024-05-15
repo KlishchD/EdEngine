@@ -1,6 +1,6 @@
 #include "CameraComponent.h"
 
-CameraComponent::CameraComponent(const std::string& name) : Component(name)
+CameraComponent::CameraComponent(const std::string& name) : Super(name)
 {
 
 }
@@ -17,7 +17,7 @@ Camera& CameraComponent::GetCamera()
 
 void CameraComponent::Serialize(Archive& archive)
 {
-	Component::Serialize(archive);
+	Super::Serialize(archive);
 
 	archive & m_Camera;
 }

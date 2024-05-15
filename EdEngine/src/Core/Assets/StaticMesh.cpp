@@ -4,9 +4,8 @@
 #include "Core/Rendering/Buffers/IndexBuffer.h"
 #include "Utils/RenderingHelper.h"
 
-StaticSubmesh::StaticSubmesh(const std::string& name) : Asset(name)
+StaticSubmesh::StaticSubmesh(const std::string& name) : Super(name)
 {
-    SetImportParameters(std::make_shared<StaticMeshImportParameters>()); // TODO: remove with ObjectFactory
 }
 
 AssetType StaticSubmesh::GetType() const
@@ -40,7 +39,7 @@ void StaticSubmesh::ResetState()
 
 void StaticSubmesh::SerializeData(Archive& archive)
 {
-    Asset::SerializeData(archive);
+    Super::SerializeData(archive);
 
     m_Material = SerializationHelper::SerializeAsset(archive, m_Material);
 
@@ -55,7 +54,7 @@ void StaticSubmesh::SerializeData(Archive& archive)
 
 void StaticSubmesh::FreeData()
 {
-    Asset::FreeData();
+    Super::FreeData();
 
     m_Indices.clear();
     m_Vertices.clear();
@@ -91,9 +90,18 @@ void StaticSubmesh::CreateBuffers()
     }
 }
 
+void StaticSubmesh::Serialize(Archive& archive)
+{
+    if (archive.GetMode() == ArchiveMode::Write)
+    {
+	    archive & GetType();
+    }
+
+    archive & m_Name;
+}
+
 StaticMesh::StaticMesh(const std::string& name) : Asset(name)
 {
-    SetImportParameters(std::make_shared<StaticMeshImportParameters>()); // TODO: remove with ObjectFactory
 }
 
 AssetType StaticMesh::GetType() const
@@ -128,14 +136,14 @@ void StaticMesh::ResetState()
 
 void StaticMesh::SerializeData(Archive& archive)
 {
-    Asset::SerializeData(archive);
+    Super::SerializeData(archive);
 
     archive & m_Submeshes;
 }
 
 void StaticMesh::FreeData()
 {
-    Asset::FreeData();
+    Super::FreeData();
 
     for (std::shared_ptr<StaticSubmesh> submesh : m_Submeshes)
     {

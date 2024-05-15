@@ -2,7 +2,8 @@
 
 #include "AssetImportParameters.h"
 
-struct MaterialImportParameters : public AssetImportParameters
+ED_CLASS(MaterialImportParameters) : public AssetImportParameters
 {
-	
+	ED_CLASS_BODY(MaterialImportParameters, AssetImportParameters)
+public:
 };

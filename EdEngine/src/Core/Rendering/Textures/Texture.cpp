@@ -1,7 +1,7 @@
 ﻿#include "Texture.h"
 #include "Core/Assets/ImportParameters/TextureImportParameters.h"
 
-Texture::Texture(const std::string& name) : Asset(name), Resource( { name } ) // TODO : Fix it :)
+Texture::Texture(const std::string& name) : Super(name), Resource( { name } ) // TODO : Fix it :)
 {
 }
 
@@ -60,7 +60,7 @@ FilteringMode Texture::GetFilteringMode() const
 
 void Texture::Serialize(Archive& archive)
 {
-	Asset::Serialize(archive);
+	Super::Serialize(archive);
 
 	archive & m_WrapS;
 	archive & m_WrapT;
@@ -70,7 +70,7 @@ void Texture::Serialize(Archive& archive)
 
 void Texture::ResetState()
 {
-	Asset::ResetState();
+	Super::ResetState();
 
 	std::shared_ptr<TextureImportParameters> paramters = std::static_pointer_cast<TextureImportParameters>(m_ImportParameters);
 

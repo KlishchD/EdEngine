@@ -3,8 +3,9 @@
 #include "Actor.h"
 #include "Core/Components/CameraComponent.h"
 
-class PlayerActor : public Actor
+ED_CLASS(PlayerActor) : public Actor
 {
+	ED_CLASS_BODY(PlayerActor, Actor)
 public:
 	PlayerActor(const std::string& name = "empty");
 

@@ -2,7 +2,7 @@
 #include "Platform/Rendering/OpenGL/OpenGLTypes.h"
 #include "Core/Rendering/EdRendering.h"
 
-OpenGLTexture2D::OpenGLTexture2D(const std::string& name): Texture2D(name)
+OpenGLTexture2D::OpenGLTexture2D(const std::string& name): Super(name)
 {
 	glGenTextures(1, &m_Id);
 }

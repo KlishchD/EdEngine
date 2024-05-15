@@ -3,10 +3,6 @@
 #include <boost/serialization/access.hpp>
 #include <boost/serialization/version.hpp>
 
-#include <glm/fwd.hpp>
-#include <glm/detail/type_quat.hpp>
-#include <glm/ext/quaternion_trigonometric.hpp>
-
 #include "Utils/SerializationHelper.h"
 
 class Transform

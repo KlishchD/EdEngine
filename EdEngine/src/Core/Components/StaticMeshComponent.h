@@ -4,8 +4,9 @@
 #include "Core/Ed.h"
 #include "Core/Assets/StaticMesh.h"
 
-class StaticMeshComponent : public Component
+ED_CLASS(StaticMeshComponent) : public Component
 {
+    ED_CLASS_BODY(StaticMeshComponent, Component)
 public:
     StaticMeshComponent();
     StaticMeshComponent(const StaticMeshComponent& submesh);

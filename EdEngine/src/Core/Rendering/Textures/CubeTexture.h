@@ -3,8 +3,9 @@
 #include "Texture.h"
 #include "TextureData.h"
 
-class CubeTexture : public Texture
+ED_ABSTRACT_CLASS(CubeTexture) : public Texture
 {
+    ED_CLASS_BODY(CubeTexture, Texture)
 public:
     CubeTexture(const std::string& name);
 

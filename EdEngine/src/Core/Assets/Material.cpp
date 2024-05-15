@@ -6,9 +6,8 @@
 #include "Utils/RenderingHelper.h"
 #include "AssetManager.h"
 
-Material::Material(const std::string& name) : Asset(name)
+Material::Material(const std::string& name) : Super(name)
 {
-    SetImportParameters(std::make_shared<MaterialImportParameters>()); // TODO: remove with ObjectFactory
 }
 
 AssetType Material::GetType() const
@@ -92,7 +91,7 @@ void Material::ResetState()
 
 void Material::Serialize(Archive& archive)
 {
-    Asset::Serialize(archive);
+    Super::Serialize(archive);
 
     archive & m_BaseColor;
 
@@ -103,7 +102,7 @@ void Material::Serialize(Archive& archive)
 
 void Material::SerializeData(Archive& archive)
 {
-	Asset::SerializeData(archive);
+	Super::SerializeData(archive);
 
     m_BaseColorTexture = SerializationHelper::SerializeAsset(archive, m_BaseColorTexture);
     m_NormalTexture = SerializationHelper::SerializeAsset(archive, m_NormalTexture);

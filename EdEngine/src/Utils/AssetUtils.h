@@ -2,6 +2,7 @@
 
 #include "Core/Ed.h"
 
+class Asset;
 enum class AssetType : uint8_t;
 
 class AssetUtils

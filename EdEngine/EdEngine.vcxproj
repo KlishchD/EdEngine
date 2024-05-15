@@ -282,7 +282,7 @@
     <ClInclude Include="src\Core\Components\DirectionalLightComponent.h" />
     <ClInclude Include="src\Core\Components\LightComponent.h" />
     <ClInclude Include="src\Core\Components\SpotLightComponent.h" />
-    <ClInclude Include="src\Core\Object.h" />
+    <ClInclude Include="src\Core\Objects\Class.h" />
     <ClInclude Include="src\Core\Objects\PlayerActor.h" />
     <ClInclude Include="src\Core\Rendering\EdRendering.h" />
     <ClInclude Include="src\Core\Rendering\Passes\Bloom\BloomDownscalePass.h" />

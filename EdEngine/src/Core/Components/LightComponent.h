@@ -2,8 +2,9 @@
 
 #include "Component.h"
 
-class LightComponent : public Component
+ED_CLASS(LightComponent) : public Component
 {
+	ED_CLASS_BODY(LightComponent, Component)
 public:
 	LightComponent();
 

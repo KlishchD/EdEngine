@@ -13,15 +13,15 @@ enum class AssetType : uint8_t
 	StaticSubmesh
 };
 
-class Asset : public Serializable
+ED_CLASS(Asset) : public GameObject
 {
+	ED_CLASS_BODY(Asset, GameObject)
 public:
 	using ImportParametersClass = AssetImportParameters;
 
 	Asset(const std::string& name = "Empty");
 
 	UUID GetId() const;
-    std::string GetName() const;
 	virtual AssetType GetType() const;
 
 	virtual bool HasData() const;
@@ -52,8 +52,6 @@ public:
 	virtual ~Asset() = default;
 protected:
 	UUID m_Id;
-
-	std::string m_Name;
 
 	bool m_bHasData = false;
 
