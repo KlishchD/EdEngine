@@ -1,6 +1,6 @@
 #include "SpotLightShadingPass.h"
 #include "Core/Rendering/Buffers/VertexBufferLayout.h"
-#include "Utils/MathHelper.h"
+#include "Helpers/MathHelper.h"
 
 void SpotLightShadingPass::Initialize(std::shared_ptr<RenderGraph> graph)
 {

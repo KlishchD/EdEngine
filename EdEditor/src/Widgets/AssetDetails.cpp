@@ -7,7 +7,7 @@
 #include "Core/Rendering/Textures/CubeTexture.h"
 #include "Core/Assets/Material.h"
 #include "Core/Assets/StaticMesh.h"
-#include "Utils/AssetUtils.h"
+#include "Helpers/AssetHelper.h"
 #include <imgui.h>
 #include <glm/gtc/type_ptr.hpp>
 
@@ -79,7 +79,7 @@ void AssetDetails::MaterialDetails(std::shared_ptr<Material> material)
     std::vector<std::shared_ptr<Texture2D>> textures = m_AssetManager->GetAssets<Texture2D>(AssetType::Texture2D);
 
     ImGui::Text("Base Color Texture"); ImGui::SameLine();
-    if (ImGui::BeginCombo("##BaseColorTexture", AssetUtils::GetAssetNameLable(material->GetBaseColorTexture()).c_str()))
+    if (ImGui::BeginCombo("##BaseColorTexture", AssetHelper::GetAssetNameLable(material->GetBaseColorTexture()).c_str()))
     {
         if (ImGui::Selectable("None", material->GetBaseColorTexture() == nullptr))
         {
@@ -87,7 +87,7 @@ void AssetDetails::MaterialDetails(std::shared_ptr<Material> material)
         }
         for (const auto& texture : textures)
         {
-            if (ImGui::Selectable(AssetUtils::GetAssetNameLable(texture).c_str(), material->GetBaseColorTexture() == texture))
+            if (ImGui::Selectable(AssetHelper::GetAssetNameLable(texture).c_str(), material->GetBaseColorTexture() == texture))
             {
                 m_AssetManager->LoadAsset(texture->GetId());
                 material->SetBaseColorTexture(texture);
@@ -97,7 +97,7 @@ void AssetDetails::MaterialDetails(std::shared_ptr<Material> material)
     }
 
     ImGui::Text("Normal Texture"); ImGui::SameLine();
-    if (ImGui::BeginCombo("##NormalTexture", AssetUtils::GetAssetNameLable(material->GetNormalTexture()).c_str()))
+    if (ImGui::BeginCombo("##NormalTexture", AssetHelper::GetAssetNameLable(material->GetNormalTexture()).c_str()))
     {
         if (ImGui::Selectable("None", material->GetNormalTexture() == nullptr))
         {
@@ -105,7 +105,7 @@ void AssetDetails::MaterialDetails(std::shared_ptr<Material> material)
         }
         for (const auto& texture : textures)
         {
-            if (ImGui::Selectable(AssetUtils::GetAssetNameLable(texture).c_str(), material->GetNormalTexture() == texture))
+            if (ImGui::Selectable(AssetHelper::GetAssetNameLable(texture).c_str(), material->GetNormalTexture() == texture))
             {
                 m_AssetManager->LoadAsset(texture->GetId());
                 material->SetNormalTexture(texture);
@@ -115,7 +115,7 @@ void AssetDetails::MaterialDetails(std::shared_ptr<Material> material)
     }
 
     ImGui::Text("Roughness Texture"); ImGui::SameLine();
-    if (ImGui::BeginCombo("##RoughnessTexture", AssetUtils::GetAssetNameLable(material->GetRoughnessTexture()).c_str()))
+    if (ImGui::BeginCombo("##RoughnessTexture", AssetHelper::GetAssetNameLable(material->GetRoughnessTexture()).c_str()))
     {
         if (ImGui::Selectable("None", material->GetRoughnessTexture() == nullptr))
         {
@@ -123,7 +123,7 @@ void AssetDetails::MaterialDetails(std::shared_ptr<Material> material)
         }
         for (const auto& texture : textures)
         {
-            if (ImGui::Selectable(AssetUtils::GetAssetNameLable(texture).c_str(), material->GetRoughnessTexture() == texture))
+            if (ImGui::Selectable(AssetHelper::GetAssetNameLable(texture).c_str(), material->GetRoughnessTexture() == texture))
             {
                 m_AssetManager->LoadAsset(texture->GetId());
                 material->SetRoughnessTexture(texture);
@@ -138,7 +138,7 @@ void AssetDetails::MaterialDetails(std::shared_ptr<Material> material)
     }
 
     ImGui::Text("Metalic Texture"); ImGui::SameLine();
-    if (ImGui::BeginCombo("##MetalicTexture", AssetUtils::GetAssetNameLable(material->GetMetalicTexture()).c_str()))
+    if (ImGui::BeginCombo("##MetalicTexture", AssetHelper::GetAssetNameLable(material->GetMetalicTexture()).c_str()))
     {
         if (ImGui::Selectable("None", material->GetMetalicTexture() == nullptr))
         {
@@ -146,7 +146,7 @@ void AssetDetails::MaterialDetails(std::shared_ptr<Material> material)
         }
         for (const auto& texture : textures)
         {
-            if (ImGui::Selectable(AssetUtils::GetAssetNameLable(texture).c_str(), material->GetMetalicTexture() == texture))
+            if (ImGui::Selectable(AssetHelper::GetAssetNameLable(texture).c_str(), material->GetMetalicTexture() == texture))
             {
                 m_AssetManager->LoadAsset(texture->GetId());
                 material->SetMetalicTexture(texture);

@@ -2,7 +2,7 @@
 #include "PointLightShadowPass.h"
 #include "PointLightShadingPass.h"
 #include "PointLightWireframePass.h"
-#include "Utils/GeometryBuilder.h"
+#include "Helpers/GeometryBuilder.h"
 
 void PointLightMultiPass::Initialize(std::shared_ptr<RenderGraph> graph)
 {

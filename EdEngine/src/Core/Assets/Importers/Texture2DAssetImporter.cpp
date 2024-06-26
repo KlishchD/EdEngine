@@ -1,8 +1,8 @@
 #include "Texture2DAssetImporter.h"
 #include "Core/Assets/AssetManager.h"
 #include "Core/Rendering/Textures/Texture2D.h"
-#include "Utils/RenderingHelper.h"
-#include "Utils/stb_image.h"
+#include "Helpers/RenderingHelper.h"
+#include "Helpers/stb_image.h"
 
 Texture2DImporter::Texture2DImporter(std::shared_ptr<AssetManager> manager) : AssetImporter(manager)
 {
@@ -31,7 +31,7 @@ std::shared_ptr<Asset> Texture2DImporter::Import(std::shared_ptr<AssetImportPara
 	Texture2DData data(width, height, imageData, width * height * pixelSize, true);
 	std::shared_ptr<Texture2D> texture = RenderingHelper::CreateTexture2D(name, parameters, std::move(data));
 
-	std::string savePath = Files::GetSavePath(texturePath, AssetType::Texture2D);
+	std::string savePath = FilesHelper::GetSavePath(texturePath, AssetType::Texture2D);
 	Archive archive(savePath, ArchiveMode::Write);
 	archive & texture;
 

@@ -1,12 +1,12 @@
 ﻿#include "OptionsMenuWidget.h"
-#include "Utils/PlatformUtils.h"
+#include "Helpers/PlatformHelper.h"
 #include "Core/Engine.h"
 #include "Core/Assets/AssetManager.h"
 #include "Core/Assets/StaticMesh.h"
 #include "Core/Rendering/Textures/Texture2D.h"
 #include "Core/Scene.h"
-#include "Utils/Files.h"
-#include "Utils/RenderingHelper.h"
+#include "Helpers/FilesHelper.h"
+#include "Helpers/RenderingHelper.h"
 #include "Core/Macros.h"
 #include <imgui.h>
 
@@ -47,7 +47,7 @@ void OptionsMenuWidget::Tick(float DeltaTime)
             if (ImGui::MenuItem("Import mesh"))
             {
                 m_StaticMeshImportParameters = std::make_shared<StaticMeshImportParameters>();
-                m_StaticMeshImportParameters->Path = PlatformUtils::OpenFileWindow("Model\0", *m_Window, "Model");
+                m_StaticMeshImportParameters->Path = PlatformHelper::OpenFileWindow("Model\0", *m_Window, "Model");
                 m_StaticMeshImportPopupIsOpened = true;
             }
     
@@ -55,13 +55,13 @@ void OptionsMenuWidget::Tick(float DeltaTime)
             {
                 m_TextureImportParameters = std::make_shared<Texture2DImportParameters>();
                 m_TextureImportParameters->Format = PixelFormat::SRGBA8F;
-                m_TextureImportParameters->Path = PlatformUtils::OpenFileWindow("Texture\0", *m_Window, "Texture");
+                m_TextureImportParameters->Path = PlatformHelper::OpenFileWindow("Texture\0", *m_Window, "Texture");
                 m_TextureImportPopupIsOpened = true;
             }
 
             if (ImGui::MenuItem("Create Material"))
             {
-                std::string materialPath = PlatformUtils::OpenFileWindow("Material\0", *m_Window, "Material");
+                std::string materialPath = PlatformHelper::OpenFileWindow("Material\0", *m_Window, "Material");
 
                 m_AssetManager->CreateAsset<Material>(AssetType::Material, materialPath);
             }

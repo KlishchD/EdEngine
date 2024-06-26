@@ -1,5 +1,5 @@
 #include "RenderGraph.h"
-#include "Utils/RenderingHelper.h"
+#include "Helpers/RenderingHelper.h"
 #include "Passes/RenderPass.h"
 
 void RenderGraph::AddPass(std::shared_ptr<BaseRenderPass> pass)

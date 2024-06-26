@@ -6,14 +6,14 @@
 #include "Widgets/OptionsMenuWidget.h"
 #include "Widgets/SceneTreeWidget.h"
 #include "Widgets/ViewportWidget.h"
-#include "Utils/Files.h"
+#include "Helpers/FilesHelper.h"
 #include "Core/Rendering/Textures/Texture2D.h"
 #include "Core/Rendering/Renderer.h"
 #include "Core/Rendering/Shader.h"
 #include "Core/Window.h"
 #include "Core/Assets/AssetManager.h"
 #include "Core/Scene.h"
-#include "Utils/RenderingHelper.h"
+#include "Helpers/RenderingHelper.h"
 #include "Core/Components/PointLightComponent.h"
 
 void Editor::Deinitialize()
