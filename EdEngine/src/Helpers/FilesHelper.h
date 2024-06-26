@@ -4,7 +4,7 @@
 #include <filesystem>
 #include "Core/Assets/Asset.h"
 
-class FileHelper
+class FilesHelper
 {
 public:
     inline static const std::string ContentFolderPath = std::filesystem::current_path().parent_path().string() + "\\resources\\";

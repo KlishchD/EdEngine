@@ -1,8 +1,8 @@
-﻿#include "FileHelper.h"
+#include "FilesHelper.h"
 #include <filesystem>
 #include <random>
 
-std::string FileHelper::GetSaveExtensions(AssetType type)
+std::string FilesHelper::GetSaveExtensions(AssetType type)
 {
     switch (type)
     {
@@ -14,7 +14,7 @@ std::string FileHelper::GetSaveExtensions(AssetType type)
     return "";
 }
 
-std::string FileHelper::GetSavePath(const std::string& pathStr, AssetType type, const std::string& name)
+std::string FilesHelper::GetSavePath(const std::string& pathStr, AssetType type, const std::string& name)
 {
     std::filesystem::path path(pathStr);
 

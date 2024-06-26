@@ -6,7 +6,7 @@
 #include "Core/Engine.h"
 #include <backends/imgui_impl_glfw.h>
 #include <backends/imgui_impl_opengl3.h>
-#include "Utils/PlatformUtils.h"
+#include "Helpers/PlatformHelper.h"
 
 std::vector<Window*> s_Windows;
 
@@ -172,7 +172,7 @@ OpenGLWindow::OpenGLWindow(WindowSpecification specification): Window(specificat
 	style.LogSliderDeadzone = 4;
 	style.TabRounding = 4;
 
-	PlatformUtils::DisableTitleBar(*this);
+	PlatformHelper::DisableTitleBar(*this);
 
 	ED_LOG(Window, info, "Finished creating window")
 }

@@ -2,7 +2,7 @@
 
 #include "Core/Window.h"
 
-class PlatformUtils
+class PlatformHelper
 {
 public:
     static std::string OpenFileWindow(const char* filter, Window& window, const char* title = nullptr);

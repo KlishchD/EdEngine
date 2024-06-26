@@ -1,5 +1,5 @@
 #include "SSAOPass.h"
-#include "Utils/MathHelper.h"
+#include "Helpers/MathHelper.h"
 #include <random>
 
 void SSAOBasePass::Initialize(std::shared_ptr<RenderGraph> graph)

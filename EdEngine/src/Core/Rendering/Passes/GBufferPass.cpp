@@ -1,5 +1,5 @@
 #include "GBufferPass.h"
-#include "Utils/MathHelper.h"
+#include "Helpers/MathHelper.h"
 #include "Core/Components/StaticMeshComponent.h"
 
 void GBufferPass::Initialize(std::shared_ptr<RenderGraph> graph)

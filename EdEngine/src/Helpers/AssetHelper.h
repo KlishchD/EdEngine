@@ -5,7 +5,7 @@
 class Asset;
 enum class AssetType : uint8_t;
 
-class AssetUtils
+class AssetHelper
 {
 public:
     static AssetType GetAssetTypeFromExtension(const std::string& extension);

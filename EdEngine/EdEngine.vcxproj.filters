@@ -33,7 +33,7 @@
     <ClCompile Include="src\Core\Window.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\Platform\WindowsPlatformUtils.cpp">
+    <ClCompile Include="src\Platform\WindowsPlatformHelper.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="src\Core\Rendering\Framebuffer.cpp">
@@ -51,22 +51,22 @@
     <ClCompile Include="src\Core\Rendering\Buffers\VertexBufferLayout.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\Utils\AssetUtils.cpp">
+    <ClCompile Include="src\Helpers\AssetHelper.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\Utils\FileHelper.cpp">
+    <ClCompile Include="src\Helpers\FilesHelper.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\Utils\GeometryBuilder.cpp">
+    <ClCompile Include="src\Helpers\GeometryBuilder.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\Utils\MathHelper.cpp">
+    <ClCompile Include="src\Helpers\MathHelper.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\Utils\SerializationHelper.cpp">
+    <ClCompile Include="src\Helpers\SerializationHelper.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\Utils\stb_image.cpp">
+    <ClCompile Include="src\Helpers\stb_image.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="EdEngine.cpp">
@@ -171,7 +171,7 @@
     <ClCompile Include="src\Platform\Rendering\OpenGL\OpenGLRenderingContext.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\Utils\RenderingHelper.cpp">
+    <ClCompile Include="src\Helpers\RenderingHelper.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="src\Platform\Rendering\OpenGL\Buffers\OpenGLVertexBuffer.cpp">
@@ -300,7 +300,7 @@
     <ClCompile Include="src\Core\Rendering\Passes\GrayscalePass.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\Utils\Serializable.cpp">
+    <ClCompile Include="src\Helpers\Serializable.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="src\Core\Assets\Factories\AssetFactory.cpp">
@@ -368,25 +368,25 @@
     <ClInclude Include="src\Core\Rendering\Buffers\VertexBufferLayout.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\Utils\AssetUtils.h">
+    <ClInclude Include="src\Helpers\AssetHelper.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\Utils\FileHelper.h">
+    <ClInclude Include="src\Helpers\FilesHelper.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\Utils\GeometryBuilder.h">
+    <ClInclude Include="src\Helpers\GeometryBuilder.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\Utils\MathHelper.h">
+    <ClInclude Include="src\Helpers\MathHelper.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\Utils\PlatformUtils.h">
+    <ClInclude Include="src\Helpers\PlatformHelper.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\Utils\SerializationHelper.h">
+    <ClInclude Include="src\Helpers\SerializationHelper.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\Utils\stb_image.h">
+    <ClInclude Include="src\Helpers\stb_image.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\Core\Assets\Asset.h">
@@ -503,7 +503,7 @@
     <ClInclude Include="src\Platform\Rendering\OpenGL\OpenGLRenderingContext.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\Utils\RenderingHelper.h">
+    <ClInclude Include="src\Helpers\RenderingHelper.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\Platform\Rendering\OpenGL\Buffers\OpenGLVertexBuffer.h">
@@ -644,7 +644,7 @@
     <ClInclude Include="src\Core\Rendering\Passes\GrayscalePass.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\Utils\Serializable.h">
+    <ClInclude Include="src\Helpers\Serializable.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\Core\Assets\Factories\AssetFactory.h">

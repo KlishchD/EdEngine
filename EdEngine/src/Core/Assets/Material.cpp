@@ -3,7 +3,7 @@
 #include "Core/Rendering/Textures/Texture2D.h"
 #include "Core/Engine.h"
 #include "Core/Ed.h"
-#include "Utils/RenderingHelper.h"
+#include "Helpers/RenderingHelper.h"
 #include "AssetManager.h"
 
 Material::Material(const std::string& name) : Super(name)

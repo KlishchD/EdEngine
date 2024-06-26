@@ -1,4 +1,4 @@
-﻿#include "Utils/PlatformUtils.h"
+﻿#include "Helpers/PlatformHelper.h"
 #include <windows.h>
 #include <dwmapi.h>
 #include <string>
@@ -78,7 +78,7 @@ LRESULT CALLBACK WindowProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 	return CallWindowProc(original_proc, hWnd, uMsg, wParam, lParam);
 }
 
-std::string PlatformUtils::OpenFileWindow(const char* filter, Window& window, const char* title)
+std::string PlatformHelper::OpenFileWindow(const char* filter, Window& window, const char* title)
 {
     OPENFILENAMEA ofn;
 
@@ -100,7 +100,7 @@ std::string PlatformUtils::OpenFileWindow(const char* filter, Window& window, co
     return GetOpenFileNameA(&ofn) == TRUE ? filepath : "";
 }
 
-std::string PlatformUtils::SaveFileWindow(const char* filter, Window& window, const char* title)
+std::string PlatformHelper::SaveFileWindow(const char* filter, Window& window, const char* title)
 {
     OPENFILENAMEA ofn;
 
@@ -122,7 +122,7 @@ std::string PlatformUtils::SaveFileWindow(const char* filter, Window& window, co
     return GetSaveFileNameA(&ofn) == TRUE ? filepath : "";
 }
 
-void PlatformUtils::DisableTitleBar(Window& window)
+void PlatformHelper::DisableTitleBar(Window& window)
 {
 	HWND hWnd = glfwGetWin32Window((GLFWwindow*) window.GetNativeWindow());
 

@@ -14,8 +14,8 @@
 #include <glm/gtc/quaternion.hpp>
 #include <glm/gtx/matrix_transform_2d.hpp>
 
-#include "Utils/AssetUtils.h"
-#include "Utils/FileHelper.h"
+#include "Helpers/AssetHelper.h"
+#include "Helpers/FilesHelper.h"
 
 #include "Core/Macros.h"
 
@@ -41,11 +41,11 @@ void AssetManager::Initialize(Engine* engine)
     m_Factory.RegisterFactory<TemplatedAssetFactory<Material, AssetType::Material>>(AssetType::Material);
     m_Factory.RegisterFactory<TemplatedAssetFactory<StaticMesh, AssetType::StaticMesh>>(AssetType::StaticMesh);
 
-	std::filesystem::recursive_directory_iterator iterator(FileHelper::ContentFolderPath);
+	std::filesystem::recursive_directory_iterator iterator(FilesHelper::ContentFolderPath);
 	for (const std::filesystem::directory_entry& entry : iterator)
 	{
 		if (entry.is_directory()) continue;
-		if (std::string extension = entry.path().extension().string(); AssetUtils::IsAssetExtension(extension))
+		if (std::string extension = entry.path().extension().string(); AssetHelper::IsAssetExtension(extension))
 		{
 			std::string path = entry.path().string();
 
@@ -69,7 +69,7 @@ void AssetManager::Deinitialize()
     {
         std::shared_ptr<Asset>& asset = input.second;
         
-        std::string path = FileHelper::GetSavePath(asset->GetImportParameters()->Path, asset->GetType(), asset->GetName());
+        std::string path = FilesHelper::GetSavePath(asset->GetImportParameters()->Path, asset->GetType(), asset->GetName());
         
         ED_LOG(AssetManager, info, "Started saving asset: {}", path)
         
@@ -185,7 +185,8 @@ std::shared_ptr<Asset> AssetManager::LoadAsset(uint64_t id) const
 
     if (!asset->HasData())
     {
-        std::string path = FileHelper::GetSavePath(asset->GetImportParameters()->Path, asset->GetType(), asset->GetName());
+        std::string path = FilesHelper::GetSavePath(asset->GetImportParameters()->Path, asset->GetType(), asset->GetName());
+
         Archive archive(path, ArchiveMode::Read);
         archive & asset;
     }

@@ -2,7 +2,7 @@
 #include "SpotLightShadowPass.h"
 #include "SpotLightShadingPass.h"
 #include "SpotLightWireframePass.h"
-#include "Utils/GeometryBuilder.h"
+#include "Helpers/GeometryBuilder.h"
 
 void SpotLightMultiPass::Initialize(std::shared_ptr<RenderGraph> graph)
 {

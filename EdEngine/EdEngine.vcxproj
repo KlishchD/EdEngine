@@ -239,20 +239,20 @@
     <ClCompile Include="src\Platform\Rendering\OpenGL\Textures\OpenGLTexture2D.cpp" />
     <ClCompile Include="src\Platform\Rendering\OpenGL\OpenGLTypes.cpp" />
     <ClCompile Include="src\Platform\Rendering\OpenGL\Textures\OpenGLTexture2DArray.cpp" />
-    <ClCompile Include="src\Platform\WindowsPlatformUtils.cpp" />
+    <ClCompile Include="src\Platform\WindowsPlatformHelper.cpp" />
     <ClCompile Include="src\Core\Rendering\Framebuffer.cpp" />
     <ClCompile Include="src\Core\Rendering\Buffers\IndexBuffer.cpp" />
     <ClCompile Include="src\Core\Rendering\Renderer.cpp" />
     <ClCompile Include="src\Core\Rendering\Buffers\VertexBuffer.cpp" />
     <ClCompile Include="src\Core\Rendering\Buffers\VertexBufferLayout.cpp" />
-    <ClCompile Include="src\Utils\AssetUtils.cpp" />
-    <ClCompile Include="src\Utils\FileHelper.cpp" />
-    <ClCompile Include="src\Utils\GeometryBuilder.cpp" />
-    <ClCompile Include="src\Utils\MathHelper.cpp" />
-    <ClCompile Include="src\Utils\RenderingHelper.cpp" />
-    <ClCompile Include="src\Utils\Serializable.cpp" />
-    <ClCompile Include="src\Utils\SerializationHelper.cpp" />
-    <ClCompile Include="src\Utils\stb_image.cpp" />
+    <ClCompile Include="src\Helpers\AssetHelper.cpp" />
+    <ClCompile Include="src\Helpers\FilesHelper.cpp" />
+    <ClCompile Include="src\Helpers\GeometryBuilder.cpp" />
+    <ClCompile Include="src\Helpers\MathHelper.cpp" />
+    <ClCompile Include="src\Helpers\RenderingHelper.cpp" />
+    <ClCompile Include="src\Helpers\Serializable.cpp" />
+    <ClCompile Include="src\Helpers\SerializationHelper.cpp" />
+    <ClCompile Include="src\Helpers\stb_image.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Dependencies\ImGui\backends\imgui_impl_glfw.h" />
@@ -361,15 +361,15 @@
     <ClInclude Include="src\Platform\Rendering\OpenGL\Textures\OpenGLTexture2D.h" />
     <ClInclude Include="src\Platform\Rendering\OpenGL\OpenGLTypes.h" />
     <ClInclude Include="src\Platform\Rendering\OpenGL\Textures\OpenGLTexture2DArray.h" />
-    <ClInclude Include="src\Utils\AssetUtils.h" />
-    <ClInclude Include="src\Utils\FileHelper.h" />
-    <ClInclude Include="src\Utils\GeometryBuilder.h" />
-    <ClInclude Include="src\Utils\MathHelper.h" />
-    <ClInclude Include="src\Utils\PlatformUtils.h" />
-    <ClInclude Include="src\Utils\RenderingHelper.h" />
-    <ClInclude Include="src\Utils\Serializable.h" />
-    <ClInclude Include="src\Utils\SerializationHelper.h" />
-    <ClInclude Include="src\Utils\stb_image.h" />
+    <ClInclude Include="src\Helpers\AssetHelper.h" />
+    <ClInclude Include="src\Helpers\FilesHelper.h" />
+    <ClInclude Include="src\Helpers\GeometryBuilder.h" />
+    <ClInclude Include="src\Helpers\MathHelper.h" />
+    <ClInclude Include="src\Helpers\PlatformHelper.h" />
+    <ClInclude Include="src\Helpers\RenderingHelper.h" />
+    <ClInclude Include="src\Helpers\Serializable.h" />
+    <ClInclude Include="src\Helpers\SerializationHelper.h" />
+    <ClInclude Include="src\Helpers\stb_image.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Dependencies\ImGui\.editorconfig" />

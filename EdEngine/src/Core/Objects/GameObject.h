@@ -1,7 +1,7 @@
 ﻿#pragma once
 
 #include "Class.h"
-#include "Utils/Serializable.h" // TODO: Move to core
+#include "Helpers/Serializable.h" // TODO: Move to core
 
 class GameObject : public Serializable
 {

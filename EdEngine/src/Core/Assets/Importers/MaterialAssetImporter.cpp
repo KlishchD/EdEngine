@@ -6,8 +6,8 @@
 #include <assimp/postprocess.h>
 #include <assimp/scene.h>
 #include <assimp/material.h>
-#include "Utils/FileHelper.h"
-#include "Utils/RenderingHelper.h"
+#include "Helpers/FilesHelper.h"
+#include "Helpers/RenderingHelper.h"
 
 MaterialAssetImporter::MaterialAssetImporter(std::shared_ptr<AssetManager> manager) : AssetImporter(manager)
 {
@@ -61,7 +61,8 @@ std::shared_ptr<Material> MaterialAssetImporter::ImportMaterial(const aiMaterial
 
 	material->SetImportParameters(parameters);
 
-	std::string savePath = FileHelper::GetSavePath(parameters->Path, AssetType::Material, material->GetName());
+	std::string savePath = FilesHelper::GetSavePath(parameters->Path, AssetType::Material, material->GetName());
+
 	Archive archive(savePath, ArchiveMode::Write);
 	archive & material;
 

@@ -1,4 +1,4 @@
-﻿#include "AssetUtils.h"
+﻿#include "AssetHelper.h"
 #include "Core/Engine.h"
 #include "Core/Assets/AssetManager.h"
 #include "Core/Assets/StaticMesh.h"
@@ -8,7 +8,7 @@
 #include "RenderingHelper.h"
 #include "Core/Macros.h"
 
-AssetType AssetUtils::GetAssetTypeFromExtension(const std::string& extension)
+AssetType AssetHelper::GetAssetTypeFromExtension(const std::string& extension)
 {
 	if (extension == ".edmesh")
 	{
@@ -26,12 +26,12 @@ AssetType AssetUtils::GetAssetTypeFromExtension(const std::string& extension)
     ED_ASSERT(0, "Unknown extension")
 }
 
-bool AssetUtils::IsAssetExtension(const std::string& extension)
+bool AssetHelper::IsAssetExtension(const std::string& extension)
 {
 	return extension == ".edmesh" || extension == ".edmaterial" || extension == ".edtexture";
 }
 
-std::string AssetUtils::GetAssetNameLable(std::shared_ptr<Asset> asset)
+std::string AssetHelper::GetAssetNameLable(std::shared_ptr<Asset> asset)
 {
 	return asset ? asset->GetName() + "##" + std::to_string((int32_t)asset.get()) : "None";
 }

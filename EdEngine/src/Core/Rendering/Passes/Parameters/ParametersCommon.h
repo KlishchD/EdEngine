@@ -1,7 +1,7 @@
 #pragma once
 
 #include "Core/Rendering/RenderGraph.h"
-#include "Utils/RenderingHelper.h"
+#include "Helpers/RenderingHelper.h"
 
 template<typename T>
 class Ref

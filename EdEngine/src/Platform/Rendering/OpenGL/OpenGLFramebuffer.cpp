@@ -1,6 +1,6 @@
 #include "OpenGLFramebuffer.h"
 #include "Core/Rendering/EdRendering.h"
-#include "Utils/RenderingHelper.h"
+#include "Helpers/RenderingHelper.h"
 #include "Core/Macros.h"
 
 OpenGLFramebuffer::OpenGLFramebuffer(const FramebufferSpecification& specification) : Framebuffer(specification)

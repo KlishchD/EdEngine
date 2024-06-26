@@ -2,7 +2,7 @@
 #include "Core/Ed.h"
 #include "Core/Rendering/Buffers/VertexBuffer.h"
 #include "Core/Rendering/Buffers/IndexBuffer.h"
-#include "Utils/RenderingHelper.h"
+#include "Helpers/RenderingHelper.h"
 
 StaticSubmesh::StaticSubmesh(const std::string& name) : Super(name)
 {

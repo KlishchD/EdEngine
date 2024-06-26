@@ -5,7 +5,7 @@
 #include "Core/Components/StaticMeshComponent.h"
 #include "Core/Components/PointLightComponent.h"
 #include "Core/Components/SpotLightComponent.h"
-#include "Utils/AssetUtils.h"
+#include "Helpers/AssetHelper.h"
 #include <imgui.h>
 #include <glm/gtc/type_ptr.hpp>
 
@@ -73,7 +73,7 @@ void ComponentDetailsWidget::StaticMeshDetails()
                 
                 for (const auto& asset: m_AssetManager->GetAssets<StaticMesh>(AssetType::StaticMesh))
                 {
-                    if (ImGui::Selectable(AssetUtils::GetAssetNameLable(asset).c_str(), mesh == asset))
+                    if (ImGui::Selectable(AssetHelper::GetAssetNameLable(asset).c_str(), mesh == asset))
                     {
                         m_AssetManager->LoadAsset(asset->GetId());
                         component->SetStaticMesh(asset);
@@ -108,7 +108,7 @@ void ComponentDetailsWidget::StaticMeshDetails()
                         }
                         for (const auto& asset: m_AssetManager->GetAssets<Material>(AssetType::Material))
                         {
-                            if (ImGui::Selectable(AssetUtils::GetAssetNameLable(asset).c_str(), material == asset))
+                            if (ImGui::Selectable(AssetHelper::GetAssetNameLable(asset).c_str(), material == asset))
                             {
                                 m_AssetManager->LoadAsset(asset->GetId());
                                 submesh->SetMaterial(asset);

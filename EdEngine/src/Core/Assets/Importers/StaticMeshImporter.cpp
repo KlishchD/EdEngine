@@ -4,7 +4,7 @@
 #include <assimp/postprocess.h>
 #include <assimp/scene.h>
 #include <assimp/material.h>
-#include "Utils/FileHelper.h"
+#include "Helpers/FilesHelper.h"
 
 StaticMeshImporter::StaticMeshImporter(std::shared_ptr<AssetManager> manager) : AssetImporter(manager)
 {
@@ -115,7 +115,8 @@ std::shared_ptr<StaticMesh> StaticMeshImporter::CreateMesh(std::shared_ptr<Stati
 	
 	mesh->SetImportParameters(parameters);
 	
-	std::string savePath = FileHelper::GetSavePath(parameters->Path, AssetType::StaticMesh, submesh->GetName());
+	std::string savePath = FilesHelper::GetSavePath(parameters->Path, AssetType::StaticMesh, submesh->GetName());
+
 	Archive archive(savePath, ArchiveMode::Write);
 	archive & mesh;
 	
@@ -131,7 +132,8 @@ std::shared_ptr<StaticMesh> StaticMeshImporter::CreateMesh(std::vector<std::shar
 	
 	mesh->SetImportParameters(parameters);
 	
-	std::string savePath = FileHelper::GetSavePath(parameters->Path, AssetType::StaticMesh);
+	std::string savePath = FilesHelper::GetSavePath(parameters->Path, AssetType::StaticMesh);
+
 	Archive archive(savePath, ArchiveMode::Write);
 	archive & mesh;
 	

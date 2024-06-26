@@ -1,5 +1,5 @@
 #include "DirectionalLightShadowPass.h"
-#include "Utils/MathHelper.h"
+#include "Helpers/MathHelper.h"
 
 void DirectionalLightShadowPass::Initialize(std::shared_ptr<RenderGraph> graph)
 {

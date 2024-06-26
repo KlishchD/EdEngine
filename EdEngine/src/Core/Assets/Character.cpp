@@ -1,5 +1,5 @@
 ﻿#include "Character.h"
-#include "Utils/RenderingHelper.h"
+#include "Helpers/RenderingHelper.h"
 
 Character::Character(FT_GlyphSlot glyph): m_Bearing(glyph->bitmap_left, glyph->bitmap_top), m_Advance(glyph->advance.x, glyph->advance.y)
 {
