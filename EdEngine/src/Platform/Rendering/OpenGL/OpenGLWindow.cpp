@@ -42,10 +42,6 @@ OpenGLWindow::OpenGLWindow(WindowSpecification specification): Window(specificat
 		ED_ASSERT(0, "Failed to initialize GLEW")
 	}
 
-	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
-	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 6);
-	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
-
 	s_Windows.push_back(this);
 
 	glfwSetWindowSizeCallback(m_Window, [](GLFWwindow* inWindow, int width, int height)
@@ -91,7 +87,7 @@ OpenGLWindow::OpenGLWindow(WindowSpecification specification): Window(specificat
 	ImGui::StyleColorsClassic();
 
 	ImGui_ImplGlfw_InitForOpenGL(m_Window, true);
-	ImGui_ImplOpenGL3_Init("#version 460 core");
+	ImGui_ImplOpenGL3_Init("#version 460");
 
 	m_Context = std::make_shared<OpenGLRenderingContext>(this);
 
