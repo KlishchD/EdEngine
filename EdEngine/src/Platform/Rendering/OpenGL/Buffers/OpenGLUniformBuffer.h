@@ -1,22 +1,20 @@
 #pragma once
 
-#include "Core/Rendering/Buffers/IndexBuffer.h"
+#include "Core/Rendering/Buffers/UniformBuffer.h"
 
-class OpenGLIndexBuffer : public IndexBuffer
+class OpenGLUniformBuffer : public UniformBuffer
 {
 public:
-	OpenGLIndexBuffer();
+	OpenGLUniformBuffer();
 
 	virtual void SetData(void* data, BufferUsage usage) override;
 	virtual void SetData(void* data, int32_t size, BufferUsage usage) override;
 
 	virtual void SetSubdata(uint32_t offset, uint32_t size, void* data) override;
-    
-	virtual uint32_t GetCount() override;
 
 	uint32_t GetID() const;
 
-	virtual ~OpenGLIndexBuffer() override;
-private:
+	virtual ~OpenGLUniformBuffer() override;
+protected:
 	uint32_t m_Id = 0;
 };

@@ -19,17 +19,23 @@ void OpenGLVertexBuffer::SetLayout(const VertexBufferLayout& layout)
 
 void OpenGLVertexBuffer::SetData(void* data, BufferUsage usage)
 {
+	ED_ASSERT(m_Id, "This buffer was not yet initialized");
+	ED_ASSERT(m_Size, "Size was not yet provided for this buffer");
 	glNamedBufferData(m_Id, m_Size, data, OpenGLTypes::ConvertBufferUsage(usage));
 }
 
 void OpenGLVertexBuffer::SetData(void* data, int32_t size, BufferUsage usage)
 {
+	ED_ASSERT(m_Id, "This buffer was not yet initialized");
+
 	m_Size = size;
 	glNamedBufferData(m_Id, size, data, OpenGLTypes::ConvertBufferUsage(usage));
 }
 
 void OpenGLVertexBuffer::SetSubdata(uint32_t offset, uint32_t size, void* data)
 {
+	ED_ASSERT(m_Id, "This buffer was not yet initialized");
+	ED_ASSERT(offset + size <= m_Size, "Attemted to put data outside of the buffer");
 	glNamedBufferSubData(m_Id, offset, size, data);
 }
 

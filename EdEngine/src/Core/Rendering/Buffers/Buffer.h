@@ -11,5 +11,9 @@ public:
 
 	virtual void SetSubdata(uint32_t offset, uint32_t size, void* data) = 0;
 
+	uint32_t GetSize() const;
+
 	virtual ~Buffer() = default;
+protected:
+	uint32_t m_Size = 0;
 };

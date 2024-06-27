@@ -8,6 +8,7 @@
 class Texture;
 class Shader;
 class Framebuffer;
+class UniformBuffer;
 class VertexBuffer;
 class IndexBuffer;
 
@@ -19,8 +20,8 @@ public:
 	virtual void SetDefaultFramebuffer() = 0;
 	virtual void SetFramebuffer(std::shared_ptr<Framebuffer> framebuffer) = 0;
 
+	virtual void SetUniformBuffer(std::shared_ptr<UniformBuffer> buffer, uint32_t location) = 0;
 	virtual void SetVertexBuffer(std::shared_ptr<VertexBuffer> buffer) = 0;
-
 	virtual void SetIndexBuffer(std::shared_ptr<IndexBuffer> buffer) = 0;
 
 	virtual void SetShader(std::shared_ptr<Shader> shader) = 0;
