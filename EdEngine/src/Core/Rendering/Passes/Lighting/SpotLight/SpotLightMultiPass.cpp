@@ -6,7 +6,7 @@
 
 void SpotLightMultiPass::Initialize(std::shared_ptr<RenderGraph> graph)
 {
-	MultiPassRenderPass<SpotLightMultiPassParameters, ShaderParameters>::Initialize(graph);
+	MultiPassRenderPass<SpotLightMultiPassParameters>::Initialize(graph);
 
 	m_Parameters.Name = "Spot Light MultiPass";
 
@@ -20,7 +20,7 @@ void SpotLightMultiPass::Initialize(std::shared_ptr<RenderGraph> graph)
 
 void SpotLightMultiPass::Execute()
 {
-	MultiPassRenderPass<SpotLightMultiPassParameters, ShaderParameters>::Execute();
+	MultiPassRenderPass<SpotLightMultiPassParameters>::Execute();
 
 	for (const std::shared_ptr<SpotLightComponent>& light : m_Parameters.Lights.Get())
 	{

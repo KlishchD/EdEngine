@@ -4,14 +4,14 @@
 
 void DirectionalLightMultiPass::Initialize(std::shared_ptr<RenderGraph> graph)
 {
-	MultiPassRenderPass<DirectionalLightMultiPassParameters, ShaderParameters>::Initialize(graph);
+	MultiPassRenderPass<DirectionalLightMultiPassParameters>::Initialize(graph);
 
 	m_Parameters.Name = "Directional Light MultiPass";
 }
 
 void DirectionalLightMultiPass::Execute()
 {
-	MultiPassRenderPass<DirectionalLightMultiPassParameters, ShaderParameters>::Execute();
+	MultiPassRenderPass<DirectionalLightMultiPassParameters>::Execute();
 
 	for (const std::shared_ptr<DirectionalLightComponent>& light : m_Parameters.Lights.Get())
 	{

@@ -12,7 +12,6 @@ public:
 	virtual void Execute();
 
 	virtual RenderPassParameters& GetBaseParameters() = 0;
-	virtual ShaderParameters& GetBaseShaderParameters() = 0;
 
 	RenderPassType GetType() { return GetBaseParameters().Type; }
 
@@ -22,8 +21,14 @@ protected:
 	std::shared_ptr<RenderingContext> m_Context;
 };
 
+class BaseRegularRenderPass : public BaseRenderPass
+{
+public:
+	virtual ShaderParameters& GetBaseShaderParameters() = 0;
+};
+
 template<typename ParameterStruct, typename ShaderParametersStruct>
-class RenderPass : public BaseRenderPass
+class RenderPass : public BaseRegularRenderPass
 {
 public:
 	virtual RenderPassParameters& GetBaseParameters() override { return m_Parameters; }
@@ -82,16 +87,13 @@ protected:
 	std::vector<std::shared_ptr<BaseRenderPass>> m_Passes;
 };
 
-template<typename ParameterStruct, typename ShaderParametersStruct>
+template<typename ParameterStruct>
 class MultiPassRenderPass : public BaseMultiPassRenderPass
 {
 public:
 	virtual RenderPassParameters& GetBaseParameters() override { return m_Parameters; }
-	virtual ShaderParameters& GetBaseShaderParameters() override { return m_ShaderParameters; }
 
 	const ParameterStruct& GetParameters() const { return m_Parameters; }
-	const ShaderParametersStruct& GetShaderParameters() const { return m_ShaderParameters; }
 protected:
 	ParameterStruct m_Parameters;
-	ShaderParametersStruct m_ShaderParameters;
 };

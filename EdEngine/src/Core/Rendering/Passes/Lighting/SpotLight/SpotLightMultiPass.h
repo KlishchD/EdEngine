@@ -17,7 +17,7 @@ ED_BEGIN_RENDER_PASS_PARAMETERS_DECLARATION(SpotLightMultiPass, Multi)
 
 ED_END_RENDER_PASS_PARAMETERS_DECLARATION()
 
-class SpotLightMultiPass : public MultiPassRenderPass<SpotLightMultiPassParameters, ShaderParameters>
+class SpotLightMultiPass : public MultiPassRenderPass<SpotLightMultiPassParameters>
 {
 	static const int32_t SpotLightMeshSectorsCount = 50;
 public:

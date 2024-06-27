@@ -6,7 +6,7 @@
 
 void PointLightMultiPass::Initialize(std::shared_ptr<RenderGraph> graph)
 {
-	MultiPassRenderPass<PointLightMultiPassParameters, ShaderParameters>::Initialize(graph);
+	MultiPassRenderPass<PointLightMultiPassParameters>::Initialize(graph);
 
 	m_Parameters.Name = "Point Light MultiPass";
 
@@ -20,7 +20,7 @@ void PointLightMultiPass::Initialize(std::shared_ptr<RenderGraph> graph)
 
 void PointLightMultiPass::Execute()
 {
-	MultiPassRenderPass<PointLightMultiPassParameters, ShaderParameters>::Execute();
+	MultiPassRenderPass<PointLightMultiPassParameters>::Execute();
 
 	for (const std::shared_ptr<PointLightComponent>& light : m_Parameters.Lights.Get())
 	{
