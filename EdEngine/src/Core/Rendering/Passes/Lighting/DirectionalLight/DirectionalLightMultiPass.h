@@ -11,7 +11,7 @@ ED_BEGIN_RENDER_PASS_PARAMETERS_DECLARATION(DirectionalLightMultiPass, Multi)
 
 ED_END_RENDER_PASS_PARAMETERS_DECLARATION()
 
-class DirectionalLightMultiPass : public MultiPassRenderPass<DirectionalLightMultiPassParameters, ShaderParameters>
+class DirectionalLightMultiPass : public MultiPassRenderPass<DirectionalLightMultiPassParameters>
 {
 public:
 	virtual void Initialize(std::shared_ptr<RenderGraph> graph) override;

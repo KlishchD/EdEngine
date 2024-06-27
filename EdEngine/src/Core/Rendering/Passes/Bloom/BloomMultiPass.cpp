@@ -4,14 +4,14 @@
 
 void BloomMultiPass::Initialize(std::shared_ptr<RenderGraph> graph)
 {
-	MultiPassRenderPass<BloomMultiPassParameters, ShaderParameters>::Initialize(graph);
+	MultiPassRenderPass<BloomMultiPassParameters>::Initialize(graph);
 
 	m_Parameters.DownscaleCount = 4;
 }
 
 void BloomMultiPass::Execute()
 {
-	MultiPassRenderPass<BloomMultiPassParameters, ShaderParameters>::Execute();
+	MultiPassRenderPass<BloomMultiPassParameters>::Execute();
 
 	if (m_Renderer->IsBloomEnabled())
 	{

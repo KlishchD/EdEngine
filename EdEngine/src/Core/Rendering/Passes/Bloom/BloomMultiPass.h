@@ -8,7 +8,7 @@ ED_BEGIN_RENDER_PASS_PARAMETERS_DECLARATION(BloomMultiPass, Multi)
 
 ED_END_RENDER_PASS_PARAMETERS_DECLARATION()
 
-class BloomMultiPass : public MultiPassRenderPass<BloomMultiPassParameters, ShaderParameters>
+class BloomMultiPass : public MultiPassRenderPass<BloomMultiPassParameters>
 {
 public:
 	static const uint32_t MaxBloomDownscalingCount = 8;

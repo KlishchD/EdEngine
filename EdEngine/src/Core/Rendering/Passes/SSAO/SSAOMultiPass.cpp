@@ -4,7 +4,7 @@
 
 void SSAOMultiPass::Execute()
 {
-	MultiPassRenderPass<MultiRenderPassParameters, ShaderParameters>::Execute();
+	MultiPassRenderPass<MultiRenderPassParameters>::Execute();
 
 	if (m_Renderer->IsSSAOEnabled())
 	{

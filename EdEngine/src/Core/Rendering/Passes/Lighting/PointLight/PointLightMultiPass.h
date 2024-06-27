@@ -17,7 +17,7 @@ ED_BEGIN_RENDER_PASS_PARAMETERS_DECLARATION(PointLightMultiPass, Multi)
 
 ED_END_RENDER_PASS_PARAMETERS_DECLARATION()
 
-class PointLightMultiPass : public MultiPassRenderPass<PointLightMultiPassParameters, ShaderParameters>
+class PointLightMultiPass : public MultiPassRenderPass<PointLightMultiPassParameters>
 {
 	static const uint32_t PointLightMeshSectorsCount = 30;
 	static const uint32_t PointLightMeshStackCount = 30;
