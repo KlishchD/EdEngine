@@ -4,14 +4,15 @@
 
 class OpenGLRenderingContext : public RenderingContext
 {
+	static const inline uint8_t MaxUniformBufferLocations = 14;
 public:
 	OpenGLRenderingContext(class Window* window);
 
 	virtual void SetDefaultFramebuffer() override;
 	virtual void SetFramebuffer(std::shared_ptr<Framebuffer> framebuffer) override;
 
+	virtual void SetUniformBuffer(std::shared_ptr<UniformBuffer> buffer, uint32_t location) override;
 	virtual void SetVertexBuffer(std::shared_ptr<VertexBuffer> buffer) override;
-	
 	virtual void SetIndexBuffer(std::shared_ptr<IndexBuffer> buffer) override;
 
 	virtual void SetShader(std::shared_ptr<Shader> shader) override;
@@ -76,6 +77,7 @@ public:
 private:
 	std::shared_ptr<VertexBuffer> m_VBO;
 	std::shared_ptr<IndexBuffer> m_IBO;
+	std::shared_ptr<UniformBuffer> m_UnifromBuffers[MaxUniformBufferLocations];
 
 	std::shared_ptr<Shader> m_Shader;
 	int32_t m_ShaderID;

@@ -14,6 +14,8 @@
 
 class VertexBuffer;
 class IndexBuffer;
+class UniformBuffer;
+
 class RenderingContext;
 
 class Texture;
@@ -48,6 +50,12 @@ public:
 	static std::shared_ptr<VertexBuffer> CreateCubeVertexBuffer();
 
 	static std::shared_ptr<IndexBuffer> CreateIndexBuffer(void* data, uint32_t size, BufferUsage usage);
+
+	static std::shared_ptr<UniformBuffer> CreateUniformBuffer();
+	static std::shared_ptr<UniformBuffer> CreateUniformBuffer(void* data, uint32_t size, BufferUsage usage);
+
+	template<typename T>
+	static std::shared_ptr<UniformBuffer> CreateUniformBuffer(T* data, BufferUsage usage);
 
 	static std::shared_ptr<Shader> CreateShader(const std::string& path);
 
@@ -93,5 +101,6 @@ private:
 	static std::shared_ptr<Texture2DImportParameters> GetRenderTargetTexture2DImportParameters(FramebufferAttachmentType type);
 	static std::shared_ptr<CubeTextureImportParameters> GetRenderTargetCubeTextureImportParameters(FramebufferAttachmentType type);
 	static std::shared_ptr<Texture2DArrayImportParameters> GetRenderTargetTexture2DArrayImportParameters(FramebufferAttachmentType type);
-
 };
+
+#include "RenderingHelper.hpp"

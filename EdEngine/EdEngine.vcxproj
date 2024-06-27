@@ -165,6 +165,8 @@
     <ClCompile Include="src\Core\Assets\ImportParameters\AssetImportParameters.cpp" />
     <ClCompile Include="src\Core\Assets\ImportParameters\StaticMeshImportParameters.cpp" />
     <ClCompile Include="src\Core\Assets\ImportParameters\TextureImportParameters.cpp" />
+    <ClCompile Include="src\Core\Rendering\Buffers\Buffer.cpp" />
+    <ClCompile Include="src\Core\Rendering\Buffers\UniformBuffer.cpp" />
     <ClCompile Include="src\Core\Rendering\Passes\Bloom\BloomDownscalePass.cpp" />
     <ClCompile Include="src\Core\Rendering\Passes\Bloom\BloomMultiPass.cpp" />
     <ClCompile Include="src\Core\Rendering\Passes\Bloom\BloomUpscalePass.cpp" />
@@ -229,6 +231,7 @@
     <ClCompile Include="src\Core\Widget.cpp" />
     <ClCompile Include="src\Core\Window.cpp" />
     <ClCompile Include="src\Platform\Rendering\OpenGL\Buffers\OpenGLIndexBuffer.cpp" />
+    <ClCompile Include="src\Platform\Rendering\OpenGL\Buffers\OpenGLUniformBuffer.cpp" />
     <ClCompile Include="src\Platform\Rendering\OpenGL\Buffers\OpenGLVertexBuffer.cpp" />
     <ClCompile Include="src\Platform\Rendering\OpenGL\OpenGLFramebuffer.cpp" />
     <ClCompile Include="src\Platform\Rendering\OpenGL\OpenGLRenderingContext.cpp" />
@@ -284,6 +287,7 @@
     <ClInclude Include="src\Core\Components\SpotLightComponent.h" />
     <ClInclude Include="src\Core\Objects\Class.h" />
     <ClInclude Include="src\Core\Objects\PlayerActor.h" />
+    <ClInclude Include="src\Core\Rendering\Buffers\UniformBuffer.h" />
     <ClInclude Include="src\Core\Rendering\EdRendering.h" />
     <ClInclude Include="src\Core\Rendering\Passes\Bloom\BloomDownscalePass.h" />
     <ClInclude Include="src\Core\Rendering\Passes\Bloom\BloomMultiPass.h" />
@@ -350,7 +354,9 @@
     <ClInclude Include="src\Core\Rendering\Types.h" />
     <ClInclude Include="src\Core\Rendering\Buffers\VertexBuffer.h" />
     <ClInclude Include="src\Core\Rendering\Buffers\VertexBufferLayout.h" />
+    <ClInclude Include="src\Helpers\RenderingHelper.hpp" />
     <ClInclude Include="src\Platform\Rendering\OpenGL\Buffers\OpenGLIndexBuffer.h" />
+    <ClInclude Include="src\Platform\Rendering\OpenGL\Buffers\OpenGLUniformBuffer.h" />
     <ClInclude Include="src\Platform\Rendering\OpenGL\Buffers\OpenGLVertexBuffer.h" />
     <ClInclude Include="src\Platform\Rendering\OpenGL\OpenGLFramebuffer.h" />
     <ClInclude Include="src\Platform\Rendering\OpenGL\OpenGLRenderingContext.h" />

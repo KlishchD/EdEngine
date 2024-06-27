@@ -2,6 +2,7 @@
 #include "Platform/Rendering/OpenGL/OpenGLFramebuffer.h"
 #include "Platform/Rendering/OpenGL/Buffers/OpenGLVertexBuffer.h"
 #include "Platform/Rendering/OpenGL/Buffers/OpenGLIndexBuffer.h"
+#include "Platform/Rendering/OpenGL/Buffers/OpenGLUniformBuffer.h"
 #include "Platform/Rendering/OpenGL/OpenGLRenderingContext.h"
 #include "Platform/Rendering/OpenGL/OpenGLShader.h"
 #include "Platform/Rendering/OpenGL/OpenGLWindow.h"
@@ -81,6 +82,18 @@ std::shared_ptr<IndexBuffer> RenderingHelper::CreateIndexBuffer(void* data, uint
 	std::shared_ptr<IndexBuffer> buffer = std::make_shared<OpenGLIndexBuffer>();
 	buffer->SetData(data, size, usage);
 
+	return buffer;
+}
+
+std::shared_ptr<UniformBuffer> RenderingHelper::CreateUniformBuffer()
+{
+	return std::make_shared<OpenGLUniformBuffer>();
+}
+
+std::shared_ptr<UniformBuffer> RenderingHelper::CreateUniformBuffer(void* data, uint32_t size, BufferUsage usage)
+{
+	std::shared_ptr<UniformBuffer> buffer = CreateUniformBuffer();
+	buffer->SetData(data, size, usage);
 	return buffer;
 }
 

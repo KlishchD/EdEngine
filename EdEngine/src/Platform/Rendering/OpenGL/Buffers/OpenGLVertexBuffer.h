@@ -21,6 +21,5 @@ public:
 	~OpenGLVertexBuffer();
 protected:
 	uint32_t m_Id = 0;
-	uint32_t m_Size;
 	uint32_t m_VertexSize;
 };

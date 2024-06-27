@@ -5,6 +5,7 @@
 #include "Core/Macros.h"
 #include "Buffers/OpenGLVertexBuffer.h"
 #include "Buffers/OpenGLIndexBuffer.h"
+#include "Buffers/OpenGLUniformBuffer.h"
 #include "OpenGLTypes.h"
 #include "OpenGLShader.h"
 #include <glm/gtc/type_ptr.hpp>
@@ -22,6 +23,16 @@ void OpenGLRenderingContext::SetFramebuffer(std::shared_ptr<Framebuffer> framebu
 {
 	glBindFramebuffer(GL_FRAMEBUFFER, framebuffer->GetID());
 	glViewport(0, 0, framebuffer->GetWidth(), framebuffer->GetHeight());
+}
+
+void OpenGLRenderingContext::SetUniformBuffer(std::shared_ptr<UniformBuffer> buffer, uint32_t location)
+{
+	ED_ASSERT(location >= 0 && location < MaxUniformBufferLocations, "Invalid uniform binding location");
+
+	m_UnifromBuffers[location] = buffer;
+
+	std::shared_ptr<OpenGLUniformBuffer> castedBuffer = std::static_pointer_cast<OpenGLUniformBuffer>(buffer);
+	glBindBufferRange(GL_UNIFORM_BUFFER, location, castedBuffer->GetID(), 0, castedBuffer->GetSize());
 }
 
 void OpenGLRenderingContext::SetVertexBuffer(std::shared_ptr<VertexBuffer> buffer)
