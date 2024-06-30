@@ -113,12 +113,13 @@
     <ClCompile>
       <WarningLevel>Level1</WarningLevel>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>GLEW_STATIC;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>GLEW_STATIC;_DEBUG;_CONSOLE;%(PreprocessorDefinitions);</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>$(SolutionDir)EdEngine\Dependencies\ImGui;$(SolutionDir)EdEngine\src;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)EdEngine\Dependencies\ImGui;$(SolutionDir)EdEngine\src;$(SolutionDir)\Dependencies\SpirV-Tools\include</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp20</LanguageStandard>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <InlineFunctionExpansion>Disabled</InlineFunctionExpansion>
+      <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -135,7 +136,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>GLEW_STATIC;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>$(SolutionDir)EdEngine\Dependencies\ImGui;$(SolutionDir)EdEngine\src;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)EdEngine\Dependencies\ImGui;$(SolutionDir)EdEngine\src;$(SolutionDir)\Dependencies\SpirV-Tools\include</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp20</LanguageStandard>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
     </ClCompile>
@@ -207,6 +208,7 @@
     <ClCompile Include="src\Core\Rendering\Passes\GBufferPass.cpp" />
     <ClCompile Include="src\Core\Rendering\Passes\ResolutionPass.cpp" />
     <ClCompile Include="src\Core\Rendering\Passes\TAAPass.cpp" />
+    <ClCompile Include="src\Core\Rendering\ShaderProgram.cpp" />
     <ClCompile Include="src\Core\Rendering\Textures\Sampler.cpp" />
     <ClCompile Include="src\Core\Rendering\Shader.cpp" />
     <ClCompile Include="src\Core\Assets\StaticMesh.cpp" />
@@ -236,6 +238,7 @@
     <ClCompile Include="src\Platform\Rendering\OpenGL\OpenGLFramebuffer.cpp" />
     <ClCompile Include="src\Platform\Rendering\OpenGL\OpenGLRenderingContext.cpp" />
     <ClCompile Include="src\Platform\Rendering\OpenGL\OpenGLShader.cpp" />
+    <ClCompile Include="src\Platform\Rendering\OpenGL\OpenGLShaderProgram.cpp" />
     <ClCompile Include="src\Platform\Rendering\OpenGL\OpenGLWindow.cpp" />
     <ClCompile Include="src\Platform\Rendering\OpenGL\Textures\OpenGLCubeTexture.cpp" />
     <ClCompile Include="src\Platform\Rendering\OpenGL\Textures\OpenGLSampler.cpp" />
@@ -321,6 +324,7 @@
     <ClInclude Include="src\Core\Rendering\Passes\GBufferPass.h" />
     <ClInclude Include="src\Core\Rendering\Passes\ResolutionPass.h" />
     <ClInclude Include="src\Core\Rendering\Passes\TAAPass.h" />
+    <ClInclude Include="src\Core\Rendering\ShaderProgram.h" />
     <ClInclude Include="src\Core\Rendering\Textures\Sampler.h" />
     <ClInclude Include="src\Core\Rendering\Shader.h" />
     <ClInclude Include="src\Core\Assets\StaticMesh.h" />
@@ -358,9 +362,11 @@
     <ClInclude Include="src\Platform\Rendering\OpenGL\Buffers\OpenGLIndexBuffer.h" />
     <ClInclude Include="src\Platform\Rendering\OpenGL\Buffers\OpenGLUniformBuffer.h" />
     <ClInclude Include="src\Platform\Rendering\OpenGL\Buffers\OpenGLVertexBuffer.h" />
+    <ClInclude Include="src\Platform\Rendering\OpenGL\DirStackFileIncluder.h" />
     <ClInclude Include="src\Platform\Rendering\OpenGL\OpenGLFramebuffer.h" />
     <ClInclude Include="src\Platform\Rendering\OpenGL\OpenGLRenderingContext.h" />
     <ClInclude Include="src\Platform\Rendering\OpenGL\OpenGLShader.h" />
+    <ClInclude Include="src\Platform\Rendering\OpenGL\OpenGLShaderProgram.h" />
     <ClInclude Include="src\Platform\Rendering\OpenGL\OpenGLWindow.h" />
     <ClInclude Include="src\Platform\Rendering\OpenGL\Textures\OpenGLCubeTexture.h" />
     <ClInclude Include="src\Platform\Rendering\OpenGL\Textures\OpenGLSampler.h" />
@@ -386,6 +392,13 @@
   </ItemGroup>
   <ItemGroup>
     <Text Include="Dependencies\ImGui\LICENSE.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <Text Include="..\resources\shaders\deferred\geometry-pass.hlsl">
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Release|x64'">6.0</ShaderModel>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+      <FileType>Document</FileType>
+    </Text>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

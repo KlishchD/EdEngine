@@ -5,7 +5,6 @@ void FXAAPass::Initialize(std::shared_ptr<RenderGraph> graph)
 	RenderPass<FXAAPassParameters, FXAAPassShaderParameters>::Initialize(graph);
 
 	m_Parameters.Name = "FXAA pass";
-	m_Parameters.Shader = RenderingHelper::CreateShader("shaders\\AA\\FXAA.glsl");
 
 	m_Parameters.Output = RenderingHelper::CreateRenderTarget<Texture2D>({ "FXAA.Output", FramebufferAttachmentType::Color16 }, TextureType::Texture2D);
 

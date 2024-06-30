@@ -3,7 +3,7 @@
 #include <memory>
 #include <cstdint>
 #include <string>
-#include <string.h>
+#include <string>
 #include <vector>
 #include <map>
 #include <unordered_map>

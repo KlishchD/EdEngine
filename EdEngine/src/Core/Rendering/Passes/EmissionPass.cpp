@@ -5,7 +5,6 @@ void EmissionPass::Initialize(std::shared_ptr<RenderGraph> graph)
 	RenderPass<EmissionPassParameters, EmissionPassShaderParameters>::Initialize(graph);
 
 	m_Parameters.Name = "Emission pass";
-	m_Parameters.Shader = RenderingHelper::CreateShader("shaders\\deferred\\emission-pass.glsl");
 
 	m_Parameters.DestinationFactor = BlendFactor::One;
 	m_Parameters.SourceFactor = BlendFactor::One;

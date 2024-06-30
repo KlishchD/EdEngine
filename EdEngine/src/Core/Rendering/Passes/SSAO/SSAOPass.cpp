@@ -7,7 +7,6 @@ void SSAOBasePass::Initialize(std::shared_ptr<RenderGraph> graph)
 	RenderPass<SSAOBasePassParameters, SSAOBasePassShaderParameters>::Initialize(graph);
 
 	m_Parameters.Name = "SSAO pass";
-	m_Parameters.Shader = RenderingHelper::CreateShader("shaders\\SSAO.glsl");
 
 	m_Parameters.bUseBlending = false;
 	m_Parameters.bClearColors = true;

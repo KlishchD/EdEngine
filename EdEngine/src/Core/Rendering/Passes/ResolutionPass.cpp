@@ -5,7 +5,6 @@ void ResolutionPass::Initialize(std::shared_ptr<RenderGraph> graph)
 	RenderPass<ResolutionPassParameters, ResolutionPassShaderParameters>::Initialize(graph);
 	
 	m_Parameters.Name = "Resolution pass";
-	m_Parameters.Shader = RenderingHelper::CreateShader("shaders\\deferred\\resolution-pass.glsl");
 
 	m_ShaderParameters.Gamma = 2.2f;
 	m_ShaderParameters.BloomStrength = 0.1f;

@@ -336,6 +336,12 @@
     <ClCompile Include="src\Core\Rendering\Buffers\Buffer.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="src\Core\Rendering\ShaderProgram.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Platform\Rendering\OpenGL\OpenGLShaderProgram.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\Core\BaseManager.h">
@@ -692,6 +698,15 @@
     <ClInclude Include="src\Helpers\RenderingHelper.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="src\Core\Rendering\ShaderProgram.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Platform\Rendering\OpenGL\OpenGLShaderProgram.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Platform\Rendering\OpenGL\DirStackFileIncluder.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="Dependencies\ImGui\.editorconfig" />
@@ -702,5 +717,6 @@
   </ItemGroup>
   <ItemGroup>
     <Text Include="Dependencies\ImGui\LICENSE.txt" />
+    <Text Include="..\resources\shaders\deferred\geometry-pass.hlsl" />
   </ItemGroup>
 </Project>

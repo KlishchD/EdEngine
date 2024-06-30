@@ -1,6 +1,7 @@
 #include "RenderGraph.h"
 #include "Helpers/RenderingHelper.h"
 #include "Passes/RenderPass.h"
+#include "Core/Rendering/ShaderProgram.h"
 
 void RenderGraph::AddPass(std::shared_ptr<BaseRenderPass> pass)
 {
@@ -100,7 +101,7 @@ void RenderGraph::BeginPass(const RenderPassParameters& inParameters)
 		{
 			const BaseRenderPassParameters& parameters = static_cast<const BaseRenderPassParameters&>(inParameters);
 
-			m_Context->SetShader(parameters.Shader);
+			m_Context->SetShaderProgram(parameters.Program);
 
 			m_Context->SetFramebuffer(parameters.DrawFramebuffer);
 
@@ -144,7 +145,7 @@ void RenderGraph::BeginPass(const RenderPassParameters& inParameters)
 		case RenderPassType::Compute:
 		{
 			const ComputeRenderPassParameters& parameters = static_cast<const ComputeRenderPassParameters&>(inParameters);
-			m_Context->SetShader(parameters.Shader);
+			m_Context->SetShaderProgram(parameters.Program);
 		} break;
 		case RenderPassType::MultiPass:
 			break;
@@ -184,6 +185,29 @@ void RenderGraph::ProcessDeclarations(std::shared_ptr<BaseRenderPass> pass, uint
 			usage.Declaration = index;
 			m_ResourceUsages[declaration->ResourceName] = usage;
 		}
+	}
+
+	if (parameters.Type == RenderPassType::Base || parameters.Type == RenderPassType::Compute)
+	{
+		RegularRenderPassParameters& castedParameters = static_cast<RegularRenderPassParameters&>(parameters);
+
+		std::shared_ptr<ShaderProgram> program = RenderingHelper::CreateShaderProgram();
+
+		const std::map<ShaderType, std::string>& shaders = std::static_pointer_cast<BaseRegularRenderPass>(pass)->GetBaseShaderParameters().GetShaders();
+
+		ED_ASSERT(shaders.count(ShaderType::Vertex), "Vertex shader for {} was not provided", parameters.DebugName);
+		ED_ASSERT(shaders.count(ShaderType::Pixel), "Pixel shader for {} was not provided", parameters.DebugName);
+
+		for (const auto& [type, filepath] : shaders)
+		{
+			std::shared_ptr<Shader> shader = RenderingHelper::CreateShader(type, filepath);
+			program->AttachShader(shader);
+		}
+
+		program->LinkProgram();
+		program->DetachAllShaders();
+
+		castedParameters.Program = program;
 	}
 
 	for (Declaration* declaration : parameters.GetDeclarations())

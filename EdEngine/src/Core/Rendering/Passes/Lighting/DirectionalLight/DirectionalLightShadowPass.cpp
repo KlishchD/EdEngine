@@ -6,7 +6,6 @@ void DirectionalLightShadowPass::Initialize(std::shared_ptr<RenderGraph> graph)
 	RenderPass<DirectionalLightShadowPassParameters, DirectionalLightShadowPassShaderParameters>::Initialize(graph);
 
 	m_Parameters.Name = "Directional light shadow pass";
-	m_Parameters.Shader = RenderingHelper::CreateShader("shaders\\light\\directional-light-shadow-pass.glsl");
 
 	m_Parameters.bUseBlending = false;
 	m_Parameters.bClearDepth = true;

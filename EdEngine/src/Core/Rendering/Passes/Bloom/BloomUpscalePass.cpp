@@ -5,7 +5,6 @@ void BloomUpscalePass::Initialize(std::shared_ptr<RenderGraph> graph)
 	RenderPass<BloomUpscalePassParameters, BloomUpscalePassShaderParameters>::Initialize(graph);
 
 	m_Parameters.Name = "Bloom upscale";
-	m_Parameters.Shader = RenderingHelper::CreateShader("shaders\\bloom\\upscale.glsl");
 
 	m_ShaderParameters.MixStrength = 0.85f;
 }

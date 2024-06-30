@@ -85,21 +85,27 @@ void CameraDetailsWidget::Tick(float DeltaTime)
 
 		if (m_Renderer->IsBloomEnabled())
 		{
-			std::shared_ptr<ResolutionPass> resoultion = graph->GetPass<ResolutionPass>();
-			if (float strength = resoultion->GetBloomStrength(); ImGui::SliderFloat("Bloom strength", &strength, 0.0f, 1.0f))
+			std::shared_ptr<ResolutionPass> resolution = graph->GetPass<ResolutionPass>();
+			if (resolution)
 			{
-				resoultion->SetBloomStrength(strength);
-			}
+				if (float strength = resolution->GetBloomStrength(); ImGui::SliderFloat("Bloom strength", &strength, 0.0f, 1.0f))
+				{
+					resolution->SetBloomStrength(strength);
+				}
 
-			std::shared_ptr<BloomMultiPass> bloom = graph->GetPass<BloomMultiPass>();
-			if (float strength = bloom->GetBloomMixStrength(); ImGui::SliderFloat("Bloom mix strength", &strength, 0.0f, 1.0f))
-			{
-				bloom->SetBloomMixStrength(strength);
-			}
+				std::shared_ptr<BloomMultiPass> bloom = graph->GetPass<BloomMultiPass>();
+				if (bloom)
+				{
+					if (float strength = bloom->GetBloomMixStrength(); ImGui::SliderFloat("Bloom mix strength", &strength, 0.0f, 1.0f))
+					{
+						bloom->SetBloomMixStrength(strength);
+					}
 
-			if (int32_t count = bloom->GetBloomDownscaleCount(); ImGui::SliderInt("Downscale count", &count, 1, 8))
-			{
-				bloom->SetBloomDownscaleCount(count);
+					if (int32_t count = bloom->GetBloomDownscaleCount(); ImGui::SliderInt("Downscale count", &count, 1, 8))
+					{
+						bloom->SetBloomDownscaleCount(count);
+					}
+				}
 			}
 		}
 
@@ -124,27 +130,33 @@ void CameraDetailsWidget::Tick(float DeltaTime)
 		if (m_Renderer->GetAAMethod() == AAMethod::FXAA)
 		{
 			std::shared_ptr<FXAAPass> fxaa = graph->GetPass<FXAAPass>();
-			if (float threshold = fxaa->GetContrastThreshold(); ImGui::SliderFloat("Contrast threshold", &threshold, 0.01f, 0.1f))
+			if (fxaa)
 			{
-				fxaa->SetContrastThreshold(threshold);
-			}
+				if (float threshold = fxaa->GetContrastThreshold(); ImGui::SliderFloat("Contrast threshold", &threshold, 0.01f, 0.1f))
+				{
+					fxaa->SetContrastThreshold(threshold);
+				}
 
-			if (float threshold = fxaa->GetRelativeThreshold(); ImGui::SliderFloat("Relative threshold", &threshold, 0.01f, 0.4f))
-			{
-				fxaa->SetRelativeThreshold(threshold);
-			}
+				if (float threshold = fxaa->GetRelativeThreshold(); ImGui::SliderFloat("Relative threshold", &threshold, 0.01f, 0.4f))
+				{
+					fxaa->SetRelativeThreshold(threshold);
+				}
 
-			if (float scale = fxaa->GetSubpixelBlending(); ImGui::SliderFloat("Subpixel blending", &scale, 0.0f, 1.0f))
-			{
-				fxaa->SetSubpixelBlending(scale);
+				if (float scale = fxaa->GetSubpixelBlending(); ImGui::SliderFloat("Subpixel blending", &scale, 0.0f, 1.0f))
+				{
+					fxaa->SetSubpixelBlending(scale);
+				}
 			}
 		}
 		else if (m_Renderer->GetAAMethod() == AAMethod::TAA)
 		{
 			std::shared_ptr<TAAPass> taa = graph->GetPass<TAAPass>();
-			if (float gamma = taa->GetGamma(); ImGui::SliderFloat("TAA Gamma", &gamma, 0.5f, 10.0f))
+			if (taa)
 			{
-				taa->SetGamma(gamma);
+				if (float gamma = taa->GetGamma(); ImGui::SliderFloat("TAA Gamma", &gamma, 0.5f, 10.0f))
+				{
+					taa->SetGamma(gamma);
+				}
 			}
 		}
 
@@ -155,50 +167,61 @@ void CameraDetailsWidget::Tick(float DeltaTime)
 
         if (m_Renderer->IsSSAOEnabled())
         {
-            std::shared_ptr<SSAOBasePass> ssao = m_Renderer->GetGraph()->GetPass<SSAOMultiPass>()->GetPass<SSAOBasePass>();
+			std::shared_ptr<SSAOMultiPass> ssaoMultiPass = m_Renderer->GetGraph()->GetPass<SSAOMultiPass>();
+			if (ssaoMultiPass)
+			{
+				std::shared_ptr<SSAOBasePass> ssao = ssaoMultiPass->GetPass<SSAOBasePass>();
+				if (ssao)
+				{
+					if (int32_t samples = ssao->GetSamplesCount(); ImGui::SliderInt("SSAO samples count", &samples, 1, 32))
+					{
+						ssao->SetSamplesCount(samples);
+					}
 
-            if (int32_t samples = ssao->GetSamplesCount(); ImGui::SliderInt("SSAO samples count", &samples, 1, 32))
-            {
-                ssao->SetSamplesCount(samples);
-            }
+					if (int32_t size = ssao->GetNosiseSize(); ImGui::SliderInt("SSAO noise size", &size, 10, 64))
+					{
+						ssao->SetNoiseSize(size);
+					}
 
-            if (int32_t size = ssao->GetNosiseSize(); ImGui::SliderInt("SSAO noise size", &size, 10, 64))
-            {
-                ssao->SetNoiseSize(size);
-            }
+					if (float radius = ssao->GetRadius(); ImGui::SliderFloat("SSAO radius", &radius, 0.5f, 10.0f))
+					{
+						ssao->SetRadius(radius);
+					}
 
-            if (float radius = ssao->GetRadius(); ImGui::SliderFloat("SSAO radius", &radius, 0.5f, 10.0f))
-            {
-                ssao->SetRadius(radius);
-            }
-
-            if (float bias = ssao->GetBias(); ImGui::SliderFloat("SSAO bias", &bias, 0.001f, 1.0f))
-            {
-                ssao->SetBias(bias);
-            }
+					if (float bias = ssao->GetBias(); ImGui::SliderFloat("SSAO bias", &bias, 0.001f, 1.0f))
+					{
+						ssao->SetBias(bias);
+					}
+				}
+			}
         }
 
 		if (std::shared_ptr<SpotLightMultiPass> multiPass = graph->GetPass<SpotLightMultiPass>())
 		{
 			std::shared_ptr<SpotLightShadingPass> shading = multiPass->GetPass<SpotLightShadingPass>();
 
-			if (int32_t count = shading->GetShadowSamplesBlocksCount(); ImGui::SliderInt("Spot light samples blocks count", &count, 1, 10))
+			if (shading)
 			{
-				shading->SetShadowSamplesBlockCount(count);
-			}
+				if (int32_t count = shading->GetShadowSamplesBlocksCount(); ImGui::SliderInt("Spot light samples blocks count", &count, 1, 10))
+				{
+					shading->SetShadowSamplesBlockCount(count);
+				}
 
-			if (int32_t size = shading->GetShadowSamplesBlockSize(); ImGui::SliderInt("Spot light samples block size", &size, 1, 32))
-			{
-				shading->SetShadowSamplesBlockSize(size);
+				if (int32_t size = shading->GetShadowSamplesBlockSize(); ImGui::SliderInt("Spot light samples block size", &size, 1, 32))
+				{
+					shading->SetShadowSamplesBlockSize(size);
+				}
 			}
 		}
 
 		std::shared_ptr<ResolutionPass> resoultion = graph->GetPass<ResolutionPass>();
-		if (float gamma = resoultion->GetGamma(); ImGui::SliderFloat("Gamma", &gamma, 0.1f, 10.0f))
+		if (resoultion)
 		{
-			resoultion->SetGamma(gamma);
+			if (float gamma = resoultion->GetGamma(); ImGui::SliderFloat("Gamma", &gamma, 0.1f, 10.0f))
+			{
+				resoultion->SetGamma(gamma);
+			}
 		}
-
 		ImGui::End();
 	}
 }

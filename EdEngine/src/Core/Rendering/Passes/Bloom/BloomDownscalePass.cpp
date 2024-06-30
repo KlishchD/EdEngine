@@ -5,7 +5,6 @@ void BloomDownscalePass::Initialize(std::shared_ptr<RenderGraph> graph)
 	RenderPass<BloomDownscalePassParameters, BloomDownscalePassShaderParameters>::Initialize(graph);
 
 	m_Parameters.Name = "Bloom downscale";
-	m_Parameters.Shader = RenderingHelper::CreateShader("shaders\\bloom\\downscale.glsl");
 }
 
 void BloomDownscalePass::Execute()

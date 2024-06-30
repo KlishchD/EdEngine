@@ -5,7 +5,6 @@ void SpotLightWireframePass::Initialize(std::shared_ptr<RenderGraph> graph)
 	RenderPass<SpotLightWireframePassParameters, SpotLightWireframePassShaderParameters>::Initialize(graph);
 
 	m_Parameters.Name = "Spot wire frame light pass";
-	m_Parameters.Shader = RenderingHelper::CreateShader("shaders\\wireframe.glsl");
 
 	m_Parameters.SourceFactor = BlendFactor::One;
 	m_Parameters.DestinationFactor = BlendFactor::OneMinusSourceAlpha;

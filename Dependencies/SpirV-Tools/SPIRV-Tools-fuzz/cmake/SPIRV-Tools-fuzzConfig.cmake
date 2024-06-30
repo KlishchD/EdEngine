@@ -1,0 +1,5 @@
+include(CMakeFindDependencyMacro)
+find_dependency(SPIRV-Tools)
+include(${CMAKE_CURRENT_LIST_DIR}/SPIRV-Tools-fuzzTargets.cmake)
+set(SPIRV-Tools-fuzz_LIBRARIES SPIRV-Tools-fuzz)
+get_target_property(SPIRV-Tools-fuzz_INCLUDE_DIRS SPIRV-Tools-fuzz INTERFACE_INCLUDE_DIRECTORIES)

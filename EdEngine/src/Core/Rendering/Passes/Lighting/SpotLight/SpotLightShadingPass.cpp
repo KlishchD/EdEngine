@@ -29,7 +29,6 @@ void SpotLightShadingPass::Initialize(std::shared_ptr<RenderGraph> graph)
 	}
 
 	m_Parameters.Name = "Spot light pass";
-	m_Parameters.Shader = RenderingHelper::CreateShader("shaders\\light\\spot-light-pass.glsl");
 
 	m_Parameters.SourceFactor = BlendFactor::One;
 	m_Parameters.DestinationFactor = BlendFactor::One;

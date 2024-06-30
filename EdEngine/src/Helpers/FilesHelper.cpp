@@ -1,6 +1,7 @@
 ﻿#include "FilesHelper.h"
-
 #include <filesystem>
+#include <fstream>
+#include <string>
 
 std::string FilesHelper::GetSaveExtensions(AssetType type)
 {
@@ -22,4 +23,22 @@ std::string FilesHelper::GetSavePath(const std::string& pathStr, AssetType type,
     std::string directoryPath = path.remove_filename().string();
 
     return directoryPath + filename + GetSaveExtensions(type);
+}
+
+bool FilesHelper::ReadFileToString(const std::string& filepath, std::string& text)
+{
+    std::fstream file(filepath, std::ios_base::in);
+    
+    if (file)
+    {
+        std::string line;
+        while (std::getline(file, line))
+        {
+            text += line + "\n";
+        }
+
+        return true;
+    }
+
+    return false;
 }

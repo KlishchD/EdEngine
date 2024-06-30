@@ -5,7 +5,6 @@ void DirectionalLightShadingRenderPass::Initialize(std::shared_ptr<RenderGraph> 
 	RenderPass<DirecationalLightShadingParameters, DirectionalLightShadingShaderParameters>::Initialize(graph);
 
 	m_Parameters.Name = "Directional light pass";
-	m_Parameters.Shader = RenderingHelper::CreateShader("shaders\\light\\directional-light-pass.glsl");
 
 	m_Parameters.SourceFactor = BlendFactor::One;
 	m_Parameters.DestinationFactor = BlendFactor::One;

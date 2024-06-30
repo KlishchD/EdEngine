@@ -19,14 +19,39 @@ struct ShaderParameters
 		return m_Parameters;
 	}
 
+	void AddShader(ShaderType type, const std::string& filepath)
+	{
+		ED_ASSERT(!m_Shaders.count(type), "Shader type was already defined");
+		m_Shaders[type] = filepath;
+	}
+
+	const std::map<ShaderType, std::string>& GetShaders() const
+	{
+		return m_Shaders;
+	}
 private:
 	std::vector<ShaderParameter*> m_Parameters;
+	std::map<ShaderType, std::string> m_Shaders;
 };
 
 #define ED_BEGIN_SHADER_PARAMETERS_DECLARATION(name) struct name ## ShaderParameters : public ShaderParameters { \
 	using ParametersStruct = name ## ShaderParameters;
 
 #define ED_END_SHADER_PARAMETERS_DECLARATION() };
+
+#define ED_SET_SHADER(type, filepath) \
+	private: \
+	\
+	struct type ## ShaderDeclaration \
+	{ \
+		type ## ShaderDeclaration(ParametersStruct& parameters) \
+		{ \
+			parameters.AddShader(ShaderType::type, filepath); \
+		} \
+	}; \
+	type ## ShaderDeclaration type ## ShaderDeclarationValue { *this }; \
+	\
+	public:
 
 #define ED_SHADER_PARAMETER(shaderType, type, name) \
 	type name; \

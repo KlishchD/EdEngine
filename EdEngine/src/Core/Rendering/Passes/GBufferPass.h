@@ -19,6 +19,8 @@ ED_BEGIN_RENDER_PASS_PARAMETERS_DECLARATION(GBufferPass, Base)
 ED_END_RENDER_PASS_PARAMETERS_DECLARATION()
 
 ED_BEGIN_SHADER_PARAMETERS_DECLARATION(GBufferPass)
+	ED_SET_SHADER(Vertex, "shaders\\deferred\\geometry-pass-vertex.glsl")
+	ED_SET_SHADER(Pixel, "shaders\\deferred\\geometry-pass-pixel.glsl")
 
 	ED_SHADER_PARAMETER_SUBSTRUCT(Material, Float3, glm::vec3, BaseColor)
 	

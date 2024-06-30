@@ -5,7 +5,6 @@ void TAAPass::Initialize(std::shared_ptr<RenderGraph> graph)
 	RenderPass<TAAPassParameters, TAAPassShaderParameters>::Initialize(graph);
 
 	m_Parameters.Name = "TAA Pass";
-	m_Parameters.Shader = RenderingHelper::CreateShader("shaders\\AA\\TAA.glsl");
 
 	m_HistoryBuffer = RenderingHelper::CreateTexture2D("History buffer texture");
 	m_HistoryBuffer->SetWrapS(WrapMode::ClampToEdge);

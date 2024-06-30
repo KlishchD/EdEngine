@@ -5,7 +5,6 @@ void SSAOBlurPass::Initialize(std::shared_ptr<RenderGraph> graph)
 	RenderPass<SSAOBlurPassParameters, SSAOBlurPassShaderParameters>::Initialize(graph);
 
 	m_Parameters.Name = "SSAO blur";
-	m_Parameters.Shader = RenderingHelper::CreateShader("shaders\\SSAOBlur.glsl");
 
 	m_Parameters.bUseBlending = false;
 	m_Parameters.bClearColors = false;

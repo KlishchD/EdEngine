@@ -6,7 +6,7 @@
 #include "Core/Rendering/Types.h"
 
 class Texture;
-class Shader;
+class ShaderProgram;
 class Framebuffer;
 class UniformBuffer;
 class VertexBuffer;
@@ -24,7 +24,7 @@ public:
 	virtual void SetVertexBuffer(std::shared_ptr<VertexBuffer> buffer) = 0;
 	virtual void SetIndexBuffer(std::shared_ptr<IndexBuffer> buffer) = 0;
 
-	virtual void SetShader(std::shared_ptr<Shader> shader) = 0;
+	virtual void SetShaderProgram(std::shared_ptr<ShaderProgram> program) = 0;
 
 	virtual void SetShaderDataTexture(const std::string& name, std::shared_ptr<Texture> texture) = 0;
 	virtual void SetShaderDataImage(const std::string& name, std::shared_ptr<Texture> texture) = 0;

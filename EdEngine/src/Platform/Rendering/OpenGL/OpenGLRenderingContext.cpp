@@ -8,6 +8,7 @@
 #include "Buffers/OpenGLUniformBuffer.h"
 #include "OpenGLTypes.h"
 #include "OpenGLShader.h"
+#include "OpenGLShaderProgram.h"
 #include <glm/gtc/type_ptr.hpp>
 #include <imgui.h>
 #include <backends/imgui_impl_opengl3.h>
@@ -82,13 +83,13 @@ void OpenGLRenderingContext::SetIndexBuffer(std::shared_ptr<IndexBuffer> buffer)
 	}
 }
 
-void OpenGLRenderingContext::SetShader(std::shared_ptr<Shader> shader)
+void OpenGLRenderingContext::SetShaderProgram(std::shared_ptr<ShaderProgram> program)
 {
-	if (m_Shader == shader) return;
+	if (m_Program == program) return;
 
-	m_Shader = shader;
-	m_ShaderID = std::static_pointer_cast<OpenGLShader>(shader)->GetID();
-	glUseProgram(m_ShaderID);
+	m_Program = program;
+	m_ProgramID = std::static_pointer_cast<OpenGLShaderProgram>(program)->GetID();
+	glUseProgram(m_ProgramID);
 }
 
 void OpenGLRenderingContext::SetShaderDataTexture(const std::string& name, std::shared_ptr<Texture> texture)
@@ -96,7 +97,7 @@ void OpenGLRenderingContext::SetShaderDataTexture(const std::string& name, std::
 	glActiveTexture(GL_TEXTURE0 + m_LastTextureSlot);
 	glBindTexture(OpenGLTypes::ConverTextureType(texture->GetTextureType()), texture->GetID());
 
-	const int32_t location = glGetUniformLocation(m_ShaderID, name.c_str());
+	const int32_t location = glGetUniformLocation(m_ProgramID, name.c_str());
 	glUniform1i(location, m_LastTextureSlot);
 	
 	m_LastTextureSlot = (m_LastTextureSlot + 1) % MaxTextureSlots;
@@ -110,7 +111,7 @@ void OpenGLRenderingContext::SetShaderDataImage(const std::string& name, std::sh
 
 void OpenGLRenderingContext::SetShaderDataInt(const std::string& name, int32_t value)
 {
-	const int32_t location = glGetUniformLocation(m_ShaderID, name.c_str());
+	const int32_t location = glGetUniformLocation(m_ProgramID, name.c_str());
 	glUniform1i(location, value);
 }
 
@@ -119,7 +120,7 @@ void OpenGLRenderingContext::SetShaderDataTexture(const char* name, std::shared_
 	glActiveTexture(GL_TEXTURE0 + m_LastTextureSlot);
 	glBindTexture(OpenGLTypes::ConverTextureType(texture->GetTextureType()), texture->GetID());
 
-	const int32_t location = glGetUniformLocation(m_ShaderID, name);
+	const int32_t location = glGetUniformLocation(m_ProgramID, name);
 	glUniform1i(location, m_LastTextureSlot);
 	
 	m_LastTextureSlot = (m_LastTextureSlot + 1) % MaxTextureSlots;
@@ -132,67 +133,67 @@ void OpenGLRenderingContext::SetShaderDataImage(const char* name, std::shared_pt
 
 void OpenGLRenderingContext::SetShaderDataInt(const char* name, int32_t value)
 {
-	const int32_t location = glGetUniformLocation(m_ShaderID, name);
+	const int32_t location = glGetUniformLocation(m_ProgramID, name);
 	glUniform1i(location, value);
 }
 
 void OpenGLRenderingContext::SetShaderDataFloat(const char* name, float value)
 {
-	const int32_t location = glGetUniformLocation(m_ShaderID, name);
+	const int32_t location = glGetUniformLocation(m_ProgramID, name);
 	glUniform1f(location, value);
 }
 
 void OpenGLRenderingContext::SetShaderDataFloat2(const char* name, glm::vec2 vector)
 {
-	const int32_t location = glGetUniformLocation(m_ShaderID, name);
+	const int32_t location = glGetUniformLocation(m_ProgramID, name);
 	glUniform2f(location, vector.x, vector.y);
 }
 
 void OpenGLRenderingContext::SetShaderDataFloat2(const char* name, float x, float y)
 {
-	const int32_t location = glGetUniformLocation(m_ShaderID, name);
+	const int32_t location = glGetUniformLocation(m_ProgramID, name);
 	glUniform2f(location, x, y);
 }
 
 void OpenGLRenderingContext::SetShaderDataFloat3(const char* name, float x, float y, float z)
 {
-	const int32_t location = glGetUniformLocation(m_ShaderID, name);
+	const int32_t location = glGetUniformLocation(m_ProgramID, name);
 	glUniform3f(location, x, y, z);
 }
 
 void OpenGLRenderingContext::SetShaderDataFloat3(const char* name, glm::vec3 vector)
 {
-	const int32_t location = glGetUniformLocation(m_ShaderID, name);
+	const int32_t location = glGetUniformLocation(m_ProgramID, name);
 	glUniform3f(location, vector.x, vector.y, vector.z);
 }
 
 void OpenGLRenderingContext::SetShaderDataFloat4(const char* name, float r, float g, float b, float a)
 {
-	const int32_t location = glGetUniformLocation(m_ShaderID, name);
+	const int32_t location = glGetUniformLocation(m_ProgramID, name);
 	glUniform4f(location, r, g, b, a);
 }
 
 void OpenGLRenderingContext::SetShaderDataFloat4(const char* name, glm::vec4 vector)
 {
-	const int32_t location = glGetUniformLocation(m_ShaderID, name);
+	const int32_t location = glGetUniformLocation(m_ProgramID, name);
 	glUniform4f(location, vector.x, vector.y, vector.z, vector.w);
 }
 
 void OpenGLRenderingContext::SetShaderDataMat4(const char* name, const glm::mat4& matrix)
 {
-	const int32_t location = glGetUniformLocation(m_ShaderID, name);
+	const int32_t location = glGetUniformLocation(m_ProgramID, name);
 	glUniformMatrix4fv(location, 1, GL_FALSE, glm::value_ptr(matrix));
 }
 
 void OpenGLRenderingContext::SetShaderDataMat3(const char* name, const glm::mat3& matrix)
 {
-	const int32_t location = glGetUniformLocation(m_ShaderID, name);
+	const int32_t location = glGetUniformLocation(m_ProgramID, name);
 	glUniformMatrix3fv(location, 1, GL_FALSE, glm::value_ptr(matrix));
 }
 
 void OpenGLRenderingContext::SetShaderDataBool(const char* name, bool value)
 {
-	const int32_t location = glGetUniformLocation(m_ShaderID, name);
+	const int32_t location = glGetUniformLocation(m_ProgramID, name);
 	glUniform1i(location, value);
 }
 
@@ -338,60 +339,60 @@ OpenGLRenderingContext::~OpenGLRenderingContext()
 
 void OpenGLRenderingContext::SetShaderDataFloat(const std::string& name, float value)
 {
-	const int32_t location = glGetUniformLocation(m_ShaderID, name.c_str());
+	const int32_t location = glGetUniformLocation(m_ProgramID, name.c_str());
 	glUniform1f(location, value);
 }
 
 void OpenGLRenderingContext::SetShaderDataFloat2(const std::string& name, glm::vec2 vector)
 {
-	const int32_t location = glGetUniformLocation(m_ShaderID, name.c_str());
+	const int32_t location = glGetUniformLocation(m_ProgramID, name.c_str());
 	glUniform2f(location, vector.x, vector.y);
 }
 
 void OpenGLRenderingContext::SetShaderDataFloat2(const std::string& name, float x, float y)
 {
-	const int32_t location = glGetUniformLocation(m_ShaderID, name.c_str());
+	const int32_t location = glGetUniformLocation(m_ProgramID, name.c_str());
 	glUniform2f(location, x, y);
 }
 
 void OpenGLRenderingContext::SetShaderDataFloat3(const std::string& name, float x, float y, float z)
 {
-	const int32_t location = glGetUniformLocation(m_ShaderID, name.c_str());
+	const int32_t location = glGetUniformLocation(m_ProgramID, name.c_str());
 	glUniform3f(location, x, y, z);
 }
 
 void OpenGLRenderingContext::SetShaderDataFloat3(const std::string& name, glm::vec3 vector)
 {
-	const int32_t location = glGetUniformLocation(m_ShaderID, name.c_str());
+	const int32_t location = glGetUniformLocation(m_ProgramID, name.c_str());
 	glUniform3f(location, vector.x, vector.y, vector.z);
 }
 
 void OpenGLRenderingContext::SetShaderDataFloat4(const std::string& name, float r, float g, float b, float a)
 {
-	const int32_t location = glGetUniformLocation(m_ShaderID, name.c_str());
+	const int32_t location = glGetUniformLocation(m_ProgramID, name.c_str());
 	glUniform4f(location, r, g, b, a);
 }
 
 void OpenGLRenderingContext::SetShaderDataFloat4(const std::string& name, glm::vec4 vector)
 {
-	const int32_t location = glGetUniformLocation(m_ShaderID, name.c_str());
+	const int32_t location = glGetUniformLocation(m_ProgramID, name.c_str());
 	glUniform4f(location, vector.x, vector.y, vector.z, vector.w);
 }
 
 void OpenGLRenderingContext::SetShaderDataMat4(const std::string& name, const glm::mat4& matrix)
 {
-	const int32_t location = glGetUniformLocation(m_ShaderID, name.c_str());
+	const int32_t location = glGetUniformLocation(m_ProgramID, name.c_str());
 	glUniformMatrix4fv(location, 1, GL_FALSE, glm::value_ptr(matrix));
 }
 
 void OpenGLRenderingContext::SetShaderDataMat3(const std::string& name, const glm::mat3& matrix)
 {
-	const int32_t location = glGetUniformLocation(m_ShaderID, name.c_str());
+	const int32_t location = glGetUniformLocation(m_ProgramID, name.c_str());
 	glUniformMatrix3fv(location, 1, GL_FALSE, glm::value_ptr(matrix));
 }
 
 void OpenGLRenderingContext::SetShaderDataBool(const std::string& name, bool value)
 {
-	const int32_t location = glGetUniformLocation(m_ShaderID, name.c_str());
+	const int32_t location = glGetUniformLocation(m_ProgramID, name.c_str());
 	glUniform1i(location, value);
 }

@@ -68,6 +68,7 @@ public:
 
 public:
 	std::string Name;
+	std::string DebugName;
 	
 	RenderPassType Type;
 private:
@@ -78,14 +79,17 @@ private:
 	std::vector<RenderTargetReference*> m_RenderTargetsReferences;
 };
 
-struct BaseRenderPassParameters : public RenderPassParameters
+struct RegularRenderPassParameters : public RenderPassParameters
+{
+	std::shared_ptr<class ShaderProgram> Program;
+};
+
+struct BaseRenderPassParameters : public RegularRenderPassParameters
 {
 	BaseRenderPassParameters()
 	{
 		Type = RenderPassType::Base;
 	}
-
-	std::shared_ptr<class Shader> Shader;
 
 	std::shared_ptr<class Framebuffer> DrawFramebuffer;
 
@@ -103,14 +107,12 @@ struct BaseRenderPassParameters : public RenderPassParameters
 	Face FaceToCull = Face::Back;
 };
 
-struct ComputeRenderPassParameters : public RenderPassParameters
+struct ComputeRenderPassParameters : public RegularRenderPassParameters
 {
 	ComputeRenderPassParameters()
 	{
 		Type = RenderPassType::Compute;
 	}
-
-	std::shared_ptr<class Shader> Shader;
 };
 
 
@@ -133,6 +135,7 @@ struct MultiRenderPassParameters : public RenderPassParameters
 	{ \
 		++InstanceCount; \
 		InstanceNumber = InstanceCount; \
+		DebugName = #name; \
 	}
 
 #define ED_END_RENDER_PASS_PARAMETERS_DECLARATION() };

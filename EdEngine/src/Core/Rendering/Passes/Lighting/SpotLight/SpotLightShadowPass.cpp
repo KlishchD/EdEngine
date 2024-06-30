@@ -5,7 +5,6 @@ void SpotLightShadowPass::Initialize(std::shared_ptr<RenderGraph> graph)
 	RenderPass<SpotLightShadowPassParameters, SpotLightShadowPassShaderParameters>::Initialize(graph);
 
 	m_Parameters.Name = "Spot light shadow pass";
-	m_Parameters.Shader = RenderingHelper::CreateShader("shaders\\light\\spot-light-shadow-pass.glsl");
 
 	m_Parameters.bUseBlending = false;
 	m_Parameters.bClearDepth = true;

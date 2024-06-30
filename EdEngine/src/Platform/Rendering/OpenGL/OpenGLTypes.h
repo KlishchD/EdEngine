@@ -19,6 +19,7 @@ public:
 	static uint32_t ConvertBlendFactor(BlendFactor factor);
 
 	static uint32_t ConvertShaderType(ShaderType type);
+	static uint32_t ConvertShaderLanguage(ShaderType type);
 
 	static uint32_t ConvertDepthTestFunction(DepthTestFunction function);
 	

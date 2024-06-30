@@ -5,6 +5,7 @@
 #include "Platform/Rendering/OpenGL/Buffers/OpenGLUniformBuffer.h"
 #include "Platform/Rendering/OpenGL/OpenGLRenderingContext.h"
 #include "Platform/Rendering/OpenGL/OpenGLShader.h"
+#include "Platform/Rendering/OpenGL/OpenGLShaderProgram.h"
 #include "Platform/Rendering/OpenGL/OpenGLWindow.h"
 #include "Platform/Rendering/OpenGL/Textures/OpenGLTexture2D.h"
 #include "Platform/Rendering/OpenGL/Textures/OpenGLCubeTexture.h"
@@ -97,57 +98,17 @@ std::shared_ptr<UniformBuffer> RenderingHelper::CreateUniformBuffer(void* data, 
 	return buffer;
 }
 
-std::shared_ptr<Shader> RenderingHelper::CreateShader(const std::string& path)
+std::shared_ptr<ShaderProgram> RenderingHelper::CreateShaderProgram()
+{
+	return std::make_shared<OpenGLShaderProgram>();
+}
+
+std::shared_ptr<Shader> RenderingHelper::CreateShader(ShaderType type, const std::string& filepath)
 {
 	std::string source;
-	ShaderType currentShaderType = ShaderType::None;
-	
-	std::string fullPath = FilesHelper::ContentFolderPath + path;
-	std::fstream file(fullPath, std::ios_base::in);
-	std::string line;
-
-	ED_ASSERT(file.is_open(), "Couldn't find a shader")
-	
-	std::shared_ptr<OpenGLShader> shader = std::make_shared<OpenGLShader>();
-
-	while (std::getline(file, line)) {
-		if (line.find("// type") != std::string::npos) {
-			if (currentShaderType != ShaderType::None) {
-				shader->SetShaderCode(currentShaderType, source);
-			}
-			source.clear();
-
-			if (line.find("fragment") != std::string::npos) {
-				currentShaderType = ShaderType::Pixel;
-			}
-			else if (line.find("vertex") != std::string::npos) {
-				currentShaderType = ShaderType::Vertex;
-			}
-			else if (line.find("geometry") != std::string::npos)
-			{
-				currentShaderType = ShaderType::Geometry;
-			}
-			else if (line.find("compute") != std::string::npos)
-			{
-				currentShaderType = ShaderType::Compute;
-			}
-			else {
-				ED_ASSERT_CONTEXT(Shader, 0, "Unsupported shader type");
-				currentShaderType = ShaderType::None;
-			}
-		}
-		else {
-			source += line + "\n";
-		}
-	}
-
-	if (currentShaderType != ShaderType::None) {
-		shader->SetShaderCode(currentShaderType, source);
-	}
-
-	shader->LinkProgram();
-
-	return shader;
+	bool hasReadShaderSource = FilesHelper::ReadFileToString(FilesHelper::ContentFolderPath + filepath, source);
+	ED_ASSERT(hasReadShaderSource, "Couldn't read shader soruce");
+	return std::make_shared<OpenGLShader>(type, filepath, source);
 }
 
 std::shared_ptr<Texture> RenderingHelper::CreateRenderTarget(const RenderTargetSpecification& specification, TextureType textureType)

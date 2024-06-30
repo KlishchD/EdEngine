@@ -15,7 +15,7 @@ public:
 	virtual void SetVertexBuffer(std::shared_ptr<VertexBuffer> buffer) override;
 	virtual void SetIndexBuffer(std::shared_ptr<IndexBuffer> buffer) override;
 
-	virtual void SetShader(std::shared_ptr<Shader> shader) override;
+	virtual void SetShaderProgram(std::shared_ptr<ShaderProgram> program) override;
 
 	virtual void SetShaderDataTexture(const std::string& name, std::shared_ptr<Texture> texture) override;
 	virtual void SetShaderDataImage(const std::string& name, std::shared_ptr<Texture> texture) override;
@@ -79,8 +79,8 @@ private:
 	std::shared_ptr<IndexBuffer> m_IBO;
 	std::shared_ptr<UniformBuffer> m_UnifromBuffers[MaxUniformBufferLocations];
 
-	std::shared_ptr<Shader> m_Shader;
-	int32_t m_ShaderID;
+	std::shared_ptr<ShaderProgram> m_Program;
+	int32_t m_ProgramID;
 
 	int32_t m_LastTextureSlot = 0;
 	const int32_t MaxTextureSlots = 16;

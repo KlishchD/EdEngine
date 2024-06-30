@@ -11,7 +11,6 @@ void IconsPass::Initialize(std::shared_ptr<RenderGraph> graph)
 	m_Parameters.DrawFramebuffer->AddAttachment(m_Parameters.Depth.Get());
 
 	m_Parameters.Name = "Editor icons";
-	m_Parameters.Shader = RenderingHelper::CreateShader("Editor\\shaders\\IconShader.glsl");
 
 	m_LightIcon = RenderingHelper::ImportBaseColorTexture("Editor\\icons\\light-bulb.png");
 }

@@ -6,7 +6,6 @@ void PointLightShadingPass::Initialize(std::shared_ptr<RenderGraph> graph)
 	RenderPass<PointLightShadingPassParameters, PointLightShadingShaderParameters>::Initialize(graph);
 
 	m_Parameters.Name = "Point light pass";
-	m_Parameters.Shader = RenderingHelper::CreateShader("shaders\\light\\point-light-pass.glsl");
 
 	{
 		std::vector<glm::vec3>& vertices = m_Parameters.LightMeshVertices;

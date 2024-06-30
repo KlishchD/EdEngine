@@ -92,7 +92,7 @@ private:
 
     float m_UpsampleScale = 1.0f;
 
-    RenderTarget m_ActiveRenderTarget = RenderTarget::Resolution;
+    RenderTarget m_ActiveRenderTarget = RenderTarget::GAlbedo;
 
     std::shared_ptr<RenderGraph> m_Graph;
 

@@ -6,7 +6,6 @@ void PointLightShadowPass::Initialize(std::shared_ptr<RenderGraph> graph)
 	RenderPass<PointLightShadowPassParameters, PointLightShadowPassShaderParameters>::Initialize(graph);
 
 	m_Parameters.Name = "Point light shadow pass";
-	m_Parameters.Shader = RenderingHelper::CreateShader("shaders\\light\\point-light-shadow-pass.glsl");
 
 	m_Parameters.bUseBlending = false;
 	m_Parameters.bClearDepth = true;

@@ -32,6 +32,7 @@ class Texture2DArrayData;
 class Texture2DArray;
 
 class Shader;
+class ShaderProgram;
 
 class Framebuffer;
 struct FramebufferSpecification;
@@ -57,7 +58,8 @@ public:
 	template<typename T>
 	static std::shared_ptr<UniformBuffer> CreateUniformBuffer(T* data, BufferUsage usage);
 
-	static std::shared_ptr<Shader> CreateShader(const std::string& path);
+	static std::shared_ptr<ShaderProgram> CreateShaderProgram();
+	static std::shared_ptr<Shader> CreateShader(ShaderType type, const std::string& filepath);
 
 	template<typename T>
 	static std::shared_ptr<T> CreateRenderTarget(const RenderTargetSpecification& specification, TextureType textureType)

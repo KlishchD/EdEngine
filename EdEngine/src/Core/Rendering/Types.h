@@ -2,6 +2,7 @@
 
 #include <glm/vec3.hpp>
 #include <glm/vec4.hpp>
+#include <string>
 
 enum class WrapMode
 {
@@ -141,4 +142,5 @@ class Types
 public:
 	static uint32_t GetChannelNumber(PixelFormat format);
 	static uint32_t GetPixelSize(PixelFormat format);
+	static std::string ConvertShaderEntryPointName(ShaderType type);
 };

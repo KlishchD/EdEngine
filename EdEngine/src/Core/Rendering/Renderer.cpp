@@ -77,25 +77,25 @@ void Renderer::Initialize(Engine* engine)
 
 		m_Graph->AddPass<GBufferPass>();
 		
-		m_Graph->AddPass<SSAOMultiPass>();
-
-		m_Graph->AddPass<AmbientPass>();
-		m_Graph->AddPass<EmissionPass>();
-		
-		m_Graph->AddPass<DirectionalLightMultiPass>();
-		m_Graph->AddPass<SpotLightMultiPass>();
-		m_Graph->AddPass<PointLightMultiPass>();
-
-		m_Graph->AddPass<FXAAPass>();
-		m_Graph->AddPass<TAAPass>();
-
-		m_Graph->AddPass<BloomMultiPass>();
-
-		m_Graph->AddPass<ResolutionPass>();
-
-		m_Graph->AddPass<GrayscalePass>();
-
-		m_Graph->AddPass<IconsPass>();
+		//m_Graph->AddPass<SSAOMultiPass>();
+		//
+		//m_Graph->AddPass<AmbientPass>();
+		//m_Graph->AddPass<EmissionPass>();
+		//
+		//m_Graph->AddPass<DirectionalLightMultiPass>();
+		//m_Graph->AddPass<SpotLightMultiPass>();
+		//m_Graph->AddPass<PointLightMultiPass>();
+		//
+		//m_Graph->AddPass<FXAAPass>();
+		//m_Graph->AddPass<TAAPass>();
+		//
+		//m_Graph->AddPass<BloomMultiPass>();
+		//
+		//m_Graph->AddPass<ResolutionPass>();
+		//
+		//m_Graph->AddPass<GrayscalePass>();
+		//
+		//m_Graph->AddPass<IconsPass>();
 
 		m_Graph->Build();
 	}

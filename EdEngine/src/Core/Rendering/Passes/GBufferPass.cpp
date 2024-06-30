@@ -7,7 +7,6 @@ void GBufferPass::Initialize(std::shared_ptr<RenderGraph> graph)
 	RenderPass<GBufferPassParameters, GBufferPassShaderParameters>::Initialize(graph);
 
 	m_Parameters.Name = "GBuffer pass";
-	m_Parameters.Shader = RenderingHelper::CreateShader("shaders\\deferred\\geometry-pass.glsl");
 
 	m_Parameters.bUseBlending = false;
 

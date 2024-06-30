@@ -1,6 +1,7 @@
 #include "OpenGLTypes.h"
 #include "Core/Macros.h"
 #include "Core/Rendering/EdRendering.h"
+#include <glslang/Public/ShaderLang.h>
 
 uint32_t OpenGLTypes::ConvertWrapMode(WrapMode mode)
 {
@@ -197,8 +198,22 @@ uint32_t OpenGLTypes::ConvertShaderType(ShaderType type)
 	case ShaderType::Pixel:    return GL_FRAGMENT_SHADER;
 	case ShaderType::Compute:  return GL_COMPUTE_SHADER;
 	default:
-		ED_ASSERT_CONTEXT(OpenGLAPI, 0, "Shdare type is not supported")
+		ED_ASSERT_CONTEXT(OpenGLAPI, 0, "Shader type is not supported")
 		return 0;
+	}
+}
+
+uint32_t OpenGLTypes::ConvertShaderLanguage(ShaderType type)
+{
+	switch (type)
+	{
+	case ShaderType::Vertex:   return EShLangVertex;
+	case ShaderType::Geometry: return EShLangGeometry;
+	case ShaderType::Pixel:    return EShLangFragment;
+	case ShaderType::Compute:  return EShLangCompute;
+	default:
+		ED_ASSERT_CONTEXT(OpenGLAPI, 0, "Shader type is not supported")
+			return 0;
 	}
 }
 

@@ -48,3 +48,17 @@ uint32_t Types::GetPixelSize(PixelFormat format)
 	}
 	return 0;
 }
+
+std::string Types::ConvertShaderEntryPointName(ShaderType type)
+{
+	switch (type)
+	{
+	case ShaderType::Vertex:   return "VSMain";
+	case ShaderType::Geometry: return "GSMain";
+	case ShaderType::Pixel:    return "PSMain";
+	case ShaderType::Compute:  return "CSMain";
+	default:
+		ED_ASSERT_CONTEXT(OpenGLAPI, 0, "Shader type is not supported")
+		return 0;
+	}
+}

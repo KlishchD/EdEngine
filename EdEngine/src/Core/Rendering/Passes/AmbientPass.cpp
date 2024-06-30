@@ -6,7 +6,6 @@ void AmbientPass::Initialize(std::shared_ptr<RenderGraph> graph)
 	RenderPass<AmbientPassParameters, AmbientPassShaderParameters>::Initialize(graph);
 
 	m_Parameters.Name = "Ambient pass";
-	m_Parameters.Shader = RenderingHelper::CreateShader("shaders\\deferred\\ambient-pass.glsl");
 	
 	m_Parameters.bClearColors = true;
 	m_Parameters.bClearDepth = true;

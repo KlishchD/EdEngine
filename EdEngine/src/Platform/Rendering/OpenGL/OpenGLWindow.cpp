@@ -7,6 +7,7 @@
 #include <backends/imgui_impl_glfw.h>
 #include <backends/imgui_impl_opengl3.h>
 #include "Helpers/PlatformHelper.h"
+#include <glslang/Public/ShaderLang.h>
 
 std::vector<Window*> s_Windows;
 
@@ -174,6 +175,8 @@ OpenGLWindow::OpenGLWindow(WindowSpecification specification): Window(specificat
 
 	PlatformHelper::DisableTitleBar(*this);
 
+	ShInitialize();
+
 	ED_LOG(Window, info, "Finished creating window")
 }
 
@@ -256,6 +259,8 @@ void OpenGLWindow::Close()
 {
 	if (m_Window)
 	{
+		ShFinalize();
+
 		glfwTerminate();
 
 		ImGui_ImplGlfw_Shutdown();

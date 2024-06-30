@@ -3,52 +3,62 @@
 #include "Core/Macros.h"
 #include "OpenGLTypes.h"
 
-OpenGLShader::OpenGLShader()
+//#include "DirStackFileIncluder.h"
+//#include <glslang/Public/ShaderLang.h>
+//#include <glslang/Public/ResourceLimits.h>
+//#include <glslang/SPIRV/GlslangToSpv.h>
+//#include <glslang/SPIRV/disassemble.h>
+//#include <spirv-tools/optimizer.hpp>
+//#include <spirv_cross/spirv_glsl.hpp>
+
+OpenGLShader::OpenGLShader(ShaderType type, const std::string& filepath, const std::string& source) : Shader(type, source)
 {
-	m_Id = glCreateProgram();
-}
+	uint32_t shaderType = OpenGLTypes::ConvertShaderType(type);
+	m_Id = glCreateShader(shaderType);
+// 
+// 	EShLanguage stage = static_cast<EShLanguage>(OpenGLTypes::ConvertShaderLanguage(type));
+// 	glslang::TShader shader(static_cast<EShLanguage>(stage));
+// 
+ 	const char* shaderSourceC = &source[0];
+// 	shader.setStrings(&shaderSourceC, 1);
+// 
+// 	const std::string entryPoint = Types::ConvertShaderEntryPointName(type);
+// 	shader.setEntryPoint(entryPoint.c_str());
+// 
+// 	shader.setEnvInput(glslang::EShSourceGlsl, stage, glslang::EShClientOpenGL, 460);
+// 	shader.setEnvTarget(glslang::EShTargetSpv, glslang::EShTargetSpv_1_0);
+// 
+// 	shader.setAutoMapLocations(true);
+// 
+// 	DirStackFileIncluder includer(filepath);
+// 	bool isCompilationSuccessfull = shader.parse(GetDefaultResources(), 110, ECoreProfile, false, false, EShMsgDefault, includer);
+// 	ED_ASSERT(isCompilationSuccessfull, "Shader GLSL to Spir-V compilation failed {}, {}", filepath, shader.getInfoLog());
+// 
+// 	spv::SpvBuildLogger logger;
+// 
+// 	glslang::SpvOptions spvOptions;
+// 	spvOptions.generateDebugInfo = true;
+// 
+// 	std::vector<uint32_t> unoptimisedSpv;
+// 	glslang::GlslangToSpv(*shader.getIntermediate(), unoptimisedSpv, &logger, &spvOptions);
+// 
+// 	glShaderBinary(1, &m_Id, GL_SHADER_BINARY_FORMAT_SPIR_V, unoptimisedSpv.data(), sizeof(uint32_t) * unoptimisedSpv.size());
+// 	glSpecializeShader(m_Id, "main", 0, nullptr, nullptr);
 
-void OpenGLShader::SetShaderCode(ShaderType type, const std::string& code)
-{
-	const uint32_t shaderId = glCreateShader(OpenGLTypes::ConvertShaderType(type));
+	glShaderSource(m_Id, 1, &shaderSourceC, 0);
+	glCompileShader(m_Id);
 
-	const char* shaderSourceC = code.data();
-	glShaderSource(shaderId, 1, &shaderSourceC, 0);
+	int32_t status = 0;
+	glGetShaderiv(m_Id, GL_COMPILE_STATUS, &status);
+	if (status == GL_FALSE)
+	{
+		int32_t length = 0;
+		glGetShaderiv(m_Id, GL_INFO_LOG_LENGTH, &length);
 
-	glCompileShader(shaderId);
+		std::string message(length, '*');
+		glGetShaderInfoLog(m_Id, length, &length, &message[0]);
 
-	int32_t status;
-	glGetShaderiv(shaderId, GL_COMPILE_STATUS, &status);
-	if (status != GL_TRUE) {
-		char message[1024];
-		int32_t messageLength;
-		glGetShaderInfoLog(shaderId, 1024, &messageLength, message);
-		ED_LOG(Shader, err, "Shader {}: failed to compile shader: {}", m_Id, message);
-	}
-
-	glAttachShader(m_Id, shaderId);
-
-	m_ShadersIds.push_back(shaderId);
-}
-
-void OpenGLShader::LinkProgram()
-{
-	glLinkProgram(m_Id);
-
-	glValidateProgram(m_Id);
-
-	int32_t status;
-	glGetProgramiv(m_Id, GL_LINK_STATUS, &status);
-	if (status != GL_TRUE) {
-		char message[1024];
-		int32_t messageLength;
-		glGetProgramInfoLog(m_Id, 1024, &messageLength, message);
-		ED_LOG(Shader, err, "Shader {}: failed to link shaders: {}", m_Id, message);
-	}
-
-	for (const auto& shaderId : m_ShadersIds) {
-		glDetachShader(m_Id, shaderId);
-		glDeleteShader(shaderId);
+		ED_ASSERT(0, "Shader compilation error: {}", message);
 	}
 }
 
@@ -59,5 +69,5 @@ uint32_t OpenGLShader::GetID() const
 
 OpenGLShader::~OpenGLShader()
 {
-	glDeleteProgram(m_Id);
+	glDeleteShader(m_Id);
 }

@@ -5,7 +5,6 @@ void PointLightWireframePass::Initialize(std::shared_ptr<RenderGraph> graph)
 	RenderPass<PointLightWireframePassParameters, PointLightWireframePassShaderParameters>::Initialize(graph);
 
 	m_Parameters.Name = "Light wire frame pass";
-	m_Parameters.Shader = RenderingHelper::CreateShader("shaders\\wireframe.glsl");
 
 	m_Parameters.SourceFactor = BlendFactor::One;
 	m_Parameters.DestinationFactor = BlendFactor::One;
