@@ -4,11 +4,6 @@
 #include <memory>
 #include "Core/Window.h"
 #include "Core/Rendering/Types.h"
-#include "Core/Math/Transform.h"
-#include "Core/Math/Camera.h"
-#include "Helpers/FilesHelper.h"
-
-#include "Core/Assets/ImportParameters/TextureImportParameters.h"
 
 #undef CreateWindow
 
@@ -20,6 +15,7 @@ class RenderingContext;
 
 class Texture;
 
+class Texture2DImportParameters;
 class Texture2DData;
 class Texture2D;
 
@@ -40,12 +36,15 @@ struct RenderTargetSpecification;
 
 class RenderGraph;
 
+class Transform;
+class Camera;
+
 enum class FramebufferAttachmentType;
 
 class RenderingHelper
 {
 public:
-	static std::shared_ptr<Window> CreateWindow(WindowSpecification specificeton);
+	static std::shared_ptr<Window> CreateWindow(WindowSpecification specification);
 
 	static std::shared_ptr<VertexBuffer> CreateVertexBuffer();
 	static std::shared_ptr<VertexBuffer> CreateVertexBuffer(void* data, uint32_t size, const class VertexBufferLayout& layout, BufferUsage usage);

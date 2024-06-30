@@ -1,6 +1,5 @@
 #include "OpenGLCubeTexture.h"
-#include "Core/Rendering/EdRendering.h"
-#include "Platform/Rendering/OpenGL/OpenGLTypes.h"
+#include "Platform/Rendering/OpenGL/EdOpenGLRendering.h"
 
 OpenGLCubeTexture::OpenGLCubeTexture(const std::string& name) : Super(name)
 {

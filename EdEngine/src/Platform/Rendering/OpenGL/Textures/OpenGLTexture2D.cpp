@@ -1,6 +1,5 @@
 #include "OpenGLTexture2D.h"
-#include "Platform/Rendering/OpenGL/OpenGLTypes.h"
-#include "Core/Rendering/EdRendering.h"
+#include "Platform/Rendering/OpenGL/EdOpenGLRendering.h"
 
 OpenGLTexture2D::OpenGLTexture2D(const std::string& name): Super(name)
 {

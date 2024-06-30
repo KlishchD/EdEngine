@@ -1,5 +1,5 @@
 #include "Input.h"
-#include "Rendering/EdRendering.h"
+#include "Platform/Rendering/EdRendering.h"
 
 Key Input::ConvertGLFWInputKey(int32_t key)
 {

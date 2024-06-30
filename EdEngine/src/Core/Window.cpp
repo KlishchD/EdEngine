@@ -4,6 +4,11 @@ Window::Window(WindowSpecification specification): m_Width(specification.Width),
 {
 }
 
+void Window::Initialize(WindowSpecification specification)
+{
+
+}
+
 std::string Window::GetTitle() const
 {
     return m_Title;

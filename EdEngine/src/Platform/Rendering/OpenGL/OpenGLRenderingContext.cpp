@@ -1,12 +1,10 @@
 #include "OpenGLRenderingContext.h"
-#include "Core/Rendering/EdRendering.h"
+#include "Platform/Rendering/OpenGL/EdOpenGLRendering.h"
 #include "Core/Rendering/Framebuffer.h"
 #include "Core/Ed.h"
-#include "Core/Macros.h"
 #include "Buffers/OpenGLVertexBuffer.h"
 #include "Buffers/OpenGLIndexBuffer.h"
 #include "Buffers/OpenGLUniformBuffer.h"
-#include "OpenGLTypes.h"
 #include "OpenGLShader.h"
 #include "OpenGLShaderProgram.h"
 #include <glm/gtc/type_ptr.hpp>

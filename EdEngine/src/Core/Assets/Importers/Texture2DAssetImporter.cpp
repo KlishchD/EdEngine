@@ -3,6 +3,7 @@
 #include "Core/Rendering/Textures/Texture2D.h"
 #include "Helpers/RenderingHelper.h"
 #include "Helpers/stb_image.h"
+#include "Helpers/FilesHelper.h"
 
 Texture2DImporter::Texture2DImporter(std::shared_ptr<AssetManager> manager) : AssetImporter(manager)
 {

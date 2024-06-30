@@ -1,7 +1,5 @@
 #include "OpenGLShader.h"
-#include "Core/Rendering/EdRendering.h"
-#include "Core/Macros.h"
-#include "OpenGLTypes.h"
+#include "Platform/Rendering/OpenGL/EdOpenGLRendering.h"
 
 //#include "DirStackFileIncluder.h"
 //#include <glslang/Public/ShaderLang.h>

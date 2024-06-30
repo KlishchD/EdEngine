@@ -1,6 +1,5 @@
 #include "OpenGLTypes.h"
-#include "Core/Macros.h"
-#include "Core/Rendering/EdRendering.h"
+#include "Platform/Rendering/OpenGL/EdOpenGLRendering.h"
 #include <glslang/Public/ShaderLang.h>
 
 uint32_t OpenGLTypes::ConvertWrapMode(WrapMode mode)

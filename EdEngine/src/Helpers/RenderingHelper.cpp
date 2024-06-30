@@ -14,22 +14,31 @@
 #include "Core/Assets/AssetManager.h"
 #include "Core/Engine.h"
 #include "Core/Macros.h"
-#include <fstream>
+#include "Helpers/FilesHelper.h"
+#include "Core/Math/Camera.h"
+#include "Core/Math/Transform.h"
 
 #undef CreateWindow
 
-std::shared_ptr<Window> RenderingHelper::CreateWindow(WindowSpecification specificeton)
+std::shared_ptr<Window> RenderingHelper::CreateWindow(WindowSpecification specification)
 {
 	RenderingAPI api = Engine::Get().GetRenderingAPI();
 
+	std::shared_ptr<Window> window;
+
 	switch (api)
 	{
-	case RenderingAPI::OpenGL: return std::make_shared<OpenGLWindow>(specificeton);
+	case RenderingAPI::OpenGL: window = std::make_shared<OpenGLWindow>(specification); break;
 	default:
 		ED_ASSERT(0, "Can not create window for provided RenderingAPI");
 	}
 
-	return nullptr;
+	if (window)
+	{
+		window->Initialize(specification);
+	}
+
+	return window;
 }
 
 std::shared_ptr<VertexBuffer> RenderingHelper::CreateVertexBuffer(void* data, uint32_t size, const VertexBufferLayout& layout, BufferUsage usage)

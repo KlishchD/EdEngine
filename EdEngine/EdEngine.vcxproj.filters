@@ -342,6 +342,9 @@
     <ClCompile Include="src\Platform\Rendering\OpenGL\OpenGLShaderProgram.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="src\Platform\Rendering\GLFWWindow.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\Core\BaseManager.h">
@@ -539,7 +542,7 @@
     <ClInclude Include="src\Platform\Rendering\OpenGL\Textures\OpenGLSampler.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\Core\Rendering\EdRendering.h">
+    <ClInclude Include="src\Platform\Rendering\EdRendering.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\Core\Rendering\Passes\GBufferPass.h">
@@ -705,6 +708,15 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\Platform\Rendering\OpenGL\DirStackFileIncluder.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Platform\Rendering\DirectX11\D3D11Window.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Platform\Rendering\GLFWWindow.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Platform\Rendering\OpenGL\EdOpenGLRendering.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

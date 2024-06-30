@@ -15,6 +15,8 @@ class Window {
 public:
     Window(WindowSpecification specification);
 
+    virtual void Initialize(WindowSpecification specification);
+
     virtual void Update() = 0;
 
     virtual bool IsRunning() = 0;

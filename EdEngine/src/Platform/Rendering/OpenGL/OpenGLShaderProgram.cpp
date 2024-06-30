@@ -1,5 +1,5 @@
 #include "OpenGLShaderProgram.h"
-#include "Core/Rendering/EdRendering.h"
+#include "Platform/Rendering/OpenGL/EdOpenGLRendering.h"
 #include "OpenGLShader.h"
 
 OpenGLShaderProgram::OpenGLShaderProgram()
