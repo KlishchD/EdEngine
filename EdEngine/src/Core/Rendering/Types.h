@@ -4,6 +4,12 @@
 #include <glm/vec4.hpp>
 #include <string>
 
+enum class RenderingAPI
+{
+	OpenGL,
+	D3D11
+};
+
 enum class WrapMode
 {
 	Repeat,

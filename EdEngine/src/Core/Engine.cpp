@@ -126,6 +126,16 @@ void Engine::Update()
 	m_IsRunning = m_Window->IsRunning();
 }
 
+void Engine::SetRenderingAPI(RenderingAPI api)
+{
+	m_RenderingAPI = api;
+}
+
+RenderingAPI Engine::GetRenderingAPI() const
+{
+	return m_RenderingAPI;
+}
+
 void Engine::InputAction(Key key, Action action)
 {
 	for (InputEvent& event: m_InputEvents)

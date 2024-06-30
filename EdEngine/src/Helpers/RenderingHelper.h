@@ -47,9 +47,11 @@ class RenderingHelper
 public:
 	static std::shared_ptr<Window> CreateWindow(WindowSpecification specificeton);
 
+	static std::shared_ptr<VertexBuffer> CreateVertexBuffer();
 	static std::shared_ptr<VertexBuffer> CreateVertexBuffer(void* data, uint32_t size, const class VertexBufferLayout& layout, BufferUsage usage);
 	static std::shared_ptr<VertexBuffer> CreateCubeVertexBuffer();
 
+	static std::shared_ptr<IndexBuffer> CreateIndexBuffer();
 	static std::shared_ptr<IndexBuffer> CreateIndexBuffer(void* data, uint32_t size, BufferUsage usage);
 
 	static std::shared_ptr<UniformBuffer> CreateUniformBuffer();

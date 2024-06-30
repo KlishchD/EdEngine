@@ -7,6 +7,8 @@
 #include "Input.h"
 #include "BaseManager.h"
 
+enum class RenderingAPI;
+
 class Scene;
 class Renderer;
 class Widget;
@@ -28,6 +30,9 @@ public:
     bool IsRunning();
     
     void Update();
+
+    void SetRenderingAPI(RenderingAPI api);
+    RenderingAPI GetRenderingAPI() const;
 
     // Input Events
 
@@ -78,6 +83,8 @@ protected:
 	void PushUpdate(float DeltaTime);
 
 protected:
+    RenderingAPI m_RenderingAPI;
+
     std::shared_ptr<Window> m_Window;
     
     std::chrono::time_point<std::chrono::system_clock> m_PreviousFrameTime = std::chrono::system_clock::now();

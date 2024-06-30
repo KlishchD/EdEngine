@@ -1,9 +1,12 @@
 #include "Core/Engine.h"
 #include "Editor.h"
+#include "Core/Rendering/Types.h"
 
 int main(int argc, char* argv[])
 {
     Engine& engine = Engine::Create();
+
+    engine.SetRenderingAPI(RenderingAPI::OpenGL);
 
     engine.Start();
     engine.Initialize();

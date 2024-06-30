@@ -20,16 +20,39 @@
 
 std::shared_ptr<Window> RenderingHelper::CreateWindow(WindowSpecification specificeton)
 {
-	return std::make_shared<OpenGLWindow>(specificeton);
+	RenderingAPI api = Engine::Get().GetRenderingAPI();
+
+	switch (api)
+	{
+	case RenderingAPI::OpenGL: return std::make_shared<OpenGLWindow>(specificeton);
+	default:
+		ED_ASSERT(0, "Can not create window for provided RenderingAPI");
+	}
+
+	return nullptr;
 }
 
 std::shared_ptr<VertexBuffer> RenderingHelper::CreateVertexBuffer(void* data, uint32_t size, const VertexBufferLayout& layout, BufferUsage usage)
 {
-	std::shared_ptr<VertexBuffer> buffer = std::make_shared<OpenGLVertexBuffer>();
+	std::shared_ptr<VertexBuffer> buffer = CreateVertexBuffer();
 	buffer->SetData(data, size, usage);
 	buffer->SetLayout(layout);
 
 	return buffer;
+}
+
+std::shared_ptr<VertexBuffer> RenderingHelper::CreateVertexBuffer()
+{
+	RenderingAPI api = Engine::Get().GetRenderingAPI();
+
+	switch (api)
+	{
+	case RenderingAPI::OpenGL: return std::make_shared<OpenGLVertexBuffer>();
+	default:
+		ED_ASSERT(0, "Can not create vertex buffer for provided RenderingAPI");
+	}
+
+	return nullptr;
 }
 
 std::shared_ptr<VertexBuffer> RenderingHelper::CreateCubeVertexBuffer()
@@ -86,9 +109,32 @@ std::shared_ptr<IndexBuffer> RenderingHelper::CreateIndexBuffer(void* data, uint
 	return buffer;
 }
 
+std::shared_ptr<IndexBuffer> RenderingHelper::CreateIndexBuffer()
+{
+	RenderingAPI api = Engine::Get().GetRenderingAPI();
+
+	switch (api)
+	{
+	case RenderingAPI::OpenGL: return std::make_shared<OpenGLIndexBuffer>();
+	default:
+		ED_ASSERT(0, "Can not create index buffer for provided RenderingAPI");
+	}
+
+	return nullptr;
+}
+
 std::shared_ptr<UniformBuffer> RenderingHelper::CreateUniformBuffer()
 {
-	return std::make_shared<OpenGLUniformBuffer>();
+	RenderingAPI api = Engine::Get().GetRenderingAPI();
+
+	switch (api)
+	{
+	case RenderingAPI::OpenGL: return std::make_shared<OpenGLUniformBuffer>();
+	default:
+		ED_ASSERT(0, "Can not create uniform buffer for provided RenderingAPI");
+	}
+
+	return nullptr;
 }
 
 std::shared_ptr<UniformBuffer> RenderingHelper::CreateUniformBuffer(void* data, uint32_t size, BufferUsage usage)
@@ -100,7 +146,16 @@ std::shared_ptr<UniformBuffer> RenderingHelper::CreateUniformBuffer(void* data, 
 
 std::shared_ptr<ShaderProgram> RenderingHelper::CreateShaderProgram()
 {
-	return std::make_shared<OpenGLShaderProgram>();
+	RenderingAPI api = Engine::Get().GetRenderingAPI();
+
+	switch (api)
+	{
+	case RenderingAPI::OpenGL: return std::make_shared<OpenGLShaderProgram>();
+	default:
+		ED_ASSERT(0, "Can not create shader program for provided RenderingAPI");
+	}
+
+	return nullptr;
 }
 
 std::shared_ptr<Shader> RenderingHelper::CreateShader(ShaderType type, const std::string& filepath)
@@ -108,7 +163,17 @@ std::shared_ptr<Shader> RenderingHelper::CreateShader(ShaderType type, const std
 	std::string source;
 	bool hasReadShaderSource = FilesHelper::ReadFileToString(FilesHelper::ContentFolderPath + filepath, source);
 	ED_ASSERT(hasReadShaderSource, "Couldn't read shader soruce");
-	return std::make_shared<OpenGLShader>(type, filepath, source);
+
+	RenderingAPI api = Engine::Get().GetRenderingAPI();
+
+	switch (api)
+	{
+	case RenderingAPI::OpenGL: return std::make_shared<OpenGLShader>(type, filepath, source);
+	default:
+		ED_ASSERT(0, "Can not create shader for provided RenderingAPI");
+	}
+
+	return nullptr;
 }
 
 std::shared_ptr<Texture> RenderingHelper::CreateRenderTarget(const RenderTargetSpecification& specification, TextureType textureType)
@@ -175,7 +240,16 @@ std::shared_ptr<Framebuffer> RenderingHelper::CreateFramebuffer(const Framebuffe
 
 std::shared_ptr<Texture2D> RenderingHelper::CreateTexture2D(const std::string& name)
 {
-	return std::make_shared<OpenGLTexture2D>(name);
+	RenderingAPI api = Engine::Get().GetRenderingAPI();
+
+	switch (api)
+	{
+	case RenderingAPI::OpenGL: return std::make_shared<OpenGLTexture2D>(name);
+	default:
+		ED_ASSERT(0, "Can not create texture 2D for provided RenderingAPI");
+	}
+
+	return nullptr;
 }
 
 std::shared_ptr<Texture2D> RenderingHelper::CreateTexture2D(const std::string& name, std::shared_ptr<Texture2DImportParameters> parameters, Texture2DData&& data)
@@ -199,7 +273,16 @@ std::shared_ptr<Texture2D> RenderingHelper::CreateTexture2D(const std::string& n
 
 std::shared_ptr<CubeTexture> RenderingHelper::CreateCubeTexture(const std::string& name)
 {
-	return std::make_shared<OpenGLCubeTexture>(name);
+	RenderingAPI api = Engine::Get().GetRenderingAPI();
+
+	switch (api)
+	{
+	case RenderingAPI::OpenGL: return std::make_shared<OpenGLCubeTexture>(name);
+	default:
+		ED_ASSERT(0, "Can not create cube texture for provided RenderingAPI");
+	}
+
+	return nullptr;
 }
 
 std::shared_ptr<CubeTexture> RenderingHelper::CreateCubeTexture(const std::string& name, std::shared_ptr<CubeTextureImportParameters> parameters, CubeTextureData&& data)
@@ -224,7 +307,16 @@ std::shared_ptr<CubeTexture> RenderingHelper::CreateCubeTexture(const std::strin
 
 std::shared_ptr<Texture2DArray> RenderingHelper::CreateTexture2DArray(const std::string& name)
 {
-	return std::make_shared<OpenGLTexture2DArray>(name);
+	RenderingAPI api = Engine::Get().GetRenderingAPI();
+
+	switch (api)
+	{
+	case RenderingAPI::OpenGL: return std::make_shared<OpenGLTexture2DArray>(name);
+	default:
+		ED_ASSERT(0, "Can not create texture 2D array for provided RenderingAPI");
+	}
+
+	return nullptr;
 }
 
 std::shared_ptr<Texture2DArray> RenderingHelper::CreateTexture2DArray(const std::string& name, std::shared_ptr<Texture2DArrayImportParameters> parameters, Texture2DArrayData&& data)
