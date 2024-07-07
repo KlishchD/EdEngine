@@ -2,7 +2,6 @@
 #include "OpenGLRenderingContext.h"
 #include <backends/imgui_impl_glfw.h>
 #include <backends/imgui_impl_opengl3.h>
-#include "Helpers/PlatformHelper.h"
 
 void OpenGLWindow::Initialize(const WindowSpecification& specification)
 {
@@ -23,8 +22,6 @@ void OpenGLWindow::Initialize(const WindowSpecification& specification)
   glfwMakeContextCurrent(m_Window);
 
   m_Context = std::make_shared<OpenGLRenderingContext>(this);
-
-  PlatformHelper::DisableTitleBar(*this);
 
   ED_LOG(Window, info, "OpenGL window was created");
 }

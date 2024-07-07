@@ -150,6 +150,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="Dependencies\ImGui\backends\imgui_impl_dx12.cpp" />
     <ClCompile Include="Dependencies\ImGui\backends\imgui_impl_glfw.cpp" />
     <ClCompile Include="Dependencies\ImGui\backends\imgui_impl_opengl3.cpp" />
     <ClCompile Include="Dependencies\ImGui\imgui.cpp" />
@@ -268,6 +269,7 @@
     <ClCompile Include="src\Helpers\stb_image.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Dependencies\ImGui\backends\imgui_impl_dx12.h" />
     <ClInclude Include="Dependencies\ImGui\backends\imgui_impl_glfw.h" />
     <ClInclude Include="Dependencies\ImGui\backends\imgui_impl_opengl3.h" />
     <ClInclude Include="Dependencies\ImGui\backends\imgui_impl_opengl3_loader.h" />

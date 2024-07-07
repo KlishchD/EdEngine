@@ -3,6 +3,7 @@
 #include "Platform/Rendering/EdRendering.h"
 #include "Core/Rendering/RenderingContex.h"
 #include "Core/Engine.h"
+#include "Helpers/PlatformHelper.h"
 
 std::vector<Window*> s_Windows;
 

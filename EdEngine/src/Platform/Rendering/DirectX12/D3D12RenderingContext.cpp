@@ -2,14 +2,18 @@
 #include "D3D12Window.h"
 #include "Helpers/StringHelper.h"
 #include "D3D12Fence.h"
+#include "backends/imgui_impl_dx12.h"
+#include "backends/imgui_impl_glfw.h"
 
 D3D12RenderingContext::D3D12RenderingContext(D3D12Window* window) : m_Window(window)
 {
+  gContext = this;
+
   CreateDevice();
   CreateCommandQueue();
   CreateSwapChain();
   CreateCommandList();
-  gContext = this;
+  SetupImGUI();
 }
 
 void D3D12RenderingContext::SetDefaultFramebuffer()
@@ -259,51 +263,58 @@ void D3D12RenderingContext::SetClearColor(glm::vec4 color)
 
 void D3D12RenderingContext::BeginUIFrame()
 {
-
+  ImGui_ImplDX12_NewFrame();
+  ImGui_ImplGlfw_NewFrame();
+  ImGui::NewFrame();
+  ImGui::DockSpaceOverViewport(ImGui::GetMainViewport());
 }
 
 void D3D12RenderingContext::EndUIFrame()
 {
-
-}
-
-void D3D12RenderingContext::Present()
-{
   D3D::Check(m_CommandAllocator->Reset());
 
-  D3D::Check(m_CommandList->Reset(m_CommandAllocator.Get(), nullptr));
+  D3D::Check(m_ImGUICommandList->Reset(m_CommandAllocator.Get(), nullptr));
 
   uint32_t backBufferIndex = m_SwapChain->GetCurrentBackBufferIndex();
 
   {
     D3D12_RESOURCE_BARRIER barrier = D3D12Helper::TransitionBarrier(m_BackBufferRenderTargetResource[backBufferIndex], D3D12_RESOURCE_STATE_PRESENT, D3D12_RESOURCE_STATE_RENDER_TARGET);
-    m_CommandList->ResourceBarrier(1, &barrier);
+    m_ImGUICommandList->ResourceBarrier(1, &barrier);
   }
 
-  static glm::vec4 colors;
+  D3D12_CPU_DESCRIPTOR_HANDLE handle{ m_RTVDescriptorHeap->GetCPUDescriptorHandleForHeapStart().ptr + m_RenderTargetDescriptorSize * backBufferIndex };
+  m_ImGUICommandList->OMSetRenderTargets(1, &handle, true, nullptr);
+  m_ImGUICommandList->SetDescriptorHeaps(1, m_CVBSRVDescriptorHeap.GetAddressOf());
 
-  colors.r = (rand() % 256) / 256.0f;
-  colors.g = (rand() % 256) / 256.0f;
-  colors.b = (rand() % 256) / 256.0f;
-  colors.a = 1.0f;
+  ImGui::Render();
 
-  D3D12_CPU_DESCRIPTOR_HANDLE handle{ m_RenderTargetDescriptorHeap->GetCPUDescriptorHandleForHeapStart().ptr + m_RenderTargetDescriptorSize * backBufferIndex };
-  m_CommandList->ClearRenderTargetView(handle, glm::value_ptr(colors), 0, nullptr);
+  ImGuiIO& io = ImGui::GetIO();
+  if (io.ConfigFlags & ImGuiConfigFlags_ViewportsEnable)
+  {
+    glfwMakeContextCurrent((GLFWwindow*)m_Window->GetNativeWindow());
+    ImGui::UpdatePlatformWindows();
+    ImGui::RenderPlatformWindowsDefault();
+  }
+
+  ImGui_ImplDX12_RenderDrawData(ImGui::GetDrawData(), m_ImGUICommandList.Get());
 
   {
     D3D12_RESOURCE_BARRIER barrier = D3D12Helper::TransitionBarrier(m_BackBufferRenderTargetResource[backBufferIndex], D3D12_RESOURCE_STATE_RENDER_TARGET, D3D12_RESOURCE_STATE_PRESENT);
-    m_CommandList->ResourceBarrier(1, &barrier);
+    m_ImGUICommandList->ResourceBarrier(1, &barrier);
   }
 
-  D3D::Check(m_CommandList->Close());
+  D3D::Check(m_ImGUICommandList->Close());
 
-  ID3D12CommandList* commandLists = m_CommandList.Get();
+  ID3D12CommandList* commandLists = m_ImGUICommandList.Get();
   m_CommandQueue->ExecuteCommandLists(1, &commandLists);
 
   static D3D12Fence fence;
   fence.Wait(m_CommandQueue);
+}
 
-  m_SwapChain->Present(0, 0);
+void D3D12RenderingContext::Present()
+{
+  m_SwapChain->Present(0, DXGI_PRESENT_ALLOW_TEARING);
 }
 
 void D3D12RenderingContext::Close()
@@ -373,7 +384,7 @@ void D3D12RenderingContext::CreateSwapChain()
   swapChainDescription.Scaling = DXGI_SCALING_NONE;
   swapChainDescription.SwapEffect = DXGI_SWAP_EFFECT_FLIP_SEQUENTIAL;
   swapChainDescription.AlphaMode = DXGI_ALPHA_MODE_UNSPECIFIED;
-  swapChainDescription.Flags = 0; // TODO: think of adding DXGI_SWAP_CHAIN_FLAG_ALLOW_TEARING for variable refresh rate monitors
+  swapChainDescription.Flags = DXGI_SWAP_CHAIN_FLAG_ALLOW_TEARING; // TODO: think of adding DXGI_SWAP_CHAIN_FLAG_ALLOW_TEARING for variable refresh rate monitors
 
   Microsoft::WRL::ComPtr<IDXGISwapChain1> swapChain;
   D3D::Check(m_Factory->CreateSwapChainForHwnd(m_CommandQueue.Get(), hWnd, &swapChainDescription, nullptr, nullptr, &swapChain));
@@ -386,9 +397,9 @@ void D3D12RenderingContext::CreateSwapChain()
   renderTargetViewsDescriptorHeapDescription.NumDescriptors = BackBufferCount;
   renderTargetViewsDescriptorHeapDescription.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_NONE;
   renderTargetViewsDescriptorHeapDescription.NodeMask = 0;
-  m_Device->CreateDescriptorHeap(&renderTargetViewsDescriptorHeapDescription, IID_PPV_ARGS(&m_RenderTargetDescriptorHeap));
+  m_Device->CreateDescriptorHeap(&renderTargetViewsDescriptorHeapDescription, IID_PPV_ARGS(&m_RTVDescriptorHeap));
 
-  ED_ASSERT(m_RenderTargetDescriptorHeap, "Failed to create render target descriptor heap");
+  ED_ASSERT(m_RTVDescriptorHeap, "Failed to create render target descriptor heap");
 
   m_RenderTargetDescriptorSize = m_Device->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_RTV);
 
@@ -403,7 +414,7 @@ void D3D12RenderingContext::CreateSwapChain()
     renderTargetViewDescription.Texture2D.MipSlice = 0;
     renderTargetViewDescription.Texture2D.PlaneSlice = 0;
 
-    D3D12_CPU_DESCRIPTOR_HANDLE renderTargetViewHandle { m_RenderTargetDescriptorHeap->GetCPUDescriptorHandleForHeapStart().ptr + m_RenderTargetDescriptorSize * i };
+    D3D12_CPU_DESCRIPTOR_HANDLE renderTargetViewHandle { m_RTVDescriptorHeap->GetCPUDescriptorHandleForHeapStart().ptr + m_RenderTargetDescriptorSize * i };
     m_Device->CreateRenderTargetView(m_BackBufferRenderTargetResource[i].Get(), &renderTargetViewDescription, renderTargetViewHandle);
   }
 }
@@ -414,11 +425,25 @@ void D3D12RenderingContext::CreateCommandList()
 
   ED_ASSERT(m_CommandAllocator, "Failed to create command allocator");
 
-  D3D::Check(m_Device->CreateCommandList(0, D3D12_COMMAND_LIST_TYPE_DIRECT, m_CommandAllocator.Get(), nullptr, IID_PPV_ARGS(&m_CommandList)));
+  D3D::Check(m_Device->CreateCommandList(0, D3D12_COMMAND_LIST_TYPE_DIRECT, m_CommandAllocator.Get(), nullptr, IID_PPV_ARGS(&m_ImGUICommandList)));
 
-  ED_ASSERT(m_CommandList, "Failed to create command list");
+  ED_ASSERT(m_ImGUICommandList, "Failed to create command list");
 
-  D3D::Check(m_CommandList->Close());
+  D3D::Check(m_ImGUICommandList->Close());
+}
+
+void D3D12RenderingContext::SetupImGUI()
+{
+  D3D12_DESCRIPTOR_HEAP_DESC CVBSRVDescriptorHeapDescription;
+  CVBSRVDescriptorHeapDescription.Type = D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV;
+  CVBSRVDescriptorHeapDescription.NumDescriptors = BackBufferCount;
+  CVBSRVDescriptorHeapDescription.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE;
+  CVBSRVDescriptorHeapDescription.NodeMask = 0;
+  m_Device->CreateDescriptorHeap(&CVBSRVDescriptorHeapDescription, IID_PPV_ARGS(&m_CVBSRVDescriptorHeap));
+
+  ImGuiHelper::CreateImGuiAndSetUpContext();
+  ImGui_ImplGlfw_InitForOther((GLFWwindow*)m_Window->GetNativeWindow(), true);
+  ImGui_ImplDX12_Init(m_Device.Get(), 1, DXGI_FORMAT_R8G8B8A8_UNORM, m_CVBSRVDescriptorHeap.Get(), m_CVBSRVDescriptorHeap->GetCPUDescriptorHandleForHeapStart(), m_CVBSRVDescriptorHeap->GetGPUDescriptorHandleForHeapStart());
 }
 
 void D3D12RenderingContext::LogAdapterInformation()

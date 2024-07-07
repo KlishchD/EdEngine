@@ -83,6 +83,7 @@ protected:
   void CreateCommandQueue();
   void CreateSwapChain();
   void CreateCommandList();
+  void SetupImGUI();
 
   void LogAdapterInformation();
 
@@ -96,10 +97,11 @@ protected:
   Microsoft::WRL::ComPtr<ID3D12Device> m_Device;
   Microsoft::WRL::ComPtr<ID3D12CommandQueue> m_CommandQueue;
   Microsoft::WRL::ComPtr<IDXGISwapChain4> m_SwapChain;
-  Microsoft::WRL::ComPtr<ID3D12DescriptorHeap> m_RenderTargetDescriptorHeap;
+  Microsoft::WRL::ComPtr<ID3D12DescriptorHeap> m_RTVDescriptorHeap;
+  Microsoft::WRL::ComPtr<ID3D12DescriptorHeap> m_CVBSRVDescriptorHeap;
   Microsoft::WRL::ComPtr<ID3D12Resource1> m_BackBufferRenderTargetResource[BackBufferCount];
   Microsoft::WRL::ComPtr<ID3D12CommandAllocator> m_CommandAllocator;
-  Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList1> m_CommandList;
+  Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList1> m_ImGUICommandList;
 
   uint32_t m_RenderTargetDescriptorSize = 0;
 };
