@@ -18,7 +18,7 @@ public:
 template<typename T, AssetType m_Type>
 std::shared_ptr<Asset> TemplatedAssetFactory<T, m_Type>::Create()
 {
-	std::shared_ptr<T> asset = std::make_shared<T>();
+	std::shared_ptr<T> asset = T::GetClassStatic().Create<T>();
 
 	m_Manager->RegisterAsset(asset);
 
@@ -44,7 +44,7 @@ AssetType TemplatedAssetFactory<T, m_Type>::GetType()
 template<typename T, AssetType m_Type>
 std::shared_ptr<Asset> TemplatedAssetFactory<T, m_Type>::Load(Archive& archive, bool bShouldLoadData)
 {
-	std::shared_ptr<T> asset = std::make_shared<T>();
+	std::shared_ptr<T> asset = T::GetClassStatic().Create<T>();
 	asset->SetShouldLoadData(bShouldLoadData);
 	archive & asset;
 
@@ -55,5 +55,5 @@ std::shared_ptr<Asset> TemplatedAssetFactory<T, m_Type>::Load(Archive& archive, 
 
 template<typename T, AssetType m_Type>
 TemplatedAssetFactory<T, m_Type>::TemplatedAssetFactory(std::shared_ptr<AssetManager> manager) : AssetFactory(manager)
-{	
+{
 }

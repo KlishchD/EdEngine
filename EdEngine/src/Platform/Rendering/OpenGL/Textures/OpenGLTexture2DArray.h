@@ -2,16 +2,16 @@
 
 #include "Core/Rendering/Textures/Texture2DArray.h"
 
-ED_CLASS(OpenGLTexture2DArray) : public Texture2DArray
+ED_CLASS2(OpenGLTexture2DArray, RenderingHelper::CreateTexture2DArray) : public Texture2DArray
 {
-	ED_CLASS_BODY(OpenGLTexture2DArray, Texture2DArray)
+  ED_CLASS_BODY(OpenGLTexture2DArray, Texture2DArray)
 public:
-	OpenGLTexture2DArray(const std::string& name = "Empty");
-	
-	virtual void Initialize() override;
+  OpenGLTexture2DArray(const std::string & name = "Empty");
 
-	virtual ~OpenGLTexture2DArray() override;
+  virtual void Initialize() override;
+
+  virtual ~OpenGLTexture2DArray() override;
 protected:
-	virtual void RefreshData() override;
-	virtual void RefreshParameters() override;
+  virtual void RefreshData() override;
+  virtual void RefreshParameters() override;
 };

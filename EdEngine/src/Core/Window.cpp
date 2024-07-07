@@ -1,12 +1,10 @@
 #include "Window.h"
 
-Window::Window(WindowSpecification specification): m_Width(specification.Width), m_Height(specification.Height), m_Title(specification.Title)
+void Window::Initialize(const WindowSpecification& specification)
 {
-}
-
-void Window::Initialize(WindowSpecification specification)
-{
-
+  m_Width = specification.Width;
+  m_Height = specification.Height;
+  m_Title = specification.Title;
 }
 
 std::string Window::GetTitle() const

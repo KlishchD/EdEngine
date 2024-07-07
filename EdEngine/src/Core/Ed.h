@@ -8,8 +8,9 @@
 #include <map>
 #include <unordered_map>
 
-#include <glm/mat4x4.hpp>
 #include <glm/fwd.hpp>
+#include <glm/mat4x4.hpp>
+#include <glm/gtc/type_ptr.hpp>
 #include <glm/detail/type_quat.hpp>
 #include <glm/ext/quaternion_trigonometric.hpp>
 

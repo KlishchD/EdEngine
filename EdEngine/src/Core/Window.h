@@ -11,31 +11,29 @@ struct WindowSpecification
 
 class Window {
 public:
-    Window(WindowSpecification specification);
+	virtual void Initialize(const WindowSpecification& specification);
 
-    virtual void Initialize(WindowSpecification specification);
+	virtual void Update() = 0;
 
-    virtual void Update() = 0;
+	virtual bool IsRunning() = 0;
 
-    virtual bool IsRunning() = 0;
+	virtual void Resize(int32_t width, int32_t height) = 0;
 
-    virtual void Resize(int32_t width, int32_t height) = 0;
+	virtual glm::vec2 GetMousePosition() = 0;
+	virtual glm::vec2 GetMousePositionNormalized() = 0;
 
-    virtual glm::vec2 GetMousePosition() = 0;
-    virtual glm::vec2 GetMousePositionNormalized() = 0;
+	virtual void Move(glm::vec2 delta) = 0;
 
-    virtual void Move(glm::vec2 delta) = 0;
+	std::string GetTitle() const;
+	uint32_t GetWidth() const;
+	uint32_t GetHeight() const;
 
-    std::string GetTitle() const;
-    uint32_t GetWidth() const;
-    uint32_t GetHeight() const;
-    
-    virtual void* GetNativeWindow() = 0;
+	virtual void* GetNativeWindow() = 0;
 
-    virtual std::shared_ptr<class RenderingContext> GetContext() = 0;
+	virtual std::shared_ptr<class RenderingContext> GetContext() = 0;
 
-    virtual void Close() = 0;
-    virtual ~Window() = default;
+	virtual void Close() = 0;
+	virtual ~Window() = default;
 protected:
 	std::string m_Title;
 	uint32_t m_Width;

@@ -1,18 +1,12 @@
 #include "GLFWWindow.h"
 #include <glslang/Public/ShaderLang.h>
 #include "Platform/Rendering/EdRendering.h"
-#include "imgui.h"
-#include <backends/imgui_impl_glfw.h>
+#include "Core/Rendering/RenderingContex.h"
 #include "Core/Engine.h"
 
 std::vector<Window*> s_Windows;
 
-GLFWWindow::GLFWWindow(WindowSpecification specification) : Window(specification)
-{
-
-}
-
-void GLFWWindow::Initialize(WindowSpecification specification)
+void GLFWWindow::Initialize(const WindowSpecification& specification)
 {
 	s_Windows.push_back(this);
 
@@ -114,6 +108,8 @@ void GLFWWindow::Close()
 {
 	if (m_Window)
 	{
+		GetContext()->Close();
+
 		ShFinalize();
 
 		glfwTerminate();

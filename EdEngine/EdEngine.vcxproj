@@ -233,6 +233,11 @@
     <ClCompile Include="src\Core\Widget.cpp" />
     <ClCompile Include="src\Core\Window.cpp" />
     <ClCompile Include="src\Helpers\ImGuiHelper.cpp" />
+    <ClCompile Include="src\Platform\Rendering\DirectX12\D3D12Fence.cpp" />
+    <ClCompile Include="src\Platform\Rendering\DirectX12\D3D12RenderingContext.cpp" />
+    <ClCompile Include="src\Platform\Rendering\DirectX12\D3D12Types.cpp" />
+    <ClCompile Include="src\Platform\Rendering\DirectX12\D3D12Window.cpp" />
+    <ClCompile Include="src\Platform\Rendering\DirectX12\Helpers\D3D12Helper.cpp" />
     <ClCompile Include="src\Platform\Rendering\GLFWWindow.cpp" />
     <ClCompile Include="src\Platform\Rendering\OpenGL\Buffers\OpenGLIndexBuffer.cpp" />
     <ClCompile Include="src\Platform\Rendering\OpenGL\Buffers\OpenGLUniformBuffer.cpp" />
@@ -295,6 +300,13 @@
     <ClInclude Include="src\Core\Rendering\Buffers\UniformBuffer.h" />
     <ClInclude Include="src\Core\Rendering\EdRendering.h" />
     <ClInclude Include="src\Helpers\ImGuiHelper.h" />
+    <ClInclude Include="src\Helpers\StringHelper.h" />
+    <ClInclude Include="src\Platform\Rendering\DirectX12\D3D12Fence.h" />
+    <ClInclude Include="src\Platform\Rendering\DirectX12\D3D12RenderingContext.h" />
+    <ClInclude Include="src\Platform\Rendering\DirectX12\D3D12Types.h" />
+    <ClInclude Include="src\Platform\Rendering\DirectX12\D3D12Window.h" />
+    <ClInclude Include="src\Platform\Rendering\DirectX12\EdD3D12Rendering.h" />
+    <ClInclude Include="src\Platform\Rendering\DirectX12\Helpers\D3D12Helper.h" />
     <ClInclude Include="src\Platform\Rendering\EdRendering.h" />
     <ClInclude Include="src\Core\Rendering\Passes\Bloom\BloomDownscalePass.h" />
     <ClInclude Include="src\Core\Rendering\Passes\Bloom\BloomMultiPass.h" />

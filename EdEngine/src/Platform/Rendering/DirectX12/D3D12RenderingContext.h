@@ -1,15 +1,14 @@
 #pragma once
 
+#include "Platform/Rendering/DirectX12/EdD3D12Rendering.h"
 #include "Core/Rendering/RenderingContex.h"
-#include "Platform/Rendering/OpenGL/EdOpenGLRendering.h"
 
-class OpenGLWindow;
+class D3D12Window;
 
-class OpenGLRenderingContext : public RenderingContext
+class D3D12RenderingContext : public RenderingContext
 {
-  static const inline uint8_t MaxUniformBufferLocations = 14;
 public:
-  OpenGLRenderingContext(OpenGLWindow* window);
+  D3D12RenderingContext(D3D12Window* window);
 
   virtual void SetDefaultFramebuffer() override;
   virtual void SetFramebuffer(std::shared_ptr<Framebuffer> framebuffer) override;
@@ -78,17 +77,29 @@ public:
 
   virtual void Close() override;
 
-  virtual ~OpenGLRenderingContext() override;
-private:
-  std::shared_ptr<VertexBuffer> m_VBO;
-  std::shared_ptr<IndexBuffer> m_IBO;
-  std::shared_ptr<UniformBuffer> m_UnifromBuffers[MaxUniformBufferLocations];
+  Microsoft::WRL::ComPtr<ID3D12Device> GetDevice() const;
+protected:
+  void CreateDevice();
+  void CreateCommandQueue();
+  void CreateSwapChain();
+  void CreateCommandList();
 
-  std::shared_ptr<ShaderProgram> m_Program;
-  int32_t m_ProgramID;
+  void LogAdapterInformation();
 
-  int32_t m_LastTextureSlot = 0;
-  const int32_t MaxTextureSlots = 16;
+protected:
+  D3D12Window* m_Window;
 
-  struct GLFWwindow* m_Window;
+  static const uint32_t BackBufferCount = 2; // TODO: think of adding triple buffering option
+
+  Microsoft::WRL::ComPtr<IDXGIFactory6> m_Factory;
+  Microsoft::WRL::ComPtr<IDXGIAdapter> m_Adapter;
+  Microsoft::WRL::ComPtr<ID3D12Device> m_Device;
+  Microsoft::WRL::ComPtr<ID3D12CommandQueue> m_CommandQueue;
+  Microsoft::WRL::ComPtr<IDXGISwapChain4> m_SwapChain;
+  Microsoft::WRL::ComPtr<ID3D12DescriptorHeap> m_RenderTargetDescriptorHeap;
+  Microsoft::WRL::ComPtr<ID3D12Resource1> m_BackBufferRenderTargetResource[BackBufferCount];
+  Microsoft::WRL::ComPtr<ID3D12CommandAllocator> m_CommandAllocator;
+  Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList1> m_CommandList;
+
+  uint32_t m_RenderTargetDescriptorSize = 0;
 };

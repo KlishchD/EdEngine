@@ -80,7 +80,9 @@ public:
 	virtual void BeginUIFrame() = 0;
 	virtual void EndUIFrame() = 0;
 
-	virtual void SwapBuffers() = 0;
+	virtual void Present() = 0;
+
+	virtual void Close() = 0;
 
 	virtual ~RenderingContext() = default;
 protected:

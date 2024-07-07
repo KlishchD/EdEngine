@@ -5,9 +5,7 @@
 class GLFWWindow : public Window
 {
 public:
-	GLFWWindow(WindowSpecification specification);
-
-	virtual void Initialize(WindowSpecification specification) override;
+	virtual void Initialize(const WindowSpecification& specification) override;
 
 	virtual void Update() override;
 

@@ -1,4 +1,8 @@
 #include "RenderingHelper.h"
+
+#include "Platform/Rendering/OpenGL/OpenGLWindow.h"
+#include "Platform/Rendering/DirectX12/D3D12Window.h"
+
 #include "Platform/Rendering/OpenGL/OpenGLFramebuffer.h"
 #include "Platform/Rendering/OpenGL/Buffers/OpenGLVertexBuffer.h"
 #include "Platform/Rendering/OpenGL/Buffers/OpenGLIndexBuffer.h"
@@ -6,7 +10,6 @@
 #include "Platform/Rendering/OpenGL/OpenGLRenderingContext.h"
 #include "Platform/Rendering/OpenGL/OpenGLShader.h"
 #include "Platform/Rendering/OpenGL/OpenGLShaderProgram.h"
-#include "Platform/Rendering/OpenGL/OpenGLWindow.h"
 #include "Platform/Rendering/OpenGL/Textures/OpenGLTexture2D.h"
 #include "Platform/Rendering/OpenGL/Textures/OpenGLCubeTexture.h"
 #include "Platform/Rendering/OpenGL/Textures/OpenGLTexture2DArray.h"
@@ -28,7 +31,8 @@ std::shared_ptr<Window> RenderingHelper::CreateWindow(WindowSpecification specif
 
 	switch (api)
 	{
-	case RenderingAPI::OpenGL: window = std::make_shared<OpenGLWindow>(specification); break;
+	case RenderingAPI::OpenGL: window = std::make_shared<OpenGLWindow>(); break;
+	case RenderingAPI::D3D12: window = std::make_shared<D3D12Window>(); break;
 	default:
 		ED_ASSERT(0, "Can not create window for provided RenderingAPI");
 	}
