@@ -1,5 +1,6 @@
 #pragma once
 
+#include <glm/vec2.hpp>
 #include <glm/vec3.hpp>
 #include <glm/vec4.hpp>
 #include <string>
@@ -7,7 +8,7 @@
 enum class RenderingAPI
 {
 	OpenGL,
-	D3D11
+	D3D12
 };
 
 enum class WrapMode

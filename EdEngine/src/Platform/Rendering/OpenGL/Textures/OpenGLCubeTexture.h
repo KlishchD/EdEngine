@@ -2,7 +2,7 @@
 
 #include "Core/Rendering/Textures/CubeTexture.h"
 
-ED_CLASS(OpenGLCubeTexture) : public CubeTexture
+ED_CLASS2(OpenGLCubeTexture, RenderingHelper::CreateCubeTexture) : public CubeTexture
 {
 	ED_CLASS_BODY(OpenGLCubeTexture, CubeTexture)
 public:

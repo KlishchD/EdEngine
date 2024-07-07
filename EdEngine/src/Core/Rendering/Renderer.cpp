@@ -6,7 +6,6 @@
 #include "Helpers/MathHelper.h"
 #include "Helpers/FilesHelper.h"
 #include "Core/Macros.h"
-#include "imgui.h"
 #include <random>
 
 #include "Core/Components/StaticMeshComponent.h"
@@ -34,12 +33,13 @@
 #include "Passes/ResolutionPass.h"
 #include "Passes/GrayscalePass.h"
 #include "Passes/Editor/IconsPass.h"
+#include "Core/Window.h"
 
 void Renderer::Initialize(Engine* engine)
 {
 	ED_LOG(Renderer, info, "Started initalizing Renderer")
 
-    m_Engine = engine;
+	m_Engine = engine;
 
 	m_Context = engine->GetWindow()->GetContext();
 

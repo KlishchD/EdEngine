@@ -232,6 +232,7 @@
     <ClCompile Include="src\Core\Scene.cpp" />
     <ClCompile Include="src\Core\Widget.cpp" />
     <ClCompile Include="src\Core\Window.cpp" />
+    <ClCompile Include="src\Helpers\ImGuiHelper.cpp" />
     <ClCompile Include="src\Platform\Rendering\GLFWWindow.cpp" />
     <ClCompile Include="src\Platform\Rendering\OpenGL\Buffers\OpenGLIndexBuffer.cpp" />
     <ClCompile Include="src\Platform\Rendering\OpenGL\Buffers\OpenGLUniformBuffer.cpp" />
@@ -292,6 +293,8 @@
     <ClInclude Include="src\Core\Objects\Class.h" />
     <ClInclude Include="src\Core\Objects\PlayerActor.h" />
     <ClInclude Include="src\Core\Rendering\Buffers\UniformBuffer.h" />
+    <ClInclude Include="src\Core\Rendering\EdRendering.h" />
+    <ClInclude Include="src\Helpers\ImGuiHelper.h" />
     <ClInclude Include="src\Platform\Rendering\EdRendering.h" />
     <ClInclude Include="src\Core\Rendering\Passes\Bloom\BloomDownscalePass.h" />
     <ClInclude Include="src\Core\Rendering\Passes\Bloom\BloomMultiPass.h" />
@@ -360,7 +363,6 @@
     <ClInclude Include="src\Core\Rendering\Buffers\VertexBuffer.h" />
     <ClInclude Include="src\Core\Rendering\Buffers\VertexBufferLayout.h" />
     <ClInclude Include="src\Helpers\RenderingHelper.hpp" />
-    <ClInclude Include="src\Platform\Rendering\DirectX11\D3D11Window.h" />
     <ClInclude Include="src\Platform\Rendering\GLFWWindow.h" />
     <ClInclude Include="src\Platform\Rendering\OpenGL\Buffers\OpenGLIndexBuffer.h" />
     <ClInclude Include="src\Platform\Rendering\OpenGL\Buffers\OpenGLUniformBuffer.h" />

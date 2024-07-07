@@ -1,9 +1,9 @@
 ﻿#include "Helpers/PlatformHelper.h"
+#include "Platform/Rendering/EdRendering.h"
+#include "Core/Window.h"
 #include <windows.h>
 #include <dwmapi.h>
-#include <string>
-
-#include "Platform/Rendering/EdRendering.h"
+#include <commdlg.h>
 
 #define GLFW_EXPOSE_NATIVE_WIN32
 #include <GLFW/glfw3native.h>

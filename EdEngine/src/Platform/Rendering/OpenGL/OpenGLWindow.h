@@ -1,5 +1,6 @@
 #pragma once
 
+#include "Platform/Rendering/OpenGL/EdOpenGLRendering.h"
 #include "Platform/Rendering/GLFWWindow.h"
 
 class OpenGLWindow : public GLFWWindow

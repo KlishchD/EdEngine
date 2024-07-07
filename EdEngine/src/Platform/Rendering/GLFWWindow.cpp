@@ -118,8 +118,6 @@ void GLFWWindow::Close()
 
 		glfwTerminate();
 
-		ImGui_ImplGlfw_Shutdown();
-
 		m_Window = nullptr;
 
 		ED_LOG(Window, info, "Window is closed")

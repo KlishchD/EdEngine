@@ -1,6 +1,8 @@
 ﻿#pragma once
 
-#include "Core/Window.h"
+#include "Core/Rendering/EdRendering.h"
+
+class Window;
 
 class PlatformHelper
 {

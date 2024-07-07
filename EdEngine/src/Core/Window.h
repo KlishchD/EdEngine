@@ -1,8 +1,6 @@
 #pragma once
 
-#include <memory>
-#include <string>
-#include <glm/vec2.hpp>
+#include "Platform/Rendering/EdRendering.h"
 
 struct WindowSpecification
 {

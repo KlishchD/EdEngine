@@ -345,6 +345,9 @@
     <ClCompile Include="src\Platform\Rendering\GLFWWindow.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="src\Helpers\ImGuiHelper.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\Core\BaseManager.h">
@@ -710,13 +713,16 @@
     <ClInclude Include="src\Platform\Rendering\OpenGL\DirStackFileIncluder.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\Platform\Rendering\DirectX11\D3D11Window.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="src\Platform\Rendering\GLFWWindow.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\Platform\Rendering\OpenGL\EdOpenGLRendering.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Core\Rendering\EdRendering.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Helpers\ImGuiHelper.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

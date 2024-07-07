@@ -1,11 +1,11 @@
 #pragma once
 
-#include <vector>
-#include <memory>
-#include "Core/Window.h"
-#include "Core/Rendering/Types.h"
+#include "Core/Rendering/EdRendering.h"
 
 #undef CreateWindow
+
+class Window;
+struct WindowSpecification;
 
 class VertexBuffer;
 class IndexBuffer;
@@ -73,13 +73,13 @@ public:
 	static std::shared_ptr<Framebuffer> CreateFramebuffer(const std::string& name, uint32_t width, uint32_t height, uint32_t depth, const std::vector<RenderTargetSpecification>& renderTargets, TextureType textureType);
 	static std::shared_ptr<Framebuffer> CreateFramebuffer(const FramebufferSpecification& specification);
 
-	static std::shared_ptr<Texture2D> CreateTexture2D(const std::string& name);
+	static std::shared_ptr<Texture2D> CreateTexture2D(const std::string& name = "Empty texture 2d");
 	static std::shared_ptr<Texture2D> CreateTexture2D(const std::string& name, std::shared_ptr<Texture2DImportParameters> parameters, Texture2DData&& data);
 
-	static std::shared_ptr<CubeTexture> CreateCubeTexture(const std::string& name);
+	static std::shared_ptr<CubeTexture> CreateCubeTexture(const std::string& name = "Empty cube texture");
 	static std::shared_ptr<CubeTexture> CreateCubeTexture(const std::string& name, std::shared_ptr<CubeTextureImportParameters> parameters, CubeTextureData&& data);
 
-	static std::shared_ptr<Texture2DArray> CreateTexture2DArray(const std::string& name);
+	static std::shared_ptr<Texture2DArray> CreateTexture2DArray(const std::string& name = "Empty texture 2d array");
 	static std::shared_ptr<Texture2DArray> CreateTexture2DArray(const std::string& name, std::shared_ptr<Texture2DArrayImportParameters> parameters, Texture2DArrayData&& data);
 	
 	static std::shared_ptr<Texture2D> CreateBloomIntermediateTexture();

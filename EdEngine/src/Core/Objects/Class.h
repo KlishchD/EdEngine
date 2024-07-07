@@ -25,6 +25,29 @@
 	inline name ## Class name ## Clazz; \
 	class name
 
+#define ED_CLASS2(name, creator) class name; \
+	class name ## Class : public Class \
+	{ \
+	friend class name; \
+	public: \
+		name ## Class() : Class(#name) \
+		{ \
+			ObjectFactory::RegisterClass(*this); \
+		} \
+		\
+		virtual bool IsAbstract() const override \
+		{ \
+			return false; \
+		} \
+		\
+		virtual std::shared_ptr<GameObject> Create() const override \
+		{ \
+			return std::static_pointer_cast<GameObject>(creator()); \
+		} \
+	}; \
+	inline name ## Class name ## Clazz; \
+	class name
+
 #define ED_CLASS_BODY(name, superClass) \
 	public: \
 	typedef superClass Super; \

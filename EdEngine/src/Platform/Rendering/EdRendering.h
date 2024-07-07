@@ -1,5 +1,4 @@
 #pragma once
 
-#include "Core/Macros.h"
+#include "Core/Rendering/EdRendering.h"
 #include <GLFW/glfw3.h>
-#include "Helpers/RenderingHelper.h"
