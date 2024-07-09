@@ -1,8 +1,6 @@
 #pragma once
 
-#include <cstdint>
-#include "Core/Rendering/Resource.h"
-#include "Core/Rendering/Types.h"
+#include "Core/Rendering/EdRendering.h"
 
 class Buffer : public Resource {
 public:

@@ -80,7 +80,8 @@ public:
 	virtual void BeginUIFrame() = 0;
 	virtual void EndUIFrame() = 0;
 
-	virtual void Present() = 0;
+  virtual void Update() = 0;
+  virtual void Present() = 0;
 
 	virtual void Close() = 0;
 

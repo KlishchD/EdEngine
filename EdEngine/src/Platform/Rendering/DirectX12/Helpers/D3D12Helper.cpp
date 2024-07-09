@@ -23,3 +23,8 @@ D3D12_RESOURCE_BARRIER D3D12Helper::TransitionBarrier(Microsoft::WRL::ComPtr<ID3
   barrier.Transition.StateAfter = after;
   return barrier;
 }
+
+uint32_t D3D12Helper::CalculateResourceSize(const D3D12_RESOURCE_DESC1& description)
+{
+  return description.Width * description.Height * description.DepthOrArraySize * D3D12Types::ConvertFormatDataSize(description.Format);
+}

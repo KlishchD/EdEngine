@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Core/Rendering/Textures/Texture2D.h"
+#include "Helpers/RenderingHelper.h"
 
 ED_CLASS2(OpenGLTexture2D, RenderingHelper::CreateTexture2D) : public Texture2D
 {

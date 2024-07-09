@@ -12,77 +12,84 @@
 
 void OptionsMenuWidget::Initialize()
 {
-    Widget::Initialize();
-    
-    m_Engine = &Engine::Get();
-    m_Window = m_Engine->GetWindow();
-    m_AssetManager = m_Engine->GetManager<AssetManager>();
-
-    m_Icon = RenderingHelper::ImportBaseColorTexture("Editor\\icons\\icon.png");
+  Widget::Initialize();
+  
+  m_Engine = &Engine::Get();
+  m_Window = m_Engine->GetWindow();
+  m_AssetManager = m_Engine->GetManager<AssetManager>();
+  
+  //m_Icon = RenderingHelper::ImportBaseColorTexture("Editor\\icons\\icon.png");
 }
 
 void OptionsMenuWidget::Tick(float DeltaTime)
 {
-    Widget::Tick(DeltaTime);
-    
-    if (m_StaticMeshImportPopupIsOpened) StaticMeshImportPopup();
-    if (m_TextureImportPopupIsOpened) TextureImportPopup();
+  Widget::Tick(DeltaTime);
+  
+  if (m_StaticMeshImportPopupIsOpened) {
+    StaticMeshImportPopup();
+  }
+  if (m_TextureImportPopupIsOpened) {
+    TextureImportPopup();
+  }
 
-    ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, { 0, 10 });
-
-    if (ImGui::BeginMainMenuBar())
+  ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, { 0, 10 });
+  
+  if (ImGui::BeginMainMenuBar())
+  {
+    if (ImGui::IsMouseDoubleClicked(0))
     {
-        if (ImGui::IsMouseDoubleClicked(0))
-        {
-			ED_LOG(Widget, info, "Double cliked")
-		}
-
-        if (ImGui::ImageButton((ImTextureID)m_Icon->GetID(), { ImGui::GetWindowHeight(), ImGui::GetWindowHeight() }, { 0, 1 }, { 1, 0 }, 0, ImVec4(0.14f, 0.14f, 0.14f, 1.00f), {1, 1, 1, 1}))
-        {
-
-        }
-
-        if (ImGui::BeginMenu("File"))
-        {
-            if (ImGui::MenuItem("Import mesh"))
-            {
-                m_StaticMeshImportParameters = std::make_shared<StaticMeshImportParameters>();
-                m_StaticMeshImportParameters->Path = PlatformHelper::OpenFileWindow("Model\0", *m_Window, "Model");
-                m_StaticMeshImportPopupIsOpened = true;
-            }
-    
-            if (ImGui::MenuItem("Import texture"))
-            {
-                m_TextureImportParameters = std::make_shared<Texture2DImportParameters>();
-                m_TextureImportParameters->Format = PixelFormat::SRGBA8F;
-                m_TextureImportParameters->Path = PlatformHelper::OpenFileWindow("Texture\0", *m_Window, "Texture");
-                m_TextureImportPopupIsOpened = true;
-            }
-
-            if (ImGui::MenuItem("Create Material"))
-            {
-                std::string materialPath = PlatformHelper::OpenFileWindow("Material\0", *m_Window, "Material");
-
-                m_AssetManager->CreateAsset<Material>(AssetType::Material, materialPath);
-            }
-            
-            ImGui::EndMenu();
-        }
-
-        if (ImGui::BeginMenu("Scene"))
-        {
-            if (ImGui::MenuItem("Add actor"))
-            {
-                m_Engine->GetLoadedScene()->CreateActor<Actor>("New Actor");
-            }
-            
-            ImGui::EndMenu();
-        }
-        
-        ImGui::EndMainMenuBar();
+  	  ED_LOG(Widget, info, "Double cliked")
     }
 
-	ImGui::PopStyleVar();
+    if (m_Icon)
+    {
+      if (ImGui::ImageButton((ImTextureID)m_Icon->GetID(), { ImGui::GetWindowHeight(), ImGui::GetWindowHeight() }, { 0, 1 }, { 1, 0 }, 0, ImVec4(0.14f, 0.14f, 0.14f, 1.00f), {1, 1, 1, 1}))
+      {
+
+      }
+    }
+
+    if (ImGui::BeginMenu("File"))
+    {
+      if (ImGui::MenuItem("Import mesh"))
+      {
+        m_StaticMeshImportParameters = std::make_shared<StaticMeshImportParameters>();
+        m_StaticMeshImportParameters->Path = PlatformHelper::OpenFileWindow("Model\0", *m_Window, "Model");
+        m_StaticMeshImportPopupIsOpened = true;
+      }
+
+      if (ImGui::MenuItem("Import texture"))
+      {
+        m_TextureImportParameters = std::make_shared<Texture2DImportParameters>();
+        m_TextureImportParameters->Format = PixelFormat::SRGBA8F;
+        m_TextureImportParameters->Path = PlatformHelper::OpenFileWindow("Texture\0", *m_Window, "Texture");
+        m_TextureImportPopupIsOpened = true;
+      }
+
+      if (ImGui::MenuItem("Create Material"))
+      {
+        std::string materialPath = PlatformHelper::OpenFileWindow("Material\0", *m_Window, "Material");
+
+        m_AssetManager->CreateAsset<Material>(AssetType::Material, materialPath);
+      }
+
+      ImGui::EndMenu();
+    }
+    
+    if (ImGui::BeginMenu("Scene"))
+    {
+      if (ImGui::MenuItem("Add actor"))
+      {
+        m_Engine->GetLoadedScene()->CreateActor<Actor>("New Actor");
+      }
+
+      ImGui::EndMenu();
+    }
+
+    ImGui::EndMainMenuBar();
+  }
+
+  ImGui::PopStyleVar();
 }
 
 void OptionsMenuWidget::StaticMeshImportPopup()

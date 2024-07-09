@@ -115,10 +115,10 @@ void Engine::Update()
    
 	m_Renderer->BeginUIFrame();
 	
-	for (std::shared_ptr<Widget>& widget: m_Widgets)
-	{
-		widget->Tick(m_DeltaSeconds);
-	}
+ for (std::shared_ptr<Widget>& widget: m_Widgets)
+ {
+ 	widget->Tick(m_DeltaSeconds);
+ }
 	
 	m_Renderer->EndUIFrame();
 

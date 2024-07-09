@@ -56,8 +56,11 @@ public:
 	static std::shared_ptr<UniformBuffer> CreateUniformBuffer();
 	static std::shared_ptr<UniformBuffer> CreateUniformBuffer(void* data, uint32_t size, BufferUsage usage);
 
-	template<typename T>
-	static std::shared_ptr<UniformBuffer> CreateUniformBuffer(T* data, BufferUsage usage);
+  template<typename T>
+  static std::shared_ptr<UniformBuffer> RenderingHelperCreateUniformBuffer(T* data, BufferUsage usage)
+  {
+		return CreateUniformBuffer(data, sizeof(T), usage);
+  }
 
 	static std::shared_ptr<ShaderProgram> CreateShaderProgram();
 	static std::shared_ptr<Shader> CreateShader(ShaderType type, const std::string& filepath);
@@ -105,5 +108,3 @@ private:
 	static std::shared_ptr<CubeTextureImportParameters> GetRenderTargetCubeTextureImportParameters(FramebufferAttachmentType type);
 	static std::shared_ptr<Texture2DArrayImportParameters> GetRenderTargetTexture2DArrayImportParameters(FramebufferAttachmentType type);
 };
-
-#include "RenderingHelper.hpp"

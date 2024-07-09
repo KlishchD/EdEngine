@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Core/Rendering/Textures/CubeTexture.h"
+#include "Helpers/RenderingHelper.h"
 
 ED_CLASS2(OpenGLCubeTexture, RenderingHelper::CreateCubeTexture) : public CubeTexture
 {

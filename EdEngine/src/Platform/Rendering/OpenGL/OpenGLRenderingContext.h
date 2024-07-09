@@ -74,11 +74,14 @@ public:
   virtual void BeginUIFrame() override;
   virtual void EndUIFrame() override;
 
+  virtual void Update() override;
   virtual void Present() override;
 
   virtual void Close() override;
 
   virtual ~OpenGLRenderingContext() override;
+
+
 private:
   std::shared_ptr<VertexBuffer> m_VBO;
   std::shared_ptr<IndexBuffer> m_IBO;

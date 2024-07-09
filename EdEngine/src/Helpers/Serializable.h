@@ -32,9 +32,6 @@
 
 #include "Core/Objects/Class.h"
 
-using UUID = boost::uuids::uuid;
-namespace UUIDs = boost::uuids;
-
 class GameObject;
 
 class Asset;

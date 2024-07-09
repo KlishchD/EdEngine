@@ -2,6 +2,8 @@
 #include "D3D12Window.h"
 #include "Helpers/StringHelper.h"
 #include "D3D12Fence.h"
+#include "D3D12Resource.h"
+#include "Helpers/ImGuiHelper.h"
 #include "backends/imgui_impl_dx12.h"
 #include "backends/imgui_impl_glfw.h"
 
@@ -273,18 +275,18 @@ void D3D12RenderingContext::EndUIFrame()
 {
   D3D::Check(m_CommandAllocator->Reset());
 
-  D3D::Check(m_ImGUICommandList->Reset(m_CommandAllocator.Get(), nullptr));
+  D3D::Check(m_CommandList->Reset(m_CommandAllocator.Get(), nullptr));
 
   uint32_t backBufferIndex = m_SwapChain->GetCurrentBackBufferIndex();
 
   {
     D3D12_RESOURCE_BARRIER barrier = D3D12Helper::TransitionBarrier(m_BackBufferRenderTargetResource[backBufferIndex], D3D12_RESOURCE_STATE_PRESENT, D3D12_RESOURCE_STATE_RENDER_TARGET);
-    m_ImGUICommandList->ResourceBarrier(1, &barrier);
+    m_CommandList->ResourceBarrier(1, &barrier);
   }
 
   D3D12_CPU_DESCRIPTOR_HANDLE handle{ m_RTVDescriptorHeap->GetCPUDescriptorHandleForHeapStart().ptr + m_RenderTargetDescriptorSize * backBufferIndex };
-  m_ImGUICommandList->OMSetRenderTargets(1, &handle, true, nullptr);
-  m_ImGUICommandList->SetDescriptorHeaps(1, m_CVBSRVDescriptorHeap.GetAddressOf());
+  m_CommandList->OMSetRenderTargets(1, &handle, true, nullptr);
+  m_CommandList->SetDescriptorHeaps(1, m_CVBSRVDescriptorHeap.GetAddressOf());
 
   ImGui::Render();
 
@@ -296,20 +298,132 @@ void D3D12RenderingContext::EndUIFrame()
     ImGui::RenderPlatformWindowsDefault();
   }
 
-  ImGui_ImplDX12_RenderDrawData(ImGui::GetDrawData(), m_ImGUICommandList.Get());
+  ImGui_ImplDX12_RenderDrawData(ImGui::GetDrawData(), m_CommandList.Get());
 
   {
     D3D12_RESOURCE_BARRIER barrier = D3D12Helper::TransitionBarrier(m_BackBufferRenderTargetResource[backBufferIndex], D3D12_RESOURCE_STATE_RENDER_TARGET, D3D12_RESOURCE_STATE_PRESENT);
-    m_ImGUICommandList->ResourceBarrier(1, &barrier);
+    m_CommandList->ResourceBarrier(1, &barrier);
   }
 
-  D3D::Check(m_ImGUICommandList->Close());
+  D3D::Check(m_CommandList->Close());
 
-  ID3D12CommandList* commandLists = m_ImGUICommandList.Get();
+  ID3D12CommandList* commandLists = m_CommandList.Get();
   m_CommandQueue->ExecuteCommandLists(1, &commandLists);
 
   static D3D12Fence fence;
   fence.Wait(m_CommandQueue);
+}
+
+void D3D12RenderingContext::Update()
+{
+  if (m_UploadResourceDescriptions.size())
+  {
+    uint32_t uploadBufferSize = 0;
+    for (const UploadResourceDescription& description : m_UploadResourceDescriptions)
+    {
+      uploadBufferSize += description.Size;
+    }
+
+    D3D12_HEAP_PROPERTIES uploadHeapProperties;
+    uploadHeapProperties.Type = D3D12_HEAP_TYPE_UPLOAD;
+    uploadHeapProperties.CPUPageProperty = D3D12_CPU_PAGE_PROPERTY_UNKNOWN;
+    uploadHeapProperties.MemoryPoolPreference = D3D12_MEMORY_POOL_UNKNOWN; // tweak these ;)
+    uploadHeapProperties.CreationNodeMask = 0;
+    uploadHeapProperties.VisibleNodeMask = 0;
+
+    D3D12_RESOURCE_DESC uploadBufferDescription;
+    uploadBufferDescription.Dimension = D3D12_RESOURCE_DIMENSION_BUFFER;
+    uploadBufferDescription.Alignment = D3D12_DEFAULT_RESOURCE_PLACEMENT_ALIGNMENT;
+    uploadBufferDescription.Width = uploadBufferSize;
+    uploadBufferDescription.Height = 1;
+    uploadBufferDescription.DepthOrArraySize = 1;
+    uploadBufferDescription.MipLevels = 1;
+    uploadBufferDescription.Format = DXGI_FORMAT_UNKNOWN;
+    uploadBufferDescription.SampleDesc.Count = 1;
+    uploadBufferDescription.SampleDesc.Quality = 0;
+    uploadBufferDescription.Layout = D3D12_TEXTURE_LAYOUT_ROW_MAJOR;
+    uploadBufferDescription.Flags = D3D12_RESOURCE_FLAG_NONE;
+
+
+    D3D::Check(m_Device->CreateCommittedResource(&uploadHeapProperties, D3D12_HEAP_FLAG_NONE, &uploadBufferDescription, D3D12_RESOURCE_STATE_COMMON, nullptr, IID_PPV_ARGS(&uploadBuffer)));
+
+    uint8_t* uploadBufferPtr = nullptr;
+
+    D3D12_RANGE range{ 0, 0 };
+    uploadBuffer->Map(0, &range, (void**)&uploadBufferPtr);
+
+    uint32_t offset = 0;
+    for (const UploadResourceDescription& description : m_UploadResourceDescriptions)
+    {
+      if (description.Data)
+      {
+        memcpy(uploadBufferPtr + offset, description.Data, description.Size);
+        offset += description.Size;
+      }
+    }
+
+    uploadBuffer->Unmap(0, &range);
+
+    // std::vector<D3D12_RESOURCE_BARRIER> barriers;
+    // barriers.push_back(D3D12Helper::TransitionBarrier(uploadBuffer, D3D12_RESOURCE_STATE_COMMON, D3D12_RESOURCE_STATE_COPY_SOURCE));
+    // 
+    // for (const UploadResourceDescription& description : m_UploadResourceDescriptions)
+    // {
+    //   if (description.GPUResourceDescription)
+    //   {
+    //     Microsoft::WRL::ComPtr<ID3D12Resource1> resource;
+    // 
+    //     D3D12_HEAP_PROPERTIES heapProperties;
+    //     heapProperties.Type = D3D12_HEAP_TYPE_DEFAULT;
+    //     heapProperties.CPUPageProperty = D3D12_CPU_PAGE_PROPERTY_UNKNOWN;
+    //     heapProperties.MemoryPoolPreference = D3D12_MEMORY_POOL_UNKNOWN;
+    //     heapProperties.CreationNodeMask = 0;
+    //     heapProperties.VisibleNodeMask = 0;
+    // 
+    //     m_Device->CreateCommittedResource(&heapProperties, D3D12_HEAP_FLAG_NONE, description.GPUResourceDescription, D3D12_RESOURCE_STATE_COMMON, nullptr, IID_PPV_ARGS(&resource)); // TODO: Use placed or reserved resource here ;)
+    // 
+    //     description.Resource->SetResource(resource);
+    //   }
+    // 
+    //   if (description.Data)
+    //   {
+    //     barriers.push_back(D3D12Helper::TransitionBarrier(description.Resource->GetResource().Get(), D3D12_RESOURCE_STATE_COMMON, D3D12_RESOURCE_STATE_COPY_DEST));
+    //   }
+    // }
+    // 
+    // D3D::Check(m_CopyCommandAllocator->Reset());
+    // 
+    // D3D::Check(m_CopyCommandList->Reset(m_CopyCommandAllocator.Get(), nullptr));
+    // 
+    // m_CopyCommandList->ResourceBarrier(barriers.size(), barriers.data());
+    // 
+    // offset = 0;
+    // for (const UploadResourceDescription& description : m_UploadResourceDescriptions)
+    // {
+    //   if (description.Data)
+    //   {
+    //     m_CopyCommandList->CopyBufferRegion(description.Resource->GetResource().Get(), 0, uploadBuffer.Get(), offset, description.Size);
+    //     offset += description.Size;
+    //   }
+    // }
+    // 
+    // for (D3D12_RESOURCE_BARRIER& barrier : barriers)
+    // {
+    //   std::swap(barrier.Transition.StateBefore, barrier.Transition.StateAfter);
+    // }
+    // 
+    // m_CopyCommandList->ResourceBarrier(barriers.size(), barriers.data());
+    // 
+    // D3D::Check(m_CopyCommandList->Close());
+    // 
+    // ID3D12CommandList* commandList = m_CopyCommandList.Get();
+    // m_CopyCommandQueue->ExecuteCommandLists(1, &commandList);
+    // 
+    // static D3D12Fence fence;
+    // fence.Wait(m_CopyCommandQueue);
+
+    m_UploadResourceDescriptions.clear();
+  }
 }
 
 void D3D12RenderingContext::Present()
@@ -320,6 +434,16 @@ void D3D12RenderingContext::Present()
 void D3D12RenderingContext::Close()
 {
 
+}
+
+void D3D12RenderingContext::AddResourceForUploading(void* data, uint32_t size, D3D12_RESOURCE_DESC* descriptor, D3D12Resource* resoruce)
+{
+//  UploadResourceDescription description{};
+//  description.Data = data;
+//  description.Size = size;
+//  description.GPUResourceDescription = descriptor;
+//  description.Resource = resoruce;
+//  m_UploadResourceDescriptions.push_back(description);
 }
 
 Microsoft::WRL::ComPtr<ID3D12Device> D3D12RenderingContext::GetDevice() const
@@ -337,7 +461,7 @@ void D3D12RenderingContext::CreateDevice()
 
   D3D::Check(CreateDXGIFactory2(factoryFlags, IID_PPV_ARGS(&m_Factory)));
 
-  ED_ASSERT(m_Factory, "Failed to create factory");
+  ED_ASSERT(m_Factory, "Failed to create factory.");
 
   for (uint32_t i = 0; SUCCEEDED(m_Factory->EnumAdapterByGpuPreference(i, DXGI_GPU_PREFERENCE_HIGH_PERFORMANCE, IID_PPV_ARGS(&m_Adapter))); ++i)
   {
@@ -349,7 +473,7 @@ void D3D12RenderingContext::CreateDevice()
     }
   }
 
-  ED_ASSERT(m_Device, "Failed to create device");
+  ED_ASSERT(m_Device, "Failed to create device.");
 
 #if defined(DEBUG) || defined(_DEBUG)
   LogAdapterInformation();
@@ -365,7 +489,14 @@ void D3D12RenderingContext::CreateCommandQueue()
   commandQueueDescription.NodeMask = 0;
   D3D::Check(m_Device->CreateCommandQueue(&commandQueueDescription, IID_PPV_ARGS(&m_CommandQueue)));
 
-  ED_ASSERT(m_CommandQueue, "Failed to create command queue");
+  //  D3D12_COMMAND_QUEUE_DESC copyCommandQueueDescription {};
+  //  copyCommandQueueDescription.Type = D3D12_COMMAND_LIST_TYPE_COPY;
+  //  copyCommandQueueDescription.Priority = D3D12_COMMAND_QUEUE_PRIORITY_HIGH;
+  //  copyCommandQueueDescription.Flags = D3D12_COMMAND_QUEUE_FLAG_NONE;
+  //  copyCommandQueueDescription.NodeMask = 0;
+  //  D3D::Check(m_Device->CreateCommandQueue(&copyCommandQueueDescription, IID_PPV_ARGS(&m_CopyCommandQueue)));
+  //
+  //  ED_ASSERT(m_CommandQueue && m_CopyCommandQueue, "Failed to create command queues.");
 }
 
 void D3D12RenderingContext::CreateSwapChain()
@@ -390,7 +521,7 @@ void D3D12RenderingContext::CreateSwapChain()
   D3D::Check(m_Factory->CreateSwapChainForHwnd(m_CommandQueue.Get(), hWnd, &swapChainDescription, nullptr, nullptr, &swapChain));
   D3D::Check(swapChain.As<IDXGISwapChain4>(&m_SwapChain));
 
-  ED_ASSERT(m_SwapChain, "Failed to create swap chain");
+  ED_ASSERT(m_SwapChain, "Failed to create swap chain.");
 
   D3D12_DESCRIPTOR_HEAP_DESC  renderTargetViewsDescriptorHeapDescription {};
   renderTargetViewsDescriptorHeapDescription.Type = D3D12_DESCRIPTOR_HEAP_TYPE_RTV;
@@ -399,14 +530,14 @@ void D3D12RenderingContext::CreateSwapChain()
   renderTargetViewsDescriptorHeapDescription.NodeMask = 0;
   m_Device->CreateDescriptorHeap(&renderTargetViewsDescriptorHeapDescription, IID_PPV_ARGS(&m_RTVDescriptorHeap));
 
-  ED_ASSERT(m_RTVDescriptorHeap, "Failed to create render target descriptor heap");
+  ED_ASSERT(m_RTVDescriptorHeap, "Failed to create render target descriptor heap.");
 
   m_RenderTargetDescriptorSize = m_Device->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_RTV);
 
   for (uint32_t i = 0; i < BackBufferCount; ++i)
   {
     m_SwapChain->GetBuffer(i, IID_PPV_ARGS(&m_BackBufferRenderTargetResource[i]));
-    ED_ASSERT(m_BackBufferRenderTargetResource[i], "Failed to get back buffer render target {} resource", i);
+    ED_ASSERT(m_BackBufferRenderTargetResource[i], "Failed to get back buffer render target {} resource.", i);
 
     D3D12_RENDER_TARGET_VIEW_DESC renderTargetViewDescription {};
     renderTargetViewDescription.Format = swapChainDescription.Format;
@@ -422,14 +553,17 @@ void D3D12RenderingContext::CreateSwapChain()
 void D3D12RenderingContext::CreateCommandList()
 {
   D3D::Check(m_Device->CreateCommandAllocator(D3D12_COMMAND_LIST_TYPE_DIRECT, IID_PPV_ARGS(&m_CommandAllocator)));
+//  D3D::Check(m_Device->CreateCommandAllocator(D3D12_COMMAND_LIST_TYPE_COPY, IID_PPV_ARGS(&m_CopyCommandAllocator)));
 
-  ED_ASSERT(m_CommandAllocator, "Failed to create command allocator");
+//  ED_ASSERT(m_CommandAllocator && m_CopyCommandAllocator, "Failed to create command allocators.");
 
-  D3D::Check(m_Device->CreateCommandList(0, D3D12_COMMAND_LIST_TYPE_DIRECT, m_CommandAllocator.Get(), nullptr, IID_PPV_ARGS(&m_ImGUICommandList)));
+  D3D::Check(m_Device->CreateCommandList(0, D3D12_COMMAND_LIST_TYPE_DIRECT, m_CommandAllocator.Get(), nullptr, IID_PPV_ARGS(&m_CommandList)));
+ // D3D::Check(m_Device->CreateCommandList(0, D3D12_COMMAND_LIST_TYPE_COPY, m_CopyCommandAllocator.Get(), nullptr, IID_PPV_ARGS(&m_CopyCommandList)));
 
-  ED_ASSERT(m_ImGUICommandList, "Failed to create command list");
+ // ED_ASSERT(m_CommandList && m_CopyCommandList, "Failed to create command lists.");
 
-  D3D::Check(m_ImGUICommandList->Close());
+  D3D::Check(m_CommandList->Close());
+//  D3D::Check(m_CopyCommandList->Close());
 }
 
 void D3D12RenderingContext::SetupImGUI()
@@ -451,11 +585,11 @@ void D3D12RenderingContext::LogAdapterInformation()
   DXGI_ADAPTER_DESC adapterDescription;
   D3D::Check(m_Adapter->GetDesc(&adapterDescription));
 
-  ED_LOG(D3D12RenderingContext, info, "Adapter description: {}", StringHelper::WCHARToString<128>(adapterDescription.Description));
-  ED_LOG(D3D12RenderingContext, info, "Adapter vendorID: {}", adapterDescription.VendorId);
-  ED_LOG(D3D12RenderingContext, info, "Adapter deviceID: {}", adapterDescription.DeviceId);
+  ED_LOG(D3D12RenderingContext, info, "Adapter description: {}.", StringHelper::WCHARToString<128>(adapterDescription.Description));
+  ED_LOG(D3D12RenderingContext, info, "Adapter vendorID: {}.", adapterDescription.VendorId);
+  ED_LOG(D3D12RenderingContext, info, "Adapter deviceID: {}.", adapterDescription.DeviceId);
 
-  ED_LOG(D3D12RenderingContext, info, "Adapter dedicated video memory: {:L} GB", adapterDescription.DedicatedVideoMemory / (1 << 20));
-  ED_LOG(D3D12RenderingContext, info, "Adapter dedicated system memory: {:L} GB", adapterDescription.DedicatedSystemMemory / (1 << 20));
-  ED_LOG(D3D12RenderingContext, info, "Adapter shared system memory: {:L} GB", adapterDescription.SharedSystemMemory / (1 << 20));
+  ED_LOG(D3D12RenderingContext, info, "Adapter dedicated video memory: {:L} GB.", adapterDescription.DedicatedVideoMemory / (1 << 20));
+  ED_LOG(D3D12RenderingContext, info, "Adapter dedicated system memory: {:L} GB.", adapterDescription.DedicatedSystemMemory / (1 << 20));
+  ED_LOG(D3D12RenderingContext, info, "Adapter shared system memory: {:L} GB.", adapterDescription.SharedSystemMemory / (1 << 20));
 }

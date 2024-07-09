@@ -366,6 +366,12 @@
     <ClCompile Include="Dependencies\ImGui\backends\imgui_impl_dx12.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="src\Platform\Rendering\DirectX12\D3D12Resource.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Platform\Rendering\DirectX12\Buffers\D3D12VertexBuffer.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\Core\BaseManager.h">
@@ -719,9 +725,6 @@
     <ClInclude Include="src\Platform\Rendering\OpenGL\Buffers\OpenGLUniformBuffer.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\Helpers\RenderingHelper.hpp">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="src\Core\Rendering\ShaderProgram.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -765,6 +768,15 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Dependencies\ImGui\backends\imgui_impl_dx12.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Platform\Rendering\DirectX12\D3D12Resource.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Platform\Rendering\DirectX12\Buffers\D3D12VertexBuffer.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Helpers\Serializable.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

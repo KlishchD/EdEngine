@@ -3,8 +3,10 @@
 #include "Platform/Rendering/OpenGL/OpenGLWindow.h"
 #include "Platform/Rendering/DirectX12/D3D12Window.h"
 
-#include "Platform/Rendering/OpenGL/OpenGLFramebuffer.h"
 #include "Platform/Rendering/OpenGL/Buffers/OpenGLVertexBuffer.h"
+#include "Platform/Rendering/DirectX12/Buffers/D3D12VertexBuffer.h"
+
+#include "Platform/Rendering/OpenGL/OpenGLFramebuffer.h"
 #include "Platform/Rendering/OpenGL/Buffers/OpenGLIndexBuffer.h"
 #include "Platform/Rendering/OpenGL/Buffers/OpenGLUniformBuffer.h"
 #include "Platform/Rendering/OpenGL/OpenGLRenderingContext.h"
@@ -61,6 +63,7 @@ std::shared_ptr<VertexBuffer> RenderingHelper::CreateVertexBuffer()
 	switch (api)
 	{
 	case RenderingAPI::OpenGL: return std::make_shared<OpenGLVertexBuffer>();
+	case RenderingAPI::D3D12: return std::make_shared<D3D12VertexBuffer>();
 	default:
 		ED_ASSERT(0, "Can not create vertex buffer for provided RenderingAPI");
 	}

@@ -1,12 +1,12 @@
 ﻿#include "Asset.h"
 #include "Core/Macros.h"
 
-Asset::Asset(const std::string& name) : Super(name), m_Id(UUIDs::random_generator()())
+Asset::Asset(const std::string& name) : Super(name), m_Id(boost::uuids::random_generator()())
 {
 
 }
 
-UUID Asset::GetId() const
+boost::uuids::uuid Asset::GetId() const
 {
 	return m_Id;
 }
