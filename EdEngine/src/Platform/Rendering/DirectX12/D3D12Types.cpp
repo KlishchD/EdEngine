@@ -22,4 +22,16 @@ std::string D3D12Types::ConvertFeatureLevelToString(D3D_FEATURE_LEVEL level)
 	return "";
 }
 
+uint32_t D3D12Types::ConvertFormatDataSize(DXGI_FORMAT format)
+{
+  switch (format)
+  {
+  case DXGI_FORMAT_R8G8B8A8_UNORM: return 4 * sizeof(uint8_t);
+  case DXGI_FORMAT_R32_FLOAT:      return sizeof(uint32_t);
+  default:
+    ED_ASSERT(0, "Format is not supported");
+  }
+
+	return 0;
+}
 

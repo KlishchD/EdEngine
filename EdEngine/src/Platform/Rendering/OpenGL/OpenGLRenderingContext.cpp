@@ -6,6 +6,7 @@
 #include "Buffers/OpenGLVertexBuffer.h"
 #include "Buffers/OpenGLIndexBuffer.h"
 #include "Buffers/OpenGLUniformBuffer.h"
+#include "Helpers/ImGuiHelper.h"
 #include <backends/imgui_impl_opengl3.h>
 #include <backends/imgui_impl_glfw.h>
 
@@ -366,6 +367,16 @@ OpenGLRenderingContext::OpenGLRenderingContext(OpenGLWindow* window)
 }
 
 OpenGLRenderingContext::~OpenGLRenderingContext()
+{
+
+}
+
+void OpenGLRenderingContext::RetainUploadBuffer(UploadBuffer&& buffer)
+{
+  
+}
+
+void OpenGLRenderingContext::Update()
 {
 
 }

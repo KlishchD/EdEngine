@@ -4,31 +4,33 @@
 
 int main(int argc, char* argv[])
 {
-    Engine& engine = Engine::Create();
+  std::locale::global(std::locale("en_US.UTF-8"));
 
-    engine.SetRenderingAPI(RenderingAPI::OpenGL);
+	Engine& engine = Engine::Create();
 
-    engine.Start();
-    engine.Initialize();
+	engine.SetRenderingAPI(RenderingAPI::D3D12);
 
-    std::shared_ptr<Editor> editor = std::make_shared<Editor>();
+	engine.Start();
+	engine.Initialize();
 
-    engine.AddManager(editor);
+	std::shared_ptr<Editor> editor = std::make_shared<Editor>();
 
-    while (true) 
-    {
-        if (engine.IsRunning())
-        {
-            engine.Update();
-        }
-        else
-        {
-            engine.Deinitialize();
-            break;
-        }
-    }
+	engine.AddManager(editor);
 
-    Engine::Delete();
+	while (true)
+	{
+		if (engine.IsRunning())
+		{
+			engine.Update();
+		}
+		else
+		{
+			engine.Deinitialize();
+			break;
+		}
+	}
 
-    return 0;
+	Engine::Delete();
+
+	return 0;
 }

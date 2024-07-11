@@ -3,7 +3,8 @@
 
 D3D12Fence::D3D12Fence()
 {
-  gContext->GetDevice()->CreateFence(0, D3D12_FENCE_FLAG_NONE, IID_PPV_ARGS(&m_Fence));
+  D3D::Check(gContext->GetDevice()->CreateFence(FencesValue, D3D12_FENCE_FLAG_NONE, IID_PPV_ARGS(&m_Fence)));
+  FencesValue++;
   m_Handle = CreateEvent(nullptr, false, false, TEXT("Fence"));
 }
 

@@ -68,9 +68,9 @@ void AssetManager::Deinitialize()
 {
   ED_LOG(AssetManager, info, "Started deinitializing");
 
-  for (std::pair<const UUID, std::shared_ptr<Asset>>& input : m_Assets)
+  for (std::pair<const boost::uuids::uuid, std::shared_ptr<Asset>>& input : m_Assets)
   {
-    const UUID& id = input.first;
+    const boost::uuids::uuid& id = input.first;
     std::shared_ptr<Asset>& asset = input.second;
 
     std::string path = FilesHelper::GetSavePath(asset->GetImportParameters()->Path, asset->GetType(), asset->GetName());
@@ -178,7 +178,7 @@ std::shared_ptr<Asset> AssetManager::LoadAsset(const std::string& path) const
   return asset;
 }
 
-std::shared_ptr<Asset> AssetManager::LoadAsset(UUID id) const
+std::shared_ptr<Asset> AssetManager::LoadAsset(boost::uuids::uuid id) const
 {
   if (!m_Assets.count(id))
   {
@@ -198,12 +198,12 @@ std::shared_ptr<Asset> AssetManager::LoadAsset(UUID id) const
   return asset;
 }
 
-const std::map<UUID, std::shared_ptr<Asset>>& AssetManager::GetAssets() const
+const std::map<boost::uuids::uuid, std::shared_ptr<Asset>>& AssetManager::GetAssets() const
 {
   return m_Assets;
 }
 
-std::shared_ptr<Asset> AssetManager::GetAsset(UUID id) const
+std::shared_ptr<Asset> AssetManager::GetAsset(boost::uuids::uuid id) const
 {
   return m_Assets.count(id) ? m_Assets.at(id) : nullptr;
 }

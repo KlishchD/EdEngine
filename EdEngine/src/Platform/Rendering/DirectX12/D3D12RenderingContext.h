@@ -4,6 +4,7 @@
 #include "Core/Rendering/RenderingContex.h"
 
 class D3D12Window;
+class D3D12Resource;
 
 class D3D12RenderingContext : public RenderingContext
 {
@@ -73,9 +74,14 @@ public:
   virtual void BeginUIFrame() override;
   virtual void EndUIFrame() override;
 
+  virtual void Update() override;
   virtual void Present() override;
 
+  virtual void RetainUploadBuffer(UploadBuffer&& buffer) override;
+
   virtual void Close() override;
+
+  void AddResourceForUploading(void* data, uint32_t size, D3D12_RESOURCE_DESC* descriptor, D3D12Resource* resource);
 
   Microsoft::WRL::ComPtr<ID3D12Device> GetDevice() const;
 protected:
@@ -86,6 +92,11 @@ protected:
   void SetupImGUI();
 
   void LogAdapterInformation();
+
+  void UploadPendingData();
+  Microsoft::WRL::ComPtr<ID3D12Resource1> CreateAndPopulateUploadBuffer();
+  void CreateUploadDestinationResources();
+  void CopyDataFromUploadBufferToDestinations(Microsoft::WRL::ComPtr<ID3D12Resource1> uploadBuffer);
 
 protected:
   D3D12Window* m_Window;
@@ -101,7 +112,22 @@ protected:
   Microsoft::WRL::ComPtr<ID3D12DescriptorHeap> m_CVBSRVDescriptorHeap;
   Microsoft::WRL::ComPtr<ID3D12Resource1> m_BackBufferRenderTargetResource[BackBufferCount];
   Microsoft::WRL::ComPtr<ID3D12CommandAllocator> m_CommandAllocator;
-  Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList1> m_ImGUICommandList;
+  Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList1> m_CommandList;
+
+  Microsoft::WRL::ComPtr<ID3D12CommandQueue> m_CopyCommandQueue;
+  Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList1> m_CopyCommandList;
+  Microsoft::WRL::ComPtr<ID3D12CommandAllocator> m_CopyCommandAllocator;
+
+  struct UploadResourceDescription
+  {
+    void* Data;
+    uint32_t Size;
+    D3D12_RESOURCE_DESC* GPUResourceDescription;
+    D3D12Resource* Resource;
+  };
+
+  std::vector<UploadResourceDescription> m_UploadResourceDescriptions;
+  std::vector<UploadBuffer> m_RetainUploadBuffers;
 
   uint32_t m_RenderTargetDescriptorSize = 0;
 };

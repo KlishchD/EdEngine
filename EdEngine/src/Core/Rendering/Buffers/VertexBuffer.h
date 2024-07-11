@@ -1,8 +1,6 @@
 #pragma once
 
-#include <memory>
 #include "Buffer.h"
-#include "Core/Rendering/Types.h"
 #include "VertexBufferLayout.h"
 
 class VertexBuffer : public Buffer

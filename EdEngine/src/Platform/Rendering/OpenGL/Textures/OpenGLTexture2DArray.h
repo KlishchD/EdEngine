@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Core/Rendering/Textures/Texture2DArray.h"
+#include "Helpers/RenderingHelper.h"
 
 ED_CLASS2(OpenGLTexture2DArray, RenderingHelper::CreateTexture2DArray) : public Texture2DArray
 {

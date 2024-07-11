@@ -7,4 +7,5 @@ class D3D12Helper
 public:
   static D3D12_RESOURCE_BARRIER TransitionBarrier(Microsoft::WRL::ComPtr<ID3D12Resource1> resource, uint32_t subresoruce, D3D12_RESOURCE_STATES before, D3D12_RESOURCE_STATES after);
   static D3D12_RESOURCE_BARRIER TransitionBarrier(Microsoft::WRL::ComPtr<ID3D12Resource1> resource, D3D12_RESOURCE_STATES before, D3D12_RESOURCE_STATES after);
+  static uint32_t CalculateResourceSize(const D3D12_RESOURCE_DESC& description);
 };

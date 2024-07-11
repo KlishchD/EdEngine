@@ -11,7 +11,9 @@ class Framebuffer;
 class UniformBuffer;
 class VertexBuffer;
 class IndexBuffer;
+class UploadBuffer;
 
+// TODO: Add logic to retain data until update ;)
 class RenderingContext 
 {
 public:
@@ -80,7 +82,10 @@ public:
 	virtual void BeginUIFrame() = 0;
 	virtual void EndUIFrame() = 0;
 
-	virtual void Present() = 0;
+  virtual void Update() = 0;
+  virtual void Present() = 0;
+
+	virtual void RetainUploadBuffer(UploadBuffer&& buffer) = 0;
 
 	virtual void Close() = 0;
 
