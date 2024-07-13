@@ -60,7 +60,7 @@ enum class BlendFactor
   OneMinusSourceAlpha
 };
 
-enum class ShaderDataType 
+enum class ShaderDataType
 {
   None = 0,
   Float,
@@ -69,13 +69,13 @@ enum class ShaderDataType
   Float4,
 };
 
-enum class FramebufferType 
+enum class FramebufferType
 {
   Framebuffer,
   CubeFramebuffer
 };
 
-enum class ShaderType 
+enum class ShaderType
 {
   None,
   Vertex,

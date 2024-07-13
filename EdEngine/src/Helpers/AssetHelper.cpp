@@ -23,7 +23,7 @@ AssetType AssetHelper::GetAssetTypeFromExtension(const std::string& extension)
     return AssetType::Texture2D;
   }
 
-    ED_ASSERT(0, "Unknown extension")
+  ED_ASSERT(0, "Unknown extension")
 }
 
 bool AssetHelper::IsAssetExtension(const std::string& extension)

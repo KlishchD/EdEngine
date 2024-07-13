@@ -23,6 +23,7 @@ public:
   glm::vec3 GetPosition() const;
 
   virtual void Serialize(Archive& archive) override;
+
 private:
   glm::vec3 m_Color = glm::vec3(1.0f);
   float m_Intensity = glm::radians(1.0f);

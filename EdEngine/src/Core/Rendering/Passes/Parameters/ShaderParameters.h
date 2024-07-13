@@ -29,6 +29,7 @@ struct ShaderParameters
   {
     return m_Shaders;
   }
+
 private:
   std::vector<ShaderParameter*> m_Parameters;
   std::map<ShaderType, std::string> m_Shaders;

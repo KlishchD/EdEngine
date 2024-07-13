@@ -27,7 +27,7 @@ public:
   virtual ShaderParameters& GetBaseShaderParameters() = 0;
 };
 
-template<typename ParameterStruct, typename ShaderParametersStruct>
+template <typename ParameterStruct, typename ShaderParametersStruct>
 class RenderPass : public BaseRegularRenderPass
 {
 public:
@@ -59,7 +59,7 @@ public:
 
   virtual std::vector<std::shared_ptr<BaseRenderPass>> GetRenderPasses() const { return m_Passes; }
 
-  template<typename T>
+  template <typename T>
   std::shared_ptr<T> GetPass()
   {
     for (const std::shared_ptr<BaseRenderPass>& pass : m_Passes)
@@ -72,8 +72,9 @@ public:
 
     return nullptr;
   }
+
 protected:
-  template<typename T>
+  template <typename T>
   void AddPass()
   {
     AddPass(std::make_shared<T>());
@@ -83,17 +84,19 @@ protected:
   {
     m_Passes.push_back(pass);
   }
+
 protected:
   std::vector<std::shared_ptr<BaseRenderPass>> m_Passes;
 };
 
-template<typename ParameterStruct>
+template <typename ParameterStruct>
 class MultiPassRenderPass : public BaseMultiPassRenderPass
 {
 public:
   virtual RenderPassParameters& GetBaseParameters() override { return m_Parameters; }
 
   const ParameterStruct& GetParameters() const { return m_Parameters; }
+
 protected:
   ParameterStruct m_Parameters;
 };

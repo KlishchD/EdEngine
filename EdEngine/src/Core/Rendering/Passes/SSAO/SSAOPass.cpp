@@ -26,8 +26,8 @@ void SSAOBasePass::Initialize(std::shared_ptr<RenderGraph> graph)
     m_ShaderParameters.Noise = texture;
   }
 
-    SetSamplesCount(16);
-    SetNoiseSize(10);
+  SetSamplesCount(16);
+  SetNoiseSize(10);
   SetRadius(1.5f);
   SetBias(0.025f);
 }
@@ -37,7 +37,7 @@ void SSAOBasePass::Execute()
   RenderPass<SSAOBasePassParameters, SSAOBasePassShaderParameters>::Execute();
 
   glm::u32vec2 size = m_Renderer->GetViewportSize();
-    m_Parameters.DrawFramebuffer->Resize(std::max<int32_t>(size.x / 2, 1), std::max<int32_t>(size.y / 2, 1), 1);
+  m_Parameters.DrawFramebuffer->Resize(std::max<int32_t>(size.x / 2, 1), std::max<int32_t>(size.y / 2, 1), 1);
 
   Camera& camera = m_Parameters.Camera->GetCamera();
   m_Renderer->SetCamera(camera);
@@ -52,8 +52,8 @@ void SSAOBasePass::Execute()
 
 void SSAOBasePass::SetSamplesCount(uint32_t count)
 {
-    m_ShaderParameters.SampleCount = count;
-  
+  m_ShaderParameters.SampleCount = count;
+
   std::vector<glm::vec3> samples = MathHelper::GenerateHalfSphereSamples(count);
   for (int32_t i = 0; i < count; ++i)
   {
@@ -68,19 +68,19 @@ uint32_t SSAOBasePass::GetSamplesCount() const
 
 void SSAOBasePass::SetNoiseSize(uint32_t size)
 {
-    m_ShaderParameters.NoiseSize = size;
+  m_ShaderParameters.NoiseSize = size;
 
-    std::uniform_real_distribution<float> distribution(0.0f, 1.0f);
-    std::default_random_engine generator;
+  std::uniform_real_distribution<float> distribution(0.0f, 1.0f);
+  std::default_random_engine generator;
 
-    std::vector<glm::vec3> noise;
-    for (int32_t i = 0; i < size * size; ++i)
-    {
-        noise.emplace_back(distribution(generator) * 2.0f - 1.0f, distribution(generator) * 2.0f - 1.0f, 0.0f);
-    }
+  std::vector<glm::vec3> noise;
+  for (int32_t i = 0; i < size * size; ++i)
+  {
+    noise.emplace_back(distribution(generator) * 2.0f - 1.0f, distribution(generator) * 2.0f - 1.0f, 0.0f);
+  }
 
-    Texture2DData data(size, size, noise.data(), noise.size() * sizeof(glm::vec3), false);
-    m_ShaderParameters.Noise->SetData(std::move(data));
+  Texture2DData data(size, size, noise.data(), noise.size() * sizeof(glm::vec3), false);
+  m_ShaderParameters.Noise->SetData(std::move(data));
 }
 
 uint32_t SSAOBasePass::GetNosiseSize() const
@@ -107,4 +107,3 @@ float SSAOBasePass::GetBias() const
 {
   return m_ShaderParameters.Bias;
 }
-

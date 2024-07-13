@@ -28,8 +28,8 @@ public:
   virtual void ClaimData();
   virtual void UnclaimData();
 
-    void MarkDirty();
-    bool IsDirty() const;
+  void MarkDirty();
+  bool IsDirty() const;
 
   virtual void SetShouldLoadData(bool status);
   bool ShouldHaveData() const;
@@ -39,7 +39,7 @@ public:
 
   virtual void ResetState();
 
-  template<typename T>
+  template <typename T>
   std::shared_ptr<T> GetImportParameters() const
   {
     return std::static_pointer_cast<T>(GetImportParameters());
@@ -50,6 +50,7 @@ public:
   virtual void FreeData();
 
   virtual ~Asset() = default;
+
 protected:
   boost::uuids::uuid m_Id;
 

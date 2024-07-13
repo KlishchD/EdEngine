@@ -61,14 +61,14 @@ std::vector<glm::mat4> DirectionalLightShadowPass::CalculateShadowViewProjection
   if (light->IsShadowCasting())
   {
     static std::vector<glm::vec4> cornersNDC = {
-      { -1.0f, -1.0f, -1.0f, 1.0f },
-      { -1.0f,  1.0f, -1.0f, 1.0f },
-      {  1.0f,  1.0f, -1.0f, 1.0f },
-      {  1.0f, -1.0f, -1.0f, 1.0f },
-      { -1.0f, -1.0f,  1.0f, 1.0f },
-      { -1.0f,  1.0f,  1.0f, 1.0f },
-      {  1.0f,  1.0f,  1.0f, 1.0f },
-      {  1.0f, -1.0f,  1.0f, 1.0f }
+      {-1.0f, -1.0f, -1.0f, 1.0f},
+      {-1.0f, 1.0f, -1.0f, 1.0f},
+      {1.0f, 1.0f, -1.0f, 1.0f},
+      {1.0f, -1.0f, -1.0f, 1.0f},
+      {-1.0f, -1.0f, 1.0f, 1.0f},
+      {-1.0f, 1.0f, 1.0f, 1.0f},
+      {1.0f, 1.0f, 1.0f, 1.0f},
+      {1.0f, -1.0f, 1.0f, 1.0f}
     };
 
     int32_t cascades = glm::clamp<int32_t>(light->GetShadowCascadesCount(), MinShadowCascadesCount, MaxShadowCascadesCount);

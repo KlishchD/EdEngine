@@ -33,47 +33,47 @@ class RenderGraph;
 
 ED_CLASS(Renderer) : public BaseManager
 {
-    ED_CLASS_BODY(Renderer, BaseManager)
+  ED_CLASS_BODY(Renderer, BaseManager)
 public:
-    virtual void Initialize(Engine* engine) override;
-    virtual void Deinitialize() override;
+  virtual void Initialize(Engine* engine) override;
+  virtual void Deinitialize() override;
 
-    void Update(float deltaSeconds);
+  void Update(float deltaSeconds);
 
-    bool IsViewportSizeDirty() const;
+  bool IsViewportSizeDirty() const;
 
-    void ResizeViewport(glm::vec2 size);
-    glm::u32vec2 GetViewportSize() const;
+  void ResizeViewport(glm::vec2 size);
+  glm::u32vec2 GetViewportSize() const;
 
-    void SubmitRenderCommand(const std::function<void(RenderingContext* context)>& command);
+  void SubmitRenderCommand(const std::function<void(RenderingContext* context)>& command);
 
-    template <class T>
-    std::shared_ptr<T> GetTask() const;
+  template <class T>
+  std::shared_ptr<T> GetTask() const;
 
-    void SetSSAOEnabled(bool enabled);
-    bool IsSSAOEnabled() const;
+  void SetSSAOEnabled(bool enabled);
+  bool IsSSAOEnabled() const;
 
-    void SetBloomEnabled(bool enabled);
-    bool IsBloomEnabled() const;
+  void SetBloomEnabled(bool enabled);
+  bool IsBloomEnabled() const;
 
-    void SetUpsampleScale(float scale);
-    float GetUpsampleScale() const;
+  void SetUpsampleScale(float scale);
+  float GetUpsampleScale() const;
 
-    void SetAAMethod(AAMethod method);
-    AAMethod GetAAMethod() const;
+  void SetAAMethod(AAMethod method);
+  AAMethod GetAAMethod() const;
 
-    void SetActiveRenderTarget(RenderTarget target);
-    RenderTarget GetActiveRenderTarget() const;
+  void SetActiveRenderTarget(RenderTarget target);
+  RenderTarget GetActiveRenderTarget() const;
 
-    std::shared_ptr<RenderingContext> GetContext() const;
-    std::shared_ptr<RenderGraph> GetGraph() const;
+  std::shared_ptr<RenderingContext> GetContext() const;
+  std::shared_ptr<RenderGraph> GetGraph() const;
 
-    std::shared_ptr<Texture2D> GetRenderTarget(RenderTarget target) const;
-    std::shared_ptr<Texture2D> GetViewportTexture() const;
+  std::shared_ptr<Texture2D> GetRenderTarget(RenderTarget target) const;
+  std::shared_ptr<Texture2D> GetViewportTexture() const;
 
-    float GetFarPlane() const;
-  
-    void SetCamera(const Camera& camera);
+  float GetFarPlane() const;
+
+  void SetCamera(const Camera& camera);
   void SetCamera(const glm::mat4& view, const glm::mat4& projection, glm::vec3 viewPosition);
 
   void SubmitFullScreenQuad();
@@ -82,37 +82,38 @@ public:
 
   void BeginUIFrame();
   void EndUIFrame();
+
 private:
-    bool m_bSSAOEnabled = true;
-    bool m_bIsBloomEnabled = false;
+  bool m_bSSAOEnabled = true;
+  bool m_bIsBloomEnabled = false;
 
-    float m_FarPlane = 500.0f;
+  float m_FarPlane = 500.0f;
 
-    AAMethod m_AAMethod = AAMethod::TAA;
+  AAMethod m_AAMethod = AAMethod::TAA;
 
-    float m_UpsampleScale = 1.0f;
+  float m_UpsampleScale = 1.0f;
 
-    RenderTarget m_ActiveRenderTarget = RenderTarget::GAlbedo;
+  RenderTarget m_ActiveRenderTarget = RenderTarget::GAlbedo;
 
-    std::shared_ptr<RenderGraph> m_Graph;
+  std::shared_ptr<RenderGraph> m_Graph;
 
-    std::queue<std::function<void(RenderingContext* context)>> m_Commands;
+  std::queue<std::function<void(RenderingContext* context)>> m_Commands;
 
-    Engine* m_Engine = nullptr;
+  Engine* m_Engine = nullptr;
 
-    bool m_bIsViewportSizeDirty = true;
-    glm::ivec2 m_ViewportSize = glm::ivec2(1);
-    
-    std::shared_ptr<RenderingContext> m_Context;
+  bool m_bIsViewportSizeDirty = true;
+  glm::ivec2 m_ViewportSize = glm::ivec2(1);
 
-    std::shared_ptr<VertexBuffer> m_QuadVBO;
-    std::shared_ptr<VertexBuffer> m_TextVBO;
+  std::shared_ptr<RenderingContext> m_Context;
 
-    std::shared_ptr<CameraComponent> m_Camera;
+  std::shared_ptr<VertexBuffer> m_QuadVBO;
+  std::shared_ptr<VertexBuffer> m_TextVBO;
 
-    std::vector<std::shared_ptr<Component>> m_Components;
-    std::vector<std::shared_ptr<StaticMeshComponent>> m_StaticMeshes;
-    std::vector<std::shared_ptr<DirectionalLightComponent>> m_DirectionalLights;
-    std::vector<std::shared_ptr<PointLightComponent>> m_PointLights;
-    std::vector<std::shared_ptr<SpotLightComponent>> m_SpotLights;
+  std::shared_ptr<CameraComponent> m_Camera;
+
+  std::vector<std::shared_ptr<Component>> m_Components;
+  std::vector<std::shared_ptr<StaticMeshComponent>> m_StaticMeshes;
+  std::vector<std::shared_ptr<DirectionalLightComponent>> m_DirectionalLights;
+  std::vector<std::shared_ptr<PointLightComponent>> m_PointLights;
+  std::vector<std::shared_ptr<SpotLightComponent>> m_SpotLights;
 };

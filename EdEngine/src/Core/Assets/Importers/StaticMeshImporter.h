@@ -29,6 +29,7 @@ protected:
 
   std::shared_ptr<StaticMesh> CreateMesh(std::shared_ptr<StaticSubmesh> submesh, std::shared_ptr<StaticMeshImportParameters> parameters, const std::string& name);
   std::shared_ptr<StaticMesh> CreateMesh(std::vector<std::shared_ptr<StaticSubmesh>> submeshes, std::shared_ptr<StaticMeshImportParameters> parameters, const std::string& name);
+
 protected:
   Assimp::Importer m_Importer;
 };

@@ -10,6 +10,7 @@ public:
   D3D12Fence();
 
   void Wait(Microsoft::WRL::ComPtr<ID3D12CommandQueue> queue);
+
 protected:
   Microsoft::WRL::ComPtr<ID3D12Fence> m_Fence;
   HANDLE m_Handle;

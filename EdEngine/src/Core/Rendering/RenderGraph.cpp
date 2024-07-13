@@ -97,7 +97,7 @@ void RenderGraph::BeginPass(const RenderPassParameters& inParameters)
 {
   switch (inParameters.Type)
   {
-    case RenderPassType::Base:
+  case RenderPassType::Base:
     {
       const BaseRenderPassParameters& parameters = static_cast<const BaseRenderPassParameters&>(inParameters);
 
@@ -141,16 +141,18 @@ void RenderGraph::BeginPass(const RenderPassParameters& inParameters)
       {
         m_Context->DisableFaceCulling();
       }
-    } break;
-    case RenderPassType::Compute:
+    }
+    break;
+  case RenderPassType::Compute:
     {
       const ComputeRenderPassParameters& parameters = static_cast<const ComputeRenderPassParameters&>(inParameters);
       m_Context->SetShaderProgram(parameters.Program);
-    } break;
-    case RenderPassType::MultiPass:
-      break;
-    default:
-      ED_ASSERT(0, "Unsupported render pass");
+    }
+    break;
+  case RenderPassType::MultiPass:
+    break;
+  default:
+    ED_ASSERT(0, "Unsupported render pass");
   }
 }
 
@@ -180,7 +182,7 @@ void RenderGraph::ProcessDeclarations(std::shared_ptr<BaseRenderPass> pass, uint
     {
       std::shared_ptr<Texture> renderTarget = declaration->Declare(shared_from_this());
       framebuffer->AddAttachment(renderTarget);
-      
+
       ResourceUsages usage;
       usage.Declaration = index;
       m_ResourceUsages[declaration->ResourceName] = usage;
@@ -261,7 +263,6 @@ void RenderGraph::ProcessReferences(std::shared_ptr<BaseRenderPass> pass, uint32
 
     if (reference->AccessMode == ReferenceAccessMode::Read)
     {
-
       m_ResourceUsages[reference->ResourceName].AddReader(index);
     }
     else

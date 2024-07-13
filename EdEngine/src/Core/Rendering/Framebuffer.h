@@ -43,13 +43,13 @@ public:
 
   virtual void AddAttachment(std::shared_ptr<Texture> attachment) = 0;
 
-  template<typename T>
+  template <typename T>
   std::shared_ptr<T> GetAttachment(int32_t index) const
   {
     return std::static_pointer_cast<T>(GetAttachment(index));
   }
 
-  template<typename T>
+  template <typename T>
   std::shared_ptr<T> GetDepthAttachment() const
   {
     return std::static_pointer_cast<T>(GetDepthAttachment());
@@ -72,6 +72,7 @@ public:
   virtual uint32_t GetDepth() const;
 
   virtual ~Framebuffer() = default;
+
 protected:
   std::vector<int32_t> m_AttachmentsNames;
   std::vector<std::shared_ptr<Texture>> m_Attachments;

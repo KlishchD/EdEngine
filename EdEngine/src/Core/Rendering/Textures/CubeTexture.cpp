@@ -12,19 +12,19 @@ AssetType CubeTexture::GetType() const
 
 glm::u32vec3 CubeTexture::GetSize() const
 {
-    uint32_t size = m_Data.GetSize();
-    return { size, size, size };
+  uint32_t size = m_Data.GetSize();
+  return {size, size, size};
 }
 
 void CubeTexture::SetWrapR(WrapMode mode)
 {
-    m_WrapR = mode;
+  m_WrapR = mode;
   RefreshParameters();
 }
 
 WrapMode CubeTexture::GetWrapMode() const
 {
-    return m_WrapR;
+  return m_WrapR;
 }
 
 void CubeTexture::SetData(const CubeTextureData& data)
@@ -48,12 +48,12 @@ TextureType CubeTexture::GetTextureType() const
 
 void CubeTexture::Resize(uint32_t width, uint32_t height, uint32_t depth)
 {
-    Resize(width);
+  Resize(width);
 }
 
 void CubeTexture::Resize(glm::u32vec3 size)
 {
-    Resize(size.x);
+  Resize(size.x);
 }
 
 void CubeTexture::Resize(uint32_t size)
@@ -89,9 +89,9 @@ void CubeTexture::SerializeData(Archive& archive)
 
   archive & m_Data;
 
-    if (archive.GetMode() == ArchiveMode::Read)
-    {
-        RefreshParameters();
-        RefreshData();
-    }
+  if (archive.GetMode() == ArchiveMode::Read)
+  {
+    RefreshParameters();
+    RefreshData();
+  }
 }

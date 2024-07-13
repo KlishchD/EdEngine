@@ -15,6 +15,7 @@ public:
   virtual void SetNativeResource(void* resource) override;
 
   virtual ~OpenGLShaderProgram() override;
+
 protected:
   uint32_t m_Id;
 };

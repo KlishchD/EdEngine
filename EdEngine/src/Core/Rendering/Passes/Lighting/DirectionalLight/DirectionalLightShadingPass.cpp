@@ -40,7 +40,7 @@ void DirectionalLightShadingRenderPass::Execute()
   if (light->IsShadowCasting())
   {
     m_ShaderParameters.Light_ShadowMapPixelSize = 1.0f / m_Parameters.DrawFramebuffer->GetWidth();
-    
+
     m_ShaderParameters.Light_ShadowFilterSize = light->GetShadowFilterSize();
     m_ShaderParameters.Light_ShadowFilterRadius = light->GetShadowFilterRadius();
 

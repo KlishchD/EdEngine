@@ -4,12 +4,10 @@
 
 AssetImporter::AssetImporter(std::shared_ptr<AssetManager> manager) : m_Manager(manager)
 {
-
 }
 
 AssetTypeImporter::AssetTypeImporter(std::shared_ptr<AssetManager> manager) : m_Manager(manager)
 {
-
 }
 
 std::shared_ptr<Asset> AssetTypeImporter::Import(AssetType type, std::shared_ptr<AssetImportParameters> parameters)

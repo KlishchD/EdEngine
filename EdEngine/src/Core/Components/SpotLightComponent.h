@@ -24,6 +24,7 @@ public:
   virtual ComponentType GetType() const override;
 
   virtual void Serialize(Archive& archive) override;
+
 private:
   float m_InnerAngle = 1.0f;
   float m_OuterAngle = 1.0f;

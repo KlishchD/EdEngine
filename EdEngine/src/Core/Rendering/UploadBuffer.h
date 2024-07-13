@@ -10,7 +10,7 @@ public:
   {
     return UploadBuffer(sizeof(T) * count);
   }
-  
+
   UploadBuffer(uint32_t size = 1);
   UploadBuffer(const UploadBuffer& buffer);
   UploadBuffer(UploadBuffer&& buffer);
@@ -31,8 +31,8 @@ public:
     m_FreeStart += objectSize;
   }
 
-  template <typename T, typename ..._Types>
-  void Add(_Types&& ...args)
+  template <typename T, typename... _Types>
+  void Add(_Types&&... args)
   {
     uint32_t objectSize = sizeof(T);
 
@@ -41,7 +41,7 @@ public:
       Expand();
     }
 
-    new (m_FreeStart) T(std::forward<_Types>(args)...);
+    new(m_FreeStart) T(std::forward<_Types>(args)...);
 
     m_FreeStart += objectSize;
   }
@@ -56,15 +56,17 @@ public:
 
   uint32_t GetTotalSize() const;
 
-  template<typename T>
+  template <typename T>
   uint32_t GetCount() const
   {
     return (m_FreeStart - m_Memory) / sizeof(T);
   }
-  
+
   virtual ~UploadBuffer();
+
 protected:
   void Expand();
+
 protected:
   uint8_t* m_Memory;
   uint8_t* m_FreeStart;

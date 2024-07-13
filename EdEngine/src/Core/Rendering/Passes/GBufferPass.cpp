@@ -45,7 +45,7 @@ void GBufferPass::Execute()
           SetTextureOrWhite(m_ShaderParameters.Material_NormalTexture, material->GetNormalTexture());
           SetTextureOrWhite(m_ShaderParameters.Material_RoughnessTexture, material->GetRoughnessTexture());
           SetTextureOrWhite(m_ShaderParameters.Material_MetalicTexture, material->GetMetalicTexture());
-          
+
           m_ShaderParameters.Material_PerformNormalMapping = material->ShouldPerformNormalMapping();
 
           m_ShaderParameters.PreviousModelMatrix = previousWorldTransform.GetMatrix();

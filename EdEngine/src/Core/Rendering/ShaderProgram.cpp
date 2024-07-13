@@ -9,4 +9,3 @@ const std::vector<std::shared_ptr<Shader>>& ShaderProgram::GetLinkedShaders() co
 {
   return m_LinkedShaders;
 }
-

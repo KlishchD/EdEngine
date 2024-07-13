@@ -9,7 +9,7 @@ UploadBuffer::UploadBuffer(uint32_t size) : m_Size(size)
 
 UploadBuffer::UploadBuffer(const UploadBuffer& buffer)
 {
-  m_Memory = (uint8_t*) malloc(buffer.m_Size);
+  m_Memory = (uint8_t*)malloc(buffer.m_Size);
   ED_ASSERT(m_Memory, "Failed to allocate {}", m_Size);
 
   memcpy(m_Memory, buffer.m_Memory, m_Size);
@@ -20,7 +20,7 @@ UploadBuffer::UploadBuffer(const UploadBuffer& buffer)
   m_IsOwner = true;
 }
 
-UploadBuffer::UploadBuffer(UploadBuffer&& buffer) : m_Memory(buffer.m_Memory), m_FreeStart(buffer.m_FreeStart), m_Size(buffer.m_Size), m_IsOwner(buffer.m_IsOwner) 
+UploadBuffer::UploadBuffer(UploadBuffer&& buffer) : m_Memory(buffer.m_Memory), m_FreeStart(buffer.m_FreeStart), m_Size(buffer.m_Size), m_IsOwner(buffer.m_IsOwner)
 {
   buffer.m_Memory = nullptr;
   buffer.m_FreeStart = nullptr;

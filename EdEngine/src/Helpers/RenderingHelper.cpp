@@ -33,8 +33,10 @@ std::shared_ptr<Window> RenderingHelper::CreateWindow(WindowSpecification specif
 
   switch (api)
   {
-  case RenderingAPI::OpenGL: window = std::make_shared<OpenGLWindow>(); break;
-  case RenderingAPI::D3D12: window = std::make_shared<D3D12Window>(); break;
+  case RenderingAPI::OpenGL: window = std::make_shared<OpenGLWindow>();
+    break;
+  case RenderingAPI::D3D12: window = std::make_shared<D3D12Window>();
+    break;
   default:
     ED_ASSERT(0, "Can not create window for provided RenderingAPI");
   }
@@ -75,39 +77,39 @@ std::shared_ptr<VertexBuffer> RenderingHelper::CreateCubeVertexBuffer()
 {
   float data[4 * 6 * 5] = {
     -0.5f, -0.5f, -0.5f, 0, 1,
-     0.5f, -0.5f, -0.5f, 1, 1,
-     0.5f, -0.5f,  0.5f, 1, 0,
-    -0.5f, -0.5f,  0.5f, 0, 0,
+    0.5f, -0.5f, -0.5f, 1, 1,
+    0.5f, -0.5f, 0.5f, 1, 0,
+    -0.5f, -0.5f, 0.5f, 0, 0,
 
-    -0.5f,  0.5f, -0.5f, 0, 0,
-     0.5f,  0.5f, -0.5f, 0, 1,
-     0.5f,  0.5f,  0.5f, 1, 1,
-    -0.5f,  0.5f,  0.5f, 1, 0,
+    -0.5f, 0.5f, -0.5f, 0, 0,
+    0.5f, 0.5f, -0.5f, 0, 1,
+    0.5f, 0.5f, 0.5f, 1, 1,
+    -0.5f, 0.5f, 0.5f, 1, 0,
 
-     0.5f, -0.5f, -0.5f, 1, 0,
+    0.5f, -0.5f, -0.5f, 1, 0,
     -0.5f, -0.5f, -0.5f, 0, 0,
-    -0.5f,  0.5f, -0.5f, 0, 1,
-     0.5f,  0.5f, -0.5f, 1, 1,
+    -0.5f, 0.5f, -0.5f, 0, 1,
+    0.5f, 0.5f, -0.5f, 1, 1,
 
-     0.5f, -0.5f,  0.5f, 0, 0,
-    -0.5f, -0.5f,  0.5f, 1, 0,
-    -0.5f,  0.5f,  0.5f, 1, 1,
-     0.5f,  0.5f,  0.5f, 0, 1,
+    0.5f, -0.5f, 0.5f, 0, 0,
+    -0.5f, -0.5f, 0.5f, 1, 0,
+    -0.5f, 0.5f, 0.5f, 1, 1,
+    0.5f, 0.5f, 0.5f, 0, 1,
 
     -0.5f, -0.5f, -0.5f, 1, 0,
-    -0.5f,  0.5f, -0.5f, 1, 1,
-    -0.5f,  0.5f,  0.5f, 0, 1,
-    -0.5f, -0.5f,  0.5f, 0, 0,
+    -0.5f, 0.5f, -0.5f, 1, 1,
+    -0.5f, 0.5f, 0.5f, 0, 1,
+    -0.5f, -0.5f, 0.5f, 0, 0,
 
-     0.5f, -0.5f, -0.5f, 0, 0,
-     0.5f,  0.5f, -0.5f, 0, 1,
-     0.5f,  0.5f,  0.5f, 1, 1,
-     0.5f, -0.5f,  0.5f, 1, 0,
+    0.5f, -0.5f, -0.5f, 0, 0,
+    0.5f, 0.5f, -0.5f, 0, 1,
+    0.5f, 0.5f, 0.5f, 1, 1,
+    0.5f, -0.5f, 0.5f, 1, 0,
   };
 
   VertexBufferLayout layout = {
-      { "vertices", ShaderDataType::Float3 },
-      { "texCoords", ShaderDataType::Float2 }
+    {"vertices", ShaderDataType::Float3},
+    {"texCoords", ShaderDataType::Float2}
   };
 
   std::shared_ptr<VertexBuffer> buffer = std::make_shared<OpenGLVertexBuffer>("Cube vertex buffer");
@@ -200,23 +202,23 @@ std::shared_ptr<Texture> RenderingHelper::CreateRenderTarget(const RenderTargetS
   switch (textureType)
   {
   case TextureType::Texture2D:
-  {
-    target = CreateTexture2D(specification.Name);
-    parameters = GetRenderTargetTexture2DImportParameters(specification.Type);
-  }
-  break;
+    {
+      target = CreateTexture2D(specification.Name);
+      parameters = GetRenderTargetTexture2DImportParameters(specification.Type);
+    }
+    break;
   case TextureType::CubeTexture:
-  {
-    target = CreateCubeTexture(specification.Name);
-    parameters = GetRenderTargetCubeTextureImportParameters(specification.Type);
-  }
-  break;
+    {
+      target = CreateCubeTexture(specification.Name);
+      parameters = GetRenderTargetCubeTextureImportParameters(specification.Type);
+    }
+    break;
   case TextureType::Texture2DArray:
-  {
-    target = CreateTexture2DArray(specification.Name);
-    parameters = GetRenderTargetTexture2DArrayImportParameters(specification.Type);
-  }
-  break;
+    {
+      target = CreateTexture2DArray(specification.Name);
+      parameters = GetRenderTargetTexture2DArrayImportParameters(specification.Type);
+    }
+    break;
   default:
     ED_ASSERT_CONTEXT(OpenGLAPI, 0, "Unsupported texutre type")
     break;
@@ -234,7 +236,7 @@ std::shared_ptr<Framebuffer> RenderingHelper::CreateFramebuffer(const std::strin
 {
   FramebufferSpecification specification;
   specification.Name = name;
-  specification.Size = { width, height, depth };
+  specification.Size = {width, height, depth};
   specification.RenderTargets = renderTargets;
   specification.TextureType = textureType;
 
@@ -304,7 +306,7 @@ std::shared_ptr<CubeTexture> RenderingHelper::CreateCubeTexture(const std::strin
 std::shared_ptr<CubeTexture> RenderingHelper::CreateCubeTexture(const std::string& name, std::shared_ptr<CubeTextureImportParameters> parameters, CubeTextureData&& data)
 {
   std::shared_ptr<CubeTexture> texture = CreateCubeTexture(name);
-  
+
   texture->SetImportParameters(parameters);
 
   texture->SetWrapS(parameters->WrapS);
@@ -449,7 +451,7 @@ std::shared_ptr<Texture2D> RenderingHelper::GetWhiteTexture()
 
     texutre->SetFilteringMode(FilteringMode::Linear);
 
-    static uint8_t whiteData[3] = { 255, 255, 255 };
+    static uint8_t whiteData[3] = {255, 255, 255};
     Texture2DData data(1, 1, whiteData, sizeof(uint32_t), false);
 
     texutre->SetData(std::move(data));
@@ -500,83 +502,83 @@ std::shared_ptr<Texture2DImportParameters> RenderingHelper::GetRenderTargetTextu
 
   switch (type)
   {
-  case FramebufferAttachmentType::Color:  
-  {
-    parameters->WrapS = WrapMode::ClampToEdge;
-    parameters->WrapT = WrapMode::ClampToEdge;
-    parameters->Format = PixelFormat::RGBA8F;
-    parameters->Filtering = FilteringMode::Linear;
-  }
-  break;
+  case FramebufferAttachmentType::Color:
+    {
+      parameters->WrapS = WrapMode::ClampToEdge;
+      parameters->WrapT = WrapMode::ClampToEdge;
+      parameters->Format = PixelFormat::RGBA8F;
+      parameters->Filtering = FilteringMode::Linear;
+    }
+    break;
   case FramebufferAttachmentType::Color16:
-  {
-    parameters->WrapS = WrapMode::ClampToEdge;
-    parameters->WrapT = WrapMode::ClampToEdge;
-    parameters->Format = PixelFormat::RGBA16F;
-    parameters->Filtering = FilteringMode::Linear;
-  }
-  break;
+    {
+      parameters->WrapS = WrapMode::ClampToEdge;
+      parameters->WrapT = WrapMode::ClampToEdge;
+      parameters->Format = PixelFormat::RGBA16F;
+      parameters->Filtering = FilteringMode::Linear;
+    }
+    break;
   case FramebufferAttachmentType::Depth:
-  {
-    parameters->WrapS = WrapMode::Repeat;
-    parameters->WrapT = WrapMode::Repeat;
-    parameters->Format = PixelFormat::Depth;
-    parameters->Filtering = FilteringMode::Nearest;
-  }
-  break;
+    {
+      parameters->WrapS = WrapMode::Repeat;
+      parameters->WrapT = WrapMode::Repeat;
+      parameters->Format = PixelFormat::Depth;
+      parameters->Filtering = FilteringMode::Nearest;
+    }
+    break;
   case FramebufferAttachmentType::DepthStencil:
-  {
-    parameters->WrapS = WrapMode::Repeat;
-    parameters->WrapT = WrapMode::Repeat;
-    parameters->Format = PixelFormat::DepthStencil;
-    parameters->Filtering = FilteringMode::Nearest;
-  }
-  break;
+    {
+      parameters->WrapS = WrapMode::Repeat;
+      parameters->WrapT = WrapMode::Repeat;
+      parameters->Format = PixelFormat::DepthStencil;
+      parameters->Filtering = FilteringMode::Nearest;
+    }
+    break;
   case FramebufferAttachmentType::Position:
-  {
-    parameters->WrapS = WrapMode::Repeat;
-    parameters->WrapT = WrapMode::Repeat;
-    parameters->Format = PixelFormat::RGB32F;
-    parameters->Filtering = FilteringMode::Linear;
-  }
-  break;
+    {
+      parameters->WrapS = WrapMode::Repeat;
+      parameters->WrapT = WrapMode::Repeat;
+      parameters->Format = PixelFormat::RGB32F;
+      parameters->Filtering = FilteringMode::Linear;
+    }
+    break;
   case FramebufferAttachmentType::Direction:
-  {
-    parameters->WrapS = WrapMode::Repeat;
-    parameters->WrapT = WrapMode::Repeat;
-    parameters->Format = PixelFormat::RGB16F;
-    parameters->Filtering = FilteringMode::Linear;
-  }
-  break;
+    {
+      parameters->WrapS = WrapMode::Repeat;
+      parameters->WrapT = WrapMode::Repeat;
+      parameters->Format = PixelFormat::RGB16F;
+      parameters->Filtering = FilteringMode::Linear;
+    }
+    break;
   case FramebufferAttachmentType::Velocity:
-  {
-    parameters->WrapS = WrapMode::Repeat;
-    parameters->WrapT = WrapMode::Repeat;
-    parameters->Format = PixelFormat::RG16F;
-    parameters->Filtering = FilteringMode::Linear;
-  }
-  break;
+    {
+      parameters->WrapS = WrapMode::Repeat;
+      parameters->WrapT = WrapMode::Repeat;
+      parameters->Format = PixelFormat::RG16F;
+      parameters->Filtering = FilteringMode::Linear;
+    }
+    break;
   case FramebufferAttachmentType::Distance:
-  {
-    parameters->WrapS = WrapMode::MirroredRepeat;
-    parameters->WrapT = WrapMode::MirroredRepeat;
-    parameters->Format = PixelFormat::R8F;
-    parameters->Filtering = FilteringMode::Linear;
-  }
-  break;
+    {
+      parameters->WrapS = WrapMode::MirroredRepeat;
+      parameters->WrapT = WrapMode::MirroredRepeat;
+      parameters->Format = PixelFormat::R8F;
+      parameters->Filtering = FilteringMode::Linear;
+    }
+    break;
   case FramebufferAttachmentType::Bloom:
-  {
-    parameters->WrapS = WrapMode::ClampToEdge;
-    parameters->WrapT = WrapMode::ClampToEdge;
-    parameters->Format = PixelFormat::R11G11B10F;
-    parameters->Filtering = FilteringMode::Linear;
-  }
-  break;
+    {
+      parameters->WrapS = WrapMode::ClampToEdge;
+      parameters->WrapT = WrapMode::ClampToEdge;
+      parameters->Format = PixelFormat::R11G11B10F;
+      parameters->Filtering = FilteringMode::Linear;
+    }
+    break;
   default:
     ED_ASSERT_CONTEXT(RenderingHelper, 0, "Unsupported render target type")
     break;
   }
-  
+
   return parameters;
 }
 
@@ -587,61 +589,68 @@ std::shared_ptr<CubeTextureImportParameters> RenderingHelper::GetRenderTargetCub
   switch (type)
   {
   case FramebufferAttachmentType::Color:
-  {
-    parameters->WrapS = WrapMode::ClampToEdge;
-    parameters->WrapT = WrapMode::ClampToEdge;
-    parameters->Format = PixelFormat::RGBA8F;
-    parameters->Filtering = FilteringMode::Linear;
-    parameters->WrapR = WrapMode::ClampToEdge;
-  }; break;
+    {
+      parameters->WrapS = WrapMode::ClampToEdge;
+      parameters->WrapT = WrapMode::ClampToEdge;
+      parameters->Format = PixelFormat::RGBA8F;
+      parameters->Filtering = FilteringMode::Linear;
+      parameters->WrapR = WrapMode::ClampToEdge;
+    };
+    break;
   case FramebufferAttachmentType::Color16:
-  {
-    parameters->WrapS = WrapMode::ClampToEdge;
-    parameters->WrapT = WrapMode::ClampToEdge;
-    parameters->Format = PixelFormat::RGBA16F;
-    parameters->Filtering = FilteringMode::Linear;
-    parameters->WrapR = WrapMode::ClampToEdge;
-  }; break;
+    {
+      parameters->WrapS = WrapMode::ClampToEdge;
+      parameters->WrapT = WrapMode::ClampToEdge;
+      parameters->Format = PixelFormat::RGBA16F;
+      parameters->Filtering = FilteringMode::Linear;
+      parameters->WrapR = WrapMode::ClampToEdge;
+    };
+    break;
   case FramebufferAttachmentType::Depth:
-  {
-    parameters->WrapS = WrapMode::Repeat;
-    parameters->WrapT = WrapMode::Repeat;
-    parameters->Format = PixelFormat::Depth;
-    parameters->Filtering = FilteringMode::Nearest;
-    parameters->WrapR = WrapMode::Repeat;
-  }; break;
+    {
+      parameters->WrapS = WrapMode::Repeat;
+      parameters->WrapT = WrapMode::Repeat;
+      parameters->Format = PixelFormat::Depth;
+      parameters->Filtering = FilteringMode::Nearest;
+      parameters->WrapR = WrapMode::Repeat;
+    };
+    break;
   case FramebufferAttachmentType::DepthStencil:
-  {
-    parameters->WrapS = WrapMode::Repeat;
-    parameters->WrapT = WrapMode::Repeat;
-    parameters->Format = PixelFormat::DepthStencil;
-    parameters->Filtering = FilteringMode::Nearest;
-    parameters->WrapR = WrapMode::Repeat;
-  }; break;
+    {
+      parameters->WrapS = WrapMode::Repeat;
+      parameters->WrapT = WrapMode::Repeat;
+      parameters->Format = PixelFormat::DepthStencil;
+      parameters->Filtering = FilteringMode::Nearest;
+      parameters->WrapR = WrapMode::Repeat;
+    };
+    break;
   case FramebufferAttachmentType::Direction:
-  {
-    parameters->WrapS = WrapMode::Repeat;
-    parameters->WrapT = WrapMode::Repeat;
-    parameters->Format = PixelFormat::RGB8F;
-    parameters->Filtering = FilteringMode::Linear;
-    parameters->WrapR = WrapMode::Repeat;
-  }; break;
+    {
+      parameters->WrapS = WrapMode::Repeat;
+      parameters->WrapT = WrapMode::Repeat;
+      parameters->Format = PixelFormat::RGB8F;
+      parameters->Filtering = FilteringMode::Linear;
+      parameters->WrapR = WrapMode::Repeat;
+    };
+    break;
   case FramebufferAttachmentType::Position:
-  {
-    parameters->WrapS = WrapMode::Repeat;
-    parameters->WrapT = WrapMode::Repeat;
-    parameters->Format = PixelFormat::RGB32F;
-    parameters->Filtering = FilteringMode::Linear;
-    parameters->WrapR = WrapMode::Repeat;
-  }; break; // TODO: check for artifacts :)
+    {
+      parameters->WrapS = WrapMode::Repeat;
+      parameters->WrapT = WrapMode::Repeat;
+      parameters->Format = PixelFormat::RGB32F;
+      parameters->Filtering = FilteringMode::Linear;
+      parameters->WrapR = WrapMode::Repeat;
+    };
+    break; // TODO: check for artifacts :)
   case FramebufferAttachmentType::Distance:
-  {
-    parameters->WrapS = WrapMode::Repeat;
-    parameters->WrapT = WrapMode::Repeat;
-    parameters->Format = PixelFormat::R8F;
-    parameters->Filtering = FilteringMode::Linear;
-    parameters->WrapR = WrapMode::Repeat;
-  }; break; // TODO: check for artifacts :)
+    {
+      parameters->WrapS = WrapMode::Repeat;
+      parameters->WrapT = WrapMode::Repeat;
+      parameters->Format = PixelFormat::R8F;
+      parameters->Filtering = FilteringMode::Linear;
+      parameters->WrapR = WrapMode::Repeat;
+    };
+    break; // TODO: check for artifacts :)
   default:
     ED_ASSERT_CONTEXT(RenderingHelper, 0, "Unsupported render target type")
     break;
@@ -657,68 +666,77 @@ std::shared_ptr<Texture2DArrayImportParameters> RenderingHelper::GetRenderTarget
   switch (type)
   {
   case FramebufferAttachmentType::Color:
-  {
-    parameters->WrapS = WrapMode::ClampToEdge;
-    parameters->WrapT = WrapMode::ClampToEdge;
-    parameters->Format = PixelFormat::RGBA8F;
-    parameters->Filtering = FilteringMode::Linear;
-  }; break;
+    {
+      parameters->WrapS = WrapMode::ClampToEdge;
+      parameters->WrapT = WrapMode::ClampToEdge;
+      parameters->Format = PixelFormat::RGBA8F;
+      parameters->Filtering = FilteringMode::Linear;
+    };
+    break;
   case FramebufferAttachmentType::Color16:
-  {
-    parameters->WrapS = WrapMode::ClampToEdge;
-    parameters->WrapT = WrapMode::ClampToEdge;
-    parameters->Format = PixelFormat::RGBA16F;
-    parameters->Filtering = FilteringMode::Linear;
-  }; break;
+    {
+      parameters->WrapS = WrapMode::ClampToEdge;
+      parameters->WrapT = WrapMode::ClampToEdge;
+      parameters->Format = PixelFormat::RGBA16F;
+      parameters->Filtering = FilteringMode::Linear;
+    };
+    break;
   case FramebufferAttachmentType::Depth:
-  {
-    parameters->WrapS = WrapMode::Repeat;
-    parameters->WrapT = WrapMode::Repeat;
-    parameters->Format = PixelFormat::Depth;
-    parameters->Filtering = FilteringMode::Nearest;
-  }; break;
+    {
+      parameters->WrapS = WrapMode::Repeat;
+      parameters->WrapT = WrapMode::Repeat;
+      parameters->Format = PixelFormat::Depth;
+      parameters->Filtering = FilteringMode::Nearest;
+    };
+    break;
   case FramebufferAttachmentType::DepthStencil:
-  {
-    parameters->WrapS = WrapMode::Repeat;
-    parameters->WrapT = WrapMode::Repeat;
-    parameters->Format = PixelFormat::DepthStencil;
-    parameters->Filtering = FilteringMode::Nearest;
-  }; break;
+    {
+      parameters->WrapS = WrapMode::Repeat;
+      parameters->WrapT = WrapMode::Repeat;
+      parameters->Format = PixelFormat::DepthStencil;
+      parameters->Filtering = FilteringMode::Nearest;
+    };
+    break;
   case FramebufferAttachmentType::Position:
-  {
-    parameters->WrapS = WrapMode::Repeat;
-    parameters->WrapT = WrapMode::Repeat;
-    parameters->Format = PixelFormat::RGB32F;
-    parameters->Filtering = FilteringMode::Linear;
-  }; break;
+    {
+      parameters->WrapS = WrapMode::Repeat;
+      parameters->WrapT = WrapMode::Repeat;
+      parameters->Format = PixelFormat::RGB32F;
+      parameters->Filtering = FilteringMode::Linear;
+    };
+    break;
   case FramebufferAttachmentType::Direction:
-  {
-    parameters->WrapS = WrapMode::Repeat;
-    parameters->WrapT = WrapMode::Repeat;
-    parameters->Format = PixelFormat::RGB16F;
-    parameters->Filtering = FilteringMode::Linear;
-  }; break;
+    {
+      parameters->WrapS = WrapMode::Repeat;
+      parameters->WrapT = WrapMode::Repeat;
+      parameters->Format = PixelFormat::RGB16F;
+      parameters->Filtering = FilteringMode::Linear;
+    };
+    break;
   case FramebufferAttachmentType::Velocity:
-  {
-    parameters->WrapS = WrapMode::Repeat;
-    parameters->WrapT = WrapMode::Repeat;
-    parameters->Format = PixelFormat::RG16F;
-    parameters->Filtering = FilteringMode::Linear;
-  }; break;
+    {
+      parameters->WrapS = WrapMode::Repeat;
+      parameters->WrapT = WrapMode::Repeat;
+      parameters->Format = PixelFormat::RG16F;
+      parameters->Filtering = FilteringMode::Linear;
+    };
+    break;
   case FramebufferAttachmentType::Distance:
-  {
-    parameters->WrapS = WrapMode::MirroredRepeat;
-    parameters->WrapT = WrapMode::MirroredRepeat;
-    parameters->Format = PixelFormat::R8F;
-    parameters->Filtering = FilteringMode::Linear;
-  }; break;
+    {
+      parameters->WrapS = WrapMode::MirroredRepeat;
+      parameters->WrapT = WrapMode::MirroredRepeat;
+      parameters->Format = PixelFormat::R8F;
+      parameters->Filtering = FilteringMode::Linear;
+    };
+    break;
   case FramebufferAttachmentType::Bloom:
-  {
-    parameters->WrapS = WrapMode::ClampToEdge;
-    parameters->WrapT = WrapMode::ClampToEdge;
-    parameters->Format = PixelFormat::R11G11B10F;
-    parameters->Filtering = FilteringMode::Linear;
-  }; break;
+    {
+      parameters->WrapS = WrapMode::ClampToEdge;
+      parameters->WrapT = WrapMode::ClampToEdge;
+      parameters->Format = PixelFormat::R11G11B10F;
+      parameters->Filtering = FilteringMode::Linear;
+    };
+    break;
   default:
     ED_ASSERT_CONTEXT(RenderingHelper, 0, "Unsupported render target type")
     break;

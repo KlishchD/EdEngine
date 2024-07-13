@@ -367,7 +367,6 @@ OpenGLRenderingContext::OpenGLRenderingContext(OpenGLWindow* window)
 
 OpenGLRenderingContext::~OpenGLRenderingContext()
 {
-
 }
 
 void OpenGLRenderingContext::AddResourceForUploading(void* data, uint32_t size, uint32_t offset, void* descriptor, Resource* resource)
@@ -382,7 +381,6 @@ void OpenGLRenderingContext::RetainUploadBuffer(UploadBuffer&& buffer)
 
 void OpenGLRenderingContext::Update()
 {
-
 }
 
 void OpenGLRenderingContext::SetShaderDataFloat(const std::string& name, float value)

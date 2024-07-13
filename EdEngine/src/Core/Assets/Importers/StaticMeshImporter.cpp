@@ -8,7 +8,6 @@
 
 StaticMeshImporter::StaticMeshImporter(std::shared_ptr<AssetManager> manager) : AssetImporter(manager)
 {
-
 }
 
 std::shared_ptr<Asset> StaticMeshImporter::Import(std::shared_ptr<AssetImportParameters> parameters)
@@ -42,12 +41,11 @@ std::vector<std::shared_ptr<Asset>> StaticMeshImporter::ImportMultiple(std::shar
     else
     {
       ParseMeshesSeparately(scene->mRootNode, scene, materials, submeshes);
-      
+
       for (std::shared_ptr<StaticSubmesh> submesh : submeshes)
       {
         std::shared_ptr<StaticMesh> mesh = CreateMesh(submesh, parameters, name);
         meshes.push_back(mesh);
-
       }
     }
 
@@ -112,15 +110,15 @@ std::shared_ptr<StaticMesh> StaticMeshImporter::CreateMesh(std::shared_ptr<Stati
 {
   std::shared_ptr<StaticMesh> mesh = std::make_shared<StaticMesh>(name);
   mesh->AddSubmesh(submesh);
-  
+
   mesh->SetImportParameters(parameters);
-  
+
   std::string savePath = FilesHelper::GetSavePath(parameters->Path, AssetType::StaticMesh, submesh->GetName());
   Archive archive(savePath, ArchiveMode::Write);
   archive & mesh;
-  
+
   m_Manager->RegisterAsset(mesh, savePath);
-  
+
   return mesh;
 }
 
@@ -128,15 +126,15 @@ std::shared_ptr<StaticMesh> StaticMeshImporter::CreateMesh(std::vector<std::shar
 {
   std::shared_ptr<StaticMesh> mesh = std::make_shared<StaticMesh>(name);
   mesh->SetSubmeshes(submeshes);
-  
+
   mesh->SetImportParameters(parameters);
-  
+
   std::string savePath = FilesHelper::GetSavePath(parameters->Path, AssetType::StaticMesh);
   Archive archive(savePath, ArchiveMode::Write);
   archive & mesh;
-  
+
   m_Manager->RegisterAsset(mesh, savePath);
-  
+
   return mesh;
 }
 

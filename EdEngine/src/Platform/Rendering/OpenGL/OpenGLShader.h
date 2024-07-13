@@ -2,7 +2,8 @@
 
 #include "Core/Rendering/Shader.h"
 
-class OpenGLShader : public Shader {
+class OpenGLShader : public Shader
+{
 public:
   OpenGLShader(ShaderType type, const std::string& filepath, const std::string& source);
 
@@ -10,6 +11,7 @@ public:
   virtual void SetNativeResource(void* resource) override;
 
   virtual ~OpenGLShader() override;
+
 private:
   uint32_t m_Id;
 };

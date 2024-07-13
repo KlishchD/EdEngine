@@ -12,5 +12,3 @@ std::wstring StringHelper::StringToWCHAR(const std::string& str)
 
   return result;
 }
-
-

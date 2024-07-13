@@ -18,6 +18,7 @@ public:
   virtual void SetNativeResource(void* resource) override;
 
   virtual ~OpenGLIndexBuffer() override;
+
 private:
   uint32_t m_Id = 0;
 };

@@ -6,7 +6,7 @@ void FXAAPass::Initialize(std::shared_ptr<RenderGraph> graph)
 
   m_Parameters.Name = "FXAA pass";
 
-  m_Parameters.Output = RenderingHelper::CreateRenderTarget<Texture2D>({ "FXAA.Output", FramebufferAttachmentType::Color16 }, TextureType::Texture2D);
+  m_Parameters.Output = RenderingHelper::CreateRenderTarget<Texture2D>({"FXAA.Output", FramebufferAttachmentType::Color16}, TextureType::Texture2D);
 
   m_ShaderParameters.Input = m_Parameters.LightCombined;
 
@@ -18,7 +18,7 @@ void FXAAPass::Initialize(std::shared_ptr<RenderGraph> graph)
 void FXAAPass::Execute()
 {
   RenderPass<FXAAPassParameters, FXAAPassShaderParameters>::Execute();
-  
+
   glm::u32vec2 size = m_Renderer->GetViewportSize();
   m_Parameters.Output->Resize(size.x, size.y, 1);
 

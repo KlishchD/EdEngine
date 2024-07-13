@@ -35,4 +35,3 @@ void IconsPass::Execute()
     }
   }
 }
-

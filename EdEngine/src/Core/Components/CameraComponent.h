@@ -9,10 +9,11 @@ ED_CLASS(CameraComponent) : public Component
 public:
   CameraComponent(const std::string& name = "None");
 
-  void SetCamera(const Camera& camera);  
+  void SetCamera(const Camera& camera);
   Camera& GetCamera();
 
   virtual void Serialize(Archive& archive) override;
+
 protected:
   Camera m_Camera;
 };

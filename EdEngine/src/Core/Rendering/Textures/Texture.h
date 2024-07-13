@@ -3,8 +3,9 @@
 #include "Core/Rendering/EdRendering.h"
 #include "Core/Assets/Asset.h"
 
-ED_ABSTRACT_CLASS(Texture) : public Asset, public Resource {
-    ED_CLASS_BODY(Texture, Asset)
+ED_ABSTRACT_CLASS(Texture) : public Asset, public Resource
+{
+  ED_CLASS_BODY(Texture, Asset)
 public:
   Texture(const std::string& name);
 
@@ -36,6 +37,7 @@ public:
   bool IsInitialized() const;
 
   virtual ~Texture() = default;
+
 protected:
   bool m_bIsInitialized = false;
 

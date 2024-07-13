@@ -8,14 +8,15 @@
 class Character
 {
 public:
-    Character(FT_GlyphSlot glyph);
+  Character(FT_GlyphSlot glyph);
 
-    glm::vec2 GetBearing() const { return m_Bearing; }
-    glm::vec2 GetAdvance() const { return m_Advance; }
+  glm::vec2 GetBearing() const { return m_Bearing; }
+  glm::vec2 GetAdvance() const { return m_Advance; }
 
-    std::shared_ptr<Texture2D> GetTexture() const;
+  std::shared_ptr<Texture2D> GetTexture() const;
+
 private:
-    std::shared_ptr<Texture2D> m_Texture;
-    glm::vec2 m_Bearing;
-    glm::vec2 m_Advance;
+  std::shared_ptr<Texture2D> m_Texture;
+  glm::vec2 m_Bearing;
+  glm::vec2 m_Advance;
 };

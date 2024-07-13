@@ -28,7 +28,7 @@ void BloomUpscalePass::Execute()
 }
 
 float BloomUpscalePass::GetBloomMixStrength() const
-{ 
+{
   return m_ShaderParameters.MixStrength;
 }
 

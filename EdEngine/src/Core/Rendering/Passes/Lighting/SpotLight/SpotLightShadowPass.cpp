@@ -25,7 +25,7 @@ void SpotLightShadowPass::Execute()
 
     glm::mat4 view = glm::lookAt(light->GetPosition(), light->GetPosition() + light->GetWorldTransform().GetRotation() * glm::vec3(0.0f, -1.0f, 0.0f), glm::vec3(0.0f, 0.0f, 1.0f));
     glm::mat4 projection = glm::perspective(light->GetOuterAngle() * 2.0f, camera.GetAspect(), 1.0f, m_Renderer->GetFarPlane());
-    
+
     m_Parameters.ShadowProjectionViewMatrix = projection * view;
 
     m_Renderer->SetCamera(view, projection, light->GetPosition());
@@ -42,7 +42,7 @@ void SpotLightShadowPass::Execute()
           if (std::shared_ptr<Material> material = submesh->GetMaterial())
           {
             m_ShaderParameters.ModelMatrix = worldTransform.GetMatrix();
-            
+
             SubmitShaderParameters();
 
             m_Context->SetVertexBuffer(submesh->GetVertexBuffer());

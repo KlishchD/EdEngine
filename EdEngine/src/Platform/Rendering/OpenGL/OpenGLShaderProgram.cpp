@@ -23,7 +23,7 @@ void OpenGLShaderProgram::LinkProgram()
 
   int32_t status = 0;
   glGetProgramiv(m_Id, GL_LINK_STATUS, &status);
-  
+
   if (status == GL_FALSE)
   {
     int32_t length;

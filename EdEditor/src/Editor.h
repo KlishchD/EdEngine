@@ -35,6 +35,7 @@ public:
   std::shared_ptr<Asset> GetSelectedAsset() const;
 
   void SetViewportIsActive(bool state);
+
 protected:
   void UpdateMousePosition(float DeltaTime);
 
@@ -58,7 +59,7 @@ protected:
   std::shared_ptr<Actor> m_SelectedActor;
   std::shared_ptr<Component> m_SelectedComponent;
 
-  glm::i32vec2 m_ViewportSize = { 1.0f, 1.0f };
+  glm::i32vec2 m_ViewportSize = {1.0f, 1.0f};
   bool m_IsViewportActive = false;
 
   std::shared_ptr<class Renderer> m_Renderer;

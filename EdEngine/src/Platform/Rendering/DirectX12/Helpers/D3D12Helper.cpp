@@ -2,7 +2,7 @@
 
 D3D12_RESOURCE_BARRIER D3D12Helper::TransitionBarrier(Microsoft::WRL::ComPtr<ID3D12Resource1> resource, uint32_t subresoruce, D3D12_RESOURCE_STATES before, D3D12_RESOURCE_STATES after)
 {
-  D3D12_RESOURCE_BARRIER barrier {};
+  D3D12_RESOURCE_BARRIER barrier{};
   barrier.Type = D3D12_RESOURCE_BARRIER_TYPE_TRANSITION;
   barrier.Flags = D3D12_RESOURCE_BARRIER_FLAG_NONE;
   barrier.Transition.pResource = resource.Get();
@@ -14,7 +14,7 @@ D3D12_RESOURCE_BARRIER D3D12Helper::TransitionBarrier(Microsoft::WRL::ComPtr<ID3
 
 D3D12_RESOURCE_BARRIER D3D12Helper::TransitionBarrier(Microsoft::WRL::ComPtr<ID3D12Resource1> resource, D3D12_RESOURCE_STATES before, D3D12_RESOURCE_STATES after)
 {
-  D3D12_RESOURCE_BARRIER barrier {};
+  D3D12_RESOURCE_BARRIER barrier{};
   barrier.Type = D3D12_RESOURCE_BARRIER_TYPE_TRANSITION;
   barrier.Flags = D3D12_RESOURCE_BARRIER_FLAG_NONE;
   barrier.Transition.pResource = resource.Get();

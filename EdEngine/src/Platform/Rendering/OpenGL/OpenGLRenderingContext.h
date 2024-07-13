@@ -8,6 +8,7 @@ class OpenGLWindow;
 class OpenGLRenderingContext : public RenderingContext
 {
   static const inline uint8_t MaxUniformBufferLocations = 14;
+
 public:
   OpenGLRenderingContext(OpenGLWindow* window);
 

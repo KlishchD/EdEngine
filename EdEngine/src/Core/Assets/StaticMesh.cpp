@@ -11,14 +11,14 @@ StaticSubmesh::StaticSubmesh(const std::string& name) : Super(name)
 
 AssetType StaticSubmesh::GetType() const
 {
-    return AssetType::StaticSubmesh;
+  return AssetType::StaticSubmesh;
 }
 
 void StaticSubmesh::SetData(const std::vector<Vertex>& vertices, const std::vector<int32_t>& indices)
 {
-    m_Vertices = vertices;
-    m_Indices = indices;
-    CreateBuffers();
+  m_Vertices = vertices;
+  m_Indices = indices;
+  CreateBuffers();
 }
 
 void StaticSubmesh::SetData(std::vector<Vertex>&& vertices, std::vector<int32_t>&& indices)
@@ -30,75 +30,74 @@ void StaticSubmesh::SetData(std::vector<Vertex>&& vertices, std::vector<int32_t>
 
 void StaticSubmesh::SetMaterial(std::shared_ptr<Material> material)
 {
-    m_Material = material;
+  m_Material = material;
 }
 
 void StaticSubmesh::ResetState()
 {
-
 }
 
 void StaticSubmesh::SerializeData(Archive& archive)
 {
-    Super::SerializeData(archive);
+  Super::SerializeData(archive);
 
-    m_Material = SerializationHelper::SerializeAsset(archive, m_Material);
+  m_Material = SerializationHelper::SerializeAsset(archive, m_Material);
 
-    archive & m_Vertices;
-    archive & m_Indices;
+  archive & m_Vertices;
+  archive & m_Indices;
 
-    if (archive.GetMode() == ArchiveMode::Read)
-    {
-        CreateBuffers();
-    }
+  if (archive.GetMode() == ArchiveMode::Read)
+  {
+    CreateBuffers();
+  }
 }
 
 void StaticSubmesh::FreeData()
 {
-    Super::FreeData();
+  Super::FreeData();
 
-    m_Indices.clear();
-    m_Vertices.clear();
+  m_Indices.clear();
+  m_Vertices.clear();
 }
 
 void StaticSubmesh::CreateBuffers()
 {
-    static VertexBufferLayout layout = {
-        { "Position",            ShaderDataType::Float3 },
-        { "Color",               ShaderDataType::Float4 },
-        { "TextureCoordinates",  ShaderDataType::Float3 },
-        { "Normal",              ShaderDataType::Float3 },
-        { "Tangent",             ShaderDataType::Float3 },
-        { "Bitangent",           ShaderDataType::Float3 }
-    };
-    
-    if (m_VertexBuffer)
-    {
-        m_VertexBuffer->SetData((void*)m_Vertices.data(), m_Vertices.size() * sizeof(Vertex), BufferUsage::StaticDraw);
-    }
-    else
-    {
-        m_VertexBuffer = RenderingHelper::CreateVertexBuffer(m_Name + " vertex buffer", (void*)m_Vertices.data(), m_Vertices.size() * sizeof(Vertex), layout, BufferUsage::StaticDraw);
-    }
-    
-    if (m_IndexBuffer)
-    {
-        m_IndexBuffer->SetData((void*)m_Indices.data(), m_Indices.size() * sizeof(int32_t), BufferUsage::StaticDraw);
-    }
-    else
-    {
-        m_IndexBuffer = RenderingHelper::CreateIndexBuffer(m_Name + " index buffer", (void*)m_Indices.data(), m_Indices.size() * sizeof(int32_t), BufferUsage::StaticDraw);
-    }
+  static VertexBufferLayout layout = {
+    {"Position", ShaderDataType::Float3},
+    {"Color", ShaderDataType::Float4},
+    {"TextureCoordinates", ShaderDataType::Float3},
+    {"Normal", ShaderDataType::Float3},
+    {"Tangent", ShaderDataType::Float3},
+    {"Bitangent", ShaderDataType::Float3}
+  };
+
+  if (m_VertexBuffer)
+  {
+    m_VertexBuffer->SetData((void*)m_Vertices.data(), m_Vertices.size() * sizeof(Vertex), BufferUsage::StaticDraw);
+  }
+  else
+  {
+    m_VertexBuffer = RenderingHelper::CreateVertexBuffer(m_Name + " vertex buffer", (void*)m_Vertices.data(), m_Vertices.size() * sizeof(Vertex), layout, BufferUsage::StaticDraw);
+  }
+
+  if (m_IndexBuffer)
+  {
+    m_IndexBuffer->SetData((void*)m_Indices.data(), m_Indices.size() * sizeof(int32_t), BufferUsage::StaticDraw);
+  }
+  else
+  {
+    m_IndexBuffer = RenderingHelper::CreateIndexBuffer(m_Name + " index buffer", (void*)m_Indices.data(), m_Indices.size() * sizeof(int32_t), BufferUsage::StaticDraw);
+  }
 }
 
 void StaticSubmesh::Serialize(Archive& archive)
 {
-    if (archive.GetMode() == ArchiveMode::Write)
-    {
-      archive & GetType();
-    }
+  if (archive.GetMode() == ArchiveMode::Write)
+  {
+    archive & GetType();
+  }
 
-    archive & m_Name;
+  archive & m_Name;
 }
 
 StaticMesh::StaticMesh(const std::string& name) : Asset(name)
@@ -107,22 +106,22 @@ StaticMesh::StaticMesh(const std::string& name) : Asset(name)
 
 AssetType StaticMesh::GetType() const
 {
-    return AssetType::StaticMesh;
+  return AssetType::StaticMesh;
 }
 
 void StaticMesh::SetShouldLoadData(bool status)
 {
-    m_bShouldHaveData = status;
+  m_bShouldHaveData = status;
 
-    for (const std::shared_ptr<StaticSubmesh>& submesh : m_Submeshes)
-    {
-        submesh->SetShouldLoadData(status);
-    }
+  for (const std::shared_ptr<StaticSubmesh>& submesh : m_Submeshes)
+  {
+    submesh->SetShouldLoadData(status);
+  }
 }
 
 void StaticMesh::SetSubmeshes(const std::vector<std::shared_ptr<StaticSubmesh>>& submeshes)
 {
-    m_Submeshes = submeshes;
+  m_Submeshes = submeshes;
 }
 
 void StaticMesh::AddSubmesh(std::shared_ptr<StaticSubmesh> submesh)
@@ -132,22 +131,21 @@ void StaticMesh::AddSubmesh(std::shared_ptr<StaticSubmesh> submesh)
 
 void StaticMesh::ResetState()
 {
-    
 }
 
 void StaticMesh::SerializeData(Archive& archive)
 {
-    Super::SerializeData(archive);
+  Super::SerializeData(archive);
 
-    archive & m_Submeshes;
+  archive & m_Submeshes;
 }
 
 void StaticMesh::FreeData()
 {
-    Super::FreeData();
+  Super::FreeData();
 
-    for (std::shared_ptr<StaticSubmesh> submesh : m_Submeshes)
-    {
-        submesh->FreeData();
-    }
+  for (std::shared_ptr<StaticSubmesh> submesh : m_Submeshes)
+  {
+    submesh->FreeData();
+  }
 }

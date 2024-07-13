@@ -7,7 +7,7 @@ ED_CLASS2(OpenGLTexture2DArray, RenderingHelper::CreateTexture2DArray) : public 
 {
   ED_CLASS_BODY(OpenGLTexture2DArray, Texture2DArray)
 public:
-  OpenGLTexture2DArray(const std::string & name = "Empty");
+  OpenGLTexture2DArray(const std::string& name = "Empty");
 
   virtual void Initialize() override;
 
@@ -15,6 +15,7 @@ public:
   virtual void SetNativeResource(void* resource) override;
 
   virtual ~OpenGLTexture2DArray() override;
+
 protected:
   virtual void RefreshData() override;
   virtual void RefreshParameters() override;

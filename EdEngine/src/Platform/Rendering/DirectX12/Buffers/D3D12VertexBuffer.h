@@ -18,7 +18,8 @@ public:
 
   virtual void* GetNativeResource() const override;
   virtual void SetNativeResource(void* resource) override;
+
 protected:
   Microsoft::WRL::ComPtr<ID3D12Resource1> m_Resource;
-  D3D12_RESOURCE_DESC m_Description {};
+  D3D12_RESOURCE_DESC m_Description{};
 };

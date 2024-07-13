@@ -23,10 +23,11 @@ public:
   void SetShadowFilterRadius(float radius);
 
   virtual void Serialize(Archive& archive) override;
+
 private:
   uint32_t m_CascadesCount = 4;
   float m_ShadowMapZMultiplier = 10.0f;
-  
+
   uint32_t m_ShadowFilterSize = 3;
   float m_ShadowFilterRadius = 3.0f;
 };

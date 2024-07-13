@@ -15,64 +15,64 @@ LRESULT CALLBACK WindowProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
   switch (uMsg)
   {
   case WM_NCCALCSIZE:
-  {
-    // Remove the window's standard sizing border
-    if (wParam == TRUE && lParam != NULL)
     {
-      NCCALCSIZE_PARAMS* pParams = reinterpret_cast<NCCALCSIZE_PARAMS*>(lParam);
-      pParams->rgrc[0].top += 1;
-      pParams->rgrc[0].right -= 2;
-      pParams->rgrc[0].bottom -= 2;
-      pParams->rgrc[0].left += 2;
+      // Remove the window's standard sizing border
+      if (wParam == TRUE && lParam != NULL)
+      {
+        NCCALCSIZE_PARAMS* pParams = reinterpret_cast<NCCALCSIZE_PARAMS*>(lParam);
+        pParams->rgrc[0].top += 1;
+        pParams->rgrc[0].right -= 2;
+        pParams->rgrc[0].bottom -= 2;
+        pParams->rgrc[0].left += 2;
+      }
+      return 0;
     }
-    return 0;
-  }
   case WM_NCPAINT:
-  {
-    // Prevent the non-client area from being painted
-    return 0;
-  }
+    {
+      // Prevent the non-client area from being painted
+      return 0;
+    }
   case WM_NCHITTEST:
-  {
-    // Expand the hit test area for resizing
-    const int borderWidth = 0; // Adjust this value to control the hit test area size
-
-    POINTS mousePos = MAKEPOINTS(lParam);
-    POINT clientMousePos = { mousePos.x, mousePos.y };
-    ScreenToClient(hWnd, &clientMousePos);
-
-    RECT windowRect;
-    GetClientRect(hWnd, &windowRect);
-
-    if (clientMousePos.y >= windowRect.bottom - borderWidth)
     {
-      if (clientMousePos.x <= borderWidth)
-        return HTBOTTOMLEFT;
+      // Expand the hit test area for resizing
+      const int borderWidth = 0; // Adjust this value to control the hit test area size
+
+      POINTS mousePos = MAKEPOINTS(lParam);
+      POINT clientMousePos = {mousePos.x, mousePos.y};
+      ScreenToClient(hWnd, &clientMousePos);
+
+      RECT windowRect;
+      GetClientRect(hWnd, &windowRect);
+
+      if (clientMousePos.y >= windowRect.bottom - borderWidth)
+      {
+        if (clientMousePos.x <= borderWidth)
+          return HTBOTTOMLEFT;
+        else if (clientMousePos.x >= windowRect.right - borderWidth)
+          return HTBOTTOMRIGHT;
+        else
+          return HTBOTTOM;
+      }
+      else if (clientMousePos.y <= borderWidth)
+      {
+        if (clientMousePos.x <= borderWidth)
+          return HTTOPLEFT;
+        else if (clientMousePos.x >= windowRect.right - borderWidth)
+          return HTTOPRIGHT;
+        else
+          return HTTOP;
+      }
+      else if (clientMousePos.x <= borderWidth)
+      {
+        return HTLEFT;
+      }
       else if (clientMousePos.x >= windowRect.right - borderWidth)
-        return HTBOTTOMRIGHT;
-      else
-        return HTBOTTOM;
-    }
-    else if (clientMousePos.y <= borderWidth)
-    {
-      if (clientMousePos.x <= borderWidth)
-        return HTTOPLEFT;
-      else if (clientMousePos.x >= windowRect.right - borderWidth)
-        return HTTOPRIGHT;
-      else
-        return HTTOP;
-    }
-    else if (clientMousePos.x <= borderWidth)
-    {
-      return HTLEFT;
-    }
-    else if (clientMousePos.x >= windowRect.right - borderWidth)
-    {
-      return HTRIGHT;
-    }
+      {
+        return HTRIGHT;
+      }
 
-    break;
-  }
+      break;
+    }
   }
 
   return CallWindowProc(original_proc, hWnd, uMsg, wParam, lParam);
@@ -80,51 +80,51 @@ LRESULT CALLBACK WindowProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 
 std::string PlatformHelper::OpenFileWindow(const char* filter, Window& window, const char* title)
 {
-    OPENFILENAMEA ofn;
+  OPENFILENAMEA ofn;
 
-    ZeroMemory(&ofn, sizeof(OPENFILENAMEA));
+  ZeroMemory(&ofn, sizeof(OPENFILENAMEA));
 
-    ofn.lStructSize = sizeof(OPENFILENAMEA);
-    ofn.hwndOwner = glfwGetWin32Window((GLFWwindow*) window.GetNativeWindow());
-    
-    char filepath[512];
-    ofn.lpstrFile = filepath;
-    ofn.lpstrFile[0] = '\0';    
-    ofn.nMaxFile = sizeof(filepath);
+  ofn.lStructSize = sizeof(OPENFILENAMEA);
+  ofn.hwndOwner = glfwGetWin32Window((GLFWwindow*)window.GetNativeWindow());
 
-    ofn.nFilterIndex = 1;
-    ofn.lpstrFilter = filter;
+  char filepath[512];
+  ofn.lpstrFile = filepath;
+  ofn.lpstrFile[0] = '\0';
+  ofn.nMaxFile = sizeof(filepath);
 
-    ofn.lpstrTitle = title;
+  ofn.nFilterIndex = 1;
+  ofn.lpstrFilter = filter;
 
-    return GetOpenFileNameA(&ofn) == TRUE ? filepath : "";
+  ofn.lpstrTitle = title;
+
+  return GetOpenFileNameA(&ofn) == TRUE ? filepath : "";
 }
 
 std::string PlatformHelper::SaveFileWindow(const char* filter, Window& window, const char* title)
 {
-    OPENFILENAMEA ofn;
+  OPENFILENAMEA ofn;
 
-    ZeroMemory(&ofn, sizeof(OPENFILENAMEA));
+  ZeroMemory(&ofn, sizeof(OPENFILENAMEA));
 
-    ofn.lStructSize = sizeof(OPENFILENAMEA);
+  ofn.lStructSize = sizeof(OPENFILENAMEA);
   ofn.hwndOwner = glfwGetWin32Window((GLFWwindow*)window.GetNativeWindow());
 
-    char filepath[512];
-    ofn.lpstrFile = filepath;
-    ofn.lpstrFile[0] = '\0';    
-    ofn.nMaxFile = sizeof(filepath);
+  char filepath[512];
+  ofn.lpstrFile = filepath;
+  ofn.lpstrFile[0] = '\0';
+  ofn.nMaxFile = sizeof(filepath);
 
-    ofn.nFilterIndex = 1;
-    ofn.lpstrFilter = filter;
+  ofn.nFilterIndex = 1;
+  ofn.lpstrFilter = filter;
 
-    ofn.lpstrTitle = title;
+  ofn.lpstrTitle = title;
 
-    return GetSaveFileNameA(&ofn) == TRUE ? filepath : "";
+  return GetSaveFileNameA(&ofn) == TRUE ? filepath : "";
 }
 
 void PlatformHelper::DisableTitleBar(Window& window)
 {
-  HWND hWnd = glfwGetWin32Window((GLFWwindow*) window.GetNativeWindow());
+  HWND hWnd = glfwGetWin32Window((GLFWwindow*)window.GetNativeWindow());
 
   LONG_PTR lStyle = GetWindowLongPtr(hWnd, GWL_STYLE);
   lStyle |= WS_THICKFRAME;

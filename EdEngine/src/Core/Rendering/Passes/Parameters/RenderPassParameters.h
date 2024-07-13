@@ -69,8 +69,9 @@ public:
 public:
   std::string Name;
   std::string DebugName;
-  
+
   RenderPassType Type;
+
 private:
   std::vector<Declaration*> m_Declarations;
   std::vector<Reference*> m_References;
@@ -287,7 +288,7 @@ struct MultiRenderPassParameters : public RenderPassParameters
   \
   name ## ParameterReference name ## ParameterReferenceValue{ *this }; \
   \
-  public: 
+  public:
 
 #define ED_RENDER_PASS_DECLARE_OBJECT_PTR_PRAMETER(type, name, parameterName) \
   std::shared_ptr<type> name; \

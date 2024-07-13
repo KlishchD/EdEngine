@@ -2,7 +2,6 @@
 
 Buffer::Buffer(const std::string& name) : Resource(name)
 {
-
 }
 
 uint32_t Buffer::GetSize() const

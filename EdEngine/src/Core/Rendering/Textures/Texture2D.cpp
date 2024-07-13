@@ -22,7 +22,7 @@ uint32_t Texture2D::GetHeight() const
 
 glm::u32vec3 Texture2D::GetSize() const
 {
-  return { m_Data.GetWidth(), m_Data.GetHeight(), 0 };
+  return {m_Data.GetWidth(), m_Data.GetHeight(), 0};
 }
 
 void Texture2D::SetData(const Texture2DData& data)

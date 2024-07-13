@@ -3,18 +3,17 @@
 
 Framebuffer::Framebuffer(const FramebufferSpecification& specification) : Resource(specification), m_Width(specification.Size.x), m_Height(specification.Size.y), m_Depth(specification.Size.z)
 {
-
 }
 
 std::shared_ptr<Texture> Framebuffer::GetAttachment(int32_t index) const
 {
-    ED_ASSERT(index >= 0 && index < m_Attachments.size(), "Index must be in range from 0 to {}", m_Attachments.size())
-    return m_Attachments[index];
+  ED_ASSERT(index >= 0 && index < m_Attachments.size(), "Index must be in range from 0 to {}", m_Attachments.size())
+  return m_Attachments[index];
 }
 
 std::shared_ptr<Texture> Framebuffer::GetDepthAttachment() const
 {
-    return m_DepthAttachment;
+  return m_DepthAttachment;
 }
 
 bool Framebuffer::Resize(uint32_t width, uint32_t height, uint32_t depth)

@@ -10,13 +10,14 @@ class Font;
 class FontManager
 {
 public:
-    Font LoadFont(const char* path, uint32_t width, uint32_t height) const;
+  Font LoadFont(const char* path, uint32_t width, uint32_t height) const;
 
-    static FontManager& GetFontManager();
+  static FontManager& GetFontManager();
 
-    ~FontManager();
+  ~FontManager();
+
 private:
-    FT_Library m_Ft;
+  FT_Library m_Ft;
 
-    FontManager();
+  FontManager();
 };

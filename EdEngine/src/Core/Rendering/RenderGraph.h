@@ -8,7 +8,7 @@
 struct RenderPassParameters;
 class BaseRenderPass;
 
-template<typename ParameterStructClass, typename ShaderParametersClass>
+template <typename ParameterStructClass, typename ShaderParametersClass>
 class RenderPass;
 
 struct ResourceUsages
@@ -57,7 +57,7 @@ class RenderGraph : public std::enable_shared_from_this<RenderGraph>
 public:
   void Initilaize(std::shared_ptr<Renderer> renderer);
 
-  template<typename T>
+  template <typename T>
   std::shared_ptr<T> GetPass()
   {
     for (const std::shared_ptr<BaseRenderPass>& pass : m_Passes)
@@ -73,7 +73,7 @@ public:
 
   void AddPass(std::shared_ptr<BaseRenderPass> pass);
 
-  template<typename T>
+  template <typename T>
   void AddPass()
   {
     AddPass(std::make_shared<T>());
@@ -87,7 +87,7 @@ public:
   std::shared_ptr<Renderer> GetRenderer() const;
   std::shared_ptr<RenderingContext> GetContext() const;
 
-  template<typename T>
+  template <typename T>
   void DeclareResource(const std::string& name, std::shared_ptr<T>& resource)
   {
     ED_ASSERT(!m_Resources.contains(name), "Resource with this name already exists")
@@ -95,36 +95,36 @@ public:
   }
 
   std::shared_ptr<Resource>& GetResource(const std::string& name) const;
-  
-  template<typename T>
+
+  template <typename T>
   std::shared_ptr<T>& GetResource(const std::string& name) const
   {
     ED_ASSERT(m_Resources.contains(name), "This parameter doesn't exist")
     return *reinterpret_cast<std::shared_ptr<T>*>(m_Resources.at(name));
   }
-  
-  template<typename T>
+
+  template <typename T>
   void DeclareParameter(const std::string& name, T& value)
   {
     std::shared_ptr<RenderGraphParemeter<T>> parameter = std::make_shared<RenderGraphParemeter<T>>(name, value);
     m_Parameters[name] = std::move(parameter);
   }
 
-  template<typename T>
+  template <typename T>
   void DeclareObjectPtrParameter(const std::string& name, std::shared_ptr<T>& value)
   {
     std::shared_ptr<RenderGraphObjectPtrParameter<T>> parameter = std::make_shared<RenderGraphObjectPtrParameter<T>>(name, value);
     m_Parameters[name] = std::move(parameter);
   }
 
-  template<typename T>
+  template <typename T>
   T& GetParameterValue(const std::string& name)
   {
     ED_ASSERT(m_Parameters.contains(name), "This parameter doesn't exist")
     return std::static_pointer_cast<RenderGraphParemeter<T>>(m_Parameters[name])->GetValue();
   }
 
-  template<typename T>
+  template <typename T>
   std::shared_ptr<T>& GetObjectPtrParameterValue(const std::string& name)
   {
     ED_ASSERT(m_Parameters.contains(name), "This parameter doesn't exist")
@@ -138,10 +138,11 @@ protected:
   void InitializePasses();
   void ProcessDeclarations(std::shared_ptr<BaseRenderPass> pass, uint32_t index);
   void ProcessReferences(std::shared_ptr<BaseRenderPass> pass, uint32_t index);
-  
+
   void BuildNodes();
   void CheckGraphForCycles();
   void TraverseGraph(std::shared_ptr<RenderGraphNode> node);
+
 protected:
   std::vector<std::shared_ptr<BaseRenderPass>> m_Passes;
 
@@ -149,7 +150,7 @@ protected:
   std::vector<std::shared_ptr<RenderGraphNode>> m_Nodes;
   std::queue<std::shared_ptr<RenderGraphNode>> m_ExecutionQueue;
 
-  std::shared_ptr<RenderingContext>  m_Context;
+  std::shared_ptr<RenderingContext> m_Context;
   std::shared_ptr<Renderer> m_Renderer;
 
   std::map<std::string, std::shared_ptr<Resource>*> m_Resources;

@@ -2,7 +2,8 @@
 
 #include "Core/Rendering/EdRendering.h"
 
-class Buffer : public Resource {
+class Buffer : public Resource
+{
 public:
   Buffer(const std::string& name);
 
@@ -14,6 +15,7 @@ public:
   uint32_t GetSize() const;
 
   virtual ~Buffer() = default;
+
 protected:
   uint32_t m_Size = 0;
 };

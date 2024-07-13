@@ -27,7 +27,7 @@ uint32_t Texture2DArray::GetDepth() const
 
 glm::u32vec3 Texture2DArray::GetSize() const
 {
-  return { m_Data.GetWidth(), m_Data.GetHeight(), m_Data.GetDepth() };
+  return {m_Data.GetWidth(), m_Data.GetHeight(), m_Data.GetDepth()};
 }
 
 void Texture2DArray::SetData(const Texture2DArrayData& data)
@@ -46,7 +46,7 @@ void Texture2DArray::SetData(Texture2DArrayData&& data)
 
 TextureType Texture2DArray::GetTextureType() const
 {
-    return TextureType::Texture2DArray;
+  return TextureType::Texture2DArray;
 }
 
 void Texture2DArray::Resize(glm::u32vec3 size)
@@ -79,9 +79,9 @@ void Texture2DArray::SerializeData(Archive& archive)
 
   archive & m_Data;
 
-    if (archive.GetMode() == ArchiveMode::Read)
-    {
-        RefreshParameters();
-        RefreshData();
-    }
+  if (archive.GetMode() == ArchiveMode::Read)
+  {
+    RefreshParameters();
+    RefreshData();
+  }
 }

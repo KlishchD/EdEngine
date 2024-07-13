@@ -1,7 +1,7 @@
 ﻿#include "Texture.h"
 #include "Core/Assets/ImportParameters/TextureImportParameters.h"
 
-Texture::Texture(const std::string& name) : Super(name), Resource( { name } ) // TODO : Fix it :)
+Texture::Texture(const std::string& name) : Super(name), Resource({name}) // TODO : Fix it :)
 {
 }
 

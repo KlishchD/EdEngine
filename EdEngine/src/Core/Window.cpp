@@ -9,15 +9,15 @@ void Window::Initialize(const WindowSpecification& specification)
 
 std::string Window::GetTitle() const
 {
-    return m_Title;
+  return m_Title;
 }
 
 uint32_t Window::GetWidth() const
 {
-    return m_Width;
+  return m_Width;
 }
 
 uint32_t Window::GetHeight() const
 {
-    return m_Height;
+  return m_Height;
 }

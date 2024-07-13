@@ -55,22 +55,22 @@ void Editor::Update(float DeltaTime)
 
 void Editor::SetUpInputs(Engine* engine)
 {
-  engine->SubscribeToInput(Key::W, { Action::Repeat, Action::Press }, [this]() { if (m_IsViewportActive) m_MovementDirection.z = 1.0f; });
+  engine->SubscribeToInput(Key::W, {Action::Repeat, Action::Press}, [this]() { if (m_IsViewportActive) m_MovementDirection.z = 1.0f; });
   engine->SubscribeToInput(Key::W, Action::Release, [this]() { m_MovementDirection.z = 0.0f; });
 
-  engine->SubscribeToInput(Key::S, { Action::Repeat, Action::Press }, [this]() { if (m_IsViewportActive) m_MovementDirection.z = -1.0f; });
+  engine->SubscribeToInput(Key::S, {Action::Repeat, Action::Press}, [this]() { if (m_IsViewportActive) m_MovementDirection.z = -1.0f; });
   engine->SubscribeToInput(Key::S, Action::Release, [this]() { m_MovementDirection.z = 0.0f; });
 
-  engine->SubscribeToInput(Key::A, { Action::Repeat, Action::Press }, [this]() { if (m_IsViewportActive) m_MovementDirection.x = -1.0f; });
+  engine->SubscribeToInput(Key::A, {Action::Repeat, Action::Press}, [this]() { if (m_IsViewportActive) m_MovementDirection.x = -1.0f; });
   engine->SubscribeToInput(Key::A, Action::Release, [this]() { m_MovementDirection.x = 0.0f; });
 
-  engine->SubscribeToInput(Key::D, { Action::Repeat, Action::Press }, [this]() { if (m_IsViewportActive) m_MovementDirection.x = 1.0f; });
+  engine->SubscribeToInput(Key::D, {Action::Repeat, Action::Press}, [this]() { if (m_IsViewportActive) m_MovementDirection.x = 1.0f; });
   engine->SubscribeToInput(Key::D, Action::Release, [this]() { m_MovementDirection.x = 0.0f; });
 
-  engine->SubscribeToInput(Key::E, { Action::Repeat, Action::Press }, [this]() { if (m_IsViewportActive) m_MovementDirection.y = 1.0f; });
+  engine->SubscribeToInput(Key::E, {Action::Repeat, Action::Press}, [this]() { if (m_IsViewportActive) m_MovementDirection.y = 1.0f; });
   engine->SubscribeToInput(Key::E, Action::Release, [this]() { m_MovementDirection.y = 0.0f; });
 
-  engine->SubscribeToInput(Key::Q, { Action::Repeat, Action::Press }, [this]() { if (m_IsViewportActive) m_MovementDirection.y = -1.0f; });
+  engine->SubscribeToInput(Key::Q, {Action::Repeat, Action::Press}, [this]() { if (m_IsViewportActive) m_MovementDirection.y = -1.0f; });
   engine->SubscribeToInput(Key::Q, Action::Release, [this]() { m_MovementDirection.y = 0.0f; });
 
   engine->SubscribeToInput(Key::LeftMouseClick, Action::Press, [this]() { if (m_IsViewportActive) m_IsLeftMouseButtonClicked = true; });
@@ -172,4 +172,3 @@ void Editor::UpdateMousePosition(float DeltaTime)
 
   m_MousePosition = newMousePosition;
 }
-

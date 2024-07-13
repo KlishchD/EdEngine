@@ -12,27 +12,27 @@ void GLFWWindow::Initialize(const WindowSpecification& specification)
   s_Windows.push_back(this);
 
   glfwSetWindowSizeCallback(m_Window, [](GLFWwindow* inWindow, int width, int height)
+  {
+    for (Window* window : s_Windows)
     {
-      for (Window* window : s_Windows)
+      if (window->GetNativeWindow() == inWindow)
       {
-        if (window->GetNativeWindow() == inWindow)
-        {
-          window->Resize(width, height);
-        }
+        window->Resize(width, height);
       }
-    });
+    }
+  });
 
   glfwSetKeyCallback(m_Window, [](GLFWwindow* inWindow, int32_t key, int32_t scancode, int32_t action, int32_t mods)
-    {
-      Engine::Get().InputAction(Input::ConvertGLFWInputKey(key), Input::ConvertGLFWInputAction(action));
-      ED_LOG(Input, info, "Keyboard key {} action {}", key, action)
-    });
+  {
+    Engine::Get().InputAction(Input::ConvertGLFWInputKey(key), Input::ConvertGLFWInputAction(action));
+    ED_LOG(Input, info, "Keyboard key {} action {}", key, action)
+  });
 
   glfwSetMouseButtonCallback(m_Window, [](GLFWwindow* inWindow, int button, int action, int mods)
-    {
-      Engine::Get().InputAction(Input::ConvertGLFWInputKey(button), Input::ConvertGLFWInputAction(action));
-      ED_LOG(Input, info, "Mouse button {} action {}", button, action)
-    });
+  {
+    Engine::Get().InputAction(Input::ConvertGLFWInputKey(button), Input::ConvertGLFWInputAction(action));
+    ED_LOG(Input, info, "Mouse button {} action {}", button, action)
+  });
 
   ShInitialize();
 }
@@ -89,7 +89,7 @@ glm::vec2 GLFWWindow::GetMousePositionNormalized()
 {
   glm::dvec2 position;
   glfwGetCursorPos(m_Window, &position.x, &position.y);
-  return { position.x / m_Width, position.y / m_Height };
+  return {position.x / m_Width, position.y / m_Height};
 }
 
 void GLFWWindow::Move(glm::vec2 delta)

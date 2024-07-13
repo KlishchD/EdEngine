@@ -20,4 +20,3 @@ void D3D12Fence::Wait(Microsoft::WRL::ComPtr<ID3D12CommandQueue> queue)
     WaitForSingleObject(m_Handle, INFINITE);
   }
 }
-

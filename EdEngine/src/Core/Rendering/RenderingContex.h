@@ -11,7 +11,7 @@ class IndexBuffer;
 class UploadBuffer;
 
 // TODO: Add logic to retain data until update ;)
-class RenderingContext 
+class RenderingContext
 {
 public:
   static RenderingContext& Get();
@@ -49,8 +49,8 @@ public:
   virtual void SetShaderDataFloat3(const char* name, glm::vec3 vector) = 0;
   virtual void SetShaderDataFloat4(const char* name, float r, float g, float b, float a) = 0;
   virtual void SetShaderDataFloat4(const char* name, glm::vec4 vector) = 0;
-  virtual void SetShaderDataMat4(const char* name, const glm::mat4& matrix)  = 0;
-  virtual void SetShaderDataMat3(const char* name, const glm::mat3& matrix)  = 0;
+  virtual void SetShaderDataMat4(const char* name, const glm::mat4& matrix) = 0;
+  virtual void SetShaderDataMat3(const char* name, const glm::mat3& matrix) = 0;
   virtual void SetShaderDataBool(const char* name, bool value) = 0;
 
   virtual void RunComputeShader(uint32_t sizeX, uint32_t sizeY, uint32_t sizeZ) = 0;
@@ -88,6 +88,7 @@ public:
   virtual void Close() = 0;
 
   virtual ~RenderingContext() = default;
+
 protected:
   static void SetContext(RenderingContext* context);
 };

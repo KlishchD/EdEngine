@@ -18,8 +18,10 @@ public:
   uint32_t GetDataSize() const;
 
   virtual ~TextureData();
+
 protected:
   void FreeData();
+
 private:
   uint32_t m_DataSize = 0;
   bool m_bDataOwner = false;
@@ -46,6 +48,7 @@ public:
   glm::u32vec2 GetSize() const;
 
   virtual void Serialize(Archive& archive) override;
+
 private:
   uint32_t m_Width = 0;
   uint32_t m_Height = 0;
@@ -65,6 +68,7 @@ public:
   uint32_t GetSize() const;
 
   virtual void Serialize(Archive& archive) override;
+
 private:
   uint32_t m_Size = 0;
 };
@@ -92,6 +96,7 @@ public:
   glm::u32vec3 GetSize() const;
 
   virtual void Serialize(Archive& archive) override;
+
 private:
   uint32_t m_Width = 0;
   uint32_t m_Height = 0;

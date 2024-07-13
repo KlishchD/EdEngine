@@ -7,7 +7,6 @@
 
 Texture2DImporter::Texture2DImporter(std::shared_ptr<AssetManager> manager) : AssetImporter(manager)
 {
-
 }
 
 std::shared_ptr<Asset> Texture2DImporter::Import(std::shared_ptr<AssetImportParameters> inParameters)
@@ -43,5 +42,5 @@ std::shared_ptr<Asset> Texture2DImporter::Import(std::shared_ptr<AssetImportPara
 
 std::vector<std::shared_ptr<Asset>> Texture2DImporter::ImportMultiple(std::shared_ptr<AssetImportParameters> parameters)
 {
-  return { Import(parameters) };
+  return {Import(parameters)};
 }

@@ -25,7 +25,7 @@ void SpotLightMultiPass::Execute()
   for (const std::shared_ptr<SpotLightComponent>& light : m_Parameters.Lights.Get())
   {
     m_Parameters.Light = light;
-    
+
     if (light->GetIntensity() != 0 && IsActiveLightVisible())
     {
       for (const std::shared_ptr<BaseRenderPass>& pass : m_Passes)

@@ -2,7 +2,6 @@
 
 CameraComponent::CameraComponent(const std::string& name) : Super(name)
 {
-
 }
 
 void CameraComponent::SetCamera(const Camera& camera)

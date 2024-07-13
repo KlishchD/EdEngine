@@ -10,19 +10,22 @@ void BloomDownscalePass::Initialize(std::shared_ptr<RenderGraph> graph)
 void BloomDownscalePass::Execute()
 {
   RenderPass<BloomDownscalePassParameters, BloomDownscalePassShaderParameters>::Execute();
-  
+
   if (m_Parameters.InstanceNumber == 1)
   {
     switch (m_Renderer->GetAAMethod())
     {
-    case AAMethod::TAA: m_ShaderParameters.Input = m_Parameters.TAAOutput; break;
-    case AAMethod::FXAA: m_ShaderParameters.Input = m_Parameters.FXAAOutput; break;
-    default: m_ShaderParameters.Input = m_Parameters.Scene; break;
+    case AAMethod::TAA: m_ShaderParameters.Input = m_Parameters.TAAOutput;
+      break;
+    case AAMethod::FXAA: m_ShaderParameters.Input = m_Parameters.FXAAOutput;
+      break;
+    default: m_ShaderParameters.Input = m_Parameters.Scene;
+      break;
     }
   }
   else
   {
-    m_ShaderParameters.Input =  m_Parameters.Previous;
+    m_ShaderParameters.Input = m_Parameters.Previous;
   }
 
   glm::vec2 inputSize = glm::vec2(m_ShaderParameters.Input->GetSize());

@@ -9,17 +9,14 @@ void BaseRenderPass::Initialize(std::shared_ptr<RenderGraph> graph)
 
 void BaseRenderPass::PostInitialization()
 {
-
 }
 
 void BaseRenderPass::PreExecute()
 {
-
 }
 
 void BaseRenderPass::Execute()
 {
-
 }
 
 void BaseMultiPassRenderPass::PostInitialization()

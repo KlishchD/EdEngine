@@ -44,7 +44,8 @@ void AssetManager::Initialize(Engine* engine)
   std::filesystem::recursive_directory_iterator iterator(FilesHelper::ContentFolderPath);
   for (const std::filesystem::directory_entry& entry : iterator)
   {
-    if (entry.is_directory()) {
+    if (entry.is_directory())
+    {
       continue;
     }
 
@@ -77,11 +78,11 @@ void AssetManager::Deinitialize()
 
     ED_LOG(AssetManager, info, "Started saving asset: {}", path)
 
-      if (asset->IsDirty())
-      {
-        Archive archive(path, ArchiveMode::Write);
-        archive& asset;
-      }
+    if (asset->IsDirty())
+    {
+      Archive archive(path, ArchiveMode::Write);
+      archive & asset;
+    }
 
     ED_LOG(AssetManager, info, "Finished saving asset: {}", path)
   }
@@ -93,8 +94,8 @@ void AssetManager::Deinitialize()
 
     ED_LOG(AssetManager, info, "Started saving scene: {}", path)
 
-      Archive archive(path, ArchiveMode::Write);
-    archive& scene;
+    Archive archive(path, ArchiveMode::Write);
+    archive & scene;
 
     ED_LOG(AssetManager, info, "Finished saving scene: {}", path)
   }
@@ -106,39 +107,39 @@ std::shared_ptr<Scene> AssetManager::CreateScene(const std::string& path)
 {
   ED_LOG(AssetManager, info, "Started creating scene: {}", path)
 
-    std::shared_ptr<Scene> scene = std::make_shared<Scene>();
+  std::shared_ptr<Scene> scene = std::make_shared<Scene>();
   m_Scenes[path] = scene;
 
   Archive archive(path, ArchiveMode::Write);
-  archive& scene;
+  archive & scene;
 
   ED_LOG(AssetManager, info, "Finished creating scene: {}", path)
 
-    return scene;
+  return scene;
 }
 
 std::shared_ptr<Scene> AssetManager::LoadScene(const std::string& path)
 {
   ED_LOG(AssetManager, info, "Started loading scene: {}", path)
 
-    std::shared_ptr<Scene> scene = std::make_shared<Scene>();
+  std::shared_ptr<Scene> scene = std::make_shared<Scene>();
 
   std::filesystem::directory_entry entry(path);
 
   if (!entry.exists() || entry.is_directory())
   {
     ED_LOG(AssetManager, info, "Couldn't find the scene: {}", path)
-      return nullptr;
+    return nullptr;
   }
 
   Archive archive(path, ArchiveMode::Read);
-  archive& scene;
+  archive & scene;
 
   m_Scenes[path] = scene;
 
   ED_LOG(AssetManager, info, "Finished loading scene: {}", path)
 
-    return scene;
+  return scene;
 }
 
 AssetTypeFactory& AssetManager::GetFactory()
@@ -172,7 +173,7 @@ std::shared_ptr<Asset> AssetManager::LoadAsset(const std::string& path) const
   if (!asset->HasData())
   {
     Archive archive(path, ArchiveMode::Read);
-    archive& asset;
+    archive & asset;
   }
 
   return asset;
@@ -192,7 +193,7 @@ std::shared_ptr<Asset> AssetManager::LoadAsset(boost::uuids::uuid id) const
   {
     std::string path = FilesHelper::GetSavePath(asset->GetImportParameters()->Path, asset->GetType(), asset->GetName());
     Archive archive(path, ArchiveMode::Read);
-    archive& asset;
+    archive & asset;
   }
 
   return asset;

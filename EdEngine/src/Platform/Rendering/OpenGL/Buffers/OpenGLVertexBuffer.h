@@ -20,6 +20,7 @@ public:
   virtual void SetNativeResource(void* resource) override;
 
   ~OpenGLVertexBuffer();
+
 protected:
   uint32_t m_Id = 0;
   uint32_t m_VertexSize;

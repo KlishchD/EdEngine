@@ -4,7 +4,8 @@
 #include "Core/Assets/ImportParameters/TextureImportParameters.h"
 #include "TextureData.h"
 
-ED_ABSTRACT_CLASS(Texture2D) : public Texture {
+ED_ABSTRACT_CLASS(Texture2D) : public Texture
+{
   ED_CLASS_BODY(Texture2D, Texture)
 public:
   Texture2D(const std::string& name);
@@ -32,6 +33,7 @@ public:
   virtual void SerializeData(Archive& archive) override;
 
   virtual TextureType GetTextureType() const override;
+
 protected:
   Texture2DData m_Data;
 

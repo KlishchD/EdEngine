@@ -3,13 +3,12 @@
 #include "Core/Rendering/RenderGraph.h"
 #include "Helpers/RenderingHelper.h"
 
-template<typename T>
+template <typename T>
 class Ref
 {
 public:
   Ref(T* ptr = nullptr) : m_Ptr(ptr)
   {
-
   }
 
   void SetPtr(T* ptr)
@@ -17,7 +16,7 @@ public:
     m_Ptr = ptr;
   }
 
-  operator T& ()
+  operator T&()
   {
     ED_ASSERT(m_Ptr, "Ptr could not be null")
     return *m_Ptr;
@@ -34,11 +33,12 @@ public:
     ED_ASSERT(m_Ptr, "Ptr could not be null")
     return *m_Ptr;
   }
+
 private:
   T* m_Ptr;
 };
 
-template<typename T>
+template <typename T>
 class RefFromShared
 {
 public:
@@ -56,7 +56,7 @@ public:
     return *m_Ptr;
   }
 
-  operator T& () const
+  operator T&() const
   {
     ED_ASSERT(m_Ptr, "Ptr could not be null")
     return **m_Ptr;
@@ -73,6 +73,7 @@ public:
     ED_ASSERT(m_Ptr, "Ptr could not be null")
     return *m_Ptr;
   }
+
 private:
   std::shared_ptr<T>* m_Ptr;
 };

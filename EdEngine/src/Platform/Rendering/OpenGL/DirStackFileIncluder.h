@@ -58,15 +58,15 @@ public:
   }
 
   virtual IncludeResult* includeLocal(const char* headerName,
-    const char* includerName,
-    size_t inclusionDepth) override
+                                      const char* includerName,
+                                      size_t inclusionDepth) override
   {
     return readLocalPath(headerName, includerName, (int)inclusionDepth);
   }
 
   virtual IncludeResult* includeSystem(const char* headerName,
-    const char* /*includerName*/,
-    size_t /*inclusionDepth*/) override
+                                       const char* /*includerName*/,
+                                       size_t /*inclusionDepth*/) override
   {
     return readSystemPath(headerName);
   }

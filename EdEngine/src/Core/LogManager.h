@@ -4,10 +4,11 @@
 class LogManager
 {
 public:
-    static LogManager& Get();
-    std::shared_ptr<spdlog::logger> GetLogger();
-private:
-    std::shared_ptr<spdlog::logger> m_Logger;
+  static LogManager& Get();
+  std::shared_ptr<spdlog::logger> GetLogger();
 
-    LogManager();
+private:
+  std::shared_ptr<spdlog::logger> m_Logger;
+
+  LogManager();
 };

@@ -11,7 +11,6 @@
 
 MaterialAssetImporter::MaterialAssetImporter(std::shared_ptr<AssetManager> manager) : AssetImporter(manager)
 {
-
 }
 
 std::shared_ptr<Asset> MaterialAssetImporter::Import(std::shared_ptr<AssetImportParameters> parameters)
@@ -50,7 +49,7 @@ std::vector<std::shared_ptr<Asset>> MaterialAssetImporter::ImportMultiple(std::s
     return materials;
   }
 
-  return { };
+  return {};
 }
 
 std::shared_ptr<Material> MaterialAssetImporter::ImportMaterial(const aiMaterial* inMaterial, std::shared_ptr<AssetImportParameters> inParameters)
@@ -116,7 +115,7 @@ std::shared_ptr<Material> MaterialAssetImporter::ParseMaterial(const aiMaterial*
     aiColor3D color(0.f, 0.f, 0.f);
     if (inMaterial->Get(AI_MATKEY_BASE_COLOR, color) == aiReturn_SUCCESS)
     {
-      material->SetBaseColor({ color.r, color.g, color.b });
+      material->SetBaseColor({color.r, color.g, color.b});
     }
   }
 

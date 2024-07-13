@@ -70,7 +70,7 @@ void OpenGLFramebuffer::SetDepthAttachment(std::shared_ptr<Texture> attachment, 
 
   int32_t type = attachment->GetPixelFormat() == PixelFormat::Depth ? GL_DEPTH_ATTACHMENT : GL_DEPTH_STENCIL_ATTACHMENT;
   glFramebufferTexture(GL_FRAMEBUFFER, type, attachment->GetNativeResource<uint32_t>(), 0);
-  
+
   m_DepthAttachment = attachment;
 
   glBindFramebuffer(GL_FRAMEBUFFER, 0);

@@ -4,12 +4,10 @@
 
 D3D12VertexBuffer::D3D12VertexBuffer(const std::string& name) : VertexBuffer(name)
 {
-
 }
 
 void D3D12VertexBuffer::SetLayout(const VertexBufferLayout& layout)
 {
-
 }
 
 uint32_t D3D12VertexBuffer::GetCount() const

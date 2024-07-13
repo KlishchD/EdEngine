@@ -23,6 +23,7 @@ public:
   virtual void Close() override;
 
   virtual ~GLFWWindow() override;
+
 protected:
   struct GLFWwindow* m_Window;
 

@@ -4,12 +4,13 @@
 
 struct WindowSpecification
 {
-    std::string Title;
-    uint32_t Width;
-    uint32_t Height;
+  std::string Title;
+  uint32_t Width;
+  uint32_t Height;
 };
 
-class Window {
+class Window
+{
 public:
   virtual void Initialize(const WindowSpecification& specification);
 
@@ -34,6 +35,7 @@ public:
 
   virtual void Close() = 0;
   virtual ~Window() = default;
+
 protected:
   std::string m_Title;
   uint32_t m_Width;

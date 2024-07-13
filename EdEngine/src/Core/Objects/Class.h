@@ -91,10 +91,9 @@ class Class
 public:
   Class(const std::string& name) : m_Name(name)
   {
-
   }
 
-  template<typename T>
+  template <typename T>
   std::shared_ptr<T> Create() const
   {
     return std::static_pointer_cast<T>(Create());
@@ -107,6 +106,7 @@ public:
   {
     return m_Name;
   }
+
 protected:
   std::string m_Name;
 };
@@ -114,7 +114,7 @@ protected:
 class ObjectFactory
 {
 public:
-  template<typename T>
+  template <typename T>
   static std::shared_ptr<T> CreateObject(const std::string& name)
   {
     return std::static_pointer_cast<T>(CreateObject(name));
@@ -123,24 +123,24 @@ public:
   static std::shared_ptr<GameObject> CreateObject(const std::string& name)
   {
     ED_ASSERT(m_CreationFunctions.count(name), "Class with this name is not registered")
-      return m_CreationFunctions.at(name)->Create();
+    return m_CreationFunctions.at(name)->Create();
   }
 
   static void RegisterClass(const Class& clazz)
   {
     ED_ASSERT(!m_CreationFunctions.count(clazz.GetName()), "Class with this name is already registered")
-      m_CreationFunctions[clazz.GetName()] = &clazz;
+    m_CreationFunctions[clazz.GetName()] = &clazz;
   }
 
   static const Class* GetClass(const std::string& name)
   {
     return m_CreationFunctions.count(name) ? m_CreationFunctions.at(name) : nullptr;
   }
+
 private:
   static inline std::map<std::string, const Class*> m_CreationFunctions;
 
   ObjectFactory()
   {
-
   }
 };

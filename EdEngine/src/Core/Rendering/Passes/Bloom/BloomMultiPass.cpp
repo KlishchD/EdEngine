@@ -64,4 +64,3 @@ void BloomMultiPass::SetBloomDownscaleCount(uint32_t count)
 {
   m_Parameters.DownscaleCount = count;
 }
-

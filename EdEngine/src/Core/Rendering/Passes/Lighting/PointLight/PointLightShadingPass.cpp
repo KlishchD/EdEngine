@@ -11,7 +11,7 @@ void PointLightShadingPass::Initialize(std::shared_ptr<RenderGraph> graph)
     std::vector<glm::vec3>& vertices = m_Parameters.LightMeshVertices;
     std::vector<int32_t>& indices = m_Parameters.LightMeshIndices;
 
-    VertexBufferLayout lightVBOLayout = { { "position", ShaderDataType::Float3 } };
+    VertexBufferLayout lightVBOLayout = {{"position", ShaderDataType::Float3}};
     m_Parameters.LightMeshVBO = RenderingHelper::CreateVertexBuffer("Point light mesh vertex buffer", vertices.data(), 3.0f * sizeof(float) * vertices.size(), lightVBOLayout, BufferUsage::StaticDraw);
     m_Parameters.LightMeshIBO = RenderingHelper::CreateIndexBuffer("Point light mesh index buffer", indices.data(), sizeof(int32_t) * indices.size(), BufferUsage::StaticDraw);
   }
@@ -36,7 +36,7 @@ void PointLightShadingPass::Execute()
   m_Parameters.DrawFramebuffer->Resize(size.x, size.y, 1);
 
   std::shared_ptr<PointLightComponent> light = m_Parameters.Light;
-  
+
   m_Renderer->SetCamera(m_Parameters.Camera->GetCamera());
 
   m_ShaderParameters.FarPlane = m_Renderer->GetFarPlane();
@@ -54,7 +54,7 @@ void PointLightShadingPass::Execute()
 
   Transform transform = light->GetWorldTransform();
   transform.SetScale(glm::vec3(light->GetRadius()));
-  
+
   m_ShaderParameters.ModelMatrix = transform.GetMatrix();
 
   SubmitShaderParameters();

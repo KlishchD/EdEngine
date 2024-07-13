@@ -5,9 +5,9 @@
 
 ED_ABSTRACT_CLASS(BaseManager) : public GameObject, public std::enable_shared_from_this<BaseManager>
 {
-    ED_CLASS_BODY(BaseManager, GameObject)
+  ED_CLASS_BODY(BaseManager, GameObject)
 public:
-    virtual ~BaseManager() = default;
-    virtual void Initialize(Engine* engine) = 0;
-    virtual void Deinitialize() = 0;
+  virtual ~BaseManager() = default;
+  virtual void Initialize(Engine* engine) = 0;
+  virtual void Deinitialize() = 0;
 };

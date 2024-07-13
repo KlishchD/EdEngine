@@ -2,7 +2,7 @@
 
 #include "Buffer.h"
 
-class IndexBuffer: public Buffer
+class IndexBuffer : public Buffer
 {
 public:
   IndexBuffer(const std::string& name);

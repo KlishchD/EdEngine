@@ -1,7 +1,7 @@
 #include "OpenGLIndexBuffer.h"
 #include "Platform/Rendering/OpenGL/EdOpenGLRendering.h"
 
-OpenGLIndexBuffer::OpenGLIndexBuffer(const std::string& name) :  IndexBuffer(name)
+OpenGLIndexBuffer::OpenGLIndexBuffer(const std::string& name) : IndexBuffer(name)
 {
   glCreateBuffers(1, &m_Id);
   glObjectLabel(GL_BUFFER, m_Id, m_Name.size(), m_Name.c_str());

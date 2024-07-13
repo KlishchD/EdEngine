@@ -6,20 +6,21 @@
 
 ED_CLASS(StaticMeshComponent) : public Component
 {
-    ED_CLASS_BODY(StaticMeshComponent, Component)
+  ED_CLASS_BODY(StaticMeshComponent, Component)
 public:
-    StaticMeshComponent();
-    StaticMeshComponent(const StaticMeshComponent& submesh);
-    StaticMeshComponent(std::shared_ptr<StaticMesh> mesh);
-    
-    void SetStaticMesh(std::shared_ptr<StaticMesh> mesh);
-    std::shared_ptr<StaticMesh> GetStaticMesh() const;
-   
-    virtual ComponentType GetType() const override;
+  StaticMeshComponent();
+  StaticMeshComponent(const StaticMeshComponent& submesh);
+  StaticMeshComponent(std::shared_ptr<StaticMesh> mesh);
 
-    virtual void Serialize(Archive& archive) override;
+  void SetStaticMesh(std::shared_ptr<StaticMesh> mesh);
+  std::shared_ptr<StaticMesh> GetStaticMesh() const;
+
+  virtual ComponentType GetType() const override;
+
+  virtual void Serialize(Archive& archive) override;
+
 private:
-    std::shared_ptr<StaticMesh> m_StaticMesh;
+  std::shared_ptr<StaticMesh> m_StaticMesh;
 
-    boost::uuids::uuid GetStaticMeshAssetId() const;
+  boost::uuids::uuid GetStaticMeshAssetId() const;
 };

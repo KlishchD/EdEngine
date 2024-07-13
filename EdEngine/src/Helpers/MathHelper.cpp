@@ -5,42 +5,42 @@
 
 glm::vec3 glm::translation(mat4 Transform)
 {
-    vec3 scale;
-    quat rotation;
-    vec3 translation;
-    vec3 skew;
-    vec4 perspective;
-                
-    decompose(Transform, scale, rotation, translation, skew, perspective);
+  vec3 scale;
+  quat rotation;
+  vec3 translation;
+  vec3 skew;
+  vec4 perspective;
 
-    return translation;
+  decompose(Transform, scale, rotation, translation, skew, perspective);
+
+  return translation;
 }
 
 
 glm::vec3 glm::scale(mat4 Transform)
 {
-    vec3 scale;
-    quat rotation;
-    vec3 translation;
-    vec3 skew;
-    vec4 perspective;
-                
-    decompose(Transform, scale, rotation, translation, skew, perspective);
+  vec3 scale;
+  quat rotation;
+  vec3 translation;
+  vec3 skew;
+  vec4 perspective;
 
-    return scale;
+  decompose(Transform, scale, rotation, translation, skew, perspective);
+
+  return scale;
 }
 
 glm::mat4 glm::rotationless(mat4 Transform)
 {
-    vec3 scale;
-    quat rotation;
-    vec3 translation;
-    vec3 skew;
-    vec4 perspective;
-                
-    decompose(Transform, scale, rotation, translation, skew, perspective);
+  vec3 scale;
+  quat rotation;
+  vec3 translation;
+  vec3 skew;
+  vec4 perspective;
 
-    return glm::scale(glm::translate(glm::mat4(1.0f), translation), scale);
+  decompose(Transform, scale, rotation, translation, skew, perspective);
+
+  return glm::scale(glm::translate(glm::mat4(1.0f), translation), scale);
 }
 
 float MathHelper::lerp(float a, float b, float f)
@@ -65,7 +65,7 @@ float MathHelper::Halton(uint32_t i, uint32_t b)
 
 std::vector<glm::vec3> MathHelper::GenerateHalfSphereSamples(int32_t count, bool bShiftTowardsCenter)
 {
-    std::vector<glm::vec3> samples(count);
+  std::vector<glm::vec3> samples(count);
 
   std::uniform_real_distribution<float> distribution(0.0f, 1.0f);
   std::default_random_engine generator;
@@ -78,16 +78,16 @@ std::vector<glm::vec3> MathHelper::GenerateHalfSphereSamples(int32_t count, bool
     glm::vec3 sample(x, y, z);
     sample = glm::normalize(sample) * distribution(generator);
 
-        if (bShiftTowardsCenter)
-        {
-        float scale = 1.0f * i / count;
-        sample *= MathHelper::lerp(0.1f, 1.0f, scale * scale);
-        }
+    if (bShiftTowardsCenter)
+    {
+      float scale = 1.0f * i / count;
+      sample *= MathHelper::lerp(0.1f, 1.0f, scale * scale);
+    }
 
-        samples[i] = sample;
+    samples[i] = sample;
   }
 
-    return samples;
+  return samples;
 }
 
 std::vector<glm::vec2> MathHelper::GenerateCircleSamples(int32_t count)

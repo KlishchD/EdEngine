@@ -31,4 +31,3 @@ std::shared_ptr<class RenderingContext> D3D12Window::GetContext()
 {
   return m_Context;
 }
-

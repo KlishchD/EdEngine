@@ -7,7 +7,7 @@ ED_CLASS2(OpenGLTexture2D, RenderingHelper::CreateTexture2D) : public Texture2D
 {
   ED_CLASS_BODY(OpenGLTexture2D, Texture2D)
 public:
-  OpenGLTexture2D(const std::string & name = "Empty");
+  OpenGLTexture2D(const std::string& name = "Empty");
 
   virtual void Initialize() override;
 
@@ -15,6 +15,7 @@ public:
   virtual void SetNativeResource(void* resource) override;
 
   virtual ~OpenGLTexture2D() override;
+
 protected:
   virtual void RefreshData() override;
   virtual void GenerateMipMaps() override;

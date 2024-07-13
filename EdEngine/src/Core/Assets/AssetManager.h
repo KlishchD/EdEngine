@@ -24,55 +24,56 @@ class Material;
 
 ED_CLASS(AssetManager) : public BaseManager
 {
-    ED_CLASS_BODY(AssetManager, BaseManager)
+  ED_CLASS_BODY(AssetManager, BaseManager)
 public:
-    virtual void Initialize(Engine* engine) override;
-    virtual void Deinitialize() override;
-    
-    std::shared_ptr<Scene> CreateScene(const std::string& path);
-    std::shared_ptr<Scene> LoadScene(const std::string& path);
-   
-    template <typename T> requires(std::is_base_of_v<Asset, T>)
-    void RegisterAsset(std::shared_ptr<T> asset, const std::string& path = "");
-    void RegisterAsset(std::shared_ptr<Asset> asset, const std::string& path = "");
+  virtual void Initialize(Engine* engine) override;
+  virtual void Deinitialize() override;
 
-    template<typename T> requires(std::is_base_of_v<Asset, T>)
-    std::vector<std::shared_ptr<T>> GetAssets(AssetType type) const;
+  std::shared_ptr<Scene> CreateScene(const std::string& path);
+  std::shared_ptr<Scene> LoadScene(const std::string& path);
 
-  template<typename T> requires(std::is_base_of_v<Asset, T>)
+  template <typename T> requires(std::is_base_of_v<Asset, T>)
+  void RegisterAsset(std::shared_ptr<T> asset, const std::string& path = "");
+  void RegisterAsset(std::shared_ptr<Asset> asset, const std::string& path = "");
+
+  template <typename T> requires(std::is_base_of_v<Asset, T>)
+  std::vector<std::shared_ptr<T>> GetAssets(AssetType type) const;
+
+  template <typename T> requires(std::is_base_of_v<Asset, T>)
   std::shared_ptr<T> GetAsset(const std::string& path) const;
   std::shared_ptr<Asset> GetAsset(const std::string& path) const;
 
-    template<typename T> requires(std::is_base_of_v<Asset, T>)
-    std::shared_ptr<T> GetAsset(boost::uuids::uuid id) const;
-    std::shared_ptr<Asset> GetAsset(boost::uuids::uuid id) const;
+  template <typename T> requires(std::is_base_of_v<Asset, T>)
+  std::shared_ptr<T> GetAsset(boost::uuids::uuid id) const;
+  std::shared_ptr<Asset> GetAsset(boost::uuids::uuid id) const;
 
-    template <typename T> requires(std::is_base_of_v<Asset, T>)
-    std::shared_ptr<T> LoadAsset(boost::uuids::uuid id) const;
+  template <typename T> requires(std::is_base_of_v<Asset, T>)
+  std::shared_ptr<T> LoadAsset(boost::uuids::uuid id) const;
   std::shared_ptr<Asset> LoadAsset(boost::uuids::uuid id) const;
 
   template <typename T> requires(std::is_base_of_v<Asset, T>)
   std::shared_ptr<T> LoadAsset(const std::string& path) const;
   std::shared_ptr<Asset> LoadAsset(const std::string& path) const;
 
-    template<typename T, typename E> requires(std::is_base_of_v<Asset, T> && std::is_base_of_v<AssetImportParameters, E>)
-    std::shared_ptr<T> ImportAsset(AssetType type, std::shared_ptr<E> paramters);
+  template <typename T, typename E> requires(std::is_base_of_v<Asset, T> && std::is_base_of_v<AssetImportParameters, E>)
+  std::shared_ptr<T> ImportAsset(AssetType type, std::shared_ptr<E> paramters);
 
-  template<typename T> requires(std::is_base_of_v<Asset, T>)
-    std::shared_ptr<T> CreateAsset(AssetType type, const std::string& path);
+  template <typename T> requires(std::is_base_of_v<Asset, T>)
+  std::shared_ptr<T> CreateAsset(AssetType type, const std::string& path);
 
   const std::map<boost::uuids::uuid, std::shared_ptr<Asset>>& GetAssets() const;
 
-    AssetTypeFactory& GetFactory();
-    AssetTypeImporter& GetImporter();
+  AssetTypeFactory& GetFactory();
+  AssetTypeImporter& GetImporter();
+
 private:
-    AssetTypeFactory m_Factory;
-    AssetTypeImporter m_Importer;
+  AssetTypeFactory m_Factory;
+  AssetTypeImporter m_Importer;
 
-    std::map<boost::uuids::uuid, std::shared_ptr<Asset>> m_Assets;
-    std::map<std::string, std::shared_ptr<Asset>> m_PathToAsset;
+  std::map<boost::uuids::uuid, std::shared_ptr<Asset>> m_Assets;
+  std::map<std::string, std::shared_ptr<Asset>> m_PathToAsset;
 
-    std::map<std::string, std::shared_ptr<Scene>> m_Scenes;
+  std::map<std::string, std::shared_ptr<Scene>> m_Scenes;
 };
 
 template <typename T> requires(std::is_base_of_v<Asset, T>)
@@ -81,53 +82,53 @@ void AssetManager::RegisterAsset(std::shared_ptr<T> asset, const std::string& pa
   RegisterAsset(std::static_pointer_cast<Asset>(asset), path);
 }
 
-template<typename T> requires(std::is_base_of_v<Asset, T>)
+template <typename T> requires(std::is_base_of_v<Asset, T>)
 std::vector<std::shared_ptr<T>> AssetManager::GetAssets(AssetType type) const
 {
-    std::vector<std::shared_ptr<T>> assets;
+  std::vector<std::shared_ptr<T>> assets;
 
-    for (const auto& [id, asset] : m_Assets)
+  for (const auto& [id, asset] : m_Assets)
+  {
+    if (asset->GetType() == type)
     {
-        if (asset->GetType() == type)
-        {
-            assets.push_back(std::static_pointer_cast<T>(asset));            
-        }
+      assets.push_back(std::static_pointer_cast<T>(asset));
     }
+  }
 
-    return assets;
+  return assets;
 }
 
-template<typename T, typename E> requires(std::is_base_of_v<Asset, T> && std::is_base_of_v<AssetImportParameters, E>)
+template <typename T, typename E> requires(std::is_base_of_v<Asset, T> && std::is_base_of_v<AssetImportParameters, E>)
 std::shared_ptr<T> AssetManager::ImportAsset(AssetType type, std::shared_ptr<E> paramters)
 {
   return m_Importer.Import<T>(type, std::static_pointer_cast<AssetImportParameters>(paramters));
 }
 
-template<typename T> requires(std::is_base_of_v<Asset, T>)
+template <typename T> requires(std::is_base_of_v<Asset, T>)
 std::shared_ptr<T> AssetManager::CreateAsset(AssetType type, const std::string& path)
 {
   return m_Factory.Create<T>(type);
 }
 
-template<typename T> requires(std::is_base_of_v<Asset, T>)
+template <typename T> requires(std::is_base_of_v<Asset, T>)
 std::shared_ptr<T> AssetManager::GetAsset(const std::string& path) const
 {
   return std::static_pointer_cast<T>(GetAsset(path));
 }
 
-template<typename T> requires(std::is_base_of_v<Asset, T>)
+template <typename T> requires(std::is_base_of_v<Asset, T>)
 std::shared_ptr<T> AssetManager::GetAsset(boost::uuids::uuid id) const
 {
-    return std::static_pointer_cast<T>(GetAsset(id));
+  return std::static_pointer_cast<T>(GetAsset(id));
 }
 
-template<typename T> requires(std::is_base_of_v<Asset, T>)
+template <typename T> requires(std::is_base_of_v<Asset, T>)
 std::shared_ptr<T> AssetManager::LoadAsset(boost::uuids::uuid id) const
 {
   return std::static_pointer_cast<T>(LoadAsset(id));
 }
 
-template<typename T> requires(std::is_base_of_v<Asset, T>)
+template <typename T> requires(std::is_base_of_v<Asset, T>)
 std::shared_ptr<T> AssetManager::LoadAsset(const std::string& path) const
 {
   return std::static_pointer_cast<T>(LoadAsset(path));

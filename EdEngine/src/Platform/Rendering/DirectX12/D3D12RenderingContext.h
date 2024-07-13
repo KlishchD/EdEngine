@@ -84,6 +84,7 @@ public:
   virtual void AddResourceForUploading(void* data, uint32_t size, uint32_t offset, void* descriptor, Resource* resource) override;
 
   Microsoft::WRL::ComPtr<ID3D12Device> GetDevice() const;
+
 protected:
   void CreateDevice();
   void CreateCommandQueue();

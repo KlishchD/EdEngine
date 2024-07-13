@@ -13,6 +13,7 @@ public:
   const std::vector<std::shared_ptr<Shader>>& GetLinkedShaders() const;
 
   virtual ~ShaderProgram() = default;
+
 protected:
   std::vector<std::shared_ptr<Shader>> m_AttachedShaders;
   std::vector<std::shared_ptr<Shader>> m_LinkedShaders;

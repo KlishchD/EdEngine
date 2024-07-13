@@ -3,7 +3,8 @@
 #include "Core/Rendering/Types.h"
 #include <cstdint>
 
-class OpenGLTypes {
+class OpenGLTypes
+{
 public:
   static uint32_t ConvertWrapMode(WrapMode mode);
   static uint32_t ConvertFilteringMode(FilteringMode mode, bool bMipMapEnabled = false);
@@ -22,7 +23,7 @@ public:
   static uint32_t ConvertShaderLanguage(ShaderType type);
 
   static uint32_t ConvertDepthTestFunction(DepthTestFunction function);
-  
+
   static uint32_t ConvertFace(Face face);
 
   static uint32_t ConverTextureType(TextureType type);

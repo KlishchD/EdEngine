@@ -15,6 +15,7 @@ public:
   virtual void SetNativeResource(void* resource) override;
 
   virtual ~OpenGLCubeTexture() override;
+
 protected:
   virtual void RefreshData() override;
   virtual void RefreshParameters() override;

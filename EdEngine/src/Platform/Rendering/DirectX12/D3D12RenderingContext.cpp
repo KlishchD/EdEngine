@@ -19,247 +19,198 @@ D3D12RenderingContext::D3D12RenderingContext(D3D12Window* window) : m_Window(win
 
 void D3D12RenderingContext::SetDefaultFramebuffer()
 {
-
 }
 
 void D3D12RenderingContext::SetFramebuffer(std::shared_ptr<Framebuffer> framebuffer)
 {
-
 }
 
 void D3D12RenderingContext::SetUniformBuffer(std::shared_ptr<UniformBuffer> buffer, uint32_t location)
 {
-
 }
 
 void D3D12RenderingContext::SetVertexBuffer(std::shared_ptr<VertexBuffer> buffer)
 {
-
 }
 
 void D3D12RenderingContext::SetIndexBuffer(std::shared_ptr<IndexBuffer> buffer)
 {
-
 }
 
 void D3D12RenderingContext::SetShaderProgram(std::shared_ptr<ShaderProgram> program)
 {
-
 }
 
 void D3D12RenderingContext::SetShaderDataTexture(const std::string& name, std::shared_ptr<Texture> texture)
 {
-
 }
 
 void D3D12RenderingContext::SetShaderDataTexture(const char* name, std::shared_ptr<Texture> texture)
 {
-
 }
 
 void D3D12RenderingContext::SetShaderDataImage(const std::string& name, std::shared_ptr<Texture> texture)
 {
-
 }
 
 void D3D12RenderingContext::SetShaderDataImage(const char* name, std::shared_ptr<Texture> texture)
 {
-
 }
 
 void D3D12RenderingContext::SetShaderDataInt(const std::string& name, int32_t value)
 {
-
 }
 
 void D3D12RenderingContext::SetShaderDataInt(const char* name, int32_t value)
 {
-
 }
 
 void D3D12RenderingContext::SetShaderDataFloat(const std::string& name, float value)
 {
-
 }
 
 void D3D12RenderingContext::SetShaderDataFloat(const char* name, float value)
 {
-
 }
 
 void D3D12RenderingContext::SetShaderDataFloat2(const std::string& name, glm::vec2 vector)
 {
-
 }
 
 void D3D12RenderingContext::SetShaderDataFloat2(const std::string& name, float x, float y)
 {
-
 }
 
 void D3D12RenderingContext::SetShaderDataFloat2(const char* name, glm::vec2 vector)
 {
-
 }
 
 void D3D12RenderingContext::SetShaderDataFloat2(const char* name, float x, float y)
 {
-
 }
 
 void D3D12RenderingContext::SetShaderDataFloat3(const std::string& name, float x, float y, float z)
 {
-
 }
 
 void D3D12RenderingContext::SetShaderDataFloat3(const std::string& name, glm::vec3 vector)
 {
-
 }
 
 void D3D12RenderingContext::SetShaderDataFloat3(const char* name, float x, float y, float z)
 {
-
 }
 
 void D3D12RenderingContext::SetShaderDataFloat3(const char* name, glm::vec3 vector)
 {
-
 }
 
 void D3D12RenderingContext::SetShaderDataFloat4(const std::string& name, float r, float g, float b, float a)
 {
-
 }
 
 void D3D12RenderingContext::SetShaderDataFloat4(const std::string& name, glm::vec4 vector)
 {
-
 }
 
 void D3D12RenderingContext::SetShaderDataFloat4(const char* name, float r, float g, float b, float a)
 {
-
 }
 
 void D3D12RenderingContext::SetShaderDataFloat4(const char* name, glm::vec4 vector)
 {
-
 }
 
 void D3D12RenderingContext::SetShaderDataMat4(const std::string& name, const glm::mat4& matrix)
 {
-
 }
 
 void D3D12RenderingContext::SetShaderDataMat4(const char* name, const glm::mat4& matrix)
 {
-
 }
 
 void D3D12RenderingContext::SetShaderDataMat3(const std::string& name, const glm::mat3& matrix)
 {
-
 }
 
 void D3D12RenderingContext::SetShaderDataMat3(const char* name, const glm::mat3& matrix)
 {
-
 }
 
 void D3D12RenderingContext::SetShaderDataBool(const std::string& name, bool value)
 {
-
 }
 
 void D3D12RenderingContext::SetShaderDataBool(const char* name, bool value)
 {
-
 }
 
 void D3D12RenderingContext::RunComputeShader(uint32_t sizeX, uint32_t sizeY, uint32_t sizeZ)
 {
-
 }
 
 void D3D12RenderingContext::Barier(BarrierType type)
 {
-
 }
 
 void D3D12RenderingContext::Draw(DrawMode drawMode /*= DrawMode::Triangles*/)
 {
-
 }
 
 void D3D12RenderingContext::EnableBlending(BlendFactor source, BlendFactor destination)
 {
-
 }
 
 void D3D12RenderingContext::SetBlending(BlendFactor source, BlendFactor destination)
 {
-
 }
 
 void D3D12RenderingContext::DisableBlending()
 {
-
 }
 
 void D3D12RenderingContext::EnableDethTest(DepthTestFunction function)
 {
-
 }
 
 void D3D12RenderingContext::SetDethTestFunction(DepthTestFunction function)
 {
-
 }
 
 void D3D12RenderingContext::DisableDethTest()
 {
-
 }
 
 void D3D12RenderingContext::EnableFaceCulling()
 {
-
 }
 
 void D3D12RenderingContext::EnableFaceCulling(Face face)
 {
-
 }
 
 void D3D12RenderingContext::SetCullingFace(Face face)
 {
-
 }
 
 void D3D12RenderingContext::DisableFaceCulling()
 {
-
 }
 
 void D3D12RenderingContext::ClearDepthTarget()
 {
-
 }
 
 void D3D12RenderingContext::ClearColorTarget()
 {
-
 }
 
 void D3D12RenderingContext::SetClearColor(float r, float g, float b, float a)
 {
-
 }
 
 void D3D12RenderingContext::SetClearColor(glm::vec4 color)
 {
-
 }
 
 void D3D12RenderingContext::BeginUIFrame()
@@ -283,7 +234,7 @@ void D3D12RenderingContext::EndUIFrame()
     m_CommandList->ResourceBarrier(1, &barrier);
   }
 
-  D3D12_CPU_DESCRIPTOR_HANDLE handle{ m_RTVDescriptorHeap->GetCPUDescriptorHandleForHeapStart().ptr + m_RenderTargetDescriptorSize * backBufferIndex };
+  D3D12_CPU_DESCRIPTOR_HANDLE handle{m_RTVDescriptorHeap->GetCPUDescriptorHandleForHeapStart().ptr + m_RenderTargetDescriptorSize * backBufferIndex};
   m_CommandList->OMSetRenderTargets(1, &handle, true, nullptr);
   m_CommandList->SetDescriptorHeaps(1, m_CVBSRVDescriptorHeap.GetAddressOf());
 
@@ -328,7 +279,6 @@ void D3D12RenderingContext::Present()
 
 void D3D12RenderingContext::Close()
 {
-
 }
 
 void D3D12RenderingContext::AddResourceForUploading(void* data, uint32_t size, uint32_t offset, void* descriptor, Resource* resource)
@@ -383,7 +333,7 @@ void D3D12RenderingContext::CreateDevice()
 
 void D3D12RenderingContext::CreateCommandQueue()
 {
-  D3D12_COMMAND_QUEUE_DESC commandQueueDescription {};
+  D3D12_COMMAND_QUEUE_DESC commandQueueDescription{};
   commandQueueDescription.Type = D3D12_COMMAND_LIST_TYPE_DIRECT;
   commandQueueDescription.Priority = D3D12_COMMAND_QUEUE_PRIORITY_HIGH;
   commandQueueDescription.Flags = D3D12_COMMAND_QUEUE_FLAG_NONE;
@@ -404,7 +354,7 @@ void D3D12RenderingContext::CreateSwapChain()
 {
   HWND hWnd = glfwGetWin32Window((GLFWwindow*)m_Window->GetNativeWindow());
 
-  DXGI_SWAP_CHAIN_DESC1 swapChainDescription {};
+  DXGI_SWAP_CHAIN_DESC1 swapChainDescription{};
   swapChainDescription.Width = m_Window->GetWidth();
   swapChainDescription.Height = m_Window->GetHeight();
   swapChainDescription.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
@@ -424,7 +374,7 @@ void D3D12RenderingContext::CreateSwapChain()
 
   ED_ASSERT(m_SwapChain, "Failed to create swap chain.");
 
-  D3D12_DESCRIPTOR_HEAP_DESC  renderTargetViewsDescriptorHeapDescription {};
+  D3D12_DESCRIPTOR_HEAP_DESC renderTargetViewsDescriptorHeapDescription{};
   renderTargetViewsDescriptorHeapDescription.Type = D3D12_DESCRIPTOR_HEAP_TYPE_RTV;
   renderTargetViewsDescriptorHeapDescription.NumDescriptors = BackBufferCount;
   renderTargetViewsDescriptorHeapDescription.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_NONE;
@@ -440,13 +390,13 @@ void D3D12RenderingContext::CreateSwapChain()
     m_SwapChain->GetBuffer(i, IID_PPV_ARGS(&m_BackBufferRenderTargetResource[i]));
     ED_ASSERT(m_BackBufferRenderTargetResource[i], "Failed to get back buffer render target {} resource.", i);
 
-    D3D12_RENDER_TARGET_VIEW_DESC renderTargetViewDescription {};
+    D3D12_RENDER_TARGET_VIEW_DESC renderTargetViewDescription{};
     renderTargetViewDescription.Format = swapChainDescription.Format;
     renderTargetViewDescription.ViewDimension = D3D12_RTV_DIMENSION_TEXTURE2D;
     renderTargetViewDescription.Texture2D.MipSlice = 0;
     renderTargetViewDescription.Texture2D.PlaneSlice = 0;
 
-    D3D12_CPU_DESCRIPTOR_HANDLE renderTargetViewHandle { m_RTVDescriptorHeap->GetCPUDescriptorHandleForHeapStart().ptr + m_RenderTargetDescriptorSize * i };
+    D3D12_CPU_DESCRIPTOR_HANDLE renderTargetViewHandle{m_RTVDescriptorHeap->GetCPUDescriptorHandleForHeapStart().ptr + m_RenderTargetDescriptorSize * i};
     m_Device->CreateRenderTargetView(m_BackBufferRenderTargetResource[i].Get(), &renderTargetViewDescription, renderTargetViewHandle);
   }
 }
@@ -546,7 +496,7 @@ Microsoft::WRL::ComPtr<ID3D12Resource1> D3D12RenderingContext::CreateAndPopulate
   uploadBuffer->SetName(TEXT("Upload buffer"));
 
   uint8_t* uploadBufferPtr = nullptr;
-  D3D12_RANGE range{ 0, 0 };
+  D3D12_RANGE range{0, 0};
   uploadBuffer->Map(0, &range, (void**)&uploadBufferPtr);
 
   uint32_t offset = 0;

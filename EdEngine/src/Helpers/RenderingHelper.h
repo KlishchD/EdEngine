@@ -56,7 +56,7 @@ public:
   static std::shared_ptr<UniformBuffer> CreateUniformBuffer(const std::string& name = "Empty uniform buffer");
   static std::shared_ptr<UniformBuffer> CreateUniformBuffer(const std::string& name, void* data, uint32_t size, BufferUsage usage);
 
-  template<typename T>
+  template <typename T>
   static std::shared_ptr<UniformBuffer> RenderingHelperCreateUniformBuffer(const std::string& name, T* data, BufferUsage usage)
   {
     return CreateUniformBuffer(name, data, sizeof(T), usage);
@@ -65,7 +65,7 @@ public:
   static std::shared_ptr<ShaderProgram> CreateShaderProgram();
   static std::shared_ptr<Shader> CreateShader(ShaderType type, const std::string& filepath);
 
-  template<typename T>
+  template <typename T>
   static std::shared_ptr<T> CreateRenderTarget(const RenderTargetSpecification& specification, TextureType textureType)
   {
     return std::static_pointer_cast<T>(CreateRenderTarget(specification, textureType));
@@ -84,7 +84,7 @@ public:
 
   static std::shared_ptr<Texture2DArray> CreateTexture2DArray(const std::string& name = "Empty texture 2d array");
   static std::shared_ptr<Texture2DArray> CreateTexture2DArray(const std::string& name, std::shared_ptr<Texture2DArrayImportParameters> parameters, Texture2DArrayData&& data);
-  
+
   static std::shared_ptr<Texture2D> CreateBloomIntermediateTexture();
 
   static std::shared_ptr<Texture2D> GetWhiteTexture();

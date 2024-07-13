@@ -15,35 +15,35 @@ OpenGLShader::OpenGLShader(ShaderType type, const std::string& filepath, const s
   m_Id = glCreateShader(shaderType);
   glObjectLabel(GL_SHADER, m_Id, m_Name.size(), m_Name.c_str());
 
-// 
-//   EShLanguage stage = static_cast<EShLanguage>(OpenGLTypes::ConvertShaderLanguage(type));
-//   glslang::TShader shader(static_cast<EShLanguage>(stage));
-// 
-   const char* shaderSourceC = &source[0];
-//   shader.setStrings(&shaderSourceC, 1);
-// 
-//   const std::string entryPoint = Types::ConvertShaderEntryPointName(type);
-//   shader.setEntryPoint(entryPoint.c_str());
-// 
-//   shader.setEnvInput(glslang::EShSourceGlsl, stage, glslang::EShClientOpenGL, 460);
-//   shader.setEnvTarget(glslang::EShTargetSpv, glslang::EShTargetSpv_1_0);
-// 
-//   shader.setAutoMapLocations(true);
-// 
-//   DirStackFileIncluder includer(filepath);
-//   bool isCompilationSuccessfull = shader.parse(GetDefaultResources(), 110, ECoreProfile, false, false, EShMsgDefault, includer);
-//   ED_ASSERT(isCompilationSuccessfull, "Shader GLSL to Spir-V compilation failed {}, {}", filepath, shader.getInfoLog());
-// 
-//   spv::SpvBuildLogger logger;
-// 
-//   glslang::SpvOptions spvOptions;
-//   spvOptions.generateDebugInfo = true;
-// 
-//   std::vector<uint32_t> unoptimisedSpv;
-//   glslang::GlslangToSpv(*shader.getIntermediate(), unoptimisedSpv, &logger, &spvOptions);
-// 
-//   glShaderBinary(1, &m_Id, GL_SHADER_BINARY_FORMAT_SPIR_V, unoptimisedSpv.data(), sizeof(uint32_t) * unoptimisedSpv.size());
-//   glSpecializeShader(m_Id, "main", 0, nullptr, nullptr);
+  // 
+  //   EShLanguage stage = static_cast<EShLanguage>(OpenGLTypes::ConvertShaderLanguage(type));
+  //   glslang::TShader shader(static_cast<EShLanguage>(stage));
+  // 
+  const char* shaderSourceC = &source[0];
+  //   shader.setStrings(&shaderSourceC, 1);
+  // 
+  //   const std::string entryPoint = Types::ConvertShaderEntryPointName(type);
+  //   shader.setEntryPoint(entryPoint.c_str());
+  // 
+  //   shader.setEnvInput(glslang::EShSourceGlsl, stage, glslang::EShClientOpenGL, 460);
+  //   shader.setEnvTarget(glslang::EShTargetSpv, glslang::EShTargetSpv_1_0);
+  // 
+  //   shader.setAutoMapLocations(true);
+  // 
+  //   DirStackFileIncluder includer(filepath);
+  //   bool isCompilationSuccessfull = shader.parse(GetDefaultResources(), 110, ECoreProfile, false, false, EShMsgDefault, includer);
+  //   ED_ASSERT(isCompilationSuccessfull, "Shader GLSL to Spir-V compilation failed {}, {}", filepath, shader.getInfoLog());
+  // 
+  //   spv::SpvBuildLogger logger;
+  // 
+  //   glslang::SpvOptions spvOptions;
+  //   spvOptions.generateDebugInfo = true;
+  // 
+  //   std::vector<uint32_t> unoptimisedSpv;
+  //   glslang::GlslangToSpv(*shader.getIntermediate(), unoptimisedSpv, &logger, &spvOptions);
+  // 
+  //   glShaderBinary(1, &m_Id, GL_SHADER_BINARY_FORMAT_SPIR_V, unoptimisedSpv.data(), sizeof(uint32_t) * unoptimisedSpv.size());
+  //   glSpecializeShader(m_Id, "main", 0, nullptr, nullptr);
 
   glShaderSource(m_Id, 1, &shaderSourceC, 0);
   glCompileShader(m_Id);

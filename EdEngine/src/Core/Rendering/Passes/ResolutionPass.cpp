@@ -3,7 +3,7 @@
 void ResolutionPass::Initialize(std::shared_ptr<RenderGraph> graph)
 {
   RenderPass<ResolutionPassParameters, ResolutionPassShaderParameters>::Initialize(graph);
-  
+
   m_Parameters.Name = "Resolution pass";
 
   m_ShaderParameters.Gamma = 2.2f;
@@ -19,19 +19,22 @@ void ResolutionPass::Execute()
 
   glm::u32vec2 size = m_Renderer->GetViewportSize();
   m_Parameters.DrawFramebuffer->Resize(size.x, size.y, 1);
-  
+
   switch (m_Renderer->GetAAMethod())
   {
-    case AAMethod::TAA: m_ShaderParameters.Light = m_Parameters.TAAOutput; break;
-    case AAMethod::FXAA: m_ShaderParameters.Light = m_Parameters.FXAAOutput; break;
-    default: m_ShaderParameters.Light = m_Parameters.Light; break;
+  case AAMethod::TAA: m_ShaderParameters.Light = m_Parameters.TAAOutput;
+    break;
+  case AAMethod::FXAA: m_ShaderParameters.Light = m_Parameters.FXAAOutput;
+    break;
+  default: m_ShaderParameters.Light = m_Parameters.Light;
+    break;
   }
 
   m_ShaderParameters.IsBloomEnabled = m_Renderer->IsBloomEnabled();
   m_ShaderParameters.Bloom = m_Parameters.Bloom;
 
   SubmitShaderParameters();
-  
+
   m_Renderer->SubmitFullScreenQuad();
 }
 

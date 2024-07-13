@@ -8,7 +8,7 @@ public:
   OpenGLFramebuffer(const FramebufferSpecification& specification);
 
   virtual void AddAttachment(std::shared_ptr<Texture> attachment);
-  
+
   virtual void SetAttachment(int32_t index, std::shared_ptr<Texture> attachment, FramebufferSizeAdjustmentMode mode) override;
   virtual void SetDepthAttachment(std::shared_ptr<Texture> attachment, FramebufferSizeAdjustmentMode mode) override;
 
@@ -22,6 +22,7 @@ public:
   virtual void SetNativeResource(void* resource) override;
 
   ~OpenGLFramebuffer();
+
 protected:
   uint32_t m_Id = 0;
 };

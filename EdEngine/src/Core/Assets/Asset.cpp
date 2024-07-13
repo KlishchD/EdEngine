@@ -3,7 +3,6 @@
 
 Asset::Asset(const std::string& name) : Super(name), m_Id(boost::uuids::random_generator()())
 {
-
 }
 
 boost::uuids::uuid Asset::GetId() const
@@ -34,12 +33,12 @@ void Asset::UnclaimData()
 void Asset::MarkDirty()
 {
   m_bIsDirty = true;
-    // TODO: Maybe add define for editor only ?)
+  // TODO: Maybe add define for editor only ?)
 }
 
 bool Asset::IsDirty() const
 {
-    return m_bIsDirty;
+  return m_bIsDirty;
 }
 
 void Asset::SetShouldLoadData(bool status)
@@ -65,7 +64,6 @@ std::shared_ptr<AssetImportParameters> Asset::GetImportParameters() const
 
 void Asset::ResetState()
 {
-
 }
 
 void Asset::Serialize(Archive& archive)

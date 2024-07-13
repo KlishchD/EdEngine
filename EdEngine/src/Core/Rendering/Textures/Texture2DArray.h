@@ -27,6 +27,7 @@ public:
   virtual void Resize(uint32_t width, uint32_t height, uint32_t depth) override;
 
   virtual void SerializeData(Archive& archive) override;
+
 protected:
   Texture2DArrayData m_Data;
 };
