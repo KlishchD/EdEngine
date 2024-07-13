@@ -20,10 +20,10 @@
 
 namespace D3D
 {
-	static void Check(HRESULT result)
-	{
-		ED_ASSERT(SUCCEEDED(result), "D3D11 error: {}", std::system_category().message(result));
-	}
+  static void Check(HRESULT result)
+  {
+    ED_ASSERT(SUCCEEDED(result), "D3D11 error: {}", std::system_category().message(result));
+  }
 }
 
 inline class D3D12RenderingContext* gContext = nullptr;

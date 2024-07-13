@@ -45,84 +45,84 @@ glm::mat4 glm::rotationless(mat4 Transform)
 
 float MathHelper::lerp(float a, float b, float f)
 {
-	return a + f * (b - a);
+  return a + f * (b - a);
 }
 
 float MathHelper::Halton(uint32_t i, uint32_t b)
 {
-	float f = 1.0f;
-	float r = 0.0f;
+  float f = 1.0f;
+  float r = 0.0f;
 
-	while (i > 0)
-	{
-		f /= static_cast<float>(b);
-		r = r + f * static_cast<float>(i % b);
-		i = static_cast<uint32_t>(floorf(static_cast<float>(i) / static_cast<float>(b)));
-	}
+  while (i > 0)
+  {
+    f /= static_cast<float>(b);
+    r = r + f * static_cast<float>(i % b);
+    i = static_cast<uint32_t>(floorf(static_cast<float>(i) / static_cast<float>(b)));
+  }
 
-	return r;
+  return r;
 }
 
 std::vector<glm::vec3> MathHelper::GenerateHalfSphereSamples(int32_t count, bool bShiftTowardsCenter)
 {
     std::vector<glm::vec3> samples(count);
 
-	std::uniform_real_distribution<float> distribution(0.0f, 1.0f);
-	std::default_random_engine generator;
-	for (int32_t i = 0; i < count; ++i)
-	{
-		float x = distribution(generator) * 2.0f - 1.0f;
-		float y = distribution(generator) * 2.0f - 1.0f;
-		float z = distribution(generator);
+  std::uniform_real_distribution<float> distribution(0.0f, 1.0f);
+  std::default_random_engine generator;
+  for (int32_t i = 0; i < count; ++i)
+  {
+    float x = distribution(generator) * 2.0f - 1.0f;
+    float y = distribution(generator) * 2.0f - 1.0f;
+    float z = distribution(generator);
 
-		glm::vec3 sample(x, y, z);
-		sample = glm::normalize(sample) * distribution(generator);
+    glm::vec3 sample(x, y, z);
+    sample = glm::normalize(sample) * distribution(generator);
 
         if (bShiftTowardsCenter)
         {
-		    float scale = 1.0f * i / count;
-		    sample *= MathHelper::lerp(0.1f, 1.0f, scale * scale);
+        float scale = 1.0f * i / count;
+        sample *= MathHelper::lerp(0.1f, 1.0f, scale * scale);
         }
 
         samples[i] = sample;
-	}
+  }
 
     return samples;
 }
 
 std::vector<glm::vec2> MathHelper::GenerateCircleSamples(int32_t count)
 {
-	std::vector<glm::vec2> smaples;
+  std::vector<glm::vec2> smaples;
 
-	std::uniform_real_distribution<float> distribution(0.0f, 1.0f);
-	std::default_random_engine generator;
-	for (int32_t i = 0; i < count; ++i)
-	{
-		float angle = distribution(generator) * 2.0f * glm::pi<float>();
+  std::uniform_real_distribution<float> distribution(0.0f, 1.0f);
+  std::default_random_engine generator;
+  for (int32_t i = 0; i < count; ++i)
+  {
+    float angle = distribution(generator) * 2.0f * glm::pi<float>();
 
-		float len = distribution(generator);
-		glm::vec2 smaple(glm::cos(angle) * len, glm::sin(angle) * len);
+    float len = distribution(generator);
+    glm::vec2 smaple(glm::cos(angle) * len, glm::sin(angle) * len);
 
-		smaples.push_back(smaple);
-	}
+    smaples.push_back(smaple);
+  }
 
-	return smaples;
+  return smaples;
 }
 
 glm::vec3 MathHelper::MinPerComponent(const glm::vec3& a, const glm::vec3& b)
 {
-	return {
-		glm::min(a.x, b.x),
-		glm::min(a.y, b.y),
-		glm::min(a.z, b.z)
-	};
+  return {
+    glm::min(a.x, b.x),
+    glm::min(a.y, b.y),
+    glm::min(a.z, b.z)
+  };
 }
 
 glm::vec3 MathHelper::MaxPerComponent(const glm::vec3& a, const glm::vec3& b)
 {
-	return {
-		glm::max(a.x, b.x),
-		glm::max(a.y, b.y),
-		glm::max(a.z, b.z)
-	};
+  return {
+    glm::max(a.x, b.x),
+    glm::max(a.y, b.y),
+    glm::max(a.z, b.z)
+  };
 }

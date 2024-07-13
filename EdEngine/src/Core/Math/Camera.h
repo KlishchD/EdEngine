@@ -5,21 +5,21 @@
 
 class Camera
 {
-	friend class boost::serialization::access;
+  friend class boost::serialization::access;
 
-	template <class Archive>
-	void serialize(Archive& ar, uint32_t version)
-	{
-		ar & m_Position;
-		ar & m_Rotation;
-		ar & m_Orientation;
-		ar & m_Up;
+  template <class Archive>
+  void serialize(Archive& ar, uint32_t version)
+  {
+    ar & m_Position;
+    ar & m_Rotation;
+    ar & m_Orientation;
+    ar & m_Up;
 
-		ar & m_Fov;
-		ar & m_Aspect;
-		ar & m_Near;
-		ar & m_Far;
-	}
+    ar & m_Fov;
+    ar & m_Aspect;
+    ar & m_Near;
+    ar & m_Far;
+  }
 public:
     Camera();
     Camera(float fovDegrees, float aspect, float near, float far);

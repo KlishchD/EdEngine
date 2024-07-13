@@ -5,14 +5,14 @@
 
 ED_CLASS(PlayerActor) : public Actor
 {
-	ED_CLASS_BODY(PlayerActor, Actor)
+  ED_CLASS_BODY(PlayerActor, Actor)
 public:
-	PlayerActor(const std::string& name = "empty");
+  PlayerActor(const std::string& name = "empty");
 
-	virtual void Intialize() override;
+  virtual void Intialize() override;
 
-	std::shared_ptr<CameraComponent> GetCameraComponent() const;
+  std::shared_ptr<CameraComponent> GetCameraComponent() const;
 
 protected:
-	std::shared_ptr<CameraComponent> m_CameraComponent;
+  std::shared_ptr<CameraComponent> m_CameraComponent;
 };

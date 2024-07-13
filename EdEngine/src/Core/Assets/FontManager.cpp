@@ -22,7 +22,7 @@ FontManager::FontManager()
 {
     if (FT_Init_FreeType(&m_Ft))
     {
-		ED_LOG(FontManager, err, "Failed to initialize FreeType library")
+    ED_LOG(FontManager, err, "Failed to initialize FreeType library")
         return;
     }
 }

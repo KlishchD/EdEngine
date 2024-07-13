@@ -2,11 +2,11 @@
 
 void StaticMeshImportParameters::Serialize(Archive& archive)
 {
-	Super::Serialize(archive);
+  Super::Serialize(archive);
 
-	archive & JoinIdenticalVertices;
-	archive & GenUVCoords;
-	archive & CalculateTangentSpace;
-	archive & FixInfacingNormals;
-	archive & ImportAsOneMesh;
+  archive & JoinIdenticalVertices;
+  archive & GenUVCoords;
+  archive & CalculateTangentSpace;
+  archive & FixInfacingNormals;
+  archive & ImportAsOneMesh;
 }

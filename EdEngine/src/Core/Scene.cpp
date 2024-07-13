@@ -9,18 +9,18 @@ Scene::Scene(std::string name) : Super(name)
 
 void Scene::Initialize()
 {
-	for (const std::shared_ptr<Actor>& actor : m_Actors)
-	{
+  for (const std::shared_ptr<Actor>& actor : m_Actors)
+  {
         if (std::shared_ptr<PlayerActor> player = std::dynamic_pointer_cast<PlayerActor>(actor))
         {
             m_PlayerActor = player;
             break;
         }
-	}
+  }
 
     if (!m_PlayerActor)
     {
-	    m_PlayerActor = std::make_shared<PlayerActor>("PlayerActor");
+      m_PlayerActor = std::make_shared<PlayerActor>("PlayerActor");
         m_Actors.push_back(m_PlayerActor);
     }
 

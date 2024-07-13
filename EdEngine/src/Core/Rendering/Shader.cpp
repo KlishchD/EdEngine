@@ -7,5 +7,5 @@ Shader::Shader(ShaderType type, const std::string& source) : m_Type(type), m_Sou
 
 ShaderType Shader::GetType() const
 {
-	return m_Type;
+  return m_Type;
 }

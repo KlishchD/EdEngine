@@ -16,125 +16,125 @@ MaterialAssetImporter::MaterialAssetImporter(std::shared_ptr<AssetManager> manag
 
 std::shared_ptr<Asset> MaterialAssetImporter::Import(std::shared_ptr<AssetImportParameters> parameters)
 {
-	if (parameters->Path.empty()) return nullptr;
+  if (parameters->Path.empty()) return nullptr;
 
-	if (const aiScene* scene = m_Importer.ReadFile(parameters->Path, 0))
-	{
-		if (scene->mNumMaterials)
-		{
-			m_Importer.FreeScene();
+  if (const aiScene* scene = m_Importer.ReadFile(parameters->Path, 0))
+  {
+    if (scene->mNumMaterials)
+    {
+      m_Importer.FreeScene();
 
-			return ImportMaterial(scene->mMaterials[0], parameters);
-		}
+      return ImportMaterial(scene->mMaterials[0], parameters);
+    }
 
-		m_Importer.FreeScene();
-	}
+    m_Importer.FreeScene();
+  }
 
-	return nullptr;
+  return nullptr;
 }
 
 std::vector<std::shared_ptr<Asset>> MaterialAssetImporter::ImportMultiple(std::shared_ptr<AssetImportParameters> parameters)
 {
-	if (parameters->Path.empty()) return {};
+  if (parameters->Path.empty()) return {};
 
-	if (const aiScene* scene = m_Importer.ReadFile(parameters->Path, 0))
-	{
-		std::vector<std::shared_ptr<Asset>> materials;
-		for (uint32_t i = 0; i < scene->mNumMaterials; ++i)
-		{
-			materials.push_back(ImportMaterial(scene->mMaterials[i], parameters));
-		}
+  if (const aiScene* scene = m_Importer.ReadFile(parameters->Path, 0))
+  {
+    std::vector<std::shared_ptr<Asset>> materials;
+    for (uint32_t i = 0; i < scene->mNumMaterials; ++i)
+    {
+      materials.push_back(ImportMaterial(scene->mMaterials[i], parameters));
+    }
 
-		m_Importer.FreeScene();
+    m_Importer.FreeScene();
 
-		return materials;
-	}
+    return materials;
+  }
 
-	return { };
+  return { };
 }
 
 std::shared_ptr<Material> MaterialAssetImporter::ImportMaterial(const aiMaterial* inMaterial, std::shared_ptr<AssetImportParameters> inParameters)
 {
-	const std::shared_ptr<MaterialImportParameters>& parameters = std::static_pointer_cast<MaterialImportParameters>(inParameters);
+  const std::shared_ptr<MaterialImportParameters>& parameters = std::static_pointer_cast<MaterialImportParameters>(inParameters);
 
-	std::shared_ptr<Material> material = ParseMaterial(inMaterial, inParameters->Path);
+  std::shared_ptr<Material> material = ParseMaterial(inMaterial, inParameters->Path);
 
-	material->SetImportParameters(parameters);
+  material->SetImportParameters(parameters);
 
-	std::string savePath = FilesHelper::GetSavePath(parameters->Path, AssetType::Material, material->GetName());
-	Archive archive(savePath, ArchiveMode::Write);
-	archive & material;
+  std::string savePath = FilesHelper::GetSavePath(parameters->Path, AssetType::Material, material->GetName());
+  Archive archive(savePath, ArchiveMode::Write);
+  archive & material;
 
-	m_Manager->RegisterAsset(material, savePath);
+  m_Manager->RegisterAsset(material, savePath);
 
-	return material;
+  return material;
 }
 
 std::shared_ptr<Material> MaterialAssetImporter::ParseMaterial(const aiMaterial* inMaterial, const std::string& materialPath)
 {
-	std::shared_ptr<Material> material = std::make_shared<Material>(inMaterial->GetName().C_Str());
+  std::shared_ptr<Material> material = std::make_shared<Material>(inMaterial->GetName().C_Str());
 
-	std::string root = std::filesystem::path(materialPath).remove_filename().string();
+  std::string root = std::filesystem::path(materialPath).remove_filename().string();
 
-	aiString path;
-	if (inMaterial->GetTexture(aiTextureType_BASE_COLOR, 0, &path) == aiReturn_SUCCESS)
-	{
-		std::shared_ptr<Texture2DImportParameters> parameters = RenderingHelper::GetDefaultBaseColorTexture2DImportParameters(root + path.data);
-		std::shared_ptr<Texture2D> texture = m_Manager->GetImporter().Import<Texture2D>(AssetType::Texture2D, parameters);
-		material->SetBaseColorTexture(texture);
-	}
+  aiString path;
+  if (inMaterial->GetTexture(aiTextureType_BASE_COLOR, 0, &path) == aiReturn_SUCCESS)
+  {
+    std::shared_ptr<Texture2DImportParameters> parameters = RenderingHelper::GetDefaultBaseColorTexture2DImportParameters(root + path.data);
+    std::shared_ptr<Texture2D> texture = m_Manager->GetImporter().Import<Texture2D>(AssetType::Texture2D, parameters);
+    material->SetBaseColorTexture(texture);
+  }
 
-	if (inMaterial->GetTexture(aiTextureType_DIFFUSE, 0, &path) == aiReturn_SUCCESS)
-	{
-		std::shared_ptr<Texture2DImportParameters> parameters = RenderingHelper::GetDefaultBaseColorTexture2DImportParameters(root + path.data);
-		std::shared_ptr<Texture2D> texture = m_Manager->GetImporter().Import<Texture2D>(AssetType::Texture2D, parameters);
-		material->SetBaseColorTexture(texture);
-	}
+  if (inMaterial->GetTexture(aiTextureType_DIFFUSE, 0, &path) == aiReturn_SUCCESS)
+  {
+    std::shared_ptr<Texture2DImportParameters> parameters = RenderingHelper::GetDefaultBaseColorTexture2DImportParameters(root + path.data);
+    std::shared_ptr<Texture2D> texture = m_Manager->GetImporter().Import<Texture2D>(AssetType::Texture2D, parameters);
+    material->SetBaseColorTexture(texture);
+  }
 
-	if (inMaterial->GetTexture(aiTextureType_HEIGHT, 0, &path) == aiReturn_SUCCESS)
-	{
-		std::shared_ptr<Texture2DImportParameters> parameters = RenderingHelper::GetDefaultNormalTexture2DImportParameters(root + path.data);
-		std::shared_ptr<Texture2D> texture = m_Manager->GetImporter().Import<Texture2D>(AssetType::Texture2D, parameters);
-		material->SetNormalTexture(texture);
-	}
+  if (inMaterial->GetTexture(aiTextureType_HEIGHT, 0, &path) == aiReturn_SUCCESS)
+  {
+    std::shared_ptr<Texture2DImportParameters> parameters = RenderingHelper::GetDefaultNormalTexture2DImportParameters(root + path.data);
+    std::shared_ptr<Texture2D> texture = m_Manager->GetImporter().Import<Texture2D>(AssetType::Texture2D, parameters);
+    material->SetNormalTexture(texture);
+  }
 
-	if (inMaterial->GetTexture(aiTextureType_DIFFUSE_ROUGHNESS, 0, &path) == aiReturn_SUCCESS)
-	{
-		std::shared_ptr<Texture2DImportParameters> parameters = RenderingHelper::GetDefaultRoughnessTexture2DImportParameters(root + path.data);
-		std::shared_ptr<Texture2D> texture = m_Manager->GetImporter().Import<Texture2D>(AssetType::Texture2D, parameters);
-		material->SetRoughnessTexture(texture);
-	}
+  if (inMaterial->GetTexture(aiTextureType_DIFFUSE_ROUGHNESS, 0, &path) == aiReturn_SUCCESS)
+  {
+    std::shared_ptr<Texture2DImportParameters> parameters = RenderingHelper::GetDefaultRoughnessTexture2DImportParameters(root + path.data);
+    std::shared_ptr<Texture2D> texture = m_Manager->GetImporter().Import<Texture2D>(AssetType::Texture2D, parameters);
+    material->SetRoughnessTexture(texture);
+  }
 
-	if (inMaterial->GetTexture(aiTextureType_METALNESS, 0, &path) == aiReturn_SUCCESS)
-	{
-		std::shared_ptr<Texture2DImportParameters> parameters = RenderingHelper::GetDefaultMetalicTexture2DImportParameters(root + path.data);
-		std::shared_ptr<Texture2D> texture = m_Manager->GetImporter().Import<Texture2D>(AssetType::Texture2D, parameters);
-		material->SetMetalicTexture(texture);
-	}
+  if (inMaterial->GetTexture(aiTextureType_METALNESS, 0, &path) == aiReturn_SUCCESS)
+  {
+    std::shared_ptr<Texture2DImportParameters> parameters = RenderingHelper::GetDefaultMetalicTexture2DImportParameters(root + path.data);
+    std::shared_ptr<Texture2D> texture = m_Manager->GetImporter().Import<Texture2D>(AssetType::Texture2D, parameters);
+    material->SetMetalicTexture(texture);
+  }
 
-	{
-		aiColor3D color(0.f, 0.f, 0.f);
-		if (inMaterial->Get(AI_MATKEY_BASE_COLOR, color) == aiReturn_SUCCESS)
-		{
-			material->SetBaseColor({ color.r, color.g, color.b });
-		}
-	}
+  {
+    aiColor3D color(0.f, 0.f, 0.f);
+    if (inMaterial->Get(AI_MATKEY_BASE_COLOR, color) == aiReturn_SUCCESS)
+    {
+      material->SetBaseColor({ color.r, color.g, color.b });
+    }
+  }
 
-	{
-		float roughness;
-		if (inMaterial->Get(AI_MATKEY_ROUGHNESS_FACTOR, roughness) == aiReturn_SUCCESS)
-		{
-			material->SetRoughness(roughness);
-		}
-	}
+  {
+    float roughness;
+    if (inMaterial->Get(AI_MATKEY_ROUGHNESS_FACTOR, roughness) == aiReturn_SUCCESS)
+    {
+      material->SetRoughness(roughness);
+    }
+  }
 
-	{
-		float metalic;
-		if (inMaterial->Get(AI_MATKEY_METALLIC_FACTOR, metalic) == aiReturn_SUCCESS)
-		{
-			material->SetMetalic(metalic);
-		}
-	}
+  {
+    float metalic;
+    if (inMaterial->Get(AI_MATKEY_METALLIC_FACTOR, metalic) == aiReturn_SUCCESS)
+    {
+      material->SetMetalic(metalic);
+    }
+  }
 
-	return material;
+  return material;
 }

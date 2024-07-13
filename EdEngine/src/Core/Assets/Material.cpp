@@ -17,20 +17,20 @@ AssetType Material::GetType() const
 
 void Material::SetBaseColor(glm::vec3 color)
 {
-	m_BaseColor = glm::clamp(color, glm::vec3(0.0f), glm::vec3(1.0f));
-	MarkDirty();
+  m_BaseColor = glm::clamp(color, glm::vec3(0.0f), glm::vec3(1.0f));
+  MarkDirty();
 }
 
 void Material::SetRoughness(float roughness)
 {
-	m_Roughness = glm::clamp(roughness, 0.0f, 1.0f);
-	MarkDirty();
+  m_Roughness = glm::clamp(roughness, 0.0f, 1.0f);
+  MarkDirty();
 }
 
 void Material::SetMetalic(float metalic)
 {
-	m_Metalic = glm::clamp(metalic, 0.0f, 1.0f);
-	MarkDirty();
+  m_Metalic = glm::clamp(metalic, 0.0f, 1.0f);
+  MarkDirty();
 }
 
 void Material::SetEmission(float emission)
@@ -95,14 +95,14 @@ void Material::Serialize(Archive& archive)
 
     archive & m_BaseColor;
 
-	archive & m_Roughness;
-	archive & m_Metalic;
-	archive & m_Emission;
+  archive & m_Roughness;
+  archive & m_Metalic;
+  archive & m_Emission;
 }
 
 void Material::SerializeData(Archive& archive)
 {
-	Super::SerializeData(archive);
+  Super::SerializeData(archive);
 
     m_BaseColorTexture = SerializationHelper::SerializeAsset(archive, m_BaseColorTexture);
     m_NormalTexture = SerializationHelper::SerializeAsset(archive, m_NormalTexture);

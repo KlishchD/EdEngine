@@ -6,31 +6,31 @@ int main(int argc, char* argv[])
 {
   std::locale::global(std::locale("en_US.UTF-8"));
 
-	Engine& engine = Engine::Create();
+  Engine& engine = Engine::Create();
 
-	engine.SetRenderingAPI(RenderingAPI::D3D12);
+  engine.SetRenderingAPI(RenderingAPI::D3D12);
 
-	engine.Start();
-	engine.Initialize();
+  engine.Start();
+  engine.Initialize();
 
-	std::shared_ptr<Editor> editor = std::make_shared<Editor>();
+  std::shared_ptr<Editor> editor = std::make_shared<Editor>();
 
-	engine.AddManager(editor);
+  engine.AddManager(editor);
 
-	while (true)
-	{
-		if (engine.IsRunning())
-		{
-			engine.Update();
-		}
-		else
-		{
-			engine.Deinitialize();
-			break;
-		}
-	}
+  while (true)
+  {
+    if (engine.IsRunning())
+    {
+      engine.Update();
+    }
+    else
+    {
+      engine.Deinitialize();
+      break;
+    }
+  }
 
-	Engine::Delete();
+  Engine::Delete();
 
-	return 0;
+  return 0;
 }

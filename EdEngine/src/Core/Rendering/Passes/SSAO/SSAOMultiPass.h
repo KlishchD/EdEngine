@@ -5,8 +5,8 @@
 class SSAOMultiPass : public MultiPassRenderPass<MultiRenderPassParameters>
 {
 public:
-	virtual void Execute() override;
+  virtual void Execute() override;
 
 protected:
-	virtual void CreatePasses();
+  virtual void CreatePasses();
 };

@@ -3,26 +3,26 @@
 
 void AmbientPass::Initialize(std::shared_ptr<RenderGraph> graph)
 {
-	RenderPass<AmbientPassParameters, AmbientPassShaderParameters>::Initialize(graph);
+  RenderPass<AmbientPassParameters, AmbientPassShaderParameters>::Initialize(graph);
 
-	m_Parameters.Name = "Ambient pass";
-	
-	m_Parameters.bClearColors = true;
-	m_Parameters.bClearDepth = true;
+  m_Parameters.Name = "Ambient pass";
+  
+  m_Parameters.bClearColors = true;
+  m_Parameters.bClearDepth = true;
 
-	m_ShaderParameters.Albedo = m_Parameters.Albedo;
+  m_ShaderParameters.Albedo = m_Parameters.Albedo;
 }
 
 void AmbientPass::Execute()
 {
-	RenderPass<AmbientPassParameters, AmbientPassShaderParameters>::Execute();
+  RenderPass<AmbientPassParameters, AmbientPassShaderParameters>::Execute();
 
-	glm::u32vec2 size = m_Renderer->GetViewportSize();
-	m_Parameters.DrawFramebuffer->Resize(size.x, size.y, 1);
+  glm::u32vec2 size = m_Renderer->GetViewportSize();
+  m_Parameters.DrawFramebuffer->Resize(size.x, size.y, 1);
 
-	m_ShaderParameters.AmbientOcclusion = m_Renderer->IsSSAOEnabled() ? m_Parameters.AmbientOcclusion.Get() : RenderingHelper::GetWhiteTexture();
+  m_ShaderParameters.AmbientOcclusion = m_Renderer->IsSSAOEnabled() ? m_Parameters.AmbientOcclusion.Get() : RenderingHelper::GetWhiteTexture();
 
-	SubmitShaderParameters();
+  SubmitShaderParameters();
 
-	m_Renderer->SubmitFullScreenQuad();
+  m_Renderer->SubmitFullScreenQuad();
 }

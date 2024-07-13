@@ -15,7 +15,7 @@ Font::Font(const FT_Library& library, const char* path, uint32_t width, uint32_t
     {
         if (FT_Load_Char(m_Face, i, FT_LOAD_RENDER))
         {
-			ED_LOG(Font, err, "FREETYTPE: Failed to load Glyph for char {}", (char) i)
+      ED_LOG(Font, err, "FREETYTPE: Failed to load Glyph for char {}", (char) i)
             continue;
         }
 

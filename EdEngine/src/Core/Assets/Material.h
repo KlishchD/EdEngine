@@ -12,7 +12,7 @@ ED_CLASS(Material) : public Asset
 public:
     Material(const std::string& name = "Empty");
 
-	virtual AssetType GetType() const override;
+  virtual AssetType GetType() const override;
 
     void SetBaseColor(glm::vec3 color);
     void SetRoughness(float roughness);
@@ -24,10 +24,10 @@ public:
     float GetMetalic() const;
     float GetEmission() const;
 
-	void SetBaseColorTexture(std::shared_ptr<Texture2D> texture);
-	void SetNormalTexture(std::shared_ptr<Texture2D> texture);
-	void SetRoughnessTexture(std::shared_ptr<Texture2D> texture);
-	void SetMetalicTexture(std::shared_ptr<Texture2D> texture);
+  void SetBaseColorTexture(std::shared_ptr<Texture2D> texture);
+  void SetNormalTexture(std::shared_ptr<Texture2D> texture);
+  void SetRoughnessTexture(std::shared_ptr<Texture2D> texture);
+  void SetMetalicTexture(std::shared_ptr<Texture2D> texture);
 
     std::shared_ptr<Texture2D> GetBaseColorTexture() const;
     std::shared_ptr<Texture2D> GetNormalTexture() const;

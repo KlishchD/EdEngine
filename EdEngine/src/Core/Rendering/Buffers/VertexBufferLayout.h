@@ -8,7 +8,7 @@ struct VertexBufferLayoutElement {
     std::string Name;
     ShaderDataType Type;
     bool Normalized;
-	
+  
     VertexBufferLayoutElement(const char* name, ShaderDataType type, bool normalized = false);
 };
 

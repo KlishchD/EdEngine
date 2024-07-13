@@ -44,67 +44,67 @@ enum class FramebufferAttachmentType;
 class RenderingHelper
 {
 public:
-	static std::shared_ptr<Window> CreateWindow(WindowSpecification specification);
+  static std::shared_ptr<Window> CreateWindow(WindowSpecification specification);
 
-	static std::shared_ptr<VertexBuffer> CreateVertexBuffer(const std::string& name = "Empty vertex buffer");
-	static std::shared_ptr<VertexBuffer> CreateVertexBuffer(const std::string& name, void* data, uint32_t size, const class VertexBufferLayout& layout, BufferUsage usage);
-	static std::shared_ptr<VertexBuffer> CreateCubeVertexBuffer();
+  static std::shared_ptr<VertexBuffer> CreateVertexBuffer(const std::string& name = "Empty vertex buffer");
+  static std::shared_ptr<VertexBuffer> CreateVertexBuffer(const std::string& name, void* data, uint32_t size, const class VertexBufferLayout& layout, BufferUsage usage);
+  static std::shared_ptr<VertexBuffer> CreateCubeVertexBuffer();
 
-	static std::shared_ptr<IndexBuffer> CreateIndexBuffer(const std::string& name = "Empty index buffer");
-	static std::shared_ptr<IndexBuffer> CreateIndexBuffer(const std::string& name, void* data, uint32_t size, BufferUsage usage);
+  static std::shared_ptr<IndexBuffer> CreateIndexBuffer(const std::string& name = "Empty index buffer");
+  static std::shared_ptr<IndexBuffer> CreateIndexBuffer(const std::string& name, void* data, uint32_t size, BufferUsage usage);
 
-	static std::shared_ptr<UniformBuffer> CreateUniformBuffer(const std::string& name = "Empty uniform buffer");
-	static std::shared_ptr<UniformBuffer> CreateUniformBuffer(const std::string& name, void* data, uint32_t size, BufferUsage usage);
+  static std::shared_ptr<UniformBuffer> CreateUniformBuffer(const std::string& name = "Empty uniform buffer");
+  static std::shared_ptr<UniformBuffer> CreateUniformBuffer(const std::string& name, void* data, uint32_t size, BufferUsage usage);
 
   template<typename T>
   static std::shared_ptr<UniformBuffer> RenderingHelperCreateUniformBuffer(const std::string& name, T* data, BufferUsage usage)
   {
-		return CreateUniformBuffer(name, data, sizeof(T), usage);
+    return CreateUniformBuffer(name, data, sizeof(T), usage);
   }
 
-	static std::shared_ptr<ShaderProgram> CreateShaderProgram();
-	static std::shared_ptr<Shader> CreateShader(ShaderType type, const std::string& filepath);
+  static std::shared_ptr<ShaderProgram> CreateShaderProgram();
+  static std::shared_ptr<Shader> CreateShader(ShaderType type, const std::string& filepath);
 
-	template<typename T>
-	static std::shared_ptr<T> CreateRenderTarget(const RenderTargetSpecification& specification, TextureType textureType)
-	{
-		return std::static_pointer_cast<T>(CreateRenderTarget(specification, textureType));
-	}
+  template<typename T>
+  static std::shared_ptr<T> CreateRenderTarget(const RenderTargetSpecification& specification, TextureType textureType)
+  {
+    return std::static_pointer_cast<T>(CreateRenderTarget(specification, textureType));
+  }
 
-	static std::shared_ptr<Texture> CreateRenderTarget(const RenderTargetSpecification& specification, TextureType textureType);
+  static std::shared_ptr<Texture> CreateRenderTarget(const RenderTargetSpecification& specification, TextureType textureType);
 
-	static std::shared_ptr<Framebuffer> CreateFramebuffer(const std::string& name, uint32_t width, uint32_t height, uint32_t depth, const std::vector<RenderTargetSpecification>& renderTargets, TextureType textureType);
-	static std::shared_ptr<Framebuffer> CreateFramebuffer(const FramebufferSpecification& specification);
+  static std::shared_ptr<Framebuffer> CreateFramebuffer(const std::string& name, uint32_t width, uint32_t height, uint32_t depth, const std::vector<RenderTargetSpecification>& renderTargets, TextureType textureType);
+  static std::shared_ptr<Framebuffer> CreateFramebuffer(const FramebufferSpecification& specification);
 
-	static std::shared_ptr<Texture2D> CreateTexture2D(const std::string& name = "Empty texture 2d");
-	static std::shared_ptr<Texture2D> CreateTexture2D(const std::string& name, std::shared_ptr<Texture2DImportParameters> parameters, Texture2DData&& data);
+  static std::shared_ptr<Texture2D> CreateTexture2D(const std::string& name = "Empty texture 2d");
+  static std::shared_ptr<Texture2D> CreateTexture2D(const std::string& name, std::shared_ptr<Texture2DImportParameters> parameters, Texture2DData&& data);
 
-	static std::shared_ptr<CubeTexture> CreateCubeTexture(const std::string& name = "Empty cube texture");
-	static std::shared_ptr<CubeTexture> CreateCubeTexture(const std::string& name, std::shared_ptr<CubeTextureImportParameters> parameters, CubeTextureData&& data);
+  static std::shared_ptr<CubeTexture> CreateCubeTexture(const std::string& name = "Empty cube texture");
+  static std::shared_ptr<CubeTexture> CreateCubeTexture(const std::string& name, std::shared_ptr<CubeTextureImportParameters> parameters, CubeTextureData&& data);
 
-	static std::shared_ptr<Texture2DArray> CreateTexture2DArray(const std::string& name = "Empty texture 2d array");
-	static std::shared_ptr<Texture2DArray> CreateTexture2DArray(const std::string& name, std::shared_ptr<Texture2DArrayImportParameters> parameters, Texture2DArrayData&& data);
-	
-	static std::shared_ptr<Texture2D> CreateBloomIntermediateTexture();
+  static std::shared_ptr<Texture2DArray> CreateTexture2DArray(const std::string& name = "Empty texture 2d array");
+  static std::shared_ptr<Texture2DArray> CreateTexture2DArray(const std::string& name, std::shared_ptr<Texture2DArrayImportParameters> parameters, Texture2DArrayData&& data);
+  
+  static std::shared_ptr<Texture2D> CreateBloomIntermediateTexture();
 
-	static std::shared_ptr<Texture2D> GetWhiteTexture();
+  static std::shared_ptr<Texture2D> GetWhiteTexture();
 
-	static std::shared_ptr<Texture2DImportParameters> GetDefaultBaseColorTexture2DImportParameters(const std::string& path);
-	static std::shared_ptr<Texture2DImportParameters> GetDefaultNormalTexture2DImportParameters(const std::string& path);
-	static std::shared_ptr<Texture2DImportParameters> GetDefaultMetalicTexture2DImportParameters(const std::string& path);
-	static std::shared_ptr<Texture2DImportParameters> GetDefaultRoughnessTexture2DImportParameters(const std::string& path);
+  static std::shared_ptr<Texture2DImportParameters> GetDefaultBaseColorTexture2DImportParameters(const std::string& path);
+  static std::shared_ptr<Texture2DImportParameters> GetDefaultNormalTexture2DImportParameters(const std::string& path);
+  static std::shared_ptr<Texture2DImportParameters> GetDefaultMetalicTexture2DImportParameters(const std::string& path);
+  static std::shared_ptr<Texture2DImportParameters> GetDefaultRoughnessTexture2DImportParameters(const std::string& path);
 
-	static std::shared_ptr<Texture2D> ImportBaseColorTexture(const std::string& path);
-	static std::shared_ptr<Texture2D> ImportNormalTexture(const std::string& path);
-	static std::shared_ptr<Texture2D> ImportMetalicTexture(const std::string& path);
-	static std::shared_ptr<Texture2D> ImportRoughnessTexture(const std::string& path);
+  static std::shared_ptr<Texture2D> ImportBaseColorTexture(const std::string& path);
+  static std::shared_ptr<Texture2D> ImportNormalTexture(const std::string& path);
+  static std::shared_ptr<Texture2D> ImportMetalicTexture(const std::string& path);
+  static std::shared_ptr<Texture2D> ImportRoughnessTexture(const std::string& path);
 
-	static bool IsLightMeshVisible(const std::vector<glm::vec3>& vertices, const Transform& transform, const Camera& camera);
+  static bool IsLightMeshVisible(const std::vector<glm::vec3>& vertices, const Transform& transform, const Camera& camera);
 
 private:
-	static inline std::shared_ptr<Texture2D> WhiteTexture;
+  static inline std::shared_ptr<Texture2D> WhiteTexture;
 
-	static std::shared_ptr<Texture2DImportParameters> GetRenderTargetTexture2DImportParameters(FramebufferAttachmentType type);
-	static std::shared_ptr<CubeTextureImportParameters> GetRenderTargetCubeTextureImportParameters(FramebufferAttachmentType type);
-	static std::shared_ptr<Texture2DArrayImportParameters> GetRenderTargetTexture2DArrayImportParameters(FramebufferAttachmentType type);
+  static std::shared_ptr<Texture2DImportParameters> GetRenderTargetTexture2DImportParameters(FramebufferAttachmentType type);
+  static std::shared_ptr<CubeTextureImportParameters> GetRenderTargetCubeTextureImportParameters(FramebufferAttachmentType type);
+  static std::shared_ptr<Texture2DArrayImportParameters> GetRenderTargetTexture2DArrayImportParameters(FramebufferAttachmentType type);
 };

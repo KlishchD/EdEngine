@@ -4,9 +4,9 @@
 
 class OpenGLSampler : public Sampler
 {
-	OpenGLSampler();
+  OpenGLSampler();
 
-	virtual void EnbaleAnisotrophicFiltering(float samples);
+  virtual void EnbaleAnisotrophicFiltering(float samples);
 
-	virtual ~OpenGLSampler() override;
+  virtual ~OpenGLSampler() override;
 };

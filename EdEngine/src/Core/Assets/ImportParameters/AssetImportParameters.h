@@ -5,9 +5,9 @@
 
 ED_CLASS(AssetImportParameters) : public GameObject
 {
-	ED_CLASS_BODY(AssetImportParameters, GameObject)
+  ED_CLASS_BODY(AssetImportParameters, GameObject)
 public:
-	std::string Path;
+  std::string Path;
 
-	virtual void Serialize(Archive& archive) override;
+  virtual void Serialize(Archive& archive) override;
 };

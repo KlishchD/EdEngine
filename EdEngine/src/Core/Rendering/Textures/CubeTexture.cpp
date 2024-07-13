@@ -7,7 +7,7 @@ CubeTexture::CubeTexture(const std::string& name) : Super(name)
 
 AssetType CubeTexture::GetType() const
 {
-	return AssetType::CubeTexture;
+  return AssetType::CubeTexture;
 }
 
 glm::u32vec3 CubeTexture::GetSize() const
@@ -19,7 +19,7 @@ glm::u32vec3 CubeTexture::GetSize() const
 void CubeTexture::SetWrapR(WrapMode mode)
 {
     m_WrapR = mode;
-	RefreshParameters();
+  RefreshParameters();
 }
 
 WrapMode CubeTexture::GetWrapMode() const
@@ -29,21 +29,21 @@ WrapMode CubeTexture::GetWrapMode() const
 
 void CubeTexture::SetData(const CubeTextureData& data)
 {
-	m_Data = data;
-	MarkDirty();
-	RefreshData();
+  m_Data = data;
+  MarkDirty();
+  RefreshData();
 }
 
 void CubeTexture::SetData(CubeTextureData&& data)
 {
-	m_Data = std::move(data);
-	MarkDirty();
-	RefreshData();
+  m_Data = std::move(data);
+  MarkDirty();
+  RefreshData();
 }
 
 TextureType CubeTexture::GetTextureType() const
 {
-	return TextureType::CubeTexture;
+  return TextureType::CubeTexture;
 }
 
 void CubeTexture::Resize(uint32_t width, uint32_t height, uint32_t depth)
@@ -58,36 +58,36 @@ void CubeTexture::Resize(glm::u32vec3 size)
 
 void CubeTexture::Resize(uint32_t size)
 {
-	if (m_Data.GetSize() != size)
-	{
-		m_Data.SetData(nullptr, 0, true);
-		m_Data.SetSize(size);
+  if (m_Data.GetSize() != size)
+  {
+    m_Data.SetData(nullptr, 0, true);
+    m_Data.SetSize(size);
 
-		MarkDirty();
-		RefreshData();
-	}
+    MarkDirty();
+    RefreshData();
+  }
 }
 
 void CubeTexture::ResetState()
 {
-	std::shared_ptr<CubeTextureImportParameters> paramters = std::static_pointer_cast<CubeTextureImportParameters>(m_ImportParameters);
-	m_WrapR = paramters->WrapR;
+  std::shared_ptr<CubeTextureImportParameters> paramters = std::static_pointer_cast<CubeTextureImportParameters>(m_ImportParameters);
+  m_WrapR = paramters->WrapR;
 
-	Texture::ResetState();
+  Texture::ResetState();
 }
 
 void CubeTexture::Serialize(Archive& archive)
 {
-	Texture::Serialize(archive);
+  Texture::Serialize(archive);
 
-	archive & m_WrapR;
+  archive & m_WrapR;
 }
 
 void CubeTexture::SerializeData(Archive& archive)
 {
-	Texture::SerializeData(archive);
+  Texture::SerializeData(archive);
 
-	archive & m_Data;
+  archive & m_Data;
 
     if (archive.GetMode() == ArchiveMode::Read)
     {

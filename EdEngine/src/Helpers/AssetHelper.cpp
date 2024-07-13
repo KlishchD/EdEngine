@@ -10,28 +10,28 @@
 
 AssetType AssetHelper::GetAssetTypeFromExtension(const std::string& extension)
 {
-	if (extension == ".edmesh")
-	{
-		return AssetType::StaticMesh;
-	}
-	else if (extension == ".edmaterial")
-	{
-		return AssetType::Material;
-	}
-	else if (extension == ".edtexture")
-	{
-		return AssetType::Texture2D;
-	}
+  if (extension == ".edmesh")
+  {
+    return AssetType::StaticMesh;
+  }
+  else if (extension == ".edmaterial")
+  {
+    return AssetType::Material;
+  }
+  else if (extension == ".edtexture")
+  {
+    return AssetType::Texture2D;
+  }
 
     ED_ASSERT(0, "Unknown extension")
 }
 
 bool AssetHelper::IsAssetExtension(const std::string& extension)
 {
-	return extension == ".edmesh" || extension == ".edmaterial" || extension == ".edtexture";
+  return extension == ".edmesh" || extension == ".edmaterial" || extension == ".edtexture";
 }
 
 std::string AssetHelper::GetAssetNameLable(std::shared_ptr<Asset> asset)
 {
-	return asset ? asset->GetName() + "##" + std::to_string((int32_t)asset.get()) : "None";
+  return asset ? asset->GetName() + "##" + std::to_string((int32_t)asset.get()) : "None";
 }

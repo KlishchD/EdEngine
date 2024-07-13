@@ -7,147 +7,147 @@
 
 enum class RenderingAPI
 {
-	OpenGL,
-	D3D12
+  OpenGL,
+  D3D12
 };
 
 enum class WrapMode
 {
-	Repeat,
-	ClampToEdge,
-	ClampToBorder,
-	MirroredRepeat
+  Repeat,
+  ClampToEdge,
+  ClampToBorder,
+  MirroredRepeat
 };
 
 enum class PixelFormat
 {
-	RGB8F,
-	RGBA8F,
-	SRGB8F,
-	SRGBA8F,
-	RGB16F,
-	RGBA16F,
-	RGB32F,
-	R8F,
-	R16F,
-	R32F,
-	RG8F,
-	RG16F,
-	RG32F,
-	R11G11B10F,
+  RGB8F,
+  RGBA8F,
+  SRGB8F,
+  SRGBA8F,
+  RGB16F,
+  RGBA16F,
+  RGB32F,
+  R8F,
+  R16F,
+  R32F,
+  RG8F,
+  RG16F,
+  RG32F,
+  R11G11B10F,
 
-	Depth,
-	DepthStencil
+  Depth,
+  DepthStencil
 };
 
 enum class FilteringMode
 {
-	Nearest,
-	Linear,
-	TriLinear
+  Nearest,
+  Linear,
+  TriLinear
 };
 
 enum class BufferUsage
 {
-	StaticDraw,
-	DynamicDraw
+  StaticDraw,
+  DynamicDraw
 };
 
 enum class BlendFactor
 {
-	One,
-	SourceAlpha,
-	OneMinusSourceAlpha
+  One,
+  SourceAlpha,
+  OneMinusSourceAlpha
 };
 
 enum class ShaderDataType 
 {
-	None = 0,
-	Float,
-	Float2,
-	Float3,
-	Float4,
+  None = 0,
+  Float,
+  Float2,
+  Float3,
+  Float4,
 };
 
 enum class FramebufferType 
 {
-	Framebuffer,
-	CubeFramebuffer
+  Framebuffer,
+  CubeFramebuffer
 };
 
 enum class ShaderType 
 {
-	None,
-	Vertex,
-	Geometry,
-	Pixel,
-	Compute
+  None,
+  Vertex,
+  Geometry,
+  Pixel,
+  Compute
 };
 
 enum class DepthTestFunction
 {
-	One,
-	Greater,
-	Lesser
+  One,
+  Greater,
+  Lesser
 };
 
 enum class Face
 {
-	Front,
-	Back
+  Front,
+  Back
 };
 
 enum class TextureType
 {
-	Texture2D,
-	CubeTexture,
-	Texture2DArray
+  Texture2D,
+  CubeTexture,
+  Texture2DArray
 };
 
 enum class BarrierType
 {
-	AllBits
+  AllBits
 };
 
 enum class AAMethod
 {
-	None,
-	TAA,
-	FXAA
+  None,
+  TAA,
+  FXAA
 };
 
 enum class RenderTarget
 {
-	GAlbedo,
-	GPosition,
-	GNormal,
-	GRougnessMetalicEmission,
-	GVelocity,
-	GDepth,
+  GAlbedo,
+  GPosition,
+  GNormal,
+  GRougnessMetalicEmission,
+  GVelocity,
+  GDepth,
 
-	SSAO,
+  SSAO,
 
-	Diffuse,
-	Specular,
-	Light,
+  Diffuse,
+  Specular,
+  Light,
 
-	Bloom,
+  Bloom,
 
-	AAOutput,
-	Resolution
+  AAOutput,
+  Resolution
 };
 
 enum class DrawMode
 {
-	Triangles,
-	Lines,
-	LineStrip
+  Triangles,
+  Lines,
+  LineStrip
 };
 
 class Types
 {
 public:
-	static uint32_t GetChannelNumber(PixelFormat format);
-	static uint32_t GetPixelSize(PixelFormat format);
-	static std::string ConvertShaderEntryPointName(ShaderType type);
+  static uint32_t GetChannelNumber(PixelFormat format);
+  static uint32_t GetPixelSize(PixelFormat format);
+  static std::string ConvertShaderEntryPointName(ShaderType type);
 };

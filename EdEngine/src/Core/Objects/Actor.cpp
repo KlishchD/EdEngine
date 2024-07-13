@@ -65,6 +65,6 @@ void Actor::Serialize(Archive& archive)
 {
     Super::Serialize(archive);
 
-	archive & m_Transform;
-	archive & m_Components;
+  archive & m_Transform;
+  archive & m_Components;
 }

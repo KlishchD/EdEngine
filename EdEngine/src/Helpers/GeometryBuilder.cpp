@@ -87,7 +87,7 @@ std::pair<std::vector<glm::vec3>, std::vector<int32_t>> GeometryBuilder::MakeCon
 
     vertices.emplace_back(0.0f);
 
-	vertices.emplace_back(0.0f, -1.0f, 0.0f);
+  vertices.emplace_back(0.0f, -1.0f, 0.0f);
 
     for (int32_t i = 0; i < sectorCount; ++i)
     {
@@ -96,12 +96,12 @@ std::pair<std::vector<glm::vec3>, std::vector<int32_t>> GeometryBuilder::MakeCon
         indices.push_back(sectorCount);
     }
 
-	for (int32_t i = 0; i < sectorCount; ++i)
-	{
-		indices.push_back(i);
-		indices.push_back((i + 1) % sectorCount);
-		indices.push_back(sectorCount + 1);
-	}
+  for (int32_t i = 0; i < sectorCount; ++i)
+  {
+    indices.push_back(i);
+    indices.push_back((i + 1) % sectorCount);
+    indices.push_back(sectorCount + 1);
+  }
 
     return std::make_pair(vertices, indices);
 }

@@ -5,37 +5,37 @@
 
 ED_CLASS(TextureImportParameters) : public AssetImportParameters
 {
-	ED_CLASS_BODY(TextureImportParameters, AssetImportParameters)
+  ED_CLASS_BODY(TextureImportParameters, AssetImportParameters)
 public:
-	WrapMode WrapS = WrapMode::Repeat;
-	WrapMode WrapT = WrapMode::Repeat;
+  WrapMode WrapS = WrapMode::Repeat;
+  WrapMode WrapT = WrapMode::Repeat;
 
-	PixelFormat Format = PixelFormat::RGB8F;
-	FilteringMode Filtering = FilteringMode::Linear;
+  PixelFormat Format = PixelFormat::RGB8F;
+  FilteringMode Filtering = FilteringMode::Linear;
 
-	virtual void Serialize(Archive& archive) override;
+  virtual void Serialize(Archive& archive) override;
 };
 
 ED_CLASS(Texture2DImportParameters) : public TextureImportParameters
 {
-	ED_CLASS_BODY(Texture2DImportParameters, TextureImportParameters)
+  ED_CLASS_BODY(Texture2DImportParameters, TextureImportParameters)
 public:
-	bool GenerateMipMaps = false;
+  bool GenerateMipMaps = false;
 
-	virtual void Serialize(Archive& archive) override;
+  virtual void Serialize(Archive& archive) override;
 };
 
 ED_CLASS(Texture2DArrayImportParameters) : public TextureImportParameters
 {
-	ED_CLASS_BODY(Texture2DImportParameters, TextureImportParameters)
+  ED_CLASS_BODY(Texture2DImportParameters, TextureImportParameters)
 public:
 };
 
 ED_CLASS(CubeTextureImportParameters) : public TextureImportParameters
 {
-	ED_CLASS_BODY(CubeTextureImportParameters, TextureImportParameters)
+  ED_CLASS_BODY(CubeTextureImportParameters, TextureImportParameters)
 public:
-	WrapMode WrapR = WrapMode::Repeat;
+  WrapMode WrapR = WrapMode::Repeat;
 
-	virtual void Serialize(Archive& archive) override;
+  virtual void Serialize(Archive& archive) override;
 };

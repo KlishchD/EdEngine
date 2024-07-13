@@ -6,11 +6,11 @@
 
 class Sampler {
 public:
-	uint32_t GetID() const;
-	
-	virtual void EnbaleAnisotrophicFiltering(const float samples) = 0;
+  uint32_t GetID() const;
+  
+  virtual void EnbaleAnisotrophicFiltering(const float samples) = 0;
 
-	virtual ~Sampler() = 0;
+  virtual ~Sampler() = 0;
 protected:
-	uint32_t m_Id;
+  uint32_t m_Id;
 };

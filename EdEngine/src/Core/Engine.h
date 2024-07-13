@@ -72,7 +72,7 @@ public:
 
     std::shared_ptr<Scene> GetLoadedScene() const;
 
-	std::shared_ptr<Window> GetWindow() const;
+  std::shared_ptr<Window> GetWindow() const;
 
     std::shared_ptr<Renderer> GetRenderer() const;
 
@@ -80,7 +80,7 @@ public:
 
     ~Engine();
 protected:
-	void PushUpdate(float DeltaTime);
+  void PushUpdate(float DeltaTime);
 
 protected:
     RenderingAPI m_RenderingAPI;

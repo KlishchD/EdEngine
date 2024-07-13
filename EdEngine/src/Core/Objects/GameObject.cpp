@@ -13,5 +13,5 @@ void GameObject::Serialize(Archive& archive)
 {
     Serializable::Serialize(archive);
 
-	archive & m_Name;
+  archive & m_Name;
 }

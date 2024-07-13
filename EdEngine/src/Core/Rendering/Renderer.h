@@ -72,16 +72,16 @@ public:
     std::shared_ptr<Texture2D> GetViewportTexture() const;
 
     float GetFarPlane() const;
-	
+  
     void SetCamera(const Camera& camera);
-	void SetCamera(const glm::mat4& view, const glm::mat4& projection, glm::vec3 viewPosition);
+  void SetCamera(const glm::mat4& view, const glm::mat4& projection, glm::vec3 viewPosition);
 
-	void SubmitFullScreenQuad();
-	void SubmitQuad(float x1, float y1, float x2, float y2, float x3, float y3, float x4, float y4);
-	void SubmitIcon(std::shared_ptr<Texture2D> texture, const glm::mat4& Transform);
+  void SubmitFullScreenQuad();
+  void SubmitQuad(float x1, float y1, float x2, float y2, float x3, float y3, float x4, float y4);
+  void SubmitIcon(std::shared_ptr<Texture2D> texture, const glm::mat4& Transform);
 
-	void BeginUIFrame();
-	void EndUIFrame();
+  void BeginUIFrame();
+  void EndUIFrame();
 private:
     bool m_bSSAOEnabled = true;
     bool m_bIsBloomEnabled = false;

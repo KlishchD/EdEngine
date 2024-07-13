@@ -14,61 +14,61 @@ Texture2DData::Texture2DData(int32_t width, int32_t height, void* data, uint32_t
 
 Texture2DData& Texture2DData::operator=(const Texture2DData& data)
 {
-	TextureData::operator=(data);
+  TextureData::operator=(data);
 
-	m_Width = data.m_Width;
-	m_Height = data.m_Height;
+  m_Width = data.m_Width;
+  m_Height = data.m_Height;
 
-	return *this;
+  return *this;
 }
 
 Texture2DData& Texture2DData::operator=(Texture2DData&& data)
 {
-	TextureData::operator=(std::move(data));
+  TextureData::operator=(std::move(data));
 
-	m_Width = data.m_Width;
-	m_Height = data.m_Height;
+  m_Width = data.m_Width;
+  m_Height = data.m_Height;
 
-	data.m_Width = 0;
-	data.m_Height = 0;
+  data.m_Width = 0;
+  data.m_Height = 0;
 
-	return *this;
+  return *this;
 }
 
 void Texture2DData::SetWidth(uint32_t width)
 {
-	m_Width = width;
+  m_Width = width;
 }
 
 uint32_t Texture2DData::GetWidth() const
 {
-	return m_Width;
+  return m_Width;
 }
 
 void Texture2DData::SetHeight(uint32_t height)
 {
-	m_Height = height;
+  m_Height = height;
 }
 
 uint32_t Texture2DData::GetHeight() const
 {
-	return m_Height;
+  return m_Height;
 }
 
 void Texture2DData::SetSize(glm::u32vec2 size)
 {
-	m_Width = size.x;
-	m_Height = size.y;
+  m_Width = size.x;
+  m_Height = size.y;
 }
 
 glm::u32vec2 Texture2DData::GetSize() const
 {
-	return { m_Width, m_Height };
+  return { m_Width, m_Height };
 }
 
 void Texture2DData::Serialize(Archive& archive)
 {
-	TextureData::Serialize(archive);
+  TextureData::Serialize(archive);
 
     archive & m_Width;
     archive & m_Height;
@@ -84,94 +84,94 @@ TextureData::TextureData(void* data, uint32_t size, bool bTakeOwnership) : m_Dat
 
 void TextureData::Serialize(Archive& archive)
 {
-	Serializable::Serialize(archive);
+  Serializable::Serialize(archive);
 
-	if (archive.GetMode() == ArchiveMode::Write)
-	{
+  if (archive.GetMode() == ArchiveMode::Write)
+  {
         archive & m_DataSize;
         archive & boost::serialization::make_binary_object(m_Data, m_DataSize);
-	}
-	else
-	{
+  }
+  else
+  {
         archive & m_DataSize;
 
         m_Data = malloc(m_DataSize);
-		archive & boost::serialization::make_binary_object(m_Data, m_DataSize);
-	}
+    archive & boost::serialization::make_binary_object(m_Data, m_DataSize);
+  }
 }
 
 TextureData& TextureData::operator=(const TextureData& data)
 {
-	FreeData();
+  FreeData();
 
-	m_DataSize = data.m_DataSize;
-	m_bDataOwner = data.m_bDataOwner;
+  m_DataSize = data.m_DataSize;
+  m_bDataOwner = data.m_bDataOwner;
 
-	if (data.m_bDataOwner)
-	{
-		m_Data = malloc(m_DataSize);
-		memcpy(m_Data, data.m_Data, m_DataSize);
-	}
-	else
-	{
-		m_DataSize = data.m_DataSize;
-		m_Data = data.m_Data;
-	}
+  if (data.m_bDataOwner)
+  {
+    m_Data = malloc(m_DataSize);
+    memcpy(m_Data, data.m_Data, m_DataSize);
+  }
+  else
+  {
+    m_DataSize = data.m_DataSize;
+    m_Data = data.m_Data;
+  }
 
-	return *this;
+  return *this;
 }
 
 TextureData& TextureData::operator=(TextureData&& data)
 {
-	FreeData();
+  FreeData();
 
-	m_DataSize = data.m_DataSize;
-	m_Data = data.m_Data;
+  m_DataSize = data.m_DataSize;
+  m_Data = data.m_Data;
 
-	m_bDataOwner = data.m_bDataOwner;
+  m_bDataOwner = data.m_bDataOwner;
 
-	data.m_Data = nullptr;
-	data.m_DataSize = 0;
+  data.m_Data = nullptr;
+  data.m_DataSize = 0;
 
-	return *this;
+  return *this;
 }
 
 void TextureData::SetData(void* data, uint32_t size, bool bTakeOwnership)
 {
-	FreeData();
+  FreeData();
 
-	m_Data = data;
-	m_DataSize = size;
-	m_bDataOwner = bTakeOwnership;
+  m_Data = data;
+  m_DataSize = size;
+  m_bDataOwner = bTakeOwnership;
 }
 
 void* TextureData::GetData() const
 {
-	return m_Data;
+  return m_Data;
 }
 
 uint32_t TextureData::GetDataSize() const
 {
-	return m_DataSize;
+  return m_DataSize;
 }
 
 TextureData::~TextureData()
 {
-	FreeData();
+  FreeData();
 }
 
 void TextureData::FreeData()
 {
-	if (m_Data)
-	{
-		if (m_bDataOwner)
-		{
-			delete[] m_Data;
-		}
+  if (m_Data)
+  {
+    if (m_bDataOwner)
+    {
+      delete[] m_Data;
+    }
 
-		m_Data = nullptr;
-		m_DataSize = 0;
-	}
+    m_Data = nullptr;
+    m_DataSize = 0;
+  }
 }
 
 CubeTextureData::CubeTextureData() : TextureData(nullptr, 0, false), m_Size(1)
@@ -188,36 +188,36 @@ CubeTextureData::CubeTextureData(uint32_t size, void* data, uint32_t dataSize, b
 
 CubeTextureData& CubeTextureData::operator=(const CubeTextureData& data)
 {
-	TextureData::operator=(data);
+  TextureData::operator=(data);
 
-	m_Size = data.m_Size;
+  m_Size = data.m_Size;
 
-	return *this;
+  return *this;
 }
 
 CubeTextureData& CubeTextureData::operator=(CubeTextureData&& data)
 {
-	TextureData::operator=(std::move(data));
+  TextureData::operator=(std::move(data));
 
-	m_Size = data.m_Size;
-	data.m_Size = 0;
+  m_Size = data.m_Size;
+  data.m_Size = 0;
 
-	return *this;
+  return *this;
 }
 
 void CubeTextureData::SetSize(uint32_t size)
 {
-	m_Size = size;
+  m_Size = size;
 }
 
 uint32_t CubeTextureData::GetSize() const
 {
-	return m_Size;
+  return m_Size;
 }
 
 void CubeTextureData::Serialize(Archive& archive)
 {
-	TextureData::Serialize(archive);
+  TextureData::Serialize(archive);
 
     archive & m_Size;
 }
@@ -236,75 +236,75 @@ Texture2DArrayData::Texture2DArrayData(int32_t width, int32_t height, int32_t de
 
 Texture2DArrayData& Texture2DArrayData::operator=(const Texture2DArrayData& data)
 {
-	TextureData::operator=(data);
+  TextureData::operator=(data);
 
-	m_Width = data.m_Width;
-	m_Height = data.m_Height;
-	m_Depth = data.m_Depth;
+  m_Width = data.m_Width;
+  m_Height = data.m_Height;
+  m_Depth = data.m_Depth;
 
-	return *this;
+  return *this;
 }
 
 Texture2DArrayData& Texture2DArrayData::operator=(Texture2DArrayData&& data)
 {
-	TextureData::operator=(std::move(data));
+  TextureData::operator=(std::move(data));
 
-	m_Width = data.m_Width;
-	m_Height = data.m_Height;
-	m_Depth = data.m_Depth;
+  m_Width = data.m_Width;
+  m_Height = data.m_Height;
+  m_Depth = data.m_Depth;
 
-	data.m_Width = 0;
-	data.m_Height = 0;
-	data.m_Depth = 0;
+  data.m_Width = 0;
+  data.m_Height = 0;
+  data.m_Depth = 0;
 
-	return *this;
+  return *this;
 }
 
 void Texture2DArrayData::SetWidth(uint32_t width)
 {
-	m_Width = width;
+  m_Width = width;
 }
 
 uint32_t Texture2DArrayData::GetWidth() const
 {
-	return m_Width;
+  return m_Width;
 }
 
 void Texture2DArrayData::SetHeight(uint32_t height)
 {
-	m_Height = height;
+  m_Height = height;
 }
 
 uint32_t Texture2DArrayData::GetHeight() const
 {
-	return m_Height;
+  return m_Height;
 }
 
 void Texture2DArrayData::SetDepth(uint32_t depth)
 {
-	m_Depth = depth;
+  m_Depth = depth;
 }
 
 uint32_t Texture2DArrayData::GetDepth() const
 {
-	return m_Depth;
+  return m_Depth;
 }
 
 void Texture2DArrayData::SetSize(glm::u32vec3 size)
 {
-	m_Width = size.x;
-	m_Height = size.y;
-	m_Depth = size.z;
+  m_Width = size.x;
+  m_Height = size.y;
+  m_Depth = size.z;
 }
 
 glm::u32vec3 Texture2DArrayData::GetSize() const
 {
-	return { m_Width, m_Height, m_Depth };
+  return { m_Width, m_Height, m_Depth };
 }
 
 void Texture2DArrayData::Serialize(Archive& archive)
 {
-	TextureData::Serialize(archive);
+  TextureData::Serialize(archive);
 
     archive & m_Width;
     archive & m_Height;

@@ -23,9 +23,9 @@ void StaticSubmesh::SetData(const std::vector<Vertex>& vertices, const std::vect
 
 void StaticSubmesh::SetData(std::vector<Vertex>&& vertices, std::vector<int32_t>&& indices)
 {
-	m_Vertices = std::move(vertices);
-	m_Indices = std::move(indices);
-	CreateBuffers();
+  m_Vertices = std::move(vertices);
+  m_Indices = std::move(indices);
+  CreateBuffers();
 }
 
 void StaticSubmesh::SetMaterial(std::shared_ptr<Material> material)
@@ -64,12 +64,12 @@ void StaticSubmesh::FreeData()
 void StaticSubmesh::CreateBuffers()
 {
     static VertexBufferLayout layout = {
-    		{ "Position",            ShaderDataType::Float3 },
-    		{ "Color",               ShaderDataType::Float4 },
-    		{ "TextureCoordinates",  ShaderDataType::Float3 },
-    		{ "Normal",              ShaderDataType::Float3 },
-    		{ "Tangent",             ShaderDataType::Float3 },
-    		{ "Bitangent",           ShaderDataType::Float3 }
+        { "Position",            ShaderDataType::Float3 },
+        { "Color",               ShaderDataType::Float4 },
+        { "TextureCoordinates",  ShaderDataType::Float3 },
+        { "Normal",              ShaderDataType::Float3 },
+        { "Tangent",             ShaderDataType::Float3 },
+        { "Bitangent",           ShaderDataType::Float3 }
     };
     
     if (m_VertexBuffer)
@@ -95,7 +95,7 @@ void StaticSubmesh::Serialize(Archive& archive)
 {
     if (archive.GetMode() == ArchiveMode::Write)
     {
-	    archive & GetType();
+      archive & GetType();
     }
 
     archive & m_Name;
@@ -127,7 +127,7 @@ void StaticMesh::SetSubmeshes(const std::vector<std::shared_ptr<StaticSubmesh>>&
 
 void StaticMesh::AddSubmesh(std::shared_ptr<StaticSubmesh> submesh)
 {
-	m_Submeshes.push_back(submesh);
+  m_Submeshes.push_back(submesh);
 }
 
 void StaticMesh::ResetState()

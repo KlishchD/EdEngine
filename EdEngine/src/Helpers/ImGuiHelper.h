@@ -5,7 +5,7 @@
 class ImGuiHelper
 {
 public:
-	static void CreateImGuiAndSetUpContext();
-	static void SetDefaultIOOptions();
-	static void SetDefaultStyle();
+  static void CreateImGuiAndSetUpContext();
+  static void SetDefaultIOOptions();
+  static void SetDefaultStyle();
 };

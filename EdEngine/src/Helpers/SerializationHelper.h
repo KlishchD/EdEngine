@@ -30,14 +30,14 @@ namespace boost
             ar & vec.z;
         }
 
-		template <class Archive>
-		void serialize(Archive& ar, glm::vec4& vec, uint32_t version)
-		{
-			ar& vec.x;
-			ar& vec.y;
-			ar& vec.z;
-			ar& vec.w;
-		}
+    template <class Archive>
+    void serialize(Archive& ar, glm::vec4& vec, uint32_t version)
+    {
+      ar& vec.x;
+      ar& vec.y;
+      ar& vec.z;
+      ar& vec.w;
+    }
 
         template <class Archive>
         void serialize(Archive& ar, glm::quat& q, uint32_t version)
@@ -60,5 +60,5 @@ public:
     }
 
 private:
-	static std::shared_ptr<Asset> SerializeAssetInternal(Archive& archive, std::shared_ptr<Asset> asset);
+  static std::shared_ptr<Asset> SerializeAssetInternal(Archive& archive, std::shared_ptr<Asset> asset);
 };

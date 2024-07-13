@@ -19,44 +19,44 @@ std::shared_ptr<Texture> Framebuffer::GetDepthAttachment() const
 
 bool Framebuffer::Resize(uint32_t width, uint32_t height, uint32_t depth)
 {
-	if (m_Width != width || m_Height != height || m_Depth != depth)
-	{
-		m_Width = width;
-		m_Height = height;
-		m_Depth = depth;
+  if (m_Width != width || m_Height != height || m_Depth != depth)
+  {
+    m_Width = width;
+    m_Height = height;
+    m_Depth = depth;
 
-		for (std::shared_ptr<Texture> attachment : m_Attachments)
-		{
-			attachment->Resize(width, height, depth);
-		}
+    for (std::shared_ptr<Texture> attachment : m_Attachments)
+    {
+      attachment->Resize(width, height, depth);
+    }
 
-		if (m_DepthAttachment)
-		{
-			m_DepthAttachment->Resize(width, height, depth);
-		}
+    if (m_DepthAttachment)
+    {
+      m_DepthAttachment->Resize(width, height, depth);
+    }
 
-		return true;
-	}
+    return true;
+  }
 
-	return false;
+  return false;
 }
 
 bool Framebuffer::Resize(glm::u32vec3 size)
 {
-	return Resize(size.x, size.y, size.z);
+  return Resize(size.x, size.y, size.z);
 }
 
 uint32_t Framebuffer::GetWidth() const
 {
-	return m_Width;
+  return m_Width;
 }
 
 uint32_t Framebuffer::GetHeight() const
 {
-	return m_Height;
+  return m_Height;
 }
 
 uint32_t Framebuffer::GetDepth() const
 {
-	return m_Depth;
+  return m_Depth;
 }

@@ -111,21 +111,21 @@ Transform Component::GetWorldTransform() const
 
 Transform Component::GetPreviousWorldTransform() const
 {
-	Transform transform = m_PreviousTransform;
+  Transform transform = m_PreviousTransform;
 
-	std::shared_ptr<Component> component = m_OwnerComponent;
-	while (component)
-	{
-		transform = transform + component->GetPreviousRelativeTransform();
-		component = component->GetOwnerComponent();
-	}
+  std::shared_ptr<Component> component = m_OwnerComponent;
+  while (component)
+  {
+    transform = transform + component->GetPreviousRelativeTransform();
+    component = component->GetOwnerComponent();
+  }
 
-	if (m_OwnerActor)
-	{
-		transform = transform + m_OwnerActor->GetPreviousTransform();
-	}
+  if (m_OwnerActor)
+  {
+    transform = transform + m_OwnerActor->GetPreviousTransform();
+  }
 
-	return transform;
+  return transform;
 }
 
 void Component::Update(float deltaSeconds)

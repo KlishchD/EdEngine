@@ -5,14 +5,14 @@
 
 ED_CLASS(CameraComponent) : public Component
 {
-	ED_CLASS_BODY(CameraComponent, Component)
+  ED_CLASS_BODY(CameraComponent, Component)
 public:
-	CameraComponent(const std::string& name = "None");
+  CameraComponent(const std::string& name = "None");
 
-	void SetCamera(const Camera& camera);	
-	Camera& GetCamera();
+  void SetCamera(const Camera& camera);  
+  Camera& GetCamera();
 
-	virtual void Serialize(Archive& archive) override;
+  virtual void Serialize(Archive& archive) override;
 protected:
-	Camera m_Camera;
+  Camera m_Camera;
 };

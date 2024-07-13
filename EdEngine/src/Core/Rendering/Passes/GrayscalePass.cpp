@@ -2,22 +2,22 @@
 
 void GrayscalePass::Initialize(std::shared_ptr<RenderGraph> graph)
 {
-	RenderPass<GrayscalePassParameters, GrayscalePassShaderParameters>::Initialize(graph);
+  RenderPass<GrayscalePassParameters, GrayscalePassShaderParameters>::Initialize(graph);
 
-	m_Parameters.Name = "Grayscale pass";
-	m_ShaderParameters.Color = m_Parameters.Color;
+  m_Parameters.Name = "Grayscale pass";
+  m_ShaderParameters.Color = m_Parameters.Color;
 }
 
 void GrayscalePass::Execute()
 {
-	RenderPass<GrayscalePassParameters, GrayscalePassShaderParameters>::Execute();
+  RenderPass<GrayscalePassParameters, GrayscalePassShaderParameters>::Execute();
 
-	return;
+  return;
 
-	glm::u32vec2 size = m_Renderer->GetViewportSize();
-	m_Parameters.DrawFramebuffer->Resize(size.x, size.y, 1);
+  glm::u32vec2 size = m_Renderer->GetViewportSize();
+  m_Parameters.DrawFramebuffer->Resize(size.x, size.y, 1);
 
-	SubmitShaderParameters();
+  SubmitShaderParameters();
 
-	m_Renderer->SubmitFullScreenQuad();
+  m_Renderer->SubmitFullScreenQuad();
 }

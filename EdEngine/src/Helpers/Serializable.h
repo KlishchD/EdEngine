@@ -40,94 +40,94 @@ enum class AssetType : uint8_t;
 class Serializable
 {
 public:
-	virtual void Serialize(class Archive& archive);
+  virtual void Serialize(class Archive& archive);
 
-	uint32_t GetVersion() const
-	{
-		return m_Version;
-	}
+  uint32_t GetVersion() const
+  {
+    return m_Version;
+  }
 
 protected:
-	uint32_t m_Version = 0;
+  uint32_t m_Version = 0;
 };
 
 
 enum class ArchiveMode : uint8_t
 {
-	Read,
-	Write
+  Read,
+  Write
 };
 
 class Archive
 {
 public:
-	Archive(const std::string& path, ArchiveMode mode);
-	
-	ArchiveMode GetMode() const;
-	
-	// TODO: Add using for base types ;)
-	
-	const std::string& GetPath() const;
-	
-	template<typename E> requires(!std::is_base_of_v<Serializable, E> && !std::is_base_of_v<boost::serialization::basic_traits, E>)
-	Archive& operator&(E&& value);
-	
-	template<typename E> requires(!std::is_base_of_v<Serializable, E>)
-	Archive& operator&(E& value);
-	
-	template<typename E> requires(std::is_base_of_v<Serializable, E>)
-	Archive& operator&(E&& value);
-	
-	template<typename E> requires(std::is_base_of_v<Serializable, E>)
-	Archive& operator&(E& value);
-	
-	template<typename E> requires(std::is_base_of_v<Asset, E>)
-	Archive& operator&(std::shared_ptr<E>& value);
-	
-	template<typename E> requires(std::is_base_of_v<Serializable, E> && !std::is_base_of_v<Asset, E> && !std::is_base_of_v<GameObject, E>)
-	Archive& operator&(std::shared_ptr<E>& value);
-	
-	template<typename E> requires(std::is_base_of_v<GameObject, E> && !std::is_base_of_v<Asset, E>)
-	Archive& operator&(std::shared_ptr<E>& value);
+  Archive(const std::string& path, ArchiveMode mode);
+  
+  ArchiveMode GetMode() const;
+  
+  // TODO: Add using for base types ;)
+  
+  const std::string& GetPath() const;
+  
+  template<typename E> requires(!std::is_base_of_v<Serializable, E> && !std::is_base_of_v<boost::serialization::basic_traits, E>)
+  Archive& operator&(E&& value);
+  
+  template<typename E> requires(!std::is_base_of_v<Serializable, E>)
+  Archive& operator&(E& value);
+  
+  template<typename E> requires(std::is_base_of_v<Serializable, E>)
+  Archive& operator&(E&& value);
+  
+  template<typename E> requires(std::is_base_of_v<Serializable, E>)
+  Archive& operator&(E& value);
+  
+  template<typename E> requires(std::is_base_of_v<Asset, E>)
+  Archive& operator&(std::shared_ptr<E>& value);
+  
+  template<typename E> requires(std::is_base_of_v<Serializable, E> && !std::is_base_of_v<Asset, E> && !std::is_base_of_v<GameObject, E>)
+  Archive& operator&(std::shared_ptr<E>& value);
+  
+  template<typename E> requires(std::is_base_of_v<GameObject, E> && !std::is_base_of_v<Asset, E>)
+  Archive& operator&(std::shared_ptr<E>& value);
 
-	template<typename E>
-	Archive& operator&(std::vector<E>& values);
-	
+  template<typename E>
+  Archive& operator&(std::vector<E>& values);
+  
 private:
-	ArchiveMode m_Mode;
-	
-	std::string m_Path;
-	
-	std::ifstream m_InputFile;
-	std::ofstream m_OutputFile;
-	
-	std::unique_ptr<boost::archive::text_iarchive> m_Input;
-	std::unique_ptr<boost::archive::text_oarchive> m_Output;
+  ArchiveMode m_Mode;
+  
+  std::string m_Path;
+  
+  std::ifstream m_InputFile;
+  std::ofstream m_OutputFile;
+  
+  std::unique_ptr<boost::archive::text_iarchive> m_Input;
+  std::unique_ptr<boost::archive::text_oarchive> m_Output;
 };
 
 template<typename E> requires(!std::is_base_of_v<Serializable, E> && !std::is_base_of_v<boost::serialization::basic_traits, E>)
 Archive& Archive::operator&(E&& value)
 {
-	ED_ASSERT(m_Mode == ArchiveMode::Write, "Cannot change r-value")
+  ED_ASSERT(m_Mode == ArchiveMode::Write, "Cannot change r-value")
 
-	*m_Output << value;
+  *m_Output << value;
 
-	return *this;
+  return *this;
 }
 
 template<typename E> requires(!std::is_base_of_v<Serializable, E>)
 Archive& Archive::operator&(E& value)
 {
-	if (m_Mode == ArchiveMode::Read)
-	{
-		*m_Input >> value;
-	}
-	else
-	{
-		*m_Output << value;
-	}
+  if (m_Mode == ArchiveMode::Read)
+  {
+    *m_Input >> value;
+  }
+  else
+  {
+    *m_Output << value;
+  }
 
-	return *this;
+  return *this;
 }
 
 
@@ -153,35 +153,35 @@ Archive& Archive::operator&(std::shared_ptr<E>& value)
 {
     AssetType type = AssetType::None;
 
-	if (m_Mode == ArchiveMode::Read)
-	{
-		std::string className;
-		(*this) & className;
+  if (m_Mode == ArchiveMode::Read)
+  {
+    std::string className;
+    (*this) & className;
 
-		if (!value)
-		{
-			const Class* clazz = ObjectFactory::GetClass(className);
+    if (!value)
+    {
+      const Class* clazz = ObjectFactory::GetClass(className);
 
-			ED_ASSERT(clazz, "Cannot find serialized class {}", className)
+      ED_ASSERT(clazz, "Cannot find serialized class {}", className)
 
-			value = clazz->Create<E>();
-			value->SetShouldLoadData(true);
-		}
+      value = clazz->Create<E>();
+      value->SetShouldLoadData(true);
+    }
 
         (*this) & type;
-	}
-	else
-	{
-		ED_ASSERT(value, "Cannot serialize nullptr")
+  }
+  else
+  {
+    ED_ASSERT(value, "Cannot serialize nullptr")
 
-		(*this) & value->GetClass().GetName();
-	}
+    (*this) & value->GetClass().GetName();
+  }
 
     value->Serialize(*this);
-	if ((!value->HasData() && value->ShouldHaveData()) || m_Mode == ArchiveMode::Write)
-	{
-		value->SerializeData(*this);
-	}
+  if ((!value->HasData() && value->ShouldHaveData()) || m_Mode == ArchiveMode::Write)
+  {
+    value->SerializeData(*this);
+  }
 
     return *this;
 }
@@ -203,63 +203,63 @@ Archive& Archive::operator&(std::shared_ptr<E>& value)
 
     value->Serialize(*this);
 
-	return *this;
+  return *this;
 }
 
 template<typename E> requires(std::is_base_of_v<GameObject, E> && !std::is_base_of_v<Asset, E>)
 Archive& Archive::operator&(std::shared_ptr<E>& value)
 {
-	if (m_Mode == ArchiveMode::Read)
-	{
-		std::string className;
-		(*this) & className;
+  if (m_Mode == ArchiveMode::Read)
+  {
+    std::string className;
+    (*this) & className;
 
-		if (!value)
-		{
-			const Class* clazz = ObjectFactory::GetClass(className);
+    if (!value)
+    {
+      const Class* clazz = ObjectFactory::GetClass(className);
 
-			ED_ASSERT(clazz, "Cannot find serialized class {}", className)
+      ED_ASSERT(clazz, "Cannot find serialized class {}", className)
 
-			value = clazz->Create<E>();
-		}
-	}
-	else
-	{
-		ED_ASSERT(value, "Cannot serialize nullptr")
+      value = clazz->Create<E>();
+    }
+  }
+  else
+  {
+    ED_ASSERT(value, "Cannot serialize nullptr")
 
-		(*this) & value->GetClass().GetName();
-	}
+    (*this) & value->GetClass().GetName();
+  }
 
-	value->Serialize(*this);
+  value->Serialize(*this);
 
-	return *this;
+  return *this;
 }
 
 template<typename E>
 Archive& Archive::operator&(std::vector<E>& values)
 {
-	if (m_Mode == ArchiveMode::Read)
-	{
-		int32_t size = 0;
+  if (m_Mode == ArchiveMode::Read)
+  {
+    int32_t size = 0;
 
-		(*this) & size;
+    (*this) & size;
 
-		for (int32_t i = 0; i < size; ++i)
-		{
-			E value {};
-			(*this) & value;
-			values.push_back(value);
-		}
-	}
-	else
-	{
-		(*this) & values.size();
+    for (int32_t i = 0; i < size; ++i)
+    {
+      E value {};
+      (*this) & value;
+      values.push_back(value);
+    }
+  }
+  else
+  {
+    (*this) & values.size();
 
-		for (E& value : values)
-		{
-			(*this) & value;
-		}
-	}
+    for (E& value : values)
+    {
+      (*this) & value;
+    }
+  }
 
-	return *this;
+  return *this;
 }

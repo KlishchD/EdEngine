@@ -73,13 +73,13 @@ glm::vec3 Transform::GetEulerRotation() const
 
 Transform Transform::operator+(const Transform& transform) const
 {
-	return { m_Translation + transform.m_Translation, m_Rotation * transform.m_Rotation, m_Scale * transform.m_Scale };
+  return { m_Translation + transform.m_Translation, m_Rotation * transform.m_Rotation, m_Scale * transform.m_Scale };
 }
 
 Transform& Transform::operator=(const Transform& transform)
 {
-	m_Rotation = transform.m_Rotation;
-	m_Scale = transform.m_Scale;
-	m_Translation = transform.m_Translation;
-	return *this;
+  m_Rotation = transform.m_Rotation;
+  m_Scale = transform.m_Scale;
+  m_Translation = transform.m_Translation;
+  return *this;
 }
