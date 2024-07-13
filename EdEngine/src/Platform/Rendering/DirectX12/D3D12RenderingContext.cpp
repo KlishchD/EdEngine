@@ -2,7 +2,6 @@
 #include "D3D12Window.h"
 #include "Helpers/StringHelper.h"
 #include "D3D12Fence.h"
-#include "D3D12Resource.h"
 #include "Helpers/ImGuiHelper.h"
 #include "backends/imgui_impl_dx12.h"
 #include "backends/imgui_impl_glfw.h"
@@ -332,12 +331,13 @@ void D3D12RenderingContext::Close()
 
 }
 
-void D3D12RenderingContext::AddResourceForUploading(void* data, uint32_t size, D3D12_RESOURCE_DESC* descriptor, D3D12Resource* resource)
+void D3D12RenderingContext::AddResourceForUploading(void* data, uint32_t size, uint32_t offset, void* descriptor, Resource* resource)
 {
   UploadResourceDescription description{};
   description.Data = data;
   description.Size = size;
-  description.GPUResourceDescription = descriptor;
+  description.Offset = offset;
+  description.GPUResourceDescription = reinterpret_cast<D3D12_RESOURCE_DESC*>(descriptor);
   description.Resource = resource;
   m_UploadResourceDescriptions.push_back(description);
 }
@@ -516,6 +516,8 @@ Microsoft::WRL::ComPtr<ID3D12Resource1> D3D12RenderingContext::CreateAndPopulate
     uploadBufferSize += description.Size;
   }
 
+  ED_ASSERT(uploadBufferSize, "Upload buffer size cannot be zero");
+
   D3D12_HEAP_PROPERTIES uploadHeapProperties;
   uploadHeapProperties.Type = D3D12_HEAP_TYPE_UPLOAD;
   uploadHeapProperties.CPUPageProperty = D3D12_CPU_PAGE_PROPERTY_UNKNOWN;
@@ -538,6 +540,10 @@ Microsoft::WRL::ComPtr<ID3D12Resource1> D3D12RenderingContext::CreateAndPopulate
 
   Microsoft::WRL::ComPtr<ID3D12Resource1> uploadBuffer;
   D3D::Check(m_Device->CreateCommittedResource(&uploadHeapProperties, D3D12_HEAP_FLAG_NONE, &uploadBufferDescription, D3D12_RESOURCE_STATE_COMMON, nullptr, IID_PPV_ARGS(&uploadBuffer)));
+
+  ED_ASSERT(uploadBuffer, "Was not able to create upload buffer");
+
+  uploadBuffer->SetName(TEXT("Upload buffer"));
 
   uint8_t* uploadBufferPtr = nullptr;
   D3D12_RANGE range{ 0, 0 };
@@ -564,7 +570,7 @@ void D3D12RenderingContext::CreateUploadDestinationResources()
   {
     if (description.GPUResourceDescription)
     {
-      Microsoft::WRL::ComPtr<ID3D12Resource1> resource;
+      ID3D12Resource1* resource = nullptr;
 
       D3D12_HEAP_PROPERTIES heapProperties;
       heapProperties.Type = D3D12_HEAP_TYPE_DEFAULT;
@@ -577,7 +583,7 @@ void D3D12RenderingContext::CreateUploadDestinationResources()
 
       ED_ASSERT(resource, "Was not able to create upload destination resource.");
 
-      description.Resource->SetResource(resource);
+      description.Resource->SetNativeResource<ID3D12Resource1*>(resource);
     }
   }
 }
@@ -594,7 +600,7 @@ void D3D12RenderingContext::CopyDataFromUploadBufferToDestinations(Microsoft::WR
   {
     if (description.Data)
     {
-      barriers.push_back(D3D12Helper::TransitionBarrier(description.Resource->GetResource().Get(), D3D12_RESOURCE_STATE_COMMON, D3D12_RESOURCE_STATE_COPY_DEST));
+      barriers.push_back(D3D12Helper::TransitionBarrier(description.Resource->GetNativeResource<ID3D12Resource1*>(), D3D12_RESOURCE_STATE_COMMON, D3D12_RESOURCE_STATE_COPY_DEST));
     }
   }
 
@@ -605,7 +611,7 @@ void D3D12RenderingContext::CopyDataFromUploadBufferToDestinations(Microsoft::WR
   {
     if (description.Data)
     {
-      m_CopyCommandList->CopyBufferRegion(description.Resource->GetResource().Get(), 0, uploadBuffer.Get(), offset, description.Size);
+      m_CopyCommandList->CopyBufferRegion(description.Resource->GetNativeResource<ID3D12Resource1*>(), description.Offset, uploadBuffer.Get(), offset, description.Size);
       offset += description.Size;
     }
   }

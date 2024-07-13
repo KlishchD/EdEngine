@@ -235,10 +235,10 @@
     <ClCompile Include="src\Core\Widget.cpp" />
     <ClCompile Include="src\Core\Window.cpp" />
     <ClCompile Include="src\Helpers\ImGuiHelper.cpp" />
+    <ClCompile Include="src\Helpers\StringHelper.cpp" />
     <ClCompile Include="src\Platform\Rendering\DirectX12\Buffers\D3D12VertexBuffer.cpp" />
     <ClCompile Include="src\Platform\Rendering\DirectX12\D3D12Fence.cpp" />
     <ClCompile Include="src\Platform\Rendering\DirectX12\D3D12RenderingContext.cpp" />
-    <ClCompile Include="src\Platform\Rendering\DirectX12\D3D12Resource.cpp" />
     <ClCompile Include="src\Platform\Rendering\DirectX12\D3D12Types.cpp" />
     <ClCompile Include="src\Platform\Rendering\DirectX12\D3D12Window.cpp" />
     <ClCompile Include="src\Platform\Rendering\DirectX12\Helpers\D3D12Helper.cpp" />
@@ -311,7 +311,6 @@
     <ClInclude Include="src\Platform\Rendering\DirectX12\Buffers\D3D12VertexBuffer.h" />
     <ClInclude Include="src\Platform\Rendering\DirectX12\D3D12Fence.h" />
     <ClInclude Include="src\Platform\Rendering\DirectX12\D3D12RenderingContext.h" />
-    <ClInclude Include="src\Platform\Rendering\DirectX12\D3D12Resource.h" />
     <ClInclude Include="src\Platform\Rendering\DirectX12\D3D12Types.h" />
     <ClInclude Include="src\Platform\Rendering\DirectX12\D3D12Window.h" />
     <ClInclude Include="src\Platform\Rendering\DirectX12\EdD3D12Rendering.h" />

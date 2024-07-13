@@ -11,61 +11,69 @@
 
 OpenGLShader::OpenGLShader(ShaderType type, const std::string& filepath, const std::string& source) : Shader(type, source)
 {
-	uint32_t shaderType = OpenGLTypes::ConvertShaderType(type);
-	m_Id = glCreateShader(shaderType);
-// 
-// 	EShLanguage stage = static_cast<EShLanguage>(OpenGLTypes::ConvertShaderLanguage(type));
-// 	glslang::TShader shader(static_cast<EShLanguage>(stage));
-// 
- 	const char* shaderSourceC = &source[0];
-// 	shader.setStrings(&shaderSourceC, 1);
-// 
-// 	const std::string entryPoint = Types::ConvertShaderEntryPointName(type);
-// 	shader.setEntryPoint(entryPoint.c_str());
-// 
-// 	shader.setEnvInput(glslang::EShSourceGlsl, stage, glslang::EShClientOpenGL, 460);
-// 	shader.setEnvTarget(glslang::EShTargetSpv, glslang::EShTargetSpv_1_0);
-// 
-// 	shader.setAutoMapLocations(true);
-// 
-// 	DirStackFileIncluder includer(filepath);
-// 	bool isCompilationSuccessfull = shader.parse(GetDefaultResources(), 110, ECoreProfile, false, false, EShMsgDefault, includer);
-// 	ED_ASSERT(isCompilationSuccessfull, "Shader GLSL to Spir-V compilation failed {}, {}", filepath, shader.getInfoLog());
-// 
-// 	spv::SpvBuildLogger logger;
-// 
-// 	glslang::SpvOptions spvOptions;
-// 	spvOptions.generateDebugInfo = true;
-// 
-// 	std::vector<uint32_t> unoptimisedSpv;
-// 	glslang::GlslangToSpv(*shader.getIntermediate(), unoptimisedSpv, &logger, &spvOptions);
-// 
-// 	glShaderBinary(1, &m_Id, GL_SHADER_BINARY_FORMAT_SPIR_V, unoptimisedSpv.data(), sizeof(uint32_t) * unoptimisedSpv.size());
-// 	glSpecializeShader(m_Id, "main", 0, nullptr, nullptr);
+  uint32_t shaderType = OpenGLTypes::ConvertShaderType(type);
+  m_Id = glCreateShader(shaderType);
+  glObjectLabel(GL_SHADER, m_Id, m_Name.size(), m_Name.c_str());
 
-	glShaderSource(m_Id, 1, &shaderSourceC, 0);
-	glCompileShader(m_Id);
+// 
+//   EShLanguage stage = static_cast<EShLanguage>(OpenGLTypes::ConvertShaderLanguage(type));
+//   glslang::TShader shader(static_cast<EShLanguage>(stage));
+// 
+   const char* shaderSourceC = &source[0];
+//   shader.setStrings(&shaderSourceC, 1);
+// 
+//   const std::string entryPoint = Types::ConvertShaderEntryPointName(type);
+//   shader.setEntryPoint(entryPoint.c_str());
+// 
+//   shader.setEnvInput(glslang::EShSourceGlsl, stage, glslang::EShClientOpenGL, 460);
+//   shader.setEnvTarget(glslang::EShTargetSpv, glslang::EShTargetSpv_1_0);
+// 
+//   shader.setAutoMapLocations(true);
+// 
+//   DirStackFileIncluder includer(filepath);
+//   bool isCompilationSuccessfull = shader.parse(GetDefaultResources(), 110, ECoreProfile, false, false, EShMsgDefault, includer);
+//   ED_ASSERT(isCompilationSuccessfull, "Shader GLSL to Spir-V compilation failed {}, {}", filepath, shader.getInfoLog());
+// 
+//   spv::SpvBuildLogger logger;
+// 
+//   glslang::SpvOptions spvOptions;
+//   spvOptions.generateDebugInfo = true;
+// 
+//   std::vector<uint32_t> unoptimisedSpv;
+//   glslang::GlslangToSpv(*shader.getIntermediate(), unoptimisedSpv, &logger, &spvOptions);
+// 
+//   glShaderBinary(1, &m_Id, GL_SHADER_BINARY_FORMAT_SPIR_V, unoptimisedSpv.data(), sizeof(uint32_t) * unoptimisedSpv.size());
+//   glSpecializeShader(m_Id, "main", 0, nullptr, nullptr);
 
-	int32_t status = 0;
-	glGetShaderiv(m_Id, GL_COMPILE_STATUS, &status);
-	if (status == GL_FALSE)
-	{
-		int32_t length = 0;
-		glGetShaderiv(m_Id, GL_INFO_LOG_LENGTH, &length);
+  glShaderSource(m_Id, 1, &shaderSourceC, 0);
+  glCompileShader(m_Id);
 
-		std::string message(length, '*');
-		glGetShaderInfoLog(m_Id, length, &length, &message[0]);
+  int32_t status = 0;
+  glGetShaderiv(m_Id, GL_COMPILE_STATUS, &status);
+  if (status == GL_FALSE)
+  {
+    int32_t length = 0;
+    glGetShaderiv(m_Id, GL_INFO_LOG_LENGTH, &length);
 
-		ED_ASSERT(0, "Shader compilation error: {}", message);
-	}
+    std::string message(length, '*');
+    glGetShaderInfoLog(m_Id, length, &length, &message[0]);
+
+    ED_ASSERT(0, "Shader compilation error: {}", message);
+  }
 }
 
-uint32_t OpenGLShader::GetID() const
+void* OpenGLShader::GetNativeResource() const
 {
-    return m_Id;
+  return reinterpret_cast<void*>(m_Id);
+}
+
+void OpenGLShader::SetNativeResource(void* resource)
+{
+  m_Id = reinterpret_cast<uint32_t>(resource);
+  glObjectLabel(GL_SHADER, m_Id, m_Name.size(), m_Name.c_str());
 }
 
 OpenGLShader::~OpenGLShader()
 {
-	glDeleteShader(m_Id);
+  glDeleteShader(m_Id);
 }

@@ -78,7 +78,7 @@ void StaticSubmesh::CreateBuffers()
     }
     else
     {
-        m_VertexBuffer = RenderingHelper::CreateVertexBuffer((void*)m_Vertices.data(), m_Vertices.size() * sizeof(Vertex), layout, BufferUsage::StaticDraw);
+        m_VertexBuffer = RenderingHelper::CreateVertexBuffer(m_Name + " vertex buffer", (void*)m_Vertices.data(), m_Vertices.size() * sizeof(Vertex), layout, BufferUsage::StaticDraw);
     }
     
     if (m_IndexBuffer)
@@ -87,7 +87,7 @@ void StaticSubmesh::CreateBuffers()
     }
     else
     {
-        m_IndexBuffer = RenderingHelper::CreateIndexBuffer((void*)m_Indices.data(), m_Indices.size() * sizeof(int32_t), BufferUsage::StaticDraw);
+        m_IndexBuffer = RenderingHelper::CreateIndexBuffer(m_Name + " index buffer", (void*)m_Indices.data(), m_Indices.size() * sizeof(int32_t), BufferUsage::StaticDraw);
     }
 }
 

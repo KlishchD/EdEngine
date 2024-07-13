@@ -24,8 +24,8 @@ void SpotLightShadingPass::Initialize(std::shared_ptr<RenderGraph> graph)
 		std::vector<int32_t>& indices = m_Parameters.LightMeshIndices;
 
 		VertexBufferLayout lightVBOLayout = { { "position", ShaderDataType::Float3 } };
-		m_Parameters.LightMeshVBO = RenderingHelper::CreateVertexBuffer(vertices.data(), 3.0f * sizeof(float) * vertices.size(), lightVBOLayout, BufferUsage::StaticDraw);
-		m_Parameters.LightMeshIBO = RenderingHelper::CreateIndexBuffer(indices.data(), sizeof(int32_t) * indices.size(), BufferUsage::StaticDraw);
+		m_Parameters.LightMeshVBO = RenderingHelper::CreateVertexBuffer("Spot light mesh vertex buffer", vertices.data(), 3.0f * sizeof(float) * vertices.size(), lightVBOLayout, BufferUsage::StaticDraw);
+		m_Parameters.LightMeshIBO = RenderingHelper::CreateIndexBuffer("Spot light mesh index buffer", indices.data(), sizeof(int32_t) * indices.size(), BufferUsage::StaticDraw);
 	}
 
 	m_Parameters.Name = "Spot light pass";

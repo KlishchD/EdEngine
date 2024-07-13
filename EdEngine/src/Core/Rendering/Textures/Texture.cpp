@@ -5,11 +5,6 @@ Texture::Texture(const std::string& name) : Super(name), Resource( { name } ) //
 {
 }
 
-uint32_t Texture::GetID() const
-{
-	return m_Id;
-}
-
 void Texture::SetWrapS(WrapMode mode)
 {
 	m_WrapS = mode;

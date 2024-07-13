@@ -4,6 +4,7 @@
 OpenGLTexture2D::OpenGLTexture2D(const std::string& name) : Super(name)
 {
   glGenTextures(1, &m_Id);
+  glObjectLabel(GL_TEXTURE, m_Id, Resource::m_Name.size(), Resource::m_Name.c_str());
 }
 
 OpenGLTexture2D::~OpenGLTexture2D()
@@ -89,4 +90,15 @@ void OpenGLTexture2D::RefreshParameters()
 
     glBindTexture(GL_TEXTURE_2D, 0);
   }
+}
+
+void* OpenGLTexture2D::GetNativeResource() const
+{
+  return reinterpret_cast<void*>(m_Id);
+}
+
+void OpenGLTexture2D::SetNativeResource(void* resource)
+{
+  m_Id = reinterpret_cast<uint32_t>(resource);
+  glObjectLabel(GL_TEXTURE, m_Id, Resource::m_Name.size(), Resource::m_Name.c_str());
 }

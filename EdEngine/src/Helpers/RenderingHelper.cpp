@@ -47,23 +47,23 @@ std::shared_ptr<Window> RenderingHelper::CreateWindow(WindowSpecification specif
 	return window;
 }
 
-std::shared_ptr<VertexBuffer> RenderingHelper::CreateVertexBuffer(void* data, uint32_t size, const VertexBufferLayout& layout, BufferUsage usage)
+std::shared_ptr<VertexBuffer> RenderingHelper::CreateVertexBuffer(const std::string& name, void* data, uint32_t size, const VertexBufferLayout& layout, BufferUsage usage)
 {
-	std::shared_ptr<VertexBuffer> buffer = CreateVertexBuffer();
+	std::shared_ptr<VertexBuffer> buffer = CreateVertexBuffer(name);
 	buffer->SetData(data, size, usage);
 	buffer->SetLayout(layout);
 
 	return buffer;
 }
 
-std::shared_ptr<VertexBuffer> RenderingHelper::CreateVertexBuffer()
+std::shared_ptr<VertexBuffer> RenderingHelper::CreateVertexBuffer(const std::string& name)
 {
 	RenderingAPI api = Engine::Get().GetRenderingAPI();
 
 	switch (api)
 	{
-	case RenderingAPI::OpenGL: return std::make_shared<OpenGLVertexBuffer>();
-	case RenderingAPI::D3D12: return std::make_shared<D3D12VertexBuffer>();
+	case RenderingAPI::OpenGL: return std::make_shared<OpenGLVertexBuffer>(name);
+	case RenderingAPI::D3D12: return std::make_shared<D3D12VertexBuffer>(name);
 	default:
 		ED_ASSERT(0, "Can not create vertex buffer for provided RenderingAPI");
 	}
@@ -110,28 +110,28 @@ std::shared_ptr<VertexBuffer> RenderingHelper::CreateCubeVertexBuffer()
 			{ "texCoords", ShaderDataType::Float2 }
 	};
 
-	std::shared_ptr<VertexBuffer> buffer = std::make_shared<OpenGLVertexBuffer>();
+	std::shared_ptr<VertexBuffer> buffer = std::make_shared<OpenGLVertexBuffer>("Cube vertex buffer");
 	buffer->SetData(data, sizeof(data), BufferUsage::StaticDraw);
 	buffer->SetLayout(layout);
 
 	return buffer;
 }
 
-std::shared_ptr<IndexBuffer> RenderingHelper::CreateIndexBuffer(void* data, uint32_t size, BufferUsage usage)
+std::shared_ptr<IndexBuffer> RenderingHelper::CreateIndexBuffer(const std::string& name, void* data, uint32_t size, BufferUsage usage)
 {
-	std::shared_ptr<IndexBuffer> buffer = std::make_shared<OpenGLIndexBuffer>();
+	std::shared_ptr<IndexBuffer> buffer = CreateIndexBuffer(name);
 	buffer->SetData(data, size, usage);
 
 	return buffer;
 }
 
-std::shared_ptr<IndexBuffer> RenderingHelper::CreateIndexBuffer()
+std::shared_ptr<IndexBuffer> RenderingHelper::CreateIndexBuffer(const std::string& name)
 {
 	RenderingAPI api = Engine::Get().GetRenderingAPI();
 
 	switch (api)
 	{
-	case RenderingAPI::OpenGL: return std::make_shared<OpenGLIndexBuffer>();
+	case RenderingAPI::OpenGL: return std::make_shared<OpenGLIndexBuffer>(name);
 	default:
 		ED_ASSERT(0, "Can not create index buffer for provided RenderingAPI");
 	}
@@ -139,13 +139,13 @@ std::shared_ptr<IndexBuffer> RenderingHelper::CreateIndexBuffer()
 	return nullptr;
 }
 
-std::shared_ptr<UniformBuffer> RenderingHelper::CreateUniformBuffer()
+std::shared_ptr<UniformBuffer> RenderingHelper::CreateUniformBuffer(const std::string& name)
 {
 	RenderingAPI api = Engine::Get().GetRenderingAPI();
 
 	switch (api)
 	{
-	case RenderingAPI::OpenGL: return std::make_shared<OpenGLUniformBuffer>();
+	case RenderingAPI::OpenGL: return std::make_shared<OpenGLUniformBuffer>(name);
 	default:
 		ED_ASSERT(0, "Can not create uniform buffer for provided RenderingAPI");
 	}
@@ -153,9 +153,9 @@ std::shared_ptr<UniformBuffer> RenderingHelper::CreateUniformBuffer()
 	return nullptr;
 }
 
-std::shared_ptr<UniformBuffer> RenderingHelper::CreateUniformBuffer(void* data, uint32_t size, BufferUsage usage)
+std::shared_ptr<UniformBuffer> RenderingHelper::CreateUniformBuffer(const std::string& name, void* data, uint32_t size, BufferUsage usage)
 {
-	std::shared_ptr<UniformBuffer> buffer = CreateUniformBuffer();
+	std::shared_ptr<UniformBuffer> buffer = CreateUniformBuffer(name);
 	buffer->SetData(data, size, usage);
 	return buffer;
 }

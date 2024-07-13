@@ -77,6 +77,7 @@ public:
   virtual void Update() override;
   virtual void Present() override;
 
+  virtual void AddResourceForUploading(void* data, uint32_t size, uint32_t offset, void* descriptor, Resource* resource) override;
   virtual void RetainUploadBuffer(UploadBuffer&& buffer) override;
 
   virtual void Close() override;

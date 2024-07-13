@@ -10,8 +10,6 @@ public:
 
 	virtual void Initialize() = 0;
 
-	uint32_t GetID() const;
-
 	virtual TextureType GetTextureType() const = 0;
 
 	virtual void Resize(uint32_t width, uint32_t height, uint32_t depth) = 0;
@@ -39,7 +37,6 @@ public:
 
 	virtual ~Texture() = default;
 protected:
-	uint32_t m_Id = 0;
 	bool m_bIsInitialized = false;
 
 	WrapMode m_WrapS = WrapMode::Repeat;

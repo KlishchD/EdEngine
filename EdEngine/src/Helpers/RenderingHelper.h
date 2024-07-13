@@ -46,20 +46,20 @@ class RenderingHelper
 public:
 	static std::shared_ptr<Window> CreateWindow(WindowSpecification specification);
 
-	static std::shared_ptr<VertexBuffer> CreateVertexBuffer();
-	static std::shared_ptr<VertexBuffer> CreateVertexBuffer(void* data, uint32_t size, const class VertexBufferLayout& layout, BufferUsage usage);
+	static std::shared_ptr<VertexBuffer> CreateVertexBuffer(const std::string& name = "Empty vertex buffer");
+	static std::shared_ptr<VertexBuffer> CreateVertexBuffer(const std::string& name, void* data, uint32_t size, const class VertexBufferLayout& layout, BufferUsage usage);
 	static std::shared_ptr<VertexBuffer> CreateCubeVertexBuffer();
 
-	static std::shared_ptr<IndexBuffer> CreateIndexBuffer();
-	static std::shared_ptr<IndexBuffer> CreateIndexBuffer(void* data, uint32_t size, BufferUsage usage);
+	static std::shared_ptr<IndexBuffer> CreateIndexBuffer(const std::string& name = "Empty index buffer");
+	static std::shared_ptr<IndexBuffer> CreateIndexBuffer(const std::string& name, void* data, uint32_t size, BufferUsage usage);
 
-	static std::shared_ptr<UniformBuffer> CreateUniformBuffer();
-	static std::shared_ptr<UniformBuffer> CreateUniformBuffer(void* data, uint32_t size, BufferUsage usage);
+	static std::shared_ptr<UniformBuffer> CreateUniformBuffer(const std::string& name = "Empty uniform buffer");
+	static std::shared_ptr<UniformBuffer> CreateUniformBuffer(const std::string& name, void* data, uint32_t size, BufferUsage usage);
 
   template<typename T>
-  static std::shared_ptr<UniformBuffer> RenderingHelperCreateUniformBuffer(T* data, BufferUsage usage)
+  static std::shared_ptr<UniformBuffer> RenderingHelperCreateUniformBuffer(const std::string& name, T* data, BufferUsage usage)
   {
-		return CreateUniformBuffer(data, sizeof(T), usage);
+		return CreateUniformBuffer(name, data, sizeof(T), usage);
   }
 
 	static std::shared_ptr<ShaderProgram> CreateShaderProgram();

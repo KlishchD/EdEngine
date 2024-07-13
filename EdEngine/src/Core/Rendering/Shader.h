@@ -1,9 +1,8 @@
 #pragma once
 
-#include "Types.h"
-#include "Core/Ed.h"
+#include "Core/Rendering/EdRendering.h"
 
-class Shader {
+class Shader : public Resource {
 public:
 	Shader(ShaderType type, const std::string& source);
 	virtual ~Shader() = default;

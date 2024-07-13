@@ -8,6 +8,8 @@ class StringHelper
 public:
   template<uint32_t size>
   static std::string WCHARToString(WCHAR str[size]);
+
+  static std::wstring StringToWCHAR(const std::string& str);
 };
 
 

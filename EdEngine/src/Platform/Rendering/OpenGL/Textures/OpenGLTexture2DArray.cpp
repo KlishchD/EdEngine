@@ -4,6 +4,7 @@
 OpenGLTexture2DArray::OpenGLTexture2DArray(const std::string& name) : Super(name)
 {
   glGenTextures(1, &m_Id);
+  glObjectLabel(GL_TEXTURE, m_Id, Resource::m_Name.size(), Resource::m_Name.c_str());
 }
 
 OpenGLTexture2DArray::~OpenGLTexture2DArray()
@@ -54,4 +55,15 @@ void OpenGLTexture2DArray::Initialize()
   glBindTexture(GL_TEXTURE_2D_ARRAY, 0);
 
   m_bIsInitialized = true;
+}
+
+void* OpenGLTexture2DArray::GetNativeResource() const
+{
+  return reinterpret_cast<void*>(m_Id);
+}
+
+void OpenGLTexture2DArray::SetNativeResource(void* resource)
+{
+  m_Id = reinterpret_cast<uint32_t>(resource);
+  glObjectLabel(GL_TEXTURE, m_Id, Resource::m_Name.size(), Resource::m_Name.c_str());
 }

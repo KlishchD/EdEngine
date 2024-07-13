@@ -2,7 +2,7 @@
 
 #include "Shader.h"
 
-class ShaderProgram
+class ShaderProgram : public Resource
 {
 public:
 	virtual void AttachShader(std::shared_ptr<Shader> shader) = 0;

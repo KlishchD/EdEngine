@@ -17,11 +17,6 @@ std::shared_ptr<Texture> Framebuffer::GetDepthAttachment() const
     return m_DepthAttachment;
 }
 
-uint32_t Framebuffer::GetID() const
-{
-    return m_Id;
-}
-
 bool Framebuffer::Resize(uint32_t width, uint32_t height, uint32_t depth)
 {
 	if (m_Width != width || m_Height != height || m_Depth != depth)

@@ -5,15 +5,16 @@
 class OpenGLShaderProgram : public ShaderProgram
 {
 public:
-	OpenGLShaderProgram();
+  OpenGLShaderProgram();
 
-	virtual void AttachShader(std::shared_ptr<Shader> inShader) override;
-	virtual void LinkProgram() override;
-	virtual void DetachAllShaders() override;
+  virtual void AttachShader(std::shared_ptr<Shader> shader) override;
+  virtual void LinkProgram() override;
+  virtual void DetachAllShaders() override;
 
-	uint32_t GetID() const;
+  virtual void* GetNativeResource() const override;
+  virtual void SetNativeResource(void* resource) override;
 
-	virtual ~OpenGLShaderProgram() override;
+  virtual ~OpenGLShaderProgram() override;
 protected:
-	uint32_t m_Id;
+  uint32_t m_Id;
 };

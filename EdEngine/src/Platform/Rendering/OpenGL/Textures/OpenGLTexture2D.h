@@ -11,10 +11,16 @@ public:
 
   virtual void Initialize() override;
 
+  virtual void* GetNativeResource() const override;
+  virtual void SetNativeResource(void* resource) override;
+
   virtual ~OpenGLTexture2D() override;
 protected:
   virtual void RefreshData() override;
   virtual void GenerateMipMaps() override;
   virtual void DeleteMipMaps() override;
   virtual void RefreshParameters() override;
+
+protected:
+  uint32_t m_Id = 0;
 };

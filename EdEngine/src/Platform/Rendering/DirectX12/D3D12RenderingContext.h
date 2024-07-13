@@ -81,7 +81,7 @@ public:
 
   virtual void Close() override;
 
-  void AddResourceForUploading(void* data, uint32_t size, D3D12_RESOURCE_DESC* descriptor, D3D12Resource* resource);
+  virtual void AddResourceForUploading(void* data, uint32_t size, uint32_t offset, void* descriptor, Resource* resource) override;
 
   Microsoft::WRL::ComPtr<ID3D12Device> GetDevice() const;
 protected:
@@ -122,8 +122,9 @@ protected:
   {
     void* Data;
     uint32_t Size;
+    uint32_t Offset;
     D3D12_RESOURCE_DESC* GPUResourceDescription;
-    D3D12Resource* Resource;
+    Resource* Resource;
   };
 
   std::vector<UploadResourceDescription> m_UploadResourceDescriptions;

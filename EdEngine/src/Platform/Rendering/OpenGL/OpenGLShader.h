@@ -1,15 +1,15 @@
 #pragma once
 
 #include "Core/Rendering/Shader.h"
-#include <vector>
 
 class OpenGLShader : public Shader {
 public:
-	OpenGLShader(ShaderType type, const std::string& filepath, const std::string& source);
+  OpenGLShader(ShaderType type, const std::string& filepath, const std::string& source);
 
-	uint32_t GetID() const;
+  virtual void* GetNativeResource() const override;
+  virtual void SetNativeResource(void* resource) override;
 
-	virtual ~OpenGLShader() override;
+  virtual ~OpenGLShader() override;
 private:
-	uint32_t m_Id;
+  uint32_t m_Id;
 };

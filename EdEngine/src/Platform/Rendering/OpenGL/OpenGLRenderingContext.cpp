@@ -12,33 +12,32 @@
 
 static void GLAPIENTRY MessageCallback(GLenum source, GLenum type, GLuint id, GLenum severity, GLsizei length, const GLchar* message, const void* userParam)
 {
-	if (type == GL_DEBUG_TYPE_ERROR)
-	{
-		Window* window = (Window*)userParam;
-		std::string str = std::string(message, length);
-		ED_LOG(Rendering, err, "Window with title: {} type {}, severity {}, message = {}", window->GetTitle(), type, severity, str)
-	}
+  if (type == GL_DEBUG_TYPE_ERROR)
+  {
+    Window* window = (Window*)userParam;
+    std::string str = std::string(message, length);
+    ED_LOG(Rendering, err, "Window with title: {} type {}, severity {}, message = {}", window->GetTitle(), type, severity, str)
+  }
 }
 
 void OpenGLRenderingContext::SetDefaultFramebuffer()
 {
-	glBindFramebuffer(GL_FRAMEBUFFER, 0);
+  glBindFramebuffer(GL_FRAMEBUFFER, 0);
 }
 
 void OpenGLRenderingContext::SetFramebuffer(std::shared_ptr<Framebuffer> framebuffer)
 {
-	glBindFramebuffer(GL_FRAMEBUFFER, framebuffer->GetID());
-	glViewport(0, 0, framebuffer->GetWidth(), framebuffer->GetHeight());
+  glBindFramebuffer(GL_FRAMEBUFFER, framebuffer->GetNativeResource<uint32_t>());
+  glViewport(0, 0, framebuffer->GetWidth(), framebuffer->GetHeight());
 }
 
 void OpenGLRenderingContext::SetUniformBuffer(std::shared_ptr<UniformBuffer> buffer, uint32_t location)
 {
-	ED_ASSERT(location >= 0 && location < MaxUniformBufferLocations, "Invalid uniform binding location");
+  ED_ASSERT(location >= 0 && location < MaxUniformBufferLocations, "Invalid uniform binding location");
 
-	m_UnifromBuffers[location] = buffer;
+  m_UnifromBuffers[location] = buffer;
 
-	std::shared_ptr<OpenGLUniformBuffer> castedBuffer = std::static_pointer_cast<OpenGLUniformBuffer>(buffer);
-	glBindBufferRange(GL_UNIFORM_BUFFER, location, castedBuffer->GetID(), 0, castedBuffer->GetSize());
+  glBindBufferRange(GL_UNIFORM_BUFFER, location, buffer->GetNativeResource<uint32_t>(), 0, buffer->GetSize());
 }
 
 void OpenGLRenderingContext::SetVertexBuffer(std::shared_ptr<VertexBuffer> buffer)
@@ -55,7 +54,7 @@ void OpenGLRenderingContext::SetVertexBuffer(std::shared_ptr<VertexBuffer> buffe
 
   m_VBO = buffer;
 
-  glBindBuffer(GL_ARRAY_BUFFER, std::static_pointer_cast<OpenGLVertexBuffer>(buffer)->GetID());
+  glBindBuffer(GL_ARRAY_BUFFER, buffer->GetNativeResource<uint32_t>());
 
   uint32_t stride = 0;
   for (auto& element : buffer->GetLayout().GetElements())
@@ -80,7 +79,7 @@ void OpenGLRenderingContext::SetIndexBuffer(std::shared_ptr<IndexBuffer> buffer)
   m_IBO = buffer;
   if (m_IBO)
   {
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, std::static_pointer_cast<OpenGLIndexBuffer>(buffer)->GetID());
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, buffer->GetNativeResource<uint32_t>());
   }
   else
   {
@@ -93,14 +92,14 @@ void OpenGLRenderingContext::SetShaderProgram(std::shared_ptr<ShaderProgram> pro
   if (m_Program == program) return;
 
   m_Program = program;
-  m_ProgramID = std::static_pointer_cast<OpenGLShaderProgram>(program)->GetID();
+  m_ProgramID = program->GetNativeResource<uint32_t>();
   glUseProgram(m_ProgramID);
 }
 
 void OpenGLRenderingContext::SetShaderDataTexture(const std::string& name, std::shared_ptr<Texture> texture)
 {
   glActiveTexture(GL_TEXTURE0 + m_LastTextureSlot);
-  glBindTexture(OpenGLTypes::ConverTextureType(texture->GetTextureType()), texture->GetID());
+  glBindTexture(OpenGLTypes::ConverTextureType(texture->GetTextureType()), texture->GetNativeResource<uint32_t>());
 
   const int32_t location = glGetUniformLocation(m_ProgramID, name.c_str());
   glUniform1i(location, m_LastTextureSlot);
@@ -110,7 +109,7 @@ void OpenGLRenderingContext::SetShaderDataTexture(const std::string& name, std::
 
 void OpenGLRenderingContext::SetShaderDataImage(const std::string& name, std::shared_ptr<Texture> texture)
 {
-  glBindImageTexture(m_LastTextureSlot, texture->GetID(), 0, GL_FALSE, 0, GL_READ_WRITE, OpenGLTypes::ConvertPixelFormat(texture->GetPixelFormat()));
+  glBindImageTexture(m_LastTextureSlot, texture->GetNativeResource<uint32_t>(), 0, GL_FALSE, 0, GL_READ_WRITE, OpenGLTypes::ConvertPixelFormat(texture->GetPixelFormat()));
   m_LastTextureSlot = (m_LastTextureSlot + 1) % MaxTextureSlots;
 }
 
@@ -123,7 +122,7 @@ void OpenGLRenderingContext::SetShaderDataInt(const std::string& name, int32_t v
 void OpenGLRenderingContext::SetShaderDataTexture(const char* name, std::shared_ptr<Texture> texture)
 {
   glActiveTexture(GL_TEXTURE0 + m_LastTextureSlot);
-  glBindTexture(OpenGLTypes::ConverTextureType(texture->GetTextureType()), texture->GetID());
+  glBindTexture(OpenGLTypes::ConverTextureType(texture->GetTextureType()), texture->GetNativeResource<uint32_t>());
 
   const int32_t location = glGetUniformLocation(m_ProgramID, name);
   glUniform1i(location, m_LastTextureSlot);
@@ -133,7 +132,7 @@ void OpenGLRenderingContext::SetShaderDataTexture(const char* name, std::shared_
 
 void OpenGLRenderingContext::SetShaderDataImage(const char* name, std::shared_ptr<Texture> texture)
 {
-  glBindImageTexture(0, texture->GetID(), 0, GL_FALSE, 0, GL_READ_WRITE, OpenGLTypes::ConvertPixelFormat(texture->GetPixelFormat()));
+  glBindImageTexture(0, texture->GetNativeResource<uint32_t>(), 0, GL_FALSE, 0, GL_READ_WRITE, OpenGLTypes::ConvertPixelFormat(texture->GetPixelFormat()));
 }
 
 void OpenGLRenderingContext::SetShaderDataInt(const char* name, int32_t value)
@@ -371,9 +370,14 @@ OpenGLRenderingContext::~OpenGLRenderingContext()
 
 }
 
+void OpenGLRenderingContext::AddResourceForUploading(void* data, uint32_t size, uint32_t offset, void* descriptor, Resource* resource)
+{
+  ED_LOG(OpenGLRenderingContext, warn, "AddResourceForUploading is not supported for OpenGL");
+}
+
 void OpenGLRenderingContext::RetainUploadBuffer(UploadBuffer&& buffer)
 {
-  
+  ED_LOG(OpenGLRenderingContext, warn, "RetainUploadBuffer is not supported for OpenGL");
 }
 
 void OpenGLRenderingContext::Update()
