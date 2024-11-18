@@ -246,7 +246,7 @@
     <ClCompile Include="src\Core\Rendering\Buffers\VertexBuffer.cpp" />
     <ClCompile Include="src\Core\Rendering\Buffers\VertexBufferLayout.cpp" />
     <ClCompile Include="src\Utils\AssetUtils.cpp" />
-    <ClCompile Include="src\Utils\Files.cpp" />
+    <ClCompile Include="src\Utils\FileHelper.cpp" />
     <ClCompile Include="src\Utils\GeometryBuilder.cpp" />
     <ClCompile Include="src\Utils\MathHelper.cpp" />
     <ClCompile Include="src\Utils\RenderingHelper.cpp" />
@@ -362,7 +362,7 @@
     <ClInclude Include="src\Platform\Rendering\OpenGL\OpenGLTypes.h" />
     <ClInclude Include="src\Platform\Rendering\OpenGL\Textures\OpenGLTexture2DArray.h" />
     <ClInclude Include="src\Utils\AssetUtils.h" />
-    <ClInclude Include="src\Utils\Files.h" />
+    <ClInclude Include="src\Utils\FileHelper.h" />
     <ClInclude Include="src\Utils\GeometryBuilder.h" />
     <ClInclude Include="src\Utils\MathHelper.h" />
     <ClInclude Include="src\Utils\PlatformUtils.h" />

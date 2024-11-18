@@ -208,6 +208,19 @@ float Camera::GetFar() const
     return m_Far;
 }
 
+void Camera::Serialize(Archive& ar)
+{
+    ar & m_Position;
+    ar & m_Rotation;
+    ar & m_Orientation;
+    ar & m_Up;
+
+    ar & m_Fov;
+    ar & m_Aspect;
+    ar & m_Near;
+    ar & m_Far;
+}
+
 void Camera::CalculateProjectionMatrix()
 {
     m_Projection = glm::perspective(m_Fov, m_Aspect, m_Near, m_Far);

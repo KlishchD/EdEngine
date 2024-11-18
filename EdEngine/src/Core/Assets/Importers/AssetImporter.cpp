@@ -1,5 +1,5 @@
 #include "AssetImporter.h"
-#include "Utils/Files.h"
+#include "Utils/FileHelper.h"
 #include "Core/Assets/AssetManager.h"
 
 AssetImporter::AssetImporter(std::shared_ptr<AssetManager> manager) : m_Manager(manager)
@@ -14,7 +14,7 @@ AssetTypeImporter::AssetTypeImporter(std::shared_ptr<AssetManager> manager) : m_
 
 std::shared_ptr<Asset> AssetTypeImporter::Import(AssetType type, std::shared_ptr<AssetImportParameters> parameters)
 {
-	std::string path = Files::GetSavePath(parameters->Path, type);
+	std::string path = FileHelper::GetSavePath(parameters->Path, type);
 	std::shared_ptr<Asset> asset = m_Manager->LoadAsset(path);
 	return asset ? asset : m_Importers[type]->Import(parameters);
 }

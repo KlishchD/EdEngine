@@ -80,7 +80,7 @@ void SSAOBasePass::SetNoiseSize(uint32_t size)
         noise.emplace_back(distribution(generator) * 2.0f - 1.0f, distribution(generator) * 2.0f - 1.0f, 0.0f);
     }
 
-    Texture2DData data(size, size, noise.data(), noise.size() * sizeof(glm::vec3), false);
+    Texture2DData data(size, size, (uint8_t*) &noise[0], noise.size() * sizeof(glm::vec3), false);
     m_ShaderParameters.Noise->SetData(std::move(data));
 }
 

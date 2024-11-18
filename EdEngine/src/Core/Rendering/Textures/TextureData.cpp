@@ -8,7 +8,7 @@ Texture2DData::Texture2DData(int32_t width, int32_t height) : TextureData(nullpt
 {
 }
 
-Texture2DData::Texture2DData(int32_t width, int32_t height, void* data, uint32_t size, bool bTakeOwnership) : TextureData(data, size, bTakeOwnership), m_Width(width), m_Height(height)
+Texture2DData::Texture2DData(int32_t width, int32_t height, uint8_t* data, uint32_t size, bool bTakeOwnership) : TextureData(data, size, bTakeOwnership), m_Width(width), m_Height(height)
 {
 }
 
@@ -78,7 +78,7 @@ TextureData::TextureData() : m_Data(nullptr), m_DataSize(0), m_bDataOwner(true)
 {
 }
 
-TextureData::TextureData(void* data, uint32_t size, bool bTakeOwnership) : m_DataSize(size), m_Data(data), m_bDataOwner(bTakeOwnership)
+TextureData::TextureData(uint8_t* data, uint32_t size, bool bTakeOwnership) : m_DataSize(size), m_Data(data), m_bDataOwner(bTakeOwnership)
 {
 }
 
@@ -86,17 +86,11 @@ void TextureData::Serialize(Archive& archive)
 {
 	Serializable::Serialize(archive);
 
-	if (archive.GetMode() == ArchiveMode::Write)
-	{
-        archive & m_DataSize;
-        archive & boost::serialization::make_binary_object(m_Data, m_DataSize);
-	}
-	else
-	{
-        archive & m_DataSize;
+	archive.Serialize<uint8_t>(m_Data, m_DataSize);
 
-        m_Data = malloc(m_DataSize);
-		archive & boost::serialization::make_binary_object(m_Data, m_DataSize);
+	if (archive.GetMode() == ArchiveMode::Read)
+	{
+		m_bDataOwner = true;
 	}
 }
 
@@ -109,7 +103,7 @@ TextureData& TextureData::operator=(const TextureData& data)
 
 	if (data.m_bDataOwner)
 	{
-		m_Data = malloc(m_DataSize);
+		m_Data = (uint8_t*)malloc(m_DataSize);
 		memcpy(m_Data, data.m_Data, m_DataSize);
 	}
 	else
@@ -136,7 +130,7 @@ TextureData& TextureData::operator=(TextureData&& data)
 	return *this;
 }
 
-void TextureData::SetData(void* data, uint32_t size, bool bTakeOwnership)
+void TextureData::SetData(uint8_t* data, uint32_t size, bool bTakeOwnership)
 {
 	FreeData();
 
@@ -145,7 +139,7 @@ void TextureData::SetData(void* data, uint32_t size, bool bTakeOwnership)
 	m_bDataOwner = bTakeOwnership;
 }
 
-void* TextureData::GetData() const
+uint8_t* TextureData::GetData() const
 {
 	return m_Data;
 }
@@ -182,7 +176,7 @@ CubeTextureData::CubeTextureData(uint32_t size): TextureData(nullptr, 0, false),
 {
 }
 
-CubeTextureData::CubeTextureData(uint32_t size, void* data, uint32_t dataSize, bool bTakeOwnership): TextureData(data, dataSize, bTakeOwnership), m_Size(size)
+CubeTextureData::CubeTextureData(uint32_t size, uint8_t* data, uint32_t dataSize, bool bTakeOwnership): TextureData(data, dataSize, bTakeOwnership), m_Size(size)
 {
 }
 

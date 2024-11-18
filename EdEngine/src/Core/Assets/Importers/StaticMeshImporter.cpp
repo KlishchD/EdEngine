@@ -4,7 +4,7 @@
 #include <assimp/postprocess.h>
 #include <assimp/scene.h>
 #include <assimp/material.h>
-#include "Utils/Files.h"
+#include "Utils/FileHelper.h"
 
 StaticMeshImporter::StaticMeshImporter(std::shared_ptr<AssetManager> manager) : AssetImporter(manager)
 {
@@ -36,7 +36,7 @@ std::vector<std::shared_ptr<Asset>> StaticMeshImporter::ImportMultiple(std::shar
 		if (parameters->ImportAsOneMesh)
 		{
 			ParseNodesAndCombineInOneMesh(scene->mRootNode, scene, Transform(), materials, submeshes);
-			std::shared_ptr<StaticMesh> mesh = CreateMesh(submeshes, parameters, name);
+			std::shared_ptr<StaticMesh> mesh = CreateMesh(std::move(submeshes), parameters, name);
 			meshes.push_back(mesh);
 		}
 		else
@@ -115,7 +115,7 @@ std::shared_ptr<StaticMesh> StaticMeshImporter::CreateMesh(std::shared_ptr<Stati
 	
 	mesh->SetImportParameters(parameters);
 	
-	std::string savePath = Files::GetSavePath(parameters->Path, AssetType::StaticMesh, submesh->GetName());
+	std::string savePath = FileHelper::GetSavePath(parameters->Path, AssetType::StaticMesh, submesh->GetName());
 	Archive archive(savePath, ArchiveMode::Write);
 	archive & mesh;
 	
@@ -124,14 +124,14 @@ std::shared_ptr<StaticMesh> StaticMeshImporter::CreateMesh(std::shared_ptr<Stati
 	return mesh;
 }
 
-std::shared_ptr<StaticMesh> StaticMeshImporter::CreateMesh(std::vector<std::shared_ptr<StaticSubmesh>> submeshes, std::shared_ptr<StaticMeshImportParameters> parameters, const std::string& name)
+std::shared_ptr<StaticMesh> StaticMeshImporter::CreateMesh(std::vector<std::shared_ptr<StaticSubmesh>>&& submeshes, std::shared_ptr<StaticMeshImportParameters> parameters, const std::string& name)
 {
 	std::shared_ptr<StaticMesh> mesh = std::make_shared<StaticMesh>(name);
-	mesh->SetSubmeshes(submeshes);
+	mesh->SetSubmeshes(std::move(submeshes));
 	
 	mesh->SetImportParameters(parameters);
 	
-	std::string savePath = Files::GetSavePath(parameters->Path, AssetType::StaticMesh);
+	std::string savePath = FileHelper::GetSavePath(parameters->Path, AssetType::StaticMesh);
 	Archive archive(savePath, ArchiveMode::Write);
 	archive & mesh;
 	

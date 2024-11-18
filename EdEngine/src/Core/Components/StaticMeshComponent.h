@@ -21,5 +21,5 @@ public:
 private:
     std::shared_ptr<StaticMesh> m_StaticMesh;
 
-    UUID GetStaticMeshAssetId() const;
+    uint64_t GetStaticMeshAssetId() const;
 };

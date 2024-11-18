@@ -1,6 +1,7 @@
 #pragma once
 
 #include <memory>
+#include <widemath.h>
 #include <cstdint>
 #include <string>
 #include <string.h>

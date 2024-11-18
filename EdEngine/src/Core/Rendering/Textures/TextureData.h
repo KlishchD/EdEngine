@@ -6,15 +6,15 @@ class TextureData : public Serializable
 {
 public:
 	TextureData();
-	TextureData(void* data, uint32_t size, bool bTakeOwnership);
+	TextureData(uint8_t* data, uint32_t size, bool bTakeOwnership);
 
 	TextureData& operator=(const TextureData& data);
 	TextureData& operator=(TextureData&& data);
 
 	virtual void Serialize(Archive& archive) override;
 
-	void SetData(void* data, uint32_t size, bool bTakeOwnership);
-	void* GetData() const;
+	void SetData(uint8_t* data, uint32_t size, bool bTakeOwnership);
+	uint8_t* GetData() const;
 	uint32_t GetDataSize() const;
 
 	virtual ~TextureData();
@@ -23,7 +23,7 @@ protected:
 private:
 	uint32_t m_DataSize = 0;
 	bool m_bDataOwner = false;
-	void* m_Data = nullptr;
+	uint8_t* m_Data = nullptr;
 };
 
 class Texture2DData : public TextureData
@@ -31,7 +31,7 @@ class Texture2DData : public TextureData
 public:
 	Texture2DData();
 	Texture2DData(int32_t width, int32_t height);
-	Texture2DData(int32_t width, int32_t height, void* data, uint32_t size, bool bTakeOwnership);
+	Texture2DData(int32_t width, int32_t height, uint8_t* data, uint32_t size, bool bTakeOwnership);
 
 	Texture2DData& operator=(const Texture2DData& data);
 	Texture2DData& operator=(Texture2DData&& data);
@@ -56,7 +56,7 @@ class CubeTextureData : public TextureData
 public:
 	CubeTextureData();
 	CubeTextureData(uint32_t size);
-	CubeTextureData(uint32_t size, void* data, uint32_t dataSize, bool bTakeOwnership);
+	CubeTextureData(uint32_t size, uint8_t* data, uint32_t dataSize, bool bTakeOwnership);
 
 	CubeTextureData& operator=(const CubeTextureData& data);
 	CubeTextureData& operator=(CubeTextureData&& data);

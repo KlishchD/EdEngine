@@ -11,7 +11,6 @@ public:
 
 	virtual std::shared_ptr<Asset> Create();
 	virtual std::shared_ptr<Asset> Create(Archive& archive);
-	virtual std::shared_ptr<Asset> Load(Archive& archive, bool bShouldLoadData);
 	virtual AssetType GetType();
 };
 
@@ -39,18 +38,6 @@ template<typename T, AssetType m_Type>
 AssetType TemplatedAssetFactory<T, m_Type>::GetType()
 {
 	return m_Type;
-}
-
-template<typename T, AssetType m_Type>
-std::shared_ptr<Asset> TemplatedAssetFactory<T, m_Type>::Load(Archive& archive, bool bShouldLoadData)
-{
-	std::shared_ptr<T> asset = std::make_shared<T>();
-	asset->SetShouldLoadData(bShouldLoadData);
-	archive & asset;
-
-	m_Manager->RegisterAsset(asset, archive.GetPath());
-
-	return std::static_pointer_cast<Asset>(asset);
 }
 
 template<typename T, AssetType m_Type>

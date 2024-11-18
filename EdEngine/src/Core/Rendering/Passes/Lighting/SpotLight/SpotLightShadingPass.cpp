@@ -121,7 +121,7 @@ uint32_t SpotLightShadingPass::GetShadowSamplesBlockSize() const
 void SpotLightShadingPass::UpdateShadowSamplesTexture()
 {
 	std::vector<glm::vec2> samples = MathHelper::GenerateCircleSamples(m_ShadowSamplesBlockSize * m_ShadowSamplesBlockSize * m_ShadowSamplesBlockCount);
-	Texture2DData data(m_ShadowSamplesBlockSize * m_ShadowSamplesBlockCount, m_ShadowSamplesBlockSize, samples.data(), samples.size() * sizeof(glm::vec2), false);
+	Texture2DData data(m_ShadowSamplesBlockSize * m_ShadowSamplesBlockCount, m_ShadowSamplesBlockSize, (uint8_t*) &samples[0], samples.size() * sizeof(glm::vec2), false);
 
 	m_ShaderParameters.Light_ShadowSamples->SetData(std::move(data));
 	m_ShaderParameters.Light_ShadowSamplesPixelSize = glm::vec2(1.0f / (m_ShadowSamplesBlockSize * m_ShadowSamplesBlockCount), 1.0f / m_ShadowSamplesBlockSize);

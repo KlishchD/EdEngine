@@ -54,7 +54,7 @@
     <ClCompile Include="src\Utils\AssetUtils.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\Utils\Files.cpp">
+    <ClCompile Include="src\Utils\FileHelper.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="src\Utils\GeometryBuilder.cpp">
@@ -371,7 +371,7 @@
     <ClInclude Include="src\Utils\AssetUtils.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\Utils\Files.h">
+    <ClInclude Include="src\Utils\FileHelper.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\Utils\GeometryBuilder.h">

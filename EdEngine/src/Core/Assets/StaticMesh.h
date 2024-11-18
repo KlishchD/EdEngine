@@ -17,25 +17,9 @@ struct Vertex
 	glm::vec3 Normal;
 	glm::vec3 Tangent;
 	glm::vec3 Bitangent;
+
+	void Serialize(Archive& ar);
 };
-
-
-namespace boost
-{
-	namespace serialization
-	{
-		template <class Archive>
-		void serialize(Archive& ar, Vertex& vertex, uint32_t version)
-		{
-			ar & vertex.Position;
-			ar & vertex.Color;
-			ar & vertex.TextureCoordinates;
-			ar & vertex.Normal;
-			ar & vertex.Tangent;
-			ar & vertex.Bitangent;
-		}
-	}
-}
 
 ED_CLASS(StaticSubmesh) : public Asset
 {
@@ -59,7 +43,7 @@ public:
 	virtual void Serialize(Archive& archive) override;
 	virtual void SerializeData(Archive& archive) override;
 	virtual void FreeData() override;
-	
+
 protected:
     void CreateBuffers();
 
@@ -84,11 +68,13 @@ public:
 	virtual void SetShouldLoadData(bool status) override;
 	
 	void SetSubmeshes(const std::vector<std::shared_ptr<StaticSubmesh>>& submeshes);
+	void SetSubmeshes(std::vector<std::shared_ptr<StaticSubmesh>>&& submeshes);
 	void AddSubmesh(std::shared_ptr<StaticSubmesh> submesh);
 	const std::vector<std::shared_ptr<StaticSubmesh>>& GetSubmeshes() const { return m_Submeshes; }
 	
 	virtual void ResetState() override;
 	
+	virtual void Serialize(Archive& archive) override;
 	virtual void SerializeData(Archive& archive) override;
 	virtual void FreeData() override;
 private:

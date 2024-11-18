@@ -1,6 +1,6 @@
 ﻿#include "ContentBrowserWidget.h"
 #include "Core/Engine.h"
-#include "Utils/Files.h"
+#include "Utils/FileHelper.h"
 #include "Utils/RenderingHelper.h"
 #include "Editor.h"
 #include "Core/Assets/AssetManager.h"
@@ -21,7 +21,7 @@ void ContentBrowserWidget::Initialize()
     m_MaterialIcon = RenderingHelper::ImportBaseColorTexture("Editor\\icons\\material.png");
     m_MeshIcon = RenderingHelper::ImportBaseColorTexture("Editor\\icons\\mesh.png");
 
-    m_CurrentFolder = Files::ContentFolderPath;
+    m_CurrentFolder = FileHelper::ContentFolderPath;
 }
 
 void ContentBrowserWidget::Tick(float DeltaTime)
@@ -38,7 +38,7 @@ void ContentBrowserWidget::ContentTree()
     
     ImGui::BeginChild("Folders");
 
-    DirectoryStructure(Files::ContentFolderPath);
+    DirectoryStructure(FileHelper::ContentFolderPath);
 
     ImGui::EndChild();
     
@@ -159,7 +159,7 @@ void ContentBrowserWidget::PathButtons()
 
         std::string substr = m_CurrentFolder.substr(currentPosition + 1, nextPosition - currentPosition - 1);
 
-        if (substr == Files::ContentFolderName)
+        if (substr == FileHelper::ContentFolderName)
         {
             bSeenContentFolder = true;
         }

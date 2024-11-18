@@ -15,7 +15,7 @@
 #include <glm/gtx/matrix_transform_2d.hpp>
 
 #include "Utils/AssetUtils.h"
-#include "Utils/Files.h"
+#include "Utils/FileHelper.h"
 
 #include "Core/Macros.h"
 
@@ -41,7 +41,7 @@ void AssetManager::Initialize(Engine* engine)
     m_Factory.RegisterFactory<TemplatedAssetFactory<Material, AssetType::Material>>(AssetType::Material);
     m_Factory.RegisterFactory<TemplatedAssetFactory<StaticMesh, AssetType::StaticMesh>>(AssetType::StaticMesh);
 
-	std::filesystem::recursive_directory_iterator iterator(Files::ContentFolderPath);
+	std::filesystem::recursive_directory_iterator iterator(FileHelper::ContentFolderPath);
 	for (const std::filesystem::directory_entry& entry : iterator)
 	{
 		if (entry.is_directory()) continue;
@@ -65,12 +65,11 @@ void AssetManager::Deinitialize()
 {
     ED_LOG(AssetManager, info, "Started deinitializing")
     
-    for (std::pair<const UUID, std::shared_ptr<Asset>>& input : m_Assets)
+    for (std::pair<const uint64_t, std::shared_ptr<Asset>>& input : m_Assets)
     {
-        const UUID& id = input.first;
         std::shared_ptr<Asset>& asset = input.second;
         
-        std::string path = Files::GetSavePath(asset->GetImportParameters()->Path, asset->GetType(), asset->GetName());
+        std::string path = FileHelper::GetSavePath(asset->GetImportParameters()->Path, asset->GetType(), asset->GetName());
         
         ED_LOG(AssetManager, info, "Started saving asset: {}", path)
         
@@ -175,7 +174,7 @@ std::shared_ptr<Asset> AssetManager::LoadAsset(const std::string& path) const
     return asset;
 }
 
-std::shared_ptr<Asset> AssetManager::LoadAsset(UUID id) const
+std::shared_ptr<Asset> AssetManager::LoadAsset(uint64_t id) const
 {
     if (!m_Assets.count(id))
     {
@@ -183,11 +182,10 @@ std::shared_ptr<Asset> AssetManager::LoadAsset(UUID id) const
     }
 
     std::shared_ptr<Asset> asset = m_Assets.at(id);
-    asset->SetShouldLoadData(true);
 
     if (!asset->HasData())
     {
-        std::string path = Files::GetSavePath(asset->GetImportParameters()->Path, asset->GetType(), asset->GetName());
+        std::string path = FileHelper::GetSavePath(asset->GetImportParameters()->Path, asset->GetType(), asset->GetName());
         Archive archive(path, ArchiveMode::Read);
         archive & asset;
     }
@@ -195,12 +193,12 @@ std::shared_ptr<Asset> AssetManager::LoadAsset(UUID id) const
     return asset;
 }
 
-const std::map<UUID, std::shared_ptr<Asset>>& AssetManager::GetAssets() const
+const std::map<uint64_t, std::shared_ptr<Asset>>& AssetManager::GetAssets() const
 {
     return m_Assets;
 }
 
-std::shared_ptr<Asset> AssetManager::GetAsset(UUID id) const
+std::shared_ptr<Asset> AssetManager::GetAsset(uint64_t id) const
 {
     return m_Assets.count(id) ? m_Assets.at(id) : nullptr;
 }

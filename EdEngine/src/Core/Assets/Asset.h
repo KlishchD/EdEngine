@@ -21,7 +21,7 @@ public:
 
 	Asset(const std::string& name = "Empty");
 
-	UUID GetId() const;
+	uint64_t GetId() const;
 	virtual AssetType GetType() const;
 
 	virtual bool HasData() const;
@@ -51,7 +51,7 @@ public:
 
 	virtual ~Asset() = default;
 protected:
-	UUID m_Id;
+	uint64_t m_Id;
 
 	bool m_bHasData = false;
 

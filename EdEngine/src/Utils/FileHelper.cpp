@@ -1,8 +1,8 @@
-﻿#include "Files.h"
-
+﻿#include "FileHelper.h"
 #include <filesystem>
+#include <random>
 
-std::string Files::GetSaveExtensions(AssetType type)
+std::string FileHelper::GetSaveExtensions(AssetType type)
 {
     switch (type)
     {
@@ -14,7 +14,7 @@ std::string Files::GetSaveExtensions(AssetType type)
     return "";
 }
 
-std::string Files::GetSavePath(const std::string& pathStr, AssetType type, const std::string& name)
+std::string FileHelper::GetSavePath(const std::string& pathStr, AssetType type, const std::string& name)
 {
     std::filesystem::path path(pathStr);
 
@@ -22,4 +22,12 @@ std::string Files::GetSavePath(const std::string& pathStr, AssetType type, const
     std::string directoryPath = path.remove_filename().string();
 
     return directoryPath + filename + GetSaveExtensions(type);
+}
+
+uint64_t FileHelper::MakeRandomID()
+{
+    static std::random_device rd;
+    static std::mt19937_64 eng(rd());
+    static std::uniform_int_distribution<uint64_t> distribution;
+    return distribution(eng);
 }

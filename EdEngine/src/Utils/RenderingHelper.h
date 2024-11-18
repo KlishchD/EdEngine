@@ -6,7 +6,7 @@
 #include "Core/Rendering/Types.h"
 #include "Core/Math/Transform.h"
 #include "Core/Math/Camera.h"
-#include "Utils/Files.h"
+#include "Utils/FileHelper.h"
 
 #include "Core/Assets/ImportParameters/TextureImportParameters.h"
 

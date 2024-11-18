@@ -71,6 +71,13 @@ glm::vec3 Transform::GetEulerRotation() const
     return glm::degrees(glm::eulerAngles(m_Rotation));
 }
 
+void Transform::Serialize(Archive& ar)
+{
+    ar & m_Translation;
+    ar & m_Rotation;
+    ar & m_Scale;
+}
+
 Transform Transform::operator+(const Transform& transform) const
 {
 	return { m_Translation + transform.m_Translation, m_Rotation * transform.m_Rotation, m_Scale * transform.m_Scale };

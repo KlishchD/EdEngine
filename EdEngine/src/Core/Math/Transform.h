@@ -1,22 +1,9 @@
 ﻿#pragma once
 
-#include <boost/serialization/access.hpp>
-#include <boost/serialization/version.hpp>
-
 #include "Utils/SerializationHelper.h"
 
 class Transform
 {
-    friend class boost::serialization::access;
-
-    template <class Archive>
-    void serialize(Archive& ar, uint32_t version)
-    {
-        ar & m_Translation;
-        ar & m_Rotation;
-        ar & m_Scale;
-    }
-    
 public:
     Transform() = default;
     Transform(glm::vec3 translation, glm::quat rotation, glm::vec3 scale);
@@ -49,10 +36,9 @@ public:
 
     glm::vec3 GetEulerRotation() const;
 
+    void Serialize(Archive& ar);
 private:
     glm::vec3 m_Translation = glm::vec3(0.0f);
     glm::quat m_Rotation = glm::quat(glm::vec3(0.0f, 0.0f, 0.0f));
     glm::vec3 m_Scale = glm::vec3(1.0f);
 };
-
-BOOST_CLASS_VERSION(Transform, 1)

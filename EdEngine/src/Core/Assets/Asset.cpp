@@ -1,12 +1,13 @@
 ﻿#include "Asset.h"
 #include "Core/Macros.h"
+#include "Utils/FileHelper.h"
 
-Asset::Asset(const std::string& name) : Super(name), m_Id(UUIDs::random_generator()())
+Asset::Asset(const std::string& name) : Super(name), m_Id(FileHelper::MakeRandomID())
 {
 
 }
 
-UUID Asset::GetId() const
+uint64_t Asset::GetId() const
 {
 	return m_Id;
 }
@@ -70,12 +71,10 @@ void Asset::ResetState()
 
 void Asset::Serialize(Archive& archive)
 {
-	if (archive.GetMode() == ArchiveMode::Write)
-	{
-		archive & GetType();
-	}
-
 	Super::Serialize(archive);
+
+	AssetType type = GetType();
+	archive & type;
 
 	archive & m_Id;
 	archive & m_Name;

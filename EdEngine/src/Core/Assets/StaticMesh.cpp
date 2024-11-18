@@ -92,11 +92,6 @@ void StaticSubmesh::CreateBuffers()
 
 void StaticSubmesh::Serialize(Archive& archive)
 {
-    if (archive.GetMode() == ArchiveMode::Write)
-    {
-	    archive & GetType();
-    }
-
     archive & m_Name;
 }
 
@@ -124,6 +119,11 @@ void StaticMesh::SetSubmeshes(const std::vector<std::shared_ptr<StaticSubmesh>>&
     m_Submeshes = submeshes;
 }
 
+void StaticMesh::SetSubmeshes(std::vector<std::shared_ptr<StaticSubmesh>>&& submeshes)
+{
+    m_Submeshes = std::move(submeshes);
+}
+
 void StaticMesh::AddSubmesh(std::shared_ptr<StaticSubmesh> submesh)
 {
 	m_Submeshes.push_back(submesh);
@@ -134,13 +134,6 @@ void StaticMesh::ResetState()
     
 }
 
-void StaticMesh::SerializeData(Archive& archive)
-{
-    Super::SerializeData(archive);
-
-    archive & m_Submeshes;
-}
-
 void StaticMesh::FreeData()
 {
     Super::FreeData();
@@ -149,4 +142,31 @@ void StaticMesh::FreeData()
     {
         submesh->FreeData();
     }
+}
+
+void StaticMesh::Serialize(Archive& archive)
+{
+    Super::Serialize(archive);
+
+    archive & m_Submeshes;
+}
+
+void StaticMesh::SerializeData(Archive& archive)
+{
+    Super::SerializeData(archive);
+
+    for (std::shared_ptr<StaticSubmesh> submesh : m_Submeshes)
+    {
+        submesh->SerializeData(archive);
+    }
+}
+
+void Vertex::Serialize(Archive& ar)
+{
+    ar & Position;
+    ar & Color;
+    ar & TextureCoordinates;
+    ar & Normal;
+    ar & Tangent;
+    ar & Bitangent;
 }

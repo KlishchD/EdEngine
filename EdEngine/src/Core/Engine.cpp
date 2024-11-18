@@ -2,7 +2,7 @@
 #include "imgui.h"
 #include "Window.h"
 #include "Utils/RenderingHelper.h"
-#include "Utils/Files.h"
+#include "Utils/FileHelper.h"
 #include "Widget.h"
 #include "LogManager.h"
 #include "Assets/AssetManager.h"
@@ -68,10 +68,10 @@ void Engine::Initialize()
 		manager->Initialize(this);
 	}
 
-	m_Scene = assetManager->LoadScene(Files::ContentFolderPath + R"(scenes\main_test.edscene)");
+	m_Scene = assetManager->LoadScene(FileHelper::ContentFolderPath + R"(scenes\main_test.edscene)");
 	if (!m_Scene)
 	{
-		m_Scene = assetManager->CreateScene(Files::ContentFolderPath + R"(scenes\main_test.edscene)");
+		m_Scene = assetManager->CreateScene(FileHelper::ContentFolderPath + R"(scenes\main_test.edscene)");
 	}
 
 	m_Scene->Initialize();

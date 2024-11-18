@@ -2,6 +2,7 @@
 #include "Core/Assets/AssetManager.h"
 #include "Core/Rendering/Textures/Texture2D.h"
 #include "Utils/RenderingHelper.h"
+#include "Utils/FileHelper.h"
 #include "Utils/stb_image.h"
 
 Texture2DImporter::Texture2DImporter(std::shared_ptr<AssetManager> manager) : AssetImporter(manager)
@@ -23,7 +24,7 @@ std::shared_ptr<Asset> Texture2DImporter::Import(std::shared_ptr<AssetImportPara
 	int32_t channals;
 	int32_t pixelSize = Types::GetPixelSize(parameters->Format);
 
-	void* imageData = stbi_load(texturePath.c_str(), &width, &height, &channals, Types::GetChannelNumber(parameters->Format));
+	uint8_t* imageData = stbi_load(texturePath.c_str(), &width, &height, &channals, Types::GetChannelNumber(parameters->Format));
 
 	ED_ASSERT(imageData, "Image data cannot be null")
 
@@ -31,7 +32,7 @@ std::shared_ptr<Asset> Texture2DImporter::Import(std::shared_ptr<AssetImportPara
 	Texture2DData data(width, height, imageData, width * height * pixelSize, true);
 	std::shared_ptr<Texture2D> texture = RenderingHelper::CreateTexture2D(name, parameters, std::move(data));
 
-	std::string savePath = Files::GetSavePath(texturePath, AssetType::Texture2D);
+	std::string savePath = FileHelper::GetSavePath(texturePath, AssetType::Texture2D);
 	Archive archive(savePath, ArchiveMode::Write);
 	archive & texture;
 

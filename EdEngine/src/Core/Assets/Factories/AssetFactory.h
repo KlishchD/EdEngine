@@ -11,7 +11,6 @@ public:
 
 	virtual std::shared_ptr<Asset> Create() = 0;
 	virtual std::shared_ptr<Asset> Create(Archive& archive) = 0;
-	virtual std::shared_ptr<Asset> Load(Archive& archive, bool bShouldLoadData) = 0;
 	virtual AssetType GetType();
 
 	virtual ~AssetFactory() = default;

@@ -6,7 +6,7 @@
 #include "Widgets/OptionsMenuWidget.h"
 #include "Widgets/SceneTreeWidget.h"
 #include "Widgets/ViewportWidget.h"
-#include "Utils/Files.h"
+#include "Utils/FileHelper.h"
 #include "Core/Rendering/Textures/Texture2D.h"
 #include "Core/Rendering/Renderer.h"
 #include "Core/Rendering/Shader.h"

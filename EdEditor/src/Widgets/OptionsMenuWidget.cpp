@@ -5,7 +5,7 @@
 #include "Core/Assets/StaticMesh.h"
 #include "Core/Rendering/Textures/Texture2D.h"
 #include "Core/Scene.h"
-#include "Utils/Files.h"
+#include "Utils/FileHelper.h"
 #include "Utils/RenderingHelper.h"
 #include "Core/Macros.h"
 #include <imgui.h>

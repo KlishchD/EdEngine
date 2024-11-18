@@ -1,5 +1,6 @@
 #include "AssetFactory.h"
 #include "Core/Macros.h"
+#include "Core/Assets/AssetManager.h"
 
 std::shared_ptr<Asset> AssetTypeFactory::Create(AssetType type)
 {
@@ -18,19 +19,16 @@ std::shared_ptr<Asset> AssetTypeFactory::Load(const std::string& path, bool bSho
 	return Load(archive, bShouldLoadData);
 }
 
-std::shared_ptr<Asset> AssetTypeFactory::Load(Archive& arcive, bool bShouldLoadData)
+std::shared_ptr<Asset> AssetTypeFactory::Load(Archive& archive, bool bShouldLoadData)
 {
-	ED_ASSERT(arcive.GetMode() == ArchiveMode::Read, "Archive must be open for reading")
+	ED_ASSERT(archive.GetMode() == ArchiveMode::Read, "Archive must be open for reading");
 
-	Archive tmpArchive(arcive.GetPath(), ArchiveMode::Read);
+	std::shared_ptr<Asset> asset;
+	archive.Serialize(asset, bShouldLoadData);
 	
-	std::string className;
-	tmpArchive & className;
+	m_Manager->RegisterAsset(asset, archive.GetPath());
 
-	AssetType type = AssetType::None;
-	tmpArchive & type;
-	
-	return m_Factories[type]->Load(arcive, bShouldLoadData);
+	return asset;
 }
 
 AssetTypeFactory::AssetTypeFactory(std::shared_ptr<AssetManager> manager) : m_Manager(manager)
