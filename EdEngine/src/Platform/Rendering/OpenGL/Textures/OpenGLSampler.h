@@ -4,6 +4,7 @@
 
 class OpenGLSampler : public Sampler
 {
+public:
 	OpenGLSampler();
 
 	virtual void EnbaleAnisotrophicFiltering(float samples);

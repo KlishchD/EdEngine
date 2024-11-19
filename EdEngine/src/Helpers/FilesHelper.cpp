@@ -24,7 +24,7 @@ std::string FilesHelper::GetSavePath(const std::string& pathStr, AssetType type,
     return directoryPath + filename + GetSaveExtensions(type);
 }
 
-uint64_t FileHelper::MakeRandomID()
+uint64_t FilesHelper::MakeRandomID()
 {
     static std::random_device rd;
     static std::mt19937_64 eng(rd());

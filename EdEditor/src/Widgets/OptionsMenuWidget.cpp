@@ -34,10 +34,10 @@ void OptionsMenuWidget::Tick(float DeltaTime)
     {
         if (ImGui::IsMouseDoubleClicked(0))
         {
-			ED_LOG(Widget, info, "Double cliked")
-		}
+		    	ED_LOG(Widget, info, "Double cliked")
+		    }
 
-        if (ImGui::ImageButton((ImTextureID)m_Icon->GetID(), { ImGui::GetWindowHeight(), ImGui::GetWindowHeight() }, { 0, 1 }, { 1, 0 }, 0, ImVec4(0.14f, 0.14f, 0.14f, 1.00f), {1, 1, 1, 1}))
+        if (ImGui::ImageButton("Options", m_Icon->GetID(), ImVec2(ImGui::GetWindowHeight(), ImGui::GetWindowHeight()), ImVec2(0, 1), ImVec2(1, 0), ImVec4(0.14f, 0.14f, 0.14f, 1.00f), ImVec4(1, 1, 1, 1)))
         {
 
         }

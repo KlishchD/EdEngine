@@ -1,8 +1,8 @@
 ﻿#include "Asset.h"
 #include "Core/Macros.h"
-#include "Utils/FileHelper.h"
+#include "Helpers/FilesHelper.h"
 
-Asset::Asset(const std::string& name) : Super(name), m_Id(FileHelper::MakeRandomID())
+Asset::Asset(const std::string& name) : Super(name), m_Id(FilesHelper::MakeRandomID())
 {
 
 }

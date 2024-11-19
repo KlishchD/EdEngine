@@ -1,0 +1,21 @@
+[submodule "Dependencies/--force"]
+	path = Dependencies/--force
+	url = https://github.com/KlishchD/glfw
+[submodule "GLFW"]
+	path = Dependencies/glfw
+	url = https://github.com/KlishchD/glfw
+[submodule "GLM"]
+	path = Dependencies/glm
+	url = https://github.com/KlishchD/glm
+[submodule "GLEW"]
+	path = Dependencies/glew
+	url = https://github.com/KlishchD/glew
+[submodule "assimp"]
+	path = Dependencies/assimp
+	url = https://github.com/assimp/assimp
+[submodule "fmt"]
+	path = Dependencies/fmt
+	url = https://github.com/fmtlib/fmt
+[submodule "spdlog"]
+	path = Dependencies/spdlog
+	url = https://github.com/gabime/spdlog

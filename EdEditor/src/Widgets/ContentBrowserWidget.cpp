@@ -63,7 +63,7 @@ void ContentBrowserWidget::ContentItems()
                 ImGui::TableNextColumn();
 
                 ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, { 5.0f, 5.0f });
-                if (ImGui::ImageButton(entry.path().string().data(), (void*) m_DirectoryIcon->GetID(), buttonSize, {0.0f, 1.0f}, {1.0f, 0.0f}))
+                if (ImGui::ImageButton(entry.path().string().data(), m_DirectoryIcon->GetID(), buttonSize, {0.0f, 1.0f}, {1.0f, 0.0f}))
                 {
                     m_CurrentFolder = entry.path().string();
                 }
@@ -77,7 +77,7 @@ void ContentBrowserWidget::ContentItems()
                 if (std::shared_ptr<Texture2D> icon = GetTextureByExtension(extension)) {
                     ImGui::TableNextColumn();
 
-                    if (ImGui::ImageButton(entry.path().string().data(), (void*)icon->GetID(), buttonSize, {0.0f, 1.0f}, {1.0f, 0.0f}))
+                    if (ImGui::ImageButton(entry.path().string().data(), icon->GetID(), buttonSize, {0.0f, 1.0f}, {1.0f, 0.0f}))
                     {
                         std::shared_ptr<Asset> asset = m_AssetManager->GetAsset(entry.path().string());
                         m_Editor->SetSelectedAsset(asset);

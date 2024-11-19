@@ -10,7 +10,7 @@ public:
 	
 	virtual void EnbaleAnisotrophicFiltering(const float samples) = 0;
 
-	virtual ~Sampler() = 0;
+	virtual ~Sampler() = default;
 protected:
 	uint32_t m_Id;
 };
