@@ -56,11 +56,6 @@ target_link_libraries(main PUBLIC assimp::assimp)
 add_subdirectory(Dependencies/freetype)
 target_link_libraries(main PUBLIC freetype)
 
-# ---------- FMT ----------
-
-#add_subdirectory(Dependencies/fmt)
-#target_link_libraries(main PUBLIC fmt::fmt)
-
 # ---------- SPDLOG ----------
 
 add_subdirectory(Dependencies/spdlog)
