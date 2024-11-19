@@ -43,7 +43,7 @@ install(TARGETS main DESTINATION ${CMAKE_INSTALL_PREFIX})
 # ---------- OpenGL ----------
 
 find_package(OpenGL REQUIRED)
-include_directories( ${OPENGL_INCLUDE_DIRS})
+include_directories(${OPENGL_INCLUDE_DIRS})
 target_link_libraries(main PUBLIC ${OPENGL_LIBRARIES})
 
 # ---------- ASSIMP ----------
