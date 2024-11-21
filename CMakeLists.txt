@@ -3,14 +3,15 @@ cmake_minimum_required(VERSION 3.26)
 project(EdEditor)
 
 set(CMAKE_CXX_STANDARD 20)
-set(CMAKE_GENERATOR_PLATFORM win32)
-
-set(VCPKG_TARGET_TRIPLET x64-windows-static CACHE STRING "VCPKG Target Triplet to use")
 
 file(GLOB_RECURSE SOURCES EdEditor/src/*.cpp EdEngine/src/*.cpp)
 add_executable(main ${SOURCES} Dependencies/ImGui/imgui.h Dependencies/ImGui/imgui.cpp Dependencies/ImGui/imgui_widgets.cpp Dependencies/ImGui/imgui_tables.cpp Dependencies/ImGui/backends/imgui_impl_opengl3.cpp Dependencies/ImGui/backends/imgui_impl_glfw.cpp Dependencies/ImGui/imgui_widgets.cpp  Dependencies/ImGui/imgui_draw.cpp)
 
 include_directories(EdEditor/src/ EdEngine/src Dependencies/ImGui)
+
+if (WIN32)
+    add_definitions(/DWINDOWS_PLATFORM=1)
+endif (WIN32)
 
 # ---------- GLFW ----------
 
