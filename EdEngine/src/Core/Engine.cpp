@@ -68,10 +68,10 @@ void Engine::Initialize()
 		manager->Initialize(this);
 	}
 
-	m_Scene = assetManager->LoadScene(FilesHelper::ContentFolderPath + R"(scenes\main_test.edscene)");
+	m_Scene = assetManager->LoadScene(FilesHelper::ContentFolderPath + R"(\scenes\main_test.edscene)");
 	if (!m_Scene)
 	{
-		m_Scene = assetManager->CreateScene(FilesHelper::ContentFolderPath + R"(scenes\main_test.edscene)");
+		m_Scene = assetManager->CreateScene(FilesHelper::ContentFolderPath + R"(\scenes\main_test.edscene)");
 	}
 
 	m_Scene->Initialize();

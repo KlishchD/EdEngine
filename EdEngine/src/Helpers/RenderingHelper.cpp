@@ -102,7 +102,7 @@ std::shared_ptr<Shader> RenderingHelper::CreateShader(const std::string& path)
 	std::string source;
 	ShaderType currentShaderType = ShaderType::None;
 	
-	std::string fullPath = FilesHelper::ContentFolderPath + path;
+	std::string fullPath = FilesHelper::ContentFolderPath + "\\" + path;
 
 	std::fstream file(fullPath, std::ios_base::in);
 	std::string line;
@@ -347,25 +347,25 @@ std::shared_ptr<Texture2DImportParameters> RenderingHelper::GetDefaultRoughnessT
 std::shared_ptr<Texture2D> RenderingHelper::ImportBaseColorTexture(const std::string& path)
 {
 	std::shared_ptr<AssetManager> assetManager = Engine::Get().GetManager<AssetManager>();
-	return assetManager->ImportAsset<Texture2D>(AssetType::Texture2D, RenderingHelper::GetDefaultBaseColorTexture2DImportParameters(FilesHelper::ContentFolderPath + path));
+	return assetManager->ImportAsset<Texture2D>(AssetType::Texture2D, RenderingHelper::GetDefaultBaseColorTexture2DImportParameters(FilesHelper::ContentFolderPath + "\\" + path));
 }
 
 std::shared_ptr<Texture2D> RenderingHelper::ImportNormalTexture(const std::string& path)
 {
 	std::shared_ptr<AssetManager> assetManager = Engine::Get().GetManager<AssetManager>();
-	return assetManager->ImportAsset<Texture2D>(AssetType::Texture2D, RenderingHelper::GetDefaultNormalTexture2DImportParameters(FilesHelper::ContentFolderPath + path));
+	return assetManager->ImportAsset<Texture2D>(AssetType::Texture2D, RenderingHelper::GetDefaultNormalTexture2DImportParameters(FilesHelper::ContentFolderPath + "\\" + path));
 }
 
 std::shared_ptr<Texture2D> RenderingHelper::ImportMetalicTexture(const std::string& path)
 {
 	std::shared_ptr<AssetManager> assetManager = Engine::Get().GetManager<AssetManager>();
-	return assetManager->ImportAsset<Texture2D>(AssetType::Texture2D, RenderingHelper::GetDefaultMetalicTexture2DImportParameters(FilesHelper::ContentFolderPath + path));
+	return assetManager->ImportAsset<Texture2D>(AssetType::Texture2D, RenderingHelper::GetDefaultMetalicTexture2DImportParameters(FilesHelper::ContentFolderPath + "\\" + path));
 }
 
 std::shared_ptr<Texture2D> RenderingHelper::ImportRoughnessTexture(const std::string& path)
 {
 	std::shared_ptr<AssetManager> assetManager = Engine::Get().GetManager<AssetManager>();
-	return assetManager->ImportAsset<Texture2D>(AssetType::Texture2D, RenderingHelper::GetDefaultRoughnessTexture2DImportParameters(FilesHelper::ContentFolderPath + path));
+	return assetManager->ImportAsset<Texture2D>(AssetType::Texture2D, RenderingHelper::GetDefaultRoughnessTexture2DImportParameters(FilesHelper::ContentFolderPath + "\\" + path));
 }
 
 std::shared_ptr<Texture2D> RenderingHelper::GetWhiteTexture()
