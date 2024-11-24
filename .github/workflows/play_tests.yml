@@ -10,9 +10,6 @@ jobs:
   build:
     runs-on: self-hosted
 
-    strategy:
-      fail-fast: false
-
     steps:
     - uses: actions/checkout@v4
       with:
@@ -20,8 +17,8 @@ jobs:
 
     - name: Configure CMake
       shell: cmd
-      run: cmake -B build -DCMAKE_BUILD_TYPE=Debug -S .
+      run: cmake -B build -DCMAKE_BUILD_TYPE=Release -S .
 
     - name: Build
       shell: cmd
-      run: cmake --build build --config Debug
+      run: cmake --build build --config Release
