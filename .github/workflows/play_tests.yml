@@ -19,7 +19,9 @@ jobs:
         submodules: recursive
 
     - name: Configure CMake
+      shell: cmd
       run: cmake -B build -DCMAKE_BUILD_TYPE=Debug -S .\EdEngine\EdEngine
 
     - name: Build
+      shell: cmd
       run: cmake --build .\EdEngine\EdEngine\build --config Debug
