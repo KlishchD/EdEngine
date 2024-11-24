@@ -34,59 +34,62 @@ void ContentBrowserWidget::Tick(float DeltaTime)
 
 void ContentBrowserWidget::ContentTree()
 {
-    ImGui::Begin("Content");
-    
-    ImGui::BeginChild("Folders");
+    if (ImGui::Begin("Content"))
+    {
+        if (ImGui::BeginChild("Folders"))
+        {
+            DirectoryStructure(FilesHelper::ContentFolderPath);
 
-    DirectoryStructure(FilesHelper::ContentFolderPath);
+            ImGui::EndChild();
+        }
+    }
 
-    ImGui::EndChild();
-    
     ImGui::End();
 }
 
 void ContentBrowserWidget::ContentItems()
 {
-    ImGui::Begin("Folder");
-
-    ImVec2 buttonSize = { 155.0f, 150.0f };
-    int32_t columns_count = std::max(1, (int32_t) (ImGui::GetWindowWidth() / buttonSize.x));
-
-    PathButtons();
-
-    if (std::filesystem::exists(m_CurrentFolder) && ImGui::BeginTable("files", columns_count))
+    if (ImGui::Begin("Folder"))
     {
-        for (const std::filesystem::directory_entry& entry : std::filesystem::directory_iterator(m_CurrentFolder))
+        ImVec2 buttonSize = { 155.0f, 150.0f };
+        int32_t columns_count = std::max(1, (int32_t)(ImGui::GetWindowWidth() / buttonSize.x));
+
+        PathButtons();
+
+        if (std::filesystem::exists(m_CurrentFolder) && ImGui::BeginTable("files", columns_count))
         {
-            if (entry.is_directory())
+            for (const std::filesystem::directory_entry& entry : std::filesystem::directory_iterator(m_CurrentFolder))
             {
-                ImGui::TableNextColumn();
-
-                ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, { 5.0f, 5.0f });
-                if (ImGui::ImageButton(entry.path().string().data(), m_DirectoryIcon->GetID(), buttonSize, {0.0f, 1.0f}, {1.0f, 0.0f}))
+                if (entry.is_directory())
                 {
-                    m_CurrentFolder = entry.path().string();
-                }
-                ImGui::Text(entry.path().filename().string().data());
-                ImGui::PopStyleVar();
-            }
-            else
-            {
-                std::string extension = entry.path().extension().string();
-
-                if (std::shared_ptr<Texture2D> icon = GetTextureByExtension(extension)) {
                     ImGui::TableNextColumn();
 
-                    if (ImGui::ImageButton(entry.path().string().data(), icon->GetID(), buttonSize, {0.0f, 1.0f}, {1.0f, 0.0f}))
+                    ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, { 5.0f, 5.0f });
+                    if (ImGui::ImageButton(entry.path().string().data(), m_DirectoryIcon->GetID(), buttonSize, { 0.0f, 1.0f }, { 1.0f, 0.0f }))
                     {
-                        std::shared_ptr<Asset> asset = m_AssetManager->GetAsset(entry.path().string());
-                        m_Editor->SetSelectedAsset(asset);
+                        m_CurrentFolder = entry.path().string();
                     }
-                    ImGui::Text(entry.path().filename().replace_extension().string().data());
+                    ImGui::Text(entry.path().filename().string().data());
+                    ImGui::PopStyleVar();
+                }
+                else
+                {
+                    std::string extension = entry.path().extension().string();
+
+                    if (std::shared_ptr<Texture2D> icon = GetTextureByExtension(extension)) {
+                        ImGui::TableNextColumn();
+
+                        if (ImGui::ImageButton(entry.path().string().data(), icon->GetID(), buttonSize, { 0.0f, 1.0f }, { 1.0f, 0.0f }))
+                        {
+                            std::shared_ptr<Asset> asset = m_AssetManager->GetAsset(entry.path().string());
+                            m_Editor->SetSelectedAsset(asset);
+                        }
+                        ImGui::Text(entry.path().filename().replace_extension().string().data());
+                    }
                 }
             }
+            ImGui::EndTable();
         }
-        ImGui::EndTable();
     }
 
     ImGui::End();

@@ -1,5 +1,6 @@
 #pragma once
 
+#include "EdTime.h"
 #include <memory>
 #include <widemath.h>
 #include <cstdint>
@@ -8,6 +9,7 @@
 #include <vector>
 #include <map>
 #include <unordered_map>
+#include <functional>
 
 #include <glm/mat4x4.hpp>
 #include <glm/fwd.hpp>

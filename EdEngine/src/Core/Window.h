@@ -24,7 +24,8 @@ public:
     virtual glm::vec2 GetMousePosition() = 0;
     virtual glm::vec2 GetMousePositionNormalized() = 0;
 
-    virtual void Move(glm::vec2 delta) = 0;
+    void SetMousePositionOverideState(bool state);
+    void SetNormalizedMousePosition(glm::vec2 position);
 
     std::string GetTitle() const;
     uint32_t GetWidth() const;
@@ -40,4 +41,7 @@ protected:
 	std::string m_Title;
 	uint32_t m_Width;
 	uint32_t m_Height;
+
+    bool m_MousePositionOverideEnabled = false;
+    glm::vec2 m_MousePositionOverride;
 };

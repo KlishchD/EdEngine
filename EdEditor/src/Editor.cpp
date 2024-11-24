@@ -6,6 +6,7 @@
 #include "Widgets/OptionsMenuWidget.h"
 #include "Widgets/SceneTreeWidget.h"
 #include "Widgets/ViewportWidget.h"
+#include "Widgets/RendererStatsWidget.h"
 #include "Helpers/FilesHelper.h"
 #include "Core/Rendering/Textures/Texture2D.h"
 #include "Core/Rendering/Renderer.h"
@@ -28,8 +29,6 @@ void Editor::Initialize(Engine* engine)
 
     m_AssetManager = engine->GetManager<AssetManager>();
 
-    engine->SubscribeToUpdate([this](float DeltaTime) { Update(DeltaTime); });
-
     SetUpInputs(engine);
 
     m_MousePosition = m_Window->GetMousePosition();
@@ -41,6 +40,7 @@ void Editor::Initialize(Engine* engine)
     m_Engine->AddWidget<ViewportWidget>();
     m_Engine->AddWidget<ContentBrowserWidget>();
     m_Engine->AddWidget<AssetDetails>();
+    m_Engine->AddWidget<RendererStatsWidget>();
 }
 
 void Editor::Update(float DeltaTime)
@@ -55,32 +55,32 @@ void Editor::Update(float DeltaTime)
 
 void Editor::SetUpInputs(Engine* engine)
 {
-    engine->SubscribeToInput(Key::W, { Action::Repeat, Action::Press }, [this]() { if (m_IsViewportActive) m_MovementDirection.z = 1.0f; });
-    engine->SubscribeToInput(Key::W, Action::Release, [this]() { m_MovementDirection.z = 0.0f; });
+    engine->SubscribeToInput(InputKey::W, InputAction::PressAndRepeat,          [this](InputKey key, InputAction action) { m_MovementDirection.z = 1.0f;                                                                            });
+    engine->SubscribeToInput(InputKey::W, InputAction::Release,                 [this](InputKey key, InputAction action) { m_MovementDirection.z = 0.0f;                                                                            });
 
-    engine->SubscribeToInput(Key::S, { Action::Repeat, Action::Press }, [this]() { if (m_IsViewportActive) m_MovementDirection.z = -1.0f; });
-    engine->SubscribeToInput(Key::S, Action::Release, [this]() { m_MovementDirection.z = 0.0f; });
+    engine->SubscribeToInput(InputKey::S, InputAction::PressAndRepeat,          [this](InputKey key, InputAction action) { m_MovementDirection.z = -1.0f;                                                                           });
+    engine->SubscribeToInput(InputKey::S, InputAction::Release,                 [this](InputKey key, InputAction action) { m_MovementDirection.z = 0.0f;                                                                            });
 
-    engine->SubscribeToInput(Key::A, { Action::Repeat, Action::Press }, [this]() { if (m_IsViewportActive) m_MovementDirection.x = -1.0f; });
-    engine->SubscribeToInput(Key::A, Action::Release, [this]() { m_MovementDirection.x = 0.0f; });
+    engine->SubscribeToInput(InputKey::A, InputAction::PressAndRepeat,          [this](InputKey key, InputAction action) { m_MovementDirection.x = -1.0f;                                                                           });
+    engine->SubscribeToInput(InputKey::A, InputAction::Release,                 [this](InputKey key, InputAction action) { m_MovementDirection.x = 0.0f;                                                                            });
 
-    engine->SubscribeToInput(Key::D, { Action::Repeat, Action::Press }, [this]() { if (m_IsViewportActive) m_MovementDirection.x = 1.0f; });
-    engine->SubscribeToInput(Key::D, Action::Release, [this]() { m_MovementDirection.x = 0.0f; });
+    engine->SubscribeToInput(InputKey::D, InputAction::PressAndRepeat,          [this](InputKey key, InputAction action) { m_MovementDirection.x = 1.0f;                                                                            });
+    engine->SubscribeToInput(InputKey::D, InputAction::Release,                 [this](InputKey key, InputAction action) { m_MovementDirection.x = 0.0f;                                                                            });
 
-    engine->SubscribeToInput(Key::E, { Action::Repeat, Action::Press }, [this]() { if (m_IsViewportActive) m_MovementDirection.y = 1.0f; });
-    engine->SubscribeToInput(Key::E, Action::Release, [this]() { m_MovementDirection.y = 0.0f; });
+    engine->SubscribeToInput(InputKey::E, InputAction::PressAndRepeat,          [this](InputKey key, InputAction action) { m_MovementDirection.y = 1.0f;                                                                            });
+    engine->SubscribeToInput(InputKey::E, InputAction::Release,                 [this](InputKey key, InputAction action) { m_MovementDirection.y = 0.0f;                                                                            });
 
-    engine->SubscribeToInput(Key::Q, { Action::Repeat, Action::Press }, [this]() { if (m_IsViewportActive) m_MovementDirection.y = -1.0f; });
-    engine->SubscribeToInput(Key::Q, Action::Release, [this]() { m_MovementDirection.y = 0.0f; });
+    engine->SubscribeToInput(InputKey::Q, InputAction::PressAndRepeat,          [this](InputKey key, InputAction action) { m_MovementDirection.y = -1.0f;                                                                           });
+    engine->SubscribeToInput(InputKey::Q, InputAction::Release,                 [this](InputKey key, InputAction action) { m_MovementDirection.y = 0.0f;                                                                            });
     
-    engine->SubscribeToInput(Key::LeftMouseClick, Action::Press, [this]() { if (m_IsViewportActive) m_IsLeftMouseButtonClicked = true; });
-    engine->SubscribeToInput(Key::LeftMouseClick, Action::Release, [this]() { m_IsLeftMouseButtonClicked = false; });
+    engine->SubscribeToInput(InputKey::LeftMouseClick, InputAction::Press,      [this](InputKey key, InputAction action) { m_IsLeftMouseButtonClicked = true;                                                                       });
+    engine->SubscribeToInput(InputKey::LeftMouseClick, InputAction::Release,    [this](InputKey key, InputAction action) { m_IsLeftMouseButtonClicked = false;                                                                      });
     
-    engine->SubscribeToInput(Key::RightMouseClick, Action::Press, [this]() { if (m_IsViewportActive) m_IsRightMouseButtonClicked = true; });
-    engine->SubscribeToInput(Key::RightMouseClick, Action::Release, [this]() { m_IsRightMouseButtonClicked = false; });
+    engine->SubscribeToInput(InputKey::RightMouseClick, InputAction::Press,     [this](InputKey key, InputAction action) { m_IsRightMouseButtonClicked = true;                                                                      });
+    engine->SubscribeToInput(InputKey::RightMouseClick, InputAction::Release,   [this](InputKey key, InputAction action) { m_IsRightMouseButtonClicked = false;                                                                     });
 
-    engine->SubscribeToInput(Key::U, Action::Press, [this]() { m_Renderer->SetSSAOEnabled(!m_Renderer->IsSSAOEnabled()); });
-    engine->SubscribeToInput(Key::B, Action::Press, [this]() { m_Renderer->SetAAMethod(m_Renderer->GetAAMethod() == AAMethod::None ? AAMethod::TAA : AAMethod::None); });
+    engine->SubscribeToInput(InputKey::U, InputAction::Press,                   [this](InputKey key, InputAction action) { m_Renderer->SetSSAOEnabled(!m_Renderer->IsSSAOEnabled());                                                });
+    engine->SubscribeToInput(InputKey::B, InputAction::Press,                   [this](InputKey key, InputAction action) { m_Renderer->SetAAMethod(m_Renderer->GetAAMethod() == AAMethod::None ? AAMethod::TAA : AAMethod::None);   });
 }
 
 void Editor::SetSelectedActor(std::shared_ptr<Actor> actor)

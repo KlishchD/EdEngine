@@ -54,4 +54,6 @@ void SpotLightShadowPass::Execute()
 			}
 		}
 	}
+
+    m_Renderer->SpotLightsShadowsDrawn++;
 }

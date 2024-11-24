@@ -120,12 +120,27 @@ void Renderer::Update(float deltaSeconds)
 	std::shared_ptr<Scene> scene = m_Engine->GetLoadedScene();
 
 	// TODO: This is probably not the best way to do it :)
+	// A (me from future): Kinda is, actually, there is no way around collecting all the objects
+	// from the scene and there is no unified/pretty way to do it). But it would be preferable
+	// if data to be drawn was collected, not components from which it is extracted,
+	// there is no reason for the renderer to know anything about components.
 
 	m_Components = scene->GetAllComponents();
 	m_StaticMeshes.clear();
 	m_DirectionalLights.clear();
 	m_SpotLights.clear();
 	m_PointLights.clear();
+
+	StaticMeshesDrawn = 0;
+
+	PointLightsShaded = 0;
+	PointLightsShadowsDrawn = 0;
+
+	SpotLightsShaded = 0;
+	SpotLightsShadowsDrawn = 0;
+
+	DirectionalLightsShaded = 0;
+	DirectionalLightsShadowsDrawn = 0;
 
 	for (const std::shared_ptr<Component>& component : m_Components)
 	{

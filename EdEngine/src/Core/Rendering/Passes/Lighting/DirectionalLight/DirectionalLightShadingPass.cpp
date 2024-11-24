@@ -55,4 +55,6 @@ void DirectionalLightShadingRenderPass::Execute()
 	SubmitShaderParameters();
 
 	m_Renderer->SubmitFullScreenQuad();
+
+	m_Renderer->DirectionalLightsShaded++;
 }

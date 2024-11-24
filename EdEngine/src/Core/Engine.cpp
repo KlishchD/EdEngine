@@ -109,6 +109,11 @@ void Engine::Update()
 
 	m_Scene->Update(m_DeltaSeconds);
 
+	for (std::shared_ptr<BaseManager> manager : m_Managers)
+	{
+		manager->Update(m_DeltaSeconds);
+	}
+
 	PushUpdate(m_DeltaSeconds);
 	
 	m_Renderer->Update(m_DeltaSeconds);
@@ -126,38 +131,55 @@ void Engine::Update()
 	m_IsRunning = m_Window->IsRunning();
 }
 
-void Engine::InputAction(Key key, Action action)
+void Engine::RecieveInputAction(InputKey key, InputAction action)
 {
-	for (InputEvent& event: m_InputEvents)
+	for (InputEvent& event : m_InputEvents)
 	{
-		if (event.Key == key && event.Action == action)
+		if (Input::KeysMatch(event.Key, key) && Input::ActionsMatch(event.Action, action))
 		{
-			event.Response();
+			event.Response(key, action);
 		}
 	}
 }
 
-void Engine::SubscribeToInput(const InputEvent& inputEvent)
+InputEventHandle Engine::SubscribeToInput(const InputEvent& inputEvent)
 {
 	m_InputEvents.push_back(inputEvent);
+	return inputEvent.Handle;
 }
 
-void Engine::SubscribeToInput(Key key, Action action, std::function<void()> response)
+InputEventHandle Engine::SubscribeToInput(InputKey key, InputAction action, std::function<void(InputKey, InputAction)> response)
 {
-	SubscribeToInput( { key, action, response });
+	return SubscribeToInput( { key, action, response });
 }
 
-void Engine::SubscribeToInput(Key key, const std::vector<Action>& actions, std::function<void()> response)
+InputEventHandle Engine::SubscribeToInput(std::function<void(InputKey, InputAction)> response)
 {
-	for (const Action& action: actions)
+	return SubscribeToInput( { InputKey::AnyKey, InputAction::AnyAction, response });
+}
+
+void Engine::UnsubscribeFromInput(InputEventHandle handle)
+{
+	int32_t index = -1;
+
+	for (uint32_t i = 0; i < m_InputEvents.size(); ++i)
 	{
-		SubscribeToInput(key, action, response);
+		if (m_InputEvents[i].Handle == handle)
+		{
+			index = i;
+			break;
+		}
+	}
+
+	if (index != -1)
+	{
+		m_InputEvents.erase(m_InputEvents.begin() + index);
 	}
 }
 
-void Engine::SubscribeToUpdate(std::function<void(float)> function)
+void Engine::SubscribeToUpdate(std::function<void(float)> response)
 {
-	m_UpdateSubscribers.push_back(function);    
+	m_UpdateSubscribers.push_back(response);
 }
 
 void Engine::AddWidget(std::shared_ptr<Widget> widget)

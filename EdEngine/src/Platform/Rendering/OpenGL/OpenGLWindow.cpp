@@ -57,13 +57,13 @@ OpenGLWindow::OpenGLWindow(WindowSpecification specification): Window(specificat
 
 	glfwSetKeyCallback(m_Window, [](GLFWwindow* inWindow, int32_t key, int32_t scancode, int32_t action, int32_t mods)
 	{
-		Engine::Get().InputAction(Input::ConvertGLFWInputKey(key), Input::ConvertGLFWInputAction(action));
+		Engine::Get().RecieveInputAction(Input::ConvertGLFWInputKey(key), Input::ConvertGLFWInputAction(action));
 		ED_LOG(Input, info, "Keyboard key {} action {}", key, action)
 	});
 
 	glfwSetMouseButtonCallback(m_Window, [](GLFWwindow* inWindow, int button, int action, int mods)
 	{
-		Engine::Get().InputAction(Input::ConvertGLFWInputKey(button), Input::ConvertGLFWInputAction(action));
+		Engine::Get().RecieveInputAction(Input::ConvertGLFWInputKey(button), Input::ConvertGLFWInputAction(action));
 		ED_LOG(Input, info, "Mouse button {} action {}", button, action)
 	});
 
@@ -222,24 +222,19 @@ void OpenGLWindow::Resize(int32_t width, int32_t height)
 
 glm::vec2 OpenGLWindow::GetMousePosition()
 {
-	glm::dvec2 position;
-	glfwGetCursorPos(m_Window, &position.x, &position.y);
-	return position;
+	return GetMousePositionNormalized() * glm::vec2(m_Width, m_Height);
 }
 
 glm::vec2 OpenGLWindow::GetMousePositionNormalized()
 {
+	if (m_MousePositionOverideEnabled)
+	{
+		return m_MousePositionOverride;
+	}
+
 	glm::dvec2 position;
 	glfwGetCursorPos(m_Window, &position.x, &position.y);
 	return { position.x / m_Width, position.y / m_Height };
-}
-
-void OpenGLWindow::Move(glm::vec2 delta)
-{
-	glm::ivec2 position;
-	glfwGetWindowPos(m_Window, &position.x, &position.y);
-	position += delta;
-	glfwSetWindowPos(m_Window, position.x, position.y);
 }
 
 void* OpenGLWindow::GetNativeWindow()

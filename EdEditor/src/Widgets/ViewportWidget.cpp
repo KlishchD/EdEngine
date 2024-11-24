@@ -19,20 +19,21 @@ void ViewportWidget::Tick(float DeltaTime)
 
     ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, { 0.0f, 0.0f});
 
-    ImGui::Begin("Viewport");
-    
-    ImVec2 viewportSize = ImGui::GetContentRegionAvail();
-    if (m_ViewportSize.x != viewportSize.x || m_ViewportSize.y != viewportSize.y)
+    if (ImGui::Begin("Viewport"))
     {
-        m_ViewportSize.x = static_cast<int32_t>(viewportSize.x);
-        m_ViewportSize.y = static_cast<int32_t>(viewportSize.y);
-        m_Renderer->ResizeViewport(m_ViewportSize);
+        ImVec2 viewportSize = ImGui::GetContentRegionAvail();
+        if (m_ViewportSize.x != viewportSize.x || m_ViewportSize.y != viewportSize.y)
+        {
+            m_ViewportSize.x = static_cast<int32_t>(viewportSize.x);
+            m_ViewportSize.y = static_cast<int32_t>(viewportSize.y);
+            m_Renderer->ResizeViewport(m_ViewportSize);
+        }
+
+        //m_Editor->SetViewportIsActive(ImGui::IsWindowHovered());
+
+        ImGui::Image(m_Renderer->GetViewportTexture()->GetID(), viewportSize, { 0, 1 }, { 1, 0 });
     }
 
-    m_Editor->SetViewportIsActive(ImGui::IsWindowHovered());
-    
-    ImGui::Image(m_Renderer->GetViewportTexture()->GetID(), viewportSize, { 0, 1 }, { 1, 0 });
-    
     ImGui::End();
 
     ImGui::PopStyleVar();

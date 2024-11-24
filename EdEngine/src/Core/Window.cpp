@@ -4,6 +4,16 @@ Window::Window(WindowSpecification specification): m_Width(specification.Width),
 {
 }
 
+void Window::SetMousePositionOverideState(bool state)
+{
+    m_MousePositionOverideEnabled = state;
+}
+
+void Window::SetNormalizedMousePosition(glm::vec2 position)
+{
+    m_MousePositionOverride = position;
+}
+
 std::string Window::GetTitle() const
 {
     return m_Title;

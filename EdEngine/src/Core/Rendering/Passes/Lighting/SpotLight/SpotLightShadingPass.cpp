@@ -94,6 +94,8 @@ void SpotLightShadingPass::Execute()
 	m_Context->SetVertexBuffer(m_Parameters.LightMeshVBO);
 	m_Context->SetIndexBuffer(m_Parameters.LightMeshIBO);
 	m_Context->Draw();
+
+	m_Renderer->SpotLightsShaded++;
 }
 
 void SpotLightShadingPass::SetShadowSamplesBlockCount(uint32_t count)

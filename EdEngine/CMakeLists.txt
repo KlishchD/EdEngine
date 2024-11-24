@@ -44,8 +44,6 @@ set_target_properties(GLEW PROPERTIES IMPORTED_LOCATION ${DEPENDENCIES_PATH}/GLE
 
 target_link_libraries(EdEngine PUBLIC GLEW)
 
-install(TARGETS EdEngine DESTINATION ${CMAKE_INSTALL_PREFIX})
-
 # ---------- GLFW ----------
 
 set(GLFW_BUILD_DOCS OFF CACHE BOOL "" FORCE)

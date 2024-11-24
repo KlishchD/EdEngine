@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.26)
 
-project(EdEditor)
+project(EdTest)
 
 set(CMAKE_CXX_STANDARD 20)
 
@@ -8,7 +8,7 @@ set(CMAKE_CXX_STANDARD 20)
 
 set(SOURCES_PATH "${CMAKE_CURRENT_LIST_DIR}/src")
 file(GLOB_RECURSE SOURCES ${SOURCES_PATH}/*.cpp ${SOURCES_PATH}/*.h)
-add_executable(EdEditor ${SOURCES})
+add_library(EdTest ${SOURCES})
 
 include_directories(${SOURCES_PATH})
 
@@ -22,11 +22,8 @@ endforeach()
 # ---------- EdEngine ---------
 
 include_directories(${EdEngine_INCLUDE_DIRS})
-target_link_libraries(EdEditor EdEngine)
+target_link_libraries(EdTest EdEngine)
 
-# ---------- EdTest -----------
+# ------------------------------
 
-if (${ENABLE_ED_TEST} EQUAL 1)
-  include_directories(${EdTest_INCLUDE_DIRS})
-  target_link_libraries(EdEditor EdTest)
-endif()
+set(${PROJECT_NAME}_INCLUDE_DIRS ${PROJECT_SOURCE_DIR}/src CACHE INTERNAL "${PROJECT_NAME}: Include Directories" FORCE)

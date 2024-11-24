@@ -1,9 +1,5 @@
 ﻿#pragma once
 
-#include <chrono>
-#include <functional>
-#include <vector>
-
 #include "Input.h"
 #include "BaseManager.h"
 
@@ -29,19 +25,19 @@ public:
     
     void Update();
 
-    // Input Events
+    // TODO: Inputs should not be here, engine should not know anything about them
+    void RecieveInputAction(InputKey key, InputAction action);
 
-    void InputAction(Key key, Action action);
+    InputEventHandle SubscribeToInput(const InputEvent& inputEvent);
+    InputEventHandle SubscribeToInput(InputKey key, InputAction action, std::function<void(InputKey, InputAction)> response);
+    InputEventHandle SubscribeToInput(std::function<void(InputKey, InputAction)> response);
 
-    void SubscribeToInput(const InputEvent& inputEvent);
-    void SubscribeToInput(Key key, Action action, std::function<void()> response);
-    void SubscribeToInput(Key key, const std::vector<Action>& actions, std::function<void()> response);
+    void UnsubscribeFromInput(InputEventHandle handle);
 
-    // Update Events
 
-    void SubscribeToUpdate(std::function<void(float)> function);
+    void SubscribeToUpdate(std::function<void(float)> response);
 
-    template <class T>
+    template<typename T>
     void AddWidget()
     {
         std::shared_ptr<Widget> widget = std::make_shared<T>();
@@ -52,7 +48,16 @@ public:
     void AddWidget(std::shared_ptr<Widget> widget);
     void AddManager(std::shared_ptr<BaseManager> manager);
     
-    template <class T>
+    template<typename T>
+    std::shared_ptr<T> AddManager()
+    {
+        std::shared_ptr<T> manager = std::make_shared<T>();
+        m_Managers.push_back(manager);
+        manager->Initialize(this);
+        return manager;
+    }
+
+    template<typename T>
     std::shared_ptr<T> GetManager() const
     {
         for (std::shared_ptr<BaseManager> manager: m_Managers)

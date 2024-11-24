@@ -15,7 +15,7 @@ public:
     virtual void Initialize(Engine* engine) override;
     virtual void Deinitialize() override;
 
-    void Update(float DeltaTime);
+    virtual void Update(float DeltaTime) override;
 
     void SetUpInputs(Engine* engine);
     

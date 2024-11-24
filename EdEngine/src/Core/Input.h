@@ -1,10 +1,10 @@
 ﻿#pragma once
 
 #include "Ed.h"
-#include <cstdint>
-#include <functional>
 
-enum class Key: uint32_t
+using InputEventHandle = uint32_t;
+
+enum class InputKey: uint32_t
 {
     W,
     S,
@@ -22,29 +22,42 @@ enum class Key: uint32_t
 
     LeftMouseClick,
     RightMouseClick,
-    
+ 
+    AnyKey,
     WrongKey
 };
 
-enum class Action : uint32_t
+enum class InputAction : uint32_t
 {
     Press = 1,
     Release = 2,
+    PressAndRelease = 3,
     Repeat = 4,
-
-    WrongAction
+    PressAndRepeat = 5,
+    ReleaseAndRepeat = 6,
+    AnyAction = 7,
+    WrongAction = 8
 };
 
 class Input
 {
 public:
-    static Key ConvertGLFWInputKey(int32_t key);
-    static Action ConvertGLFWInputAction(int32_t action);
+    static InputKey ConvertGLFWInputKey(int32_t key);
+    static InputAction ConvertGLFWInputAction(int32_t action);
+    static InputEventHandle GenerateHandle();
+
+    static bool KeysMatch(InputKey expected, InputKey actual);
+    static bool ActionsMatch(InputAction expected, InputAction actual);
 };
 
 struct InputEvent
 {
-    Key Key;
-    Action Action;
-    std::function<void()> Response;
+    InputEvent(InputKey key, InputAction action, std::function<void(InputKey, InputAction)> response) : Handle(Input::GenerateHandle()), Key(key), Action(action), Response(response)
+    {
+    }
+
+    InputEventHandle Handle;
+    InputKey Key;
+    InputAction Action;
+    std::function<void(InputKey, InputAction)> Response;
 };

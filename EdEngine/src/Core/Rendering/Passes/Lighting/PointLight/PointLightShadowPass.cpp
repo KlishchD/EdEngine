@@ -57,4 +57,6 @@ void PointLightShadowPass::Execute()
 			}
 		}
 	}
+
+    m_Renderer->PointLightsShadowsDrawn++;
 }

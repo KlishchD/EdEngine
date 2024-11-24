@@ -31,6 +31,7 @@ class StaticSubmesh;
 
 class RenderGraph;
 
+// TODO: It is not spoused to be manager !!!
 ED_CLASS(Renderer) : public BaseManager
 {
     ED_CLASS_BODY(Renderer, BaseManager)
@@ -82,6 +83,18 @@ public:
 
 	void BeginUIFrame();
 	void EndUIFrame();
+public:
+    uint32_t StaticMeshesDrawn = 0;
+
+    uint32_t PointLightsShaded = 0;
+    uint32_t PointLightsShadowsDrawn = 0;
+
+    uint32_t SpotLightsShaded = 0;
+    uint32_t SpotLightsShadowsDrawn = 0;
+
+    uint32_t DirectionalLightsShaded = 0;
+    uint32_t DirectionalLightsShadowsDrawn = 0;
+
 private:
     bool m_bSSAOEnabled = true;
     bool m_bIsBloomEnabled = false;

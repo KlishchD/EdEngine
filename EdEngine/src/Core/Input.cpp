@@ -1,36 +1,52 @@
 #include "Input.h"
 #include "Rendering/EdRendering.h"
 
-Key Input::ConvertGLFWInputKey(int32_t key)
+InputKey Input::ConvertGLFWInputKey(int32_t key)
 {
     switch (key)
     {
-    case GLFW_KEY_W:     return Key::W;
-    case GLFW_KEY_S:     return Key::S;
-    case GLFW_KEY_A:     return Key::A;
-    case GLFW_KEY_D:     return Key::D;
-    case GLFW_KEY_E:     return Key::E;
-    case GLFW_KEY_Q:     return Key::Q;
-    case GLFW_KEY_U:     return Key::U;
-    case GLFW_KEY_B:     return Key::B;
-    case GLFW_KEY_LEFT:  return Key::LeftArrow;
-    case GLFW_KEY_RIGHT: return Key::RightArrow;
-    case GLFW_KEY_UP:    return Key::UpArrow;
-    case GLFW_KEY_DOWN:  return Key::DownArrow;
-    case GLFW_KEY_SPACE: return Key::Space;
-    case GLFW_MOUSE_BUTTON_LEFT: return Key::LeftMouseClick;
-    case GLFW_MOUSE_BUTTON_RIGHT: return Key::RightMouseClick;
+    case GLFW_KEY_W:     return InputKey::W;
+    case GLFW_KEY_S:     return InputKey::S;
+    case GLFW_KEY_A:     return InputKey::A;
+    case GLFW_KEY_D:     return InputKey::D;
+    case GLFW_KEY_E:     return InputKey::E;
+    case GLFW_KEY_Q:     return InputKey::Q;
+    case GLFW_KEY_U:     return InputKey::U;
+    case GLFW_KEY_B:     return InputKey::B;
+    case GLFW_KEY_LEFT:  return InputKey::LeftArrow;
+    case GLFW_KEY_RIGHT: return InputKey::RightArrow;
+    case GLFW_KEY_UP:    return InputKey::UpArrow;
+    case GLFW_KEY_DOWN:  return InputKey::DownArrow;
+    case GLFW_KEY_SPACE: return InputKey::Space;
+    case GLFW_MOUSE_BUTTON_LEFT: return InputKey::LeftMouseClick;
+    case GLFW_MOUSE_BUTTON_RIGHT: return InputKey::RightMouseClick;
     }
-    return Key::WrongKey;
+    return InputKey::WrongKey;
 }
 
-Action Input::ConvertGLFWInputAction(int32_t action)
+InputAction Input::ConvertGLFWInputAction(int32_t action)
 {
     switch (action)
     {
-    case GLFW_PRESS:   return Action::Press;
-    case GLFW_RELEASE: return Action::Release;
-    case GLFW_REPEAT:  return Action::Repeat;
+    case GLFW_PRESS:   return InputAction::Press;
+    case GLFW_RELEASE: return InputAction::Release;
+    case GLFW_REPEAT:  return InputAction::Repeat;
     }
-    return Action::WrongAction;
+    return InputAction::WrongAction;
+}
+
+InputEventHandle Input::GenerateHandle()
+{
+    static InputEventHandle handle = 0;
+    return handle++;
+}
+
+bool Input::KeysMatch(InputKey expected, InputKey actual)
+{
+    return expected == actual || expected == InputKey::AnyKey;
+}
+
+bool Input::ActionsMatch(InputAction expected, InputAction actual)
+{
+    return static_cast<int32_t>(expected) & static_cast<int32_t>(actual);
 }

@@ -16,8 +16,6 @@ public:
 	virtual glm::vec2 GetMousePosition() override;
 	virtual glm::vec2 GetMousePositionNormalized() override;
 
-	virtual void Move(glm::vec2 delta) override;
-
 	virtual void* GetNativeWindow() override;
 
 	virtual std::shared_ptr<RenderingContext> GetContext() override;

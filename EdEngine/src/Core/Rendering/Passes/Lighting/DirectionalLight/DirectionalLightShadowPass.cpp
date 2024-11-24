@@ -53,6 +53,8 @@ void DirectionalLightShadowPass::Execute()
 			}
 		}
 	}
+
+    m_Renderer->DirectionalLightsShadowsDrawn++;
 }
 
 std::vector<glm::mat4> DirectionalLightShadowPass::CalculateShadowViewProjectionMatrices(std::shared_ptr<DirectionalLightComponent> light) const

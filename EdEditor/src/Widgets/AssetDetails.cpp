@@ -27,17 +27,18 @@ void AssetDetails::Tick(float DeltaTime)
     if (std::shared_ptr<Asset> asset = m_Editor->GetSelectedAsset())
     {
         m_AssetManager->LoadAsset(asset->GetId());
-    
-        ImGui::Begin("Asset Details");
-        
-        switch (asset->GetType())
+
+        if (ImGui::Begin("Asset Details"))
         {
-        case AssetType::StaticMesh: StaticMeshDetails(std::static_pointer_cast<StaticMesh>(asset)); break;
-        case AssetType::Texture2D: Texture2DDetails(std::static_pointer_cast<Texture2D>(asset)); break;
-        case AssetType::CubeTexture: CubeTextureDetails(std::static_pointer_cast<CubeTexture>(asset)); break;
-        case AssetType::Material: MaterialDetails(std::static_pointer_cast<Material>(asset)); break;
+            switch (asset->GetType())
+            {
+            case AssetType::StaticMesh: StaticMeshDetails(std::static_pointer_cast<StaticMesh>(asset)); break;
+            case AssetType::Texture2D: Texture2DDetails(std::static_pointer_cast<Texture2D>(asset)); break;
+            case AssetType::CubeTexture: CubeTextureDetails(std::static_pointer_cast<CubeTexture>(asset)); break;
+            case AssetType::Material: MaterialDetails(std::static_pointer_cast<Material>(asset)); break;
+            }
         }
-    
+
         ImGui::End();
     }
 }

@@ -62,6 +62,8 @@ void GBufferPass::Execute()
 					m_Context->SetVertexBuffer(submesh->GetVertexBuffer());
 					m_Context->SetIndexBuffer(submesh->GetIndexBuffer());
 					m_Context->Draw();
+
+					m_Renderer->StaticMeshesDrawn++;
 				}
 			}
 		}

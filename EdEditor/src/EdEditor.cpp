@@ -1,4 +1,5 @@
 #include "Core/Engine.h"
+#include "PlayRecorder.h"
 #include "Editor.h"
 
 int main(int argc, char* argv[])
@@ -8,9 +9,11 @@ int main(int argc, char* argv[])
     engine.Start();
     engine.Initialize();
 
-    std::shared_ptr<Editor> editor = std::make_shared<Editor>();
+    engine.AddManager<Editor>();
 
-    engine.AddManager(editor);
+#if ENABLE_ED_TEST == 1
+    engine.AddManager<PlayRecorder>();
+#endif
 
     while (true) 
     {

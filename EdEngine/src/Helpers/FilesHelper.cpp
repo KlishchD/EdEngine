@@ -2,6 +2,16 @@
 #include <filesystem>
 #include <random>
 
+void FilesHelper::CreateContentDirectory(std::string realtivePath)
+{
+    std::filesystem::create_directories(ContentFolderPath + "\\" + realtivePath);
+}
+
+void FilesHelper::CreateDirectory(std::string path)
+{
+    std::filesystem::create_directories(path);
+}
+
 std::string FilesHelper::GetSaveExtensions(AssetType type)
 {
     switch (type)
