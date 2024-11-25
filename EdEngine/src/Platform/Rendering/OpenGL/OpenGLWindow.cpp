@@ -7,6 +7,7 @@
 #include <backends/imgui_impl_glfw.h>
 #include <backends/imgui_impl_opengl3.h>
 #include "Helpers/PlatformHelper.h"
+#include "Helpers/FilesHelper.h"
 
 std::vector<Window*> s_Windows;
 
@@ -173,6 +174,9 @@ OpenGLWindow::OpenGLWindow(WindowSpecification specification): Window(specificat
 	style.TabRounding = 4;
 
 	PlatformHelper::DisableTitleBar(*this);
+
+	std::string configPath = FilesHelper::ContentFolderPath + "\\" + "imgui.ini";
+	ImGui::LoadIniSettingsFromDisk(configPath.c_str());
 
 	ED_LOG(Window, info, "Finished creating window")
 }

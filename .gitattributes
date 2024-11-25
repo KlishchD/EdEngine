@@ -58,3 +58,6 @@
 #*.rtf   diff=astextplain
 #*.RTF   diff=astextplain
 *.lib filter=lfs diff=lfs merge=lfs -text
+*.edmesh filter=lfs diff=lfs merge=lfs -text
+*.edtexture filter=lfs diff=lfs merge=lfs -text
+*.edmaterial filter=lfs diff=lfs merge=lfs -text
