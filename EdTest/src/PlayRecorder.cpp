@@ -20,6 +20,41 @@ void PlayRecorder::Initialize(Engine* engine)
 
 void PlayRecorder::Update(float DeltaSeconds)
 {
+#if RUN_PLAY_TESTS_AND_EXIT
+    if (m_AutoPlayDelayTimer >= 0)
+    {
+        m_AutoPlayDelayTimer -= DeltaSeconds;
+    }
+    else if (!IsRecordingReplayActive())
+    {
+        if (m_AutoPlayedRecording >= m_AutoPlayRecodings.size())
+        {
+            m_Engine->Stop();
+        }
+        else
+        {
+            int32_t index = -1;
+
+            for (int32_t i = 0; i < m_AutoPlayRecodings.size(); ++i)
+            {
+                const PlayRecording& recording = m_PlayRecordigs[i];
+                if (recording.Name == m_AutoPlayRecodings[i])
+                {
+                    index = i;
+                    break;
+                }
+            }
+
+            if (index != -1)
+            {
+                ReplayRecording(m_AutoPlayedRecording);
+            }
+
+            m_AutoPlayedRecording++;
+        }
+    }
+#endif
+
     if (IsRecordingActive())
     {
         PlayRecording& recording = m_PlayRecordigs[m_CurrentlyRecordedRecording];

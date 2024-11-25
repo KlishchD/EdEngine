@@ -198,4 +198,10 @@ protected:
             return GetTime() < event.GetTime();
         }
     };
+
+#ifdef RUN_PLAY_TESTS_AND_EXIT
+    std::vector<std::string> m_AutoPlayRecodings = { PLAY_RECORDINGS_NAMES };
+    uint32_t m_AutoPlayedRecording = 0;
+    float m_AutoPlayDelayTimer = 3.0f;
+#endif
 };

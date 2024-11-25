@@ -18,7 +18,7 @@ jobs:
 
     - name: Configure CMake
       shell: cmd
-      run: cmake -B build -DCMAKE_BUILD_TYPE=Release -S .
+      run: cmake -B build -DCMAKE_BUILD_TYPE=Release -D RUN_CORE_PLAY_TESTS=1 -S .
 
     - name: Build
       shell: cmd
@@ -27,3 +27,9 @@ jobs:
     - name: Run app
       shell: cmd
       run: build\EdEditor\Release\EdEditor.exe
+    
+    - name: Upload run results
+      uses: actions/upload-artifact@v4
+      with:
+        name: my-artifact
+        path: resources/PlayRecordings

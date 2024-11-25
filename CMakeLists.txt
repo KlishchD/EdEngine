@@ -14,14 +14,23 @@ endif (WIN32)
 string(REPLACE "/" "\\\\" RESOURCES_PATH "${CMAKE_CURRENT_LIST_DIR}/resources")
 add_definitions(/DRESOURCES_PATH="${RESOURCES_PATH}")
 
-
-add_subdirectory(EdEngine)
-
 if (${ENABLE_ED_TEST} EQUAL 1)
-	add_subdirectory(EdTest)
 	add_definitions(/DENABLE_ED_TEST=1)
 else()
 	add_definitions(/DENABLE_ED_TEST=0)
+endif()
+
+add_subdirectory(EdEngine)
+
+if (${RUN_CORE_PLAY_TESTS} EQUAL 1)
+	add_definitions(/DPLAY_RECORDINGS_NAMES="fly_over","spin","walk_bottom_floor","walk_top_floor")
+	add_definitions(/DRUN_PLAY_TESTS_AND_EXIT=1)
+
+	message("Added core tests")
+endif()
+
+if (${ENABLE_ED_TEST} EQUAL 1)
+	add_subdirectory(EdTest)
 endif()
 
 add_subdirectory(EdEditor)

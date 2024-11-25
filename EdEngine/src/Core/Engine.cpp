@@ -57,7 +57,7 @@ void Engine::Initialize()
 	ED_LOG(Engine, info, "Started initializing");
 
 #undef CreateWindow // TODO: REMOVE IT :)
-	m_Window = RenderingHelper::CreateWindow({ "EdEngine", 1280, 720 });
+	m_Window = RenderingHelper::CreateWindow({ "EdEngine", 1920, 1080 });
 #define CreateWindow CreateWindowW
 
 	std::shared_ptr<AssetManager> assetManager = std::make_shared<AssetManager>();
@@ -128,7 +128,7 @@ void Engine::Update()
 	m_Renderer->EndUIFrame();
 
 	m_Window->Update();
-	m_IsRunning = m_Window->IsRunning();
+	m_IsRunning &= m_Window->IsRunning();
 }
 
 void Engine::RecieveInputAction(InputKey key, InputAction action)
