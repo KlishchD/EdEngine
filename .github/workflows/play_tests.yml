@@ -23,3 +23,7 @@ jobs:
     - name: Build
       shell: cmd
       run: cmake --build build --config Release
+    
+    - name: Run app
+      shell: cmd
+      run: build\EdEditor\Release\EdEditor.exe
