@@ -1,30 +1,22 @@
-﻿#include "ContentBrowserWidget.h"
-#include "Core/Engine.h"
+﻿#include "EdEditor.h"
+#include "ContentBrowserWidget.h"
 #include "Helpers/FilesHelper.h"
 #include "Helpers/RenderingHelper.h"
-#include "Editor.h"
-#include "Core/Assets/AssetManager.h"
-#include "Core/Rendering/Textures/Texture2D.h"
-#include <filesystem>
-#include <imgui.h>
+#include "Helpers/AssetHelper.h"
 
 void ContentBrowserWidget::Initialize()
 {
     Widget::Initialize();
 
-    Engine& engine = Engine::Get();
-    m_Editor = engine.GetManager<Editor>();
-    m_AssetManager = engine.GetManager<AssetManager>();
-
-    m_DirectoryIcon = RenderingHelper::ImportBaseColorTexture("Editor\\icons\\directory.png");
-    m_TextureIcon = RenderingHelper::ImportBaseColorTexture("Editor\\icons\\texture.png");
-    m_MaterialIcon = RenderingHelper::ImportBaseColorTexture("Editor\\icons\\material.png");
-    m_MeshIcon = RenderingHelper::ImportBaseColorTexture("Editor\\icons\\mesh.png");
-
-    m_CurrentFolder = FilesHelper::ContentFolderPath;
+    m_DirectoryIcon = AssetHelper::ImportOrLoadTexture(ContentPath("Editor\\icons\\directory.png"), "Editor\\icons\\", TextureAsset::Albedo, "DirectoryIcon", PixelFormat::RGBA8F, 5);
+    m_TextureIcon = AssetHelper::ImportOrLoadTexture(ContentPath("Editor\\icons\\texture.png"), "Editor\\icons\\", TextureAsset::Albedo, "TextureIcon", PixelFormat::RGBA8F, 5);
+    m_MaterialIcon = AssetHelper::ImportOrLoadTexture(ContentPath("Editor\\icons\\material.png"), "Editor\\icons\\", TextureAsset::Albedo, "MaterialIcon", PixelFormat::RGBA8F, 5);
+    m_MeshIcon = AssetHelper::ImportOrLoadTexture(ContentPath("Editor\\icons\\mesh.png"), "Editor\\icons\\", TextureAsset::Albedo, "MeshIcon", PixelFormat::RGBA8F, 5);
+    m_SceneIcon = AssetHelper::ImportOrLoadTexture(ContentPath("Editor\\icons\\scene.png"), "Editor\\icons\\", TextureAsset::Albedo, "SceneIcon", PixelFormat::RGBA8F, 5);
+    m_PrefabIcon = AssetHelper::ImportOrLoadTexture(ContentPath("Editor\\icons\\prefab.png"), "Editor\\icons\\", TextureAsset::Albedo, "PrefabIcon", PixelFormat::RGBA8F, 5);
 }
 
-void ContentBrowserWidget::Tick(float DeltaTime)
+void ContentBrowserWidget::Tick(f32 DeltaTime)
 {
     Widget::Tick(DeltaTime);
 
@@ -38,7 +30,7 @@ void ContentBrowserWidget::ContentTree()
     {
         if (ImGui::BeginChild("Folders"))
         {
-            DirectoryStructure(FilesHelper::ContentFolderPath);
+            DirectoryStructure(Files::GetContentPath());
 
             ImGui::EndChild();
         }
@@ -52,39 +44,44 @@ void ContentBrowserWidget::ContentItems()
     if (ImGui::Begin("Folder"))
     {
         ImVec2 buttonSize = { 155.0f, 150.0f };
-        int32_t columns_count = std::max(1, (int32_t)(ImGui::GetWindowWidth() / buttonSize.x));
+        i32 columns_count = std::max(1, (i32)(ImGui::GetWindowWidth() / buttonSize.x));
 
         PathButtons();
 
-        if (std::filesystem::exists(m_CurrentFolder) && ImGui::BeginTable("files", columns_count))
+        if (m_CurrentFolder.IsValid() && ImGui::BeginTable("files", columns_count))
         {
-            for (const std::filesystem::directory_entry& entry : std::filesystem::directory_iterator(m_CurrentFolder))
+            TemporaryArray<Path> paths = m_CurrentFolder.GetAllPathsTemporary(false);
+            for (const Path& path : paths)
             {
-                if (entry.is_directory())
+                if (path.IsDirectory())
                 {
                     ImGui::TableNextColumn();
 
                     ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, { 5.0f, 5.0f });
-                    if (ImGui::ImageButton(entry.path().string().data(), m_DirectoryIcon->GetID(), buttonSize, { 0.0f, 1.0f }, { 1.0f, 0.0f }))
+                    if (ImGui::ImageButton(path.Get(), m_DirectoryIcon->TextureView.GPUHandlePtr(), buttonSize))
                     {
-                        m_CurrentFolder = entry.path().string();
+                        m_CurrentFolder = path.Content();
                     }
-                    ImGui::Text(entry.path().filename().string().data());
+                    ImGui::Text(path.GetFileName());
                     ImGui::PopStyleVar();
                 }
                 else
                 {
-                    std::string extension = entry.path().extension().string();
-
-                    if (std::shared_ptr<Texture2D> icon = GetTextureByExtension(extension)) {
+                    if (TextureAsset* icon = GetTextureByExtension(path.GetExtension())) {
                         ImGui::TableNextColumn();
 
-                        if (ImGui::ImageButton(entry.path().string().data(), icon->GetID(), buttonSize, { 0.0f, 1.0f }, { 1.0f, 0.0f }))
+                        Asset* asset = AssetManager::Get().GetAsset(path.Content());
+                        if (asset && asset->AssetType == TextureAsset::Type && asset->HasData)
                         {
-                            std::shared_ptr<Asset> asset = m_AssetManager->GetAsset(entry.path().string());
-                            m_Editor->SetSelectedAsset(asset);
+                            icon = static_cast<TextureAsset*>(asset->Data);
                         }
-                        ImGui::Text(entry.path().filename().replace_extension().string().data());
+
+                        if (ImGui::ImageButton(path.Get(), icon->TextureView.GPUHandlePtr(), buttonSize))
+                        {
+                            Asset* asset = AssetManager::Get().GetAsset(path.Content());
+                            Editor::Get().SetSelectedAsset(asset);
+                        }
+                        ImGui::Text(path.GetFileName());
                     }
                 }
             }
@@ -95,45 +92,36 @@ void ContentBrowserWidget::ContentItems()
     ImGui::End();
 }
 
-void ContentBrowserWidget::DirectoryStructure(const std::string& path)
+void ContentBrowserWidget::DirectoryStructure(const Path& path)
 {
     if (ImGui::TreeNode("resources"))
     {
         if (ImGui::IsItemClicked() || ImGui::IsItemToggledOpen())
         {
-            m_CurrentFolder = path;
+            m_CurrentFolder = path.Content();
         }
 
-        DirectoryStructureInternal(std::filesystem::directory_iterator(path));
+        DirectoryStructureInternal(path.GetAllPathsTemporary(false));
     
         ImGui::TreePop();
     }
 }
 
-void ContentBrowserWidget::DirectoryStructureInternal(const std::filesystem::directory_iterator& directory_iterator)
+void ContentBrowserWidget::DirectoryStructureInternal(const TemporaryArray<Path>& paths)
 {
-    for (const std::filesystem::directory_entry& entry: directory_iterator)
+    for (const Path& path: paths)
     {
-        if (entry.is_directory())
+        if (path.IsDirectory())
         {
-            bool bHasSubdirectories = false;
-            for (const std::filesystem::directory_entry& subentry: std::filesystem::directory_iterator(entry))
-            {
-                if (subentry.is_directory())
-                {
-                    bHasSubdirectories = true;
-                    break;
-                }
-            }
-
-            if (ImGui::TreeNodeEx(entry.path().filename().string().data(), bHasSubdirectories ? ImGuiTreeNodeFlags_None : ImGuiTreeNodeFlags_Leaf))
+            bool bHasSubdirectories = path.HasSubdirectories();
+            if (ImGui::TreeNodeEx(path.GetFileName(), bHasSubdirectories ? ImGuiTreeNodeFlags_None : ImGuiTreeNodeFlags_Leaf))
             {
                 if (ImGui::IsItemClicked() || ImGui::IsItemToggledOpen())
                 {
-                    m_CurrentFolder = entry.path().string();
+                    m_CurrentFolder = path.Content();
                 }
                 
-                DirectoryStructureInternal(std::filesystem::directory_iterator(entry));
+                DirectoryStructureInternal(path.GetAllPathsTemporary(false));
                 
                 ImGui::TreePop();
             }
@@ -143,49 +131,57 @@ void ContentBrowserWidget::DirectoryStructureInternal(const std::filesystem::dir
 
 void ContentBrowserWidget::PathButtons()
 {
-    if (ImGui::Button("<##back", {30, 30}))
+    if (ImGui::Button("<##back", {30, 30}) && m_CurrentFolder != Files::GetContentPath())
     {
-        int32_t lastPosition = m_CurrentFolder.find_last_of(R"(\)");
-        if (lastPosition != std::string::npos)
-        {
-            m_CurrentFolder = m_CurrentFolder.substr(0, lastPosition);
-        }
+        m_CurrentFolder.Pop();
     }
     ImGui::SameLine();
+
+    TemporaryArray<Pair<ccstr8, u32>> folders = m_CurrentFolder.GetAllFoldersTemporary();
     
-    int32_t currentPosition = 2;
+    u32 popCount = 0;
+
     bool bSeenContentFolder = false;
-    while (currentPosition != std::string::npos)
+    for (u32 index = 0; index < folders.GetSize(); ++index)
     {
-        int32_t nextPosition = m_CurrentFolder.find_first_of(R"(\)", currentPosition + 1);
-        if (nextPosition == std::string::npos) break;
+        const Pair<ccstr8, u32>& folder = folders[index];
 
-        std::string substr = m_CurrentFolder.substr(currentPosition + 1, nextPosition - currentPosition - 1);
-
-        if (substr == FilesHelper::ContentFolderName)
+        if (!bSeenContentFolder && strncmp(Files::ContentFolderName, folder.First, folder.Second) == 0)
         {
             bSeenContentFolder = true;
         }
 
         if (bSeenContentFolder)
         {
-            if (ImGui::Button(substr.data(), { 0, 30 }))
+            ImGui::PushID(static_cast<i32>(reinterpret_cast<iptr>(folder.First)));
+
+            std::string_view view(folder.First, folder.Second);
+            if (ImGui::Button(std::string(view).c_str(), {0, 30}))
             {
-                m_CurrentFolder = m_CurrentFolder.substr(0, nextPosition);
+                popCount = folders.GetSize() - index - 1;
             }
+
+            ImGui::PopID();
+
             ImGui::SameLine();
         }
-        
-        currentPosition = nextPosition;
+    }
+
+    while (popCount > 0)
+    {
+        m_CurrentFolder.Pop();
+        --popCount;
     }
 
     ImGui::NewLine();
 }
 
-std::shared_ptr<Texture2D> ContentBrowserWidget::GetTextureByExtension(const std::string& extension) const
+TextureAsset* ContentBrowserWidget::GetTextureByExtension(const std::string& extension) const
 {
-    if (extension == ".edmesh") return m_MeshIcon;
-    if (extension == ".edtexture") return m_TextureIcon;
-    if (extension == ".edmaterial") return m_MaterialIcon;
+    if (extension == Files::FullMeshAssetExtension) return m_MeshIcon;
+    if (extension == Files::FullTextureAssetExtension) return m_TextureIcon;
+    if (extension == Files::FullMaterialAssetExtension) return m_MaterialIcon;
+    if (extension == Files::FullSceneAssetExtension) return m_SceneIcon;
+    if (extension == Files::FullPrefabAssetExtension) return m_PrefabIcon;
     return nullptr;
 }

@@ -1,27 +1,20 @@
 ﻿#pragma once
 
-#include <memory>
-#include <string>
-#include "Core/Widget.h"
+#include "EdEditor.h"
 
-class Asset;
-class StaticMesh;
-class Texture2D;
-class CubeTexture;
-class Material;
-
-class AssetDetails: public Widget
+class AssetDetailsWidget : public Widget
 {
 public:
-    virtual void Initialize() override;
-    virtual void Tick(float DeltaTime) override;
+    virtual void Tick(f32 DeltaTime) override;
 private:
-    std::shared_ptr<class Editor> m_Editor;
-    std::shared_ptr<class AssetManager> m_AssetManager;
+    Editor* m_Editor;
+    AssetManager* m_AssetManager;
 
-    void BaseDetails(std::shared_ptr<Asset> asset);
-    void StaticMeshDetails(std::shared_ptr<StaticMesh> asset);
-    void Texture2DDetails(std::shared_ptr<Texture2D> asset);
-    void CubeTextureDetails(std::shared_ptr<CubeTexture> asset);
-    void MaterialDetails(std::shared_ptr<Material> material);
+    void BaseDetails(Asset* asset);
+    void StaticMeshDetails(StaticMeshAsset* asset);
+    void TextureDetails(TextureAsset* asset);
+    void MaterialDetails(MaterialAsset* asset);
+    void PrefabDetails(PrefabAsset* asset);
+
+    void SelectTexture(ccstr8 lable, TextureAsset*& asset);
 };

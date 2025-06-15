@@ -3,7 +3,7 @@
 #include "Core/Scene.h"
 #include "Core/Objects/PlayerActor.h"
 #include "Core/Window.h"
-#include "Core/Rendering/Renderer.h"
+#include "/Renderer.h"
 #include "Helpers/FilesHelper.h"
 #include "PlayRecorderControlsWidget.h"
 
@@ -18,7 +18,7 @@ void PlayRecorder::Initialize(Engine* engine)
     m_Window = engine->GetWindow();
 }
 
-void PlayRecorder::Update(float DeltaSeconds)
+void PlayRecorder::Update(f32 DeltaSeconds)
 {
 #if RUN_PLAY_TESTS_AND_EXIT
     if (m_AutoPlayDelayTimer >= 0)
@@ -33,9 +33,9 @@ void PlayRecorder::Update(float DeltaSeconds)
         }
         else
         {
-            int32_t index = -1;
+            i32 index = -1;
 
-            for (int32_t i = 0; i < m_AutoPlayRecodings.size(); ++i)
+            for (i32 i = 0; i < m_AutoPlayRecodings.size(); ++i)
             {
                 const PlayRecording& recording = m_PlayRecordigs[i];
                 if (recording.Name == m_AutoPlayRecodings[i])
@@ -83,7 +83,7 @@ void PlayRecorder::Update(float DeltaSeconds)
         {
             std::vector<ReplayEvent> events;
             
-            for (uint32_t i = m_LastReplayedInput; i < recording.Inputs.size(); ++i)
+            for (u32 i = m_LastReplayedInput; i < recording.Inputs.size(); ++i)
             {
                 if (recording.Inputs[i].Time < m_ReplayTime)
                 {
@@ -94,7 +94,7 @@ void PlayRecorder::Update(float DeltaSeconds)
                 }
             }
 
-            for (uint32_t i = m_LastReplayedFrame; i < recording.Frames.size(); ++i)
+            for (u32 i = m_LastReplayedFrame; i < recording.Frames.size(); ++i)
             {
                 if (recording.Frames[i].Time < m_ReplayTime)
                 {
@@ -209,7 +209,7 @@ bool PlayRecorder::IsRecordingNameValid(const std::string name) const
     return true;
 }
 
-void PlayRecorder::ReplayRecording(uint32_t index)
+void PlayRecorder::ReplayRecording(u32 index)
 {
     ED_ASSERT(m_CurrentlyReplayedRecording == -1, "Can not start replay when another is not finished.");
     ED_ASSERT(m_CurrentlyRecordedRecording == -1, "Can not replay a recording when one is being recorded.");
@@ -253,7 +253,7 @@ bool PlayRecorder::IsRecordingReplayActive() const
     return m_CurrentlyReplayedRecording != -1;
 }
 
-void PlayRecorder::SavePlayRecording(uint32_t index)
+void PlayRecorder::SavePlayRecording(u32 index)
 {
     ED_ASSERT(index >= 0 && index < m_PlayRecordigs.size(), "Attempted to save non existing recording.");
     
@@ -262,7 +262,7 @@ void PlayRecorder::SavePlayRecording(uint32_t index)
     archive & recording;
 }
 
-void PlayRecorder::CollectRunStats(uint32_t index)
+void PlayRecorder::CollectRunStats(u32 index)
 {
     ED_ASSERT(index >= 0 && index < m_PlayRecordigs.size(), "Attempted collect stats for non existing recording.");
 

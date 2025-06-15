@@ -1,32 +1,32 @@
-#include "Core/Engine.h"
-#include "PlayRecorder.h"
-#include "Editor.h"
+#include "EdEditor.h"
 
-int main(int argc, char* argv[])
+#if ENABLE_ED_TEST == 1
+#   include "PlayRecorder.h"
+#endif
+
+i32 main(i32 argc, c8* argv[])
 {
     Engine& engine = Engine::Create();
 
     engine.Start();
     engine.Initialize();
 
-    engine.AddManager<Editor>();
+    {
+        Editor editor;
+
+        editor.Initialize(&engine);
 
 #if ENABLE_ED_TEST == 1
-    engine.AddManager<PlayRecorder>();
+        engine.CreateManager<PlayRecorder>();
 #endif
 
-    while (true) 
-    {
-        if (engine.IsRunning())
+        while (engine.IsRunning())
         {
             engine.Update();
         }
-        else
-        {
-            engine.Deinitialize();
-            break;
-        }
     }
+
+    engine.Deinitialize();
 
     Engine::Delete();
 

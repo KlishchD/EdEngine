@@ -1,0 +1,80 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Math">
+      <UniqueIdentifier>{88171a49-fb81-4720-8046-6365f0ceb63c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Helpers">
+      <UniqueIdentifier>{0a7ab3ef-81df-4e35-b7d9-b798754498ba}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Collections">
+      <UniqueIdentifier>{9cd04d9a-30ae-4072-b1d0-eabd113d7d41}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="src\Helpers\FilesHelper.h">
+      <Filter>Helpers</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Helpers\InputHelper.h">
+      <Filter>Helpers</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Helpers\MathHelper.h">
+      <Filter>Helpers</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Math\Camera.h">
+      <Filter>Math</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Math\Transform.h">
+      <Filter>Math</Filter>
+    </ClInclude>
+    <ClInclude Include="src\InputManager.h" />
+    <ClInclude Include="src\LogManager.h" />
+    <ClInclude Include="src\Macros.h" />
+    <ClInclude Include="src\Memory.h" />
+    <ClInclude Include="src\Archive.h" />
+    <ClInclude Include="src\Class.h" />
+    <ClInclude Include="src\EdCore.h" />
+    <ClInclude Include="src\EdTime.h" />
+    <ClInclude Include="src\GameObject.h" />
+    <ClInclude Include="src\GameObjectFactory.h" />
+    <ClInclude Include="src\PoolAllocator.h" />
+    <ClInclude Include="src\BitMask.h" />
+    <ClInclude Include="src\Collections\Array.h">
+      <Filter>Collections</Filter>
+    </ClInclude>
+    <ClInclude Include="src\FreeListAllocator.h" />
+    <ClInclude Include="src\File.h" />
+    <ClInclude Include="src\Strings.h" />
+    <ClInclude Include="src\Console.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="src\Helpers\InputHelper.cpp">
+      <Filter>Helpers</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Helpers\MathHelper.cpp">
+      <Filter>Helpers</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Helpers\FilesHelper.cpp">
+      <Filter>Helpers</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Math\Transform.cpp">
+      <Filter>Math</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Math\Camera.cpp">
+      <Filter>Math</Filter>
+    </ClCompile>
+    <ClCompile Include="src\LogManager.cpp" />
+    <ClCompile Include="src\Memory.cpp" />
+    <ClCompile Include="src\Archive.cpp" />
+    <ClCompile Include="src\EdCore.cpp" />
+    <ClCompile Include="src\GameObject.cpp" />
+    <ClCompile Include="src\InputManager.cpp" />
+    <ClCompile Include="src\EdTime.cpp" />
+    <ClCompile Include="src\File.cpp" />
+    <ClCompile Include="src\Strings.cpp" />
+    <ClCompile Include="src\Console.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <Natvis Include="src\EdCore.natvis" />
+  </ItemGroup>
+</Project>

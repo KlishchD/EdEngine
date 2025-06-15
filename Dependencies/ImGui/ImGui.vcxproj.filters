@@ -1,0 +1,27 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <ClCompile Include="imgui.cpp" />
+    <ClCompile Include="imgui_demo.cpp" />
+    <ClCompile Include="imgui_draw.cpp" />
+    <ClCompile Include="imgui_tables.cpp" />
+    <ClCompile Include="imgui_widgets.cpp" />
+    <ClCompile Include="backends\imgui_impl_glfw.cpp">
+      <Filter>backends</Filter>
+    </ClCompile>
+    <ClCompile Include="backends\imgui_impl_dx12.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="imgui.h" />
+    <ClInclude Include="imgui_internal.h" />
+    <ClInclude Include="backends\imgui_impl_glfw.h">
+      <Filter>backends</Filter>
+    </ClInclude>
+    <ClInclude Include="backends\imgui_impl_dx12.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="backends">
+      <UniqueIdentifier>{4ef4db44-e2a6-4d44-8e78-81da3b4dbb38}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+</Project>

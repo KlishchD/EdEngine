@@ -1,9 +1,6 @@
 #pragma once
 
-#include "Core/Ed.h"
-#include "Core/BaseManager.h"
-#include "Core/Input.h"
-#include "Helpers/Serializable.h"
+#include "EdCore.h"
 
 class Window;
 
@@ -51,16 +48,16 @@ struct StatRecord
 {
     DurationType FrameTime;
 
-    uint32_t StaticMeshesDrawn;
+    u32 StaticMeshesDrawn;
 
-    uint32_t PointLightsShaded;
-    uint32_t PointLightsShadowsDrawn;
+    u32 PointLightsShaded;
+    u32 PointLightsShadowsDrawn;
 
-    uint32_t SpotLightsShaded;
-    uint32_t SpotLightsShadowsDrawn;
+    u32 SpotLightsShaded;
+    u32 SpotLightsShadowsDrawn;
 
-    uint32_t DirectionalLightsShaded;
-    uint32_t DirectionalLightsShadowsDrawn;
+    u32 DirectionalLightsShaded;
+    u32 DirectionalLightsShadowsDrawn;
 
     glm::vec3 CameraPosition;
     glm::vec3 CameraRotation;
@@ -125,7 +122,7 @@ class PlayRecorder : public BaseManager
 {
 public:
     virtual void Initialize(Engine* engine) override;
-    virtual void Update(float DeltaSeconds) override;
+    virtual void Update(f32 DeltaSeconds) override;
     virtual void Deinitialize() override;
 
     void StartRecording(const std::string& name);
@@ -140,16 +137,16 @@ public:
 
     bool IsRecordingNameValid(const std::string name) const;
 
-    void ReplayRecording(uint32_t index);
+    void ReplayRecording(u32 index);
     void SetPause(bool paused);
     void EndReplay();
 
     bool IsRecordingReplayActive() const;
 protected:
     void LoadAllPlayRecordings();
-    void SavePlayRecording(uint32_t index);
+    void SavePlayRecording(u32 index);
 
-    void CollectRunStats(uint32_t index);
+    void CollectRunStats(u32 index);
 
 protected:
     Engine* m_Engine;
@@ -159,14 +156,14 @@ protected:
 
     InputEventHandle m_InputEventHandle;
 
-    int32_t m_CurrentlyRecordedRecording = -1;
-    int32_t m_CurrentlyReplayedRecording = -1;
+    i32 m_CurrentlyRecordedRecording = -1;
+    i32 m_CurrentlyReplayedRecording = -1;
 
-    float m_ReplayTime = 0.0f;
+    f32 m_ReplayTime = 0.0f;
     bool m_IsReplayPaused = false;
 
-    uint32_t m_LastReplayedInput = 0;
-    uint32_t m_LastReplayedFrame = 0;
+    u32 m_LastReplayedInput = 0;
+    u32 m_LastReplayedFrame = 0;
 
     enum ReplayEventType {
         Input,
@@ -201,7 +198,7 @@ protected:
 
 #ifdef RUN_PLAY_TESTS_AND_EXIT
     std::vector<std::string> m_AutoPlayRecodings = { PLAY_RECORDINGS_NAMES };
-    uint32_t m_AutoPlayedRecording = 0;
-    float m_AutoPlayDelayTimer = 3.0f;
+    u32 m_AutoPlayedRecording = 0;
+    f32 m_AutoPlayDelayTimer = 3.0f;
 #endif
 };

@@ -1,15 +1,15 @@
-﻿#pragma once
-
-#include "Core/Widget.h"
-#include <memory>
-
-class Renderer;
-
-class RendererStatsWidget: public Widget
-{
-public:
-    virtual void Initialize() override;
-    virtual void Tick(float DeltaTime) override;
-private:
-    std::shared_ptr<Renderer> m_Renderer;
-};
+﻿// #pragma once
+// 
+// #include "EdEditor.h"
+// #include "Widget.h"
+// 
+// class Renderer;
+// 
+// class RendererStatsWidget : public Widget
+// {
+// public:
+//     virtual void Initialize() override;
+//     virtual void Tick(f32 DeltaTime) override;
+// private:
+//     Renderer* m_Renderer;
+// };

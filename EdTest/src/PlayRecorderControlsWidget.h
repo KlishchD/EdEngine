@@ -1,7 +1,7 @@
 #pragma once
 
-#include "Core/Ed.h"
-#include "Core/Widget.h"
+#include "EdCore.h"
+#include "Widget.h"
 
 class PlayRecorder;
 struct StatRecord;
@@ -11,7 +11,7 @@ class PlayRecorderControlsWidget : public Widget
 public:
     virtual void Initialize();
     virtual void Deinitialize();
-    virtual void Tick(float DeltaTime);
+    virtual void Tick(f32 DeltaTime);
 protected:
     void DisplayReplayStats(const StatRecord& stat);
 protected:

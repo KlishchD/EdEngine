@@ -1,11 +1,10 @@
 ﻿#pragma once
 
-#include "Core/Window.h"
+#include "EdEngine.h"
 
 class PlatformHelper
 {
 public:
-    static std::string OpenFileWindow(const char* filter, Window& window, const char* title = nullptr);
-    static std::string SaveFileWindow(const char* filter, Window& window, const char* title = nullptr);
-    static void DisableTitleBar(Window& window);
+    static Path OpenFileWindow(const c8* filter, Window& window, const c8* title = nullptr, const c8* extension = nullptr);
+    static Path SaveFileWindow(const c8* filter, Window& window, const c8* title = nullptr, const c8* extension = nullptr);
 };

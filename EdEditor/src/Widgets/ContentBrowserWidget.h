@@ -1,34 +1,33 @@
 ﻿#pragma once
 
-#include <filesystem>
-#include <string>
-#include "Core/Widget.h"
+#include "EdEditor.h"
 
-class Texture2D;
+class Editor;
+class AssetManager;
+struct TextureAsset;
 
 class ContentBrowserWidget: public Widget
 {
 public:
     virtual void Initialize() override;
-    virtual void Tick(float DeltaTime) override;
+    virtual void Tick(f32 DeltaTime) override;
 private:
-    std::shared_ptr<class Editor> m_Editor;
-    std::shared_ptr<class AssetManager> m_AssetManager;
-    
-    std::string m_CurrentFolder;
+    ContentPath m_CurrentFolder;
 
-    std::shared_ptr<Texture2D> m_DirectoryIcon;
-    std::shared_ptr<Texture2D> m_TextureIcon;
-    std::shared_ptr<Texture2D> m_MaterialIcon;
-    std::shared_ptr<Texture2D> m_MeshIcon;
+    TextureAsset* m_DirectoryIcon;
+    TextureAsset* m_TextureIcon;
+    TextureAsset* m_MaterialIcon;
+    TextureAsset* m_MeshIcon;
+    TextureAsset* m_SceneIcon;
+    TextureAsset* m_PrefabIcon;
 
     void ContentTree();
     void ContentItems();
     
-    void DirectoryStructure(const std::string& path);
-    void DirectoryStructureInternal(const std::filesystem::directory_iterator& directory_iterator);
+    void DirectoryStructure(const Path& path);
+    void DirectoryStructureInternal(const TemporaryArray<Path>& paths);
 
     void PathButtons();
 
-    std::shared_ptr<Texture2D> GetTextureByExtension(const std::string& extension) const;
+    TextureAsset* GetTextureByExtension(const std::string& extension) const;
 };
