@@ -13,7 +13,7 @@ void PlayRecorderControlsWidget::Deinitialize()
 
 }
 
-void PlayRecorderControlsWidget::Tick(float DeltaTime)
+void PlayRecorderControlsWidget::Tick(f32 DeltaTime)
 {
     if (ImGui::Begin("Play Recordings"))
     {
@@ -66,7 +66,7 @@ void PlayRecorderControlsWidget::Tick(float DeltaTime)
             if (ImGui::BeginListBox("##recorings_list"))
             {
                 const std::vector<PlayRecording> recordings = m_Recorder->GetRecorings();
-                for (uint32_t i = 0; i < recordings.size(); ++i)
+                for (u32 i = 0; i < recordings.size(); ++i)
                 {
                     const PlayRecording& recording = recordings[i];
 
@@ -96,7 +96,7 @@ void PlayRecorderControlsWidget::Tick(float DeltaTime)
                     }
 
                     {
-                        for (uint32_t j = 0; j < recording.Runs.size(); ++j)
+                        for (u32 j = 0; j < recording.Runs.size(); ++j)
                         {
                             const RunStats& run = recording.Runs[j];
 
@@ -104,7 +104,7 @@ void PlayRecorderControlsWidget::Tick(float DeltaTime)
 
                             if (ImGui::TreeNode("##stats", "Run stats %s", std::format("{:%Y/%m/%d %H:%M}", run.RunTime).c_str()))
                             {
-                                for (uint32_t k = 0; k < run.Stats.size(); ++k)
+                                for (u32 k = 0; k < run.Stats.size(); ++k)
                                 {
                                     ImGui::PushID(k);
 

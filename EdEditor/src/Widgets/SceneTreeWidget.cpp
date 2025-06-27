@@ -1,35 +1,102 @@
-﻿#include "SceneTreeWidget.h"
-#include "Editor.h"
-#include "Core/Engine.h"
-#include "Core/Objects/Actor.h"
-#include "Core/Scene.h"
+﻿#include "EdEditor.h"
+#include "SceneTreeWidget.h"
+#include "Helpers/WidgetHelper.h"
 
-#include <imgui.h>
-
-void SceneTreeWidget::Initialize()
+template <typename T>
+void ParseFeature(T* feature, u32 type, ccstr8 typeName, Entity* entity)
 {
-    Widget::Initialize();
+    if (feature->OwnerEntity != entity)
+    {
+        return;
+    }
 
-    m_Engine = &Engine::Get();
-    m_Editor = m_Engine->GetManager<Editor>();
+    ImGui::PushID(static_cast<i32>(reinterpret_cast<iptr>(feature)));
+
+    ccstr8 lable = Strings::Concat(Strings::RequestString(feature->Name, static_cast<u32>(MaxFeatureNameSize * 1.2), true), typeName);
+    if (ImGui::TreeNodeEx(lable, ImGuiTreeNodeFlags_Leaf))
+    {
+        if (ImGui::IsItemClicked())
+        {
+            Editor::Get().SetSelectedEntity(feature->OwnerEntity);
+
+            Editor::Get().SetFeatureParametersLogic([feature, type] ()
+            {
+                ImGui::PushID(static_cast<i32>(reinterpret_cast<iptr>(feature)));
+
+                ImGui::Separator();
+
+                c8* name = Memory::Get().RequestDynamicMemory<c8>(MaxFeatureNameSize, 1, "str");
+                memset(name, 0, MaxFeatureNameSize);
+                strncpy(name, feature->Name, MaxFeatureNameSize);
+
+                if (ImGui::InputText("Feature name", name, MaxFeatureNameSize))
+                {
+                    feature->Name = name;
+                }
+
+                WidgetHelper::FeatureDetails(feature);
+
+                ImGui::PopID();
+            });
+        }
+
+        ImGui::TreePop();
+    }
+
+    ImGui::PopID();
 }
 
-void SceneTreeWidget::Tick(float DeltaTime)
+void SceneTreeWidget::Tick(f32 DeltaTime)
 {
     Widget::Tick(DeltaTime);
 
     if (ImGui::Begin("Scene"))
     {
-        for (const auto& actor : m_Engine->GetLoadedScene()->GetActors())
+        if (ImGui::Button("Create entity"))
         {
-            int32_t pos = actor->GetName().find_first_of((char)0);
-            std::string name = actor->GetName().substr(0, pos) + "##" + std::to_string((int32_t)actor.get());
-            if (ImGui::TreeNodeEx(name.c_str(), ImGuiTreeNodeFlags_Leaf))
+            Entity* entity = EntityManager::Get().CreateEntity("DefaultName");
+            Editor::Get().SetSelectedEntity(entity);
+        }
+
+        if (ImGui::CollapsingHeader("Prefab controls"))
+        {
+            static c8 name[1024] = { 0 };
+            if (ImGui::InputText("Prefab name", name, 1024))
+            {
+            }
+
+            if (ImGui::BeginCombo("##Prefab", "Select prefab to add"))
+            {
+                for (PrefabAsset* prefab : AssetManager::Get().GetPrefabs())
+                {
+                    if (ImGui::Selectable(prefab->BaseAsset->Name.c_str(), false))
+                    {
+                        AssetManager::Get().LoadAsset(prefab->BaseAsset);
+                        EntityManager::Get().CreatePrefab(name, prefab);
+                    }
+                }
+
+                ImGui::EndCombo();
+            }
+        }
+
+        for (Entity* entity : EntityManager::Get().GetEntites())
+        {
+            if (entity->IsEditorPrefab())
+            {
+                continue;
+            }
+
+            if (ImGui::TreeNodeEx((entity->Name + "##" + std::to_string(reinterpret_cast<uptr>(entity))).c_str(), ImGuiTreeNodeFlags_None))
             {
                 if (ImGui::IsItemClicked())
                 {
-                    m_Editor->SetSelectedActor(actor);
+                    Editor::Get().SetSelectedEntity(entity);
                 }
+
+                // TODO: This will quickly become too expensive, but it will do for now 
+                ED_ITERATE_FEATURES_NAMED_PARAMS(ParseFeature, entity);
+                
                 ImGui::TreePop();
             }
         }

@@ -1,163 +1,134 @@
-﻿#include "AssetDetails.h"
-#include "Editor.h"
-#include "Core/Engine.h"
-#include "Core/Assets/Asset.h"
-#include "Core/Assets/AssetManager.h"
-#include "Core/Rendering/Textures/Texture2D.h"
-#include "Core/Rendering/Textures/CubeTexture.h"
-#include "Core/Assets/Material.h"
-#include "Core/Assets/StaticMesh.h"
-#include "Helpers/AssetHelper.h"
-#include <imgui.h>
-#include <glm/gtc/type_ptr.hpp>
+﻿#include "EdEditor.h"
+#include "AssetDetails.h"
 
-void AssetDetails::Initialize()
-{
-    Widget::Initialize();
-
-    Engine& engine = Engine::Get();
-    m_Editor = engine.GetManager<Editor>();
-    m_AssetManager = engine.GetManager<AssetManager>();
-}
-
-void AssetDetails::Tick(float DeltaTime)
+void AssetDetailsWidget::Tick(f32 DeltaTime)
 {
     Widget::Tick(DeltaTime);
 
-    if (std::shared_ptr<Asset> asset = m_Editor->GetSelectedAsset())
+    if (ImGui::Begin("Asset Details"))
     {
-        m_AssetManager->LoadAsset(asset->GetId());
-
-        if (ImGui::Begin("Asset Details"))
+        if (Asset* asset = Editor::Get().GetSelectedAsset())
         {
-            switch (asset->GetType())
+            BaseDetails(asset);
+
+            switch (asset->AssetType)
             {
-            case AssetType::StaticMesh: StaticMeshDetails(std::static_pointer_cast<StaticMesh>(asset)); break;
-            case AssetType::Texture2D: Texture2DDetails(std::static_pointer_cast<Texture2D>(asset)); break;
-            case AssetType::CubeTexture: CubeTextureDetails(std::static_pointer_cast<CubeTexture>(asset)); break;
-            case AssetType::Material: MaterialDetails(std::static_pointer_cast<Material>(asset)); break;
+            case StaticMeshAsset::Type: StaticMeshDetails(static_cast<StaticMeshAsset*>(asset->Data)); break;
+            case TextureAsset::Type: TextureDetails(static_cast<TextureAsset*>(asset->Data)); break;
+            case MaterialAsset::Type: MaterialDetails(static_cast<MaterialAsset*>(asset->Data)); break;
+            case PrefabAsset::Type: PrefabDetails(static_cast<PrefabAsset*>(asset->Data)); break;
+            }
+        }
+    }
+    ImGui::End();
+}
+
+void AssetDetailsWidget::BaseDetails(Asset* asset)
+{
+    ImGui::Text("Name: %s", asset->Name.c_str());
+    ImGui::Text("Path: %s", asset->FilePath.Get());
+    ImGui::Text("Origin: %s", asset->OriginPath.Get());
+
+    ImGui::Text("Id: %lld", asset->Id);
+
+    ImGui::Text("Frame data was unclaimed: %d", asset->FrameDataWasUnclaimed);
+    ImGui::Text("Data claims: %d", asset->DataClaims);
+    
+    ImGui::Text("Has data: %d", asset->HasData);
+    ImGui::Text("Is dirty: %d", asset->IsDirty);
+}
+
+void AssetDetailsWidget::StaticMeshDetails(StaticMeshAsset* asset)
+{
+    ImGui::Text("Vertex count: %d", asset->VertexCount);
+    ImGui::Text("Index count: %d", asset->IndexCount);
+    
+    ImGui::Text("Vertex buffer created: %d", asset->VertexBufferView.IsResourceValid());
+    ImGui::Text("Index buffer created: %d", asset->IndexBufferView.IsResourceValid());
+
+    if (ImGui::BeginCombo("Material", asset->Material ? asset->Material->BaseAsset->Name.c_str() : "None"))
+    {
+        for (MaterialAsset* material : AssetManager::Get().GetMaterials())
+        {
+            if (ImGui::Selectable(material->BaseAsset->Name.c_str(), asset->Material == material))
+            {
+                asset->SetMaterial(material);
             }
         }
 
-        ImGui::End();
+        ImGui::EndCombo();
     }
 }
 
-void AssetDetails::BaseDetails(std::shared_ptr<Asset> asset)
+void AssetDetailsWidget::TextureDetails(TextureAsset* asset)
 {
-    ImGui::Text("Asset %s", asset->GetName().data());
-}
+    ImGui::Text("Width: %d", asset->Width);
+    ImGui::Text("Height: %d", asset->Height);
+    ImGui::Text("Mips: %d", asset->Mips);
 
-void AssetDetails::StaticMeshDetails(std::shared_ptr<StaticMesh> asset)
-{
-    BaseDetails(asset);
-}
+    ImGui::Text("Type: %d", asset->RenderTextureType);
+    ImGui::Text("Format: %d", asset->Format);
 
-void AssetDetails::Texture2DDetails(std::shared_ptr<Texture2D> asset)
-{
-    BaseDetails(asset);
-}
-
-void AssetDetails::CubeTextureDetails(std::shared_ptr<CubeTexture> asset)
-{
-    BaseDetails(asset);
-}
-
-void AssetDetails::MaterialDetails(std::shared_ptr<Material> material)
-{
-    BaseDetails(material);
-
-    if (glm::vec3 color = material->GetBaseColor(); ImGui::ColorPicker3("Base color", glm::value_ptr(color)))
+    if (asset->TextureView)
     {
-        material->SetBaseColor(color);
+        f32 size = std::min<f32>(ImGui::GetWindowWidth(), ImGui::GetWindowHeight());
+        ImGui::Image(asset->TextureView.GPUHandlePtr(), { size, size });
     }
+}
 
-    if (float emission = material->GetEmission(); ImGui::SliderFloat("Emission", &emission, 0, 100))
+void AssetDetailsWidget::MaterialDetails(MaterialAsset* asset)
+{
+    SelectTexture("Albedo texture", asset->AlbedoTexture);
+    SelectTexture("Normal texture", asset->NormalTexture);
+    SelectTexture("Metallic texture", asset->MetalicTexture);
+    SelectTexture("Roughness texture", asset->RoughnessTexture);
+
+    ImGui::ColorPicker3("Base color", glm::value_ptr(asset->BaseColor));
+
+    ImGui::SliderFloat("Roughness", &asset->Roughness, 0.0f, 1.0f);
+    ImGui::SliderFloat("Metallic", &asset->Metalic, 0.0f, 1.0f);
+    ImGui::SliderFloat("Emission", &asset->Emission, 0.0f, 20.0f);
+}
+
+void AssetDetailsWidget::PrefabDetails(PrefabAsset* asset)
+{
+    ImGui::Text("Entities count: %d", asset->EntitiesCount);
+    ImGui::Text("Features count: %d", asset->FeaturesCount);
+}
+
+void AssetDetailsWidget::SelectTexture(ccstr8 lable, TextureAsset*& asset)
+{
+    if (ImGui::BeginCombo(lable, asset ? asset->BaseAsset->Name.c_str() : "None"))
     {
-        material->SetEmission(emission);
-    }
-
-    std::vector<std::shared_ptr<Texture2D>> textures = m_AssetManager->GetAssets<Texture2D>(AssetType::Texture2D);
-
-    ImGui::Text("Base Color Texture"); ImGui::SameLine();
-    if (ImGui::BeginCombo("##BaseColorTexture", AssetHelper::GetAssetNameLable(material->GetBaseColorTexture()).c_str()))
-    {
-        if (ImGui::Selectable("None", material->GetBaseColorTexture() == nullptr))
+        for (TextureAsset* texture : AssetManager::Get().GetTextures())
         {
-            material->SetBaseColorTexture(nullptr);
-        }
-        for (const auto& texture : textures)
-        {
-            if (ImGui::Selectable(AssetHelper::GetAssetNameLable(texture).c_str(), material->GetBaseColorTexture() == texture))
+            ImGui::PushID(static_cast<i32>(reinterpret_cast<iptr>(texture)));
+
+            f32 size = std::min<f32>(ImGui::GetWindowWidth(), ImGui::GetWindowHeight()) / 5.0f;
+
+            if (texture->TextureView)
             {
-                m_AssetManager->LoadAsset(texture->GetId());
-                material->SetBaseColorTexture(texture);
+                ImGui::Image(texture->TextureView.GPUHandlePtr(), { size, size });
+                ImGui::SameLine();
             }
+
+            if (ImGui::Selectable((texture->BaseAsset->Name + "##texture").c_str(), asset == texture))
+            {
+                // TODO: This will bite me in a future.
+                asset->BaseAsset->UnclaimData();
+                texture->BaseAsset->ClaimData();
+                asset = texture;
+            }
+
+            ImGui::PopID();
         }
+
         ImGui::EndCombo();
     }
 
-    ImGui::Text("Normal Texture"); ImGui::SameLine();
-    if (ImGui::BeginCombo("##NormalTexture", AssetHelper::GetAssetNameLable(material->GetNormalTexture()).c_str()))
+    if (asset)
     {
-        if (ImGui::Selectable("None", material->GetNormalTexture() == nullptr))
-        {
-            material->SetNormalTexture(nullptr);
-        }
-        for (const auto& texture : textures)
-        {
-            if (ImGui::Selectable(AssetHelper::GetAssetNameLable(texture).c_str(), material->GetNormalTexture() == texture))
-            {
-                m_AssetManager->LoadAsset(texture->GetId());
-                material->SetNormalTexture(texture);
-            }
-        }
-        ImGui::EndCombo();
-    }
-
-    ImGui::Text("Roughness Texture"); ImGui::SameLine();
-    if (ImGui::BeginCombo("##RoughnessTexture", AssetHelper::GetAssetNameLable(material->GetRoughnessTexture()).c_str()))
-    {
-        if (ImGui::Selectable("None", material->GetRoughnessTexture() == nullptr))
-        {
-            material->SetRoughnessTexture(nullptr);
-        }
-        for (const auto& texture : textures)
-        {
-            if (ImGui::Selectable(AssetHelper::GetAssetNameLable(texture).c_str(), material->GetRoughnessTexture() == texture))
-            {
-                m_AssetManager->LoadAsset(texture->GetId());
-                material->SetRoughnessTexture(texture);
-            }
-        }
-        ImGui::EndCombo();
-    }
-
-    if (float roughness = material->GetRoughness(); ImGui::SliderFloat("Roughness", &roughness, 0.0f, 1.0f))
-    {
-        material->SetRoughness(roughness);
-    }
-
-    ImGui::Text("Metalic Texture"); ImGui::SameLine();
-    if (ImGui::BeginCombo("##MetalicTexture", AssetHelper::GetAssetNameLable(material->GetMetalicTexture()).c_str()))
-    {
-        if (ImGui::Selectable("None", material->GetMetalicTexture() == nullptr))
-        {
-            material->SetMetalicTexture(nullptr);
-        }
-        for (const auto& texture : textures)
-        {
-            if (ImGui::Selectable(AssetHelper::GetAssetNameLable(texture).c_str(), material->GetMetalicTexture() == texture))
-            {
-                m_AssetManager->LoadAsset(texture->GetId());
-                material->SetMetalicTexture(texture);
-            }
-        }
-        ImGui::EndCombo();
-    }
-
-    if (float metalic = material->GetMetalic(); ImGui::SliderFloat("Metalic", &metalic, 0.0f, 1.0f))
-    {
-        material->SetMetalic(metalic);
+        f32 size = std::min<f32>(ImGui::GetWindowWidth(), ImGui::GetWindowHeight());
+        ImGui::Image(asset->TextureView.GPUHandlePtr(), { size, size });
     }
 }

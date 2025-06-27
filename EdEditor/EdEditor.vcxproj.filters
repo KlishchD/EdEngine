@@ -1,0 +1,96 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Widgets">
+      <UniqueIdentifier>{e9ddfb4e-78d9-475f-b1a8-4d7ba204d1ec}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Helpers">
+      <UniqueIdentifier>{93e7fe5e-3e69-4124-9bc4-d5efa1b1d242}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="src\Widgets\ComponentDetailsWidget.cpp">
+      <Filter>Widgets</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Widgets\ContentBrowserWidget.cpp">
+      <Filter>Widgets</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Widgets\OptionsMenuWidget.cpp">
+      <Filter>Widgets</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Widgets\RendererStatsWidget.cpp">
+      <Filter>Widgets</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Widgets\SceneTreeWidget.cpp">
+      <Filter>Widgets</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Widgets\ViewportWidget.cpp">
+      <Filter>Widgets</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Widgets\ActorDetailsWidget.cpp">
+      <Filter>Widgets</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Widgets\AssetDetails.cpp">
+      <Filter>Widgets</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Widgets\CameraDetailsWidget.cpp">
+      <Filter>Widgets</Filter>
+    </ClCompile>
+    <ClCompile Include="src\EditorCamera.cpp" />
+    <ClCompile Include="src\EdEditor.cpp" />
+    <ClCompile Include="src\Editor.cpp" />
+    <ClCompile Include="src\Widgets\EntityDetatilsWidget.cpp">
+      <Filter>Widgets</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Helpers\WidgetHelper.cpp">
+      <Filter>Helpers</Filter>
+    </ClCompile>
+    <ClCompile Include="..\EdCore\src\Helpers\GeometryBuilder.cpp">
+      <Filter>Helpers</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="src\Widgets\ComponentDetailsWidget.h">
+      <Filter>Widgets</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Widgets\ContentBrowserWidget.h">
+      <Filter>Widgets</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Widgets\OptionsMenuWidget.h">
+      <Filter>Widgets</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Widgets\RendererStatsWidget.h">
+      <Filter>Widgets</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Widgets\SceneTreeWidget.h">
+      <Filter>Widgets</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Widgets\ViewportWidget.h">
+      <Filter>Widgets</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Widgets\ActorDetailsWidget.h">
+      <Filter>Widgets</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Widgets\AssetDetails.h">
+      <Filter>Widgets</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Widgets\CameraDetailsWidget.h">
+      <Filter>Widgets</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Editor.h" />
+    <ClInclude Include="src\EditorCamera.h" />
+    <ClInclude Include="src\EdEditor.h" />
+    <ClInclude Include="src\Widgets\EntityDetatilsWidget.h">
+      <Filter>Widgets</Filter>
+    </ClInclude>
+    <ClInclude Include="WidgetHelper.h">
+      <Filter>Widgets</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Helpers\WidgetHelper.h">
+      <Filter>Helpers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\EdCore\src\Helpers\GeometryBuilder.h">
+      <Filter>Helpers</Filter>
+    </ClInclude>
+  </ItemGroup>
+</Project>
