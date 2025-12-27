@@ -1,4 +1,5 @@
-﻿#include "Helpers/PlatformHelper.h"
+﻿#include "EdEngine.h"
+#include "Helpers/PlatformHelper.h"
 #include <Windows.h>
 
 Path PlatformHelper::OpenFileWindow(const c8* filter, Window& window, const c8* title, const c8* extension)

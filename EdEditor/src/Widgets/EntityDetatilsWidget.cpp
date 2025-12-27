@@ -1,3 +1,4 @@
+#include "EdEditor.h"
 #include "EntityDetatilsWidget.h"
 #include "Helpers\WidgetHelper.h"
 

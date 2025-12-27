@@ -46,6 +46,7 @@
     <ClInclude Include="src\File.h" />
     <ClInclude Include="src\Strings.h" />
     <ClInclude Include="src\Console.h" />
+    <ClInclude Include="src\IO.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\Helpers\InputHelper.cpp">
@@ -73,6 +74,7 @@
     <ClCompile Include="src\File.cpp" />
     <ClCompile Include="src\Strings.cpp" />
     <ClCompile Include="src\Console.cpp" />
+    <ClCompile Include="src\IO.cpp" />
   </ItemGroup>
   <ItemGroup>
     <Natvis Include="src\EdCore.natvis" />

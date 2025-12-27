@@ -29,6 +29,12 @@ namespace glm
         Result[3][2] =eye.z;
         return Result;
     }
+
+    template <typename T>
+    constexpr bool isNearlyZero(const T& value, const T& eps = 1e-7)
+    {
+        return value < eps && value > -eps;
+    }
 }
 
 class MathHelper

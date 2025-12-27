@@ -113,22 +113,6 @@ namespace Console
         T Min;
         T Max;
     };
-
-    template <typename T> requires(std::is_arithmetic_v<T>)
-    Variable* RegisterVariable(ccstr8 name, T default, T min, T max)
-    {
-        constexpr u32 size = sizeof(T) * 3;
-        constexpr Types type = GetType<T>();
-
-        Variable* variable = RegisterVariable(name, size, SetValue<T>, ToString<T>, type);
-        
-        ArithmeticVariableValue<T>* destination = reinterpret_cast<ArithmeticVariableValue<T>*>(variable->Value);
-        destination->Value = default;
-        destination->Min = min;
-        destination->Max = max;
-
-        return variable;
-    }
     
     template <typename T> requires(std::is_arithmetic_v<T>)
     void SetValue(Variable* variable, T value)
@@ -216,6 +200,22 @@ namespace Console
     }
 
     ccstr8 ToString(Variable* variable);
+
+    template <typename T> requires(std::is_arithmetic_v<T>)
+    Variable* RegisterVariable(ccstr8 name, T initial, T min, T max)
+    {
+        constexpr u32 size = sizeof(T) * 3;
+        constexpr Types type = GetType<T>();
+
+        Variable* variable = RegisterVariable(name, size, SetValue<T>, ToString<T>, type);
+
+        ArithmeticVariableValue<T>* destination = reinterpret_cast<ArithmeticVariableValue<T>*>(variable->Value);
+        destination->Value = initial;
+        destination->Min = min;
+        destination->Max = max;
+
+        return variable;
+    }
 };
 
 #define DEFINE_ARIPHMETIC_VARIABLE(name, default, min, max) inline Console::Variable* name = Console::RegisterVariable<decltype(min)>(#name, default, min, max);

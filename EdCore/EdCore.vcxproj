@@ -292,6 +292,7 @@
     <ClInclude Include="src\Helpers\InputHelper.h" />
     <ClInclude Include="src\Helpers\MathHelper.h" />
     <ClInclude Include="src\InputManager.h" />
+    <ClInclude Include="src\IO.h" />
     <ClInclude Include="src\LogManager.h" />
     <ClInclude Include="src\Macros.h" />
     <ClInclude Include="src\Math\Camera.h" />
@@ -311,6 +312,7 @@
     <ClCompile Include="src\Helpers\InputHelper.cpp" />
     <ClCompile Include="src\Helpers\MathHelper.cpp" />
     <ClCompile Include="src\InputManager.cpp" />
+    <ClCompile Include="src\IO.cpp" />
     <ClCompile Include="src\LogManager.cpp" />
     <ClCompile Include="src\Math\Camera.cpp" />
     <ClCompile Include="src\Math\Transform.cpp" />

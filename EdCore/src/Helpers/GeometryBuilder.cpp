@@ -1,4 +1,4 @@
-﻿#include "EdEngine.h"
+﻿#include "EdCore.h"
 #include "GeometryBuilder.h"
 
 void GeometryBuilder::MakeSphere(f32 radius, i32 sectorCount, i32 stackCount, TemporaryArray<glm::vec3>& vertices, TemporaryArray<u32>& indices)

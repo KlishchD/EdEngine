@@ -46,6 +46,7 @@
 #include <tuple>
 #include <iterator>
 #include <cstddef>
+#include <thread>
 
 typedef void* HANDLE;
 
@@ -78,9 +79,6 @@ using ccstr16 = const c16*;
 #include "spdlog/spdlog.h"
 #include "spdlog/sinks/stdout_color_sinks.h"
 
-#define GLM_FORCE_LEFT_HANDED
-#define GLM_FORCE_DEPTH_ZERO_TO_ONE
-#define GLM_ENABLE_EXPERIMENTAL
 #include "glm/mat4x4.hpp"
 #include "glm/fwd.hpp"
 #include "glm/detail/type_quat.hpp"

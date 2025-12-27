@@ -1,4 +1,5 @@
-﻿#include "OptionsMenuWidget.h"
+﻿#include "EdEditor.h"
+#include "OptionsMenuWidget.h"
 #include "Helpers/FilesHelper.h"
 #include "Helpers/RenderingHelper.h"
 #include "Helpers/AssetHelper.h"

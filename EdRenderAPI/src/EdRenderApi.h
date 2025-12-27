@@ -1,6 +1,6 @@
 #pragma once
 
-#pragma comment(lib, "glfw.lib")
+#pragma comment(lib, "glfw3_mt.lib")
 
 #include "EdCore.h"
 #include "RenderTypes.h"
