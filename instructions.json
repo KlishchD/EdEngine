@@ -1,0 +1,161 @@
+{
+  "Name": "EdEngine",
+  "Global": {
+    "Defines": [
+      {
+        "Name": "WINDOWS_PLATFORM",
+        "Value": "1",
+        "Platforms": "W",
+        "Targets": "DBR"
+      },
+      {
+        "Name": "BUILD_TYPE",
+        "Value": "1",
+        "Targets": "D"
+      },
+      {
+        "Name": "BUILD_TYPE",
+        "Value": "2",
+        "Targets": "B"
+      },
+      {
+        "Name": "BUILD_TYPE",
+        "Value": "3",
+        "Targets": "R"
+      },
+      {
+        "Name": "_WIN32",
+        "Value": "",
+        "Platform": "W"
+      },
+      {
+        "Name": "SPDLOG_COMPILED_LIB",
+        "Value": ""
+      },
+      {
+        "Name": "GLM_ENABLE_EXPERIMENTAL",
+        "Value": ""
+      },
+      {
+        "Name": "GLM_FORCE_LEFT_HANDED",
+        "Value": ""
+      },
+      {
+        "Name": "GLM_FORCE_DEPTH_ZERO_TO_ONE",
+        "Value": ""
+      },
+      {
+        "Name": "RESOURCES_PATH",
+        "Value": "\\\"E:\\\\dev\\\\Ed\\\\Resources\\\""
+      }
+    ],
+    "Options": [
+      {
+        "Name": "C++",
+        "Value": "20"
+      },
+      {
+        "Name": "DisableWarnings",
+        "Value": "1"
+      }
+    ]
+  },
+  "Projects": [
+    {
+      "Name": "EdEditor",
+      "Sources": [ "EdEditor" ],
+      "Dependencies": [ "EdEngine", "ImGui" ],
+      "PrecompileHeader": "EdEditor\\EdEditor.h",
+      "ArtifactType": "Executable"
+    },
+    {
+      "Name": "DxcShaderCompiler",
+      "Artifact": {
+        "DynamicLibrary": "Dependencies\\dxc_2024_07_31_clang_cl\\bin\\x64\\dxcompiler.dll"
+      }
+    },
+    {
+      "Name": "DxcShaderSigner",
+      "Artifact": {
+        "DynamicLibrary": "Dependencies\\dxc_2024_07_31_clang_cl\\bin\\x64\\dxil.dll"
+      }
+    },
+    {
+      "Name": "GLM",
+      "Sources": [ "Dependencies\\glm\\glm" ],
+      "Includes": [ "Dependencies\\glm" ]
+    },
+    {
+      "Name": "GLFW",
+      "Artifact": {
+        "ImportLibrary": "Dependencies\\GLFW\\lib\\glfw3_mt.lib",
+        "DynamicLibrary": "Dependencies\\GLFW\\lib\\glfw3.dll"
+      },
+      "Includes": [ "Dependencies\\GLFW\\include" ]
+    },
+    {
+      "Name": "ImGui",
+      "Sources": [
+        "Dependencies\\ImGui\\imgui.cpp",
+        "Dependencies\\ImGui\\imgui_draw.cpp",
+        "Dependencies\\ImGui\\backends\\imgui_impl_dx12.cpp",
+        "Dependencies\\ImGui\\backends\\imgui_impl_glfw.cpp",
+        "Dependencies\\ImGui\\imgui_tables.cpp",
+        "Dependencies\\ImGui\\imgui_widgets.cpp"
+      ],
+      "Includes": [
+        "Dependencies\\ImGui"
+      ],
+      "Dependencies": [ "GLFW" ]
+    },
+    {
+      "Name": "Assimp",
+      "Artifact": {
+        "ImportLibrary": "Dependencies\\assimp\\lib\\Debug\\assimp-vc143-mtd.lib",
+        "DynamicLibrary": "Dependencies\\assimp\\lib\\Debug\\assimp-vc143-mtd.dll"
+      },
+      "Includes": [ "Dependencies\\assimp\\include" ]
+    },
+    {
+      "Name": "SpdLog",
+      "Sources": [ "Dependencies\\spdlog\\src" ],
+      "Includes": [ "Dependencies\\spdlog\\include" ]
+    },
+    {
+      "Name": "EdCore",
+      "Sources": [ "EdCore" ],
+      "Dependencies": [ "SpdLog", "GLM" ],
+      "PrecompileHeader": "EdCore\\EdCore.h"
+    },
+    {
+      "Name": "EdRenderAPI",
+      "Sources": [ "EdRenderAPI" ],
+      "Dependencies": [ "EdCore", "GLFW" ],
+      "PrecompileHeader": "EdRenderApi\\EdRenderApiPrivate.h"
+    },
+    {
+      "Name": "EdDirectX12",
+      "Sources": [ "EdDirectX12" ],
+      "Dependencies": [ "EdRenderAPI", "DxcShaderCompiler", "DxcShaderSigner" ],
+      "PrecompileHeader": "EdDirectX12\\EdDirectX12.h"
+    },
+    {
+      "Name": "EdRenderer",
+      "Sources": [ "EdRenderer" ],
+      "Dependencies": [ "EdDirectX12" ],
+      "PrecompileHeader": "EdRenderer\\EdRendererPrivate.h"
+    },
+    {
+      "Name": "EdEngine",
+      "Sources": [ "EdEngine" ],
+      "Dependencies": [ "EdRenderer", "Assimp" ],
+      "PrecompileHeader": "EdEngine\\EdEngine.h"
+    }
+  ],
+  "Builds": [
+    {
+      "Name": "Editor",
+      "Project": "EdEditor"
+    }
+  ]
+}
