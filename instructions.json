@@ -53,10 +53,6 @@
       {
         "Name": "C++",
         "Value": "20"
-      },
-      {
-        "Name": "DisableWarnings",
-        "Value": "1"
       }
     ]
   },
@@ -66,7 +62,8 @@
       "Sources": [ "EdEditor" ],
       "Dependencies": [ "EdEngine", "ImGui" ],
       "PrecompileHeader": "EdEditor\\EdEditor.h",
-      "ArtifactType": "Executable"
+      "ArtifactType": "Executable",
+      "Resources": "Resources\\Editor\\resources.res"
     },
     {
       "Name": "DxcShaderCompiler",
