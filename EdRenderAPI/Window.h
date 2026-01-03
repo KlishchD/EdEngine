@@ -5,6 +5,7 @@ class RenderingContext;
 struct WindowSpecification
 {
     std::string Title;
+    ContentPath Icon;
     u32 Width;
     u32 Height;
 };

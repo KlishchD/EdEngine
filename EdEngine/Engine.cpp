@@ -66,12 +66,12 @@ void Engine::Initialize()
 
 	m_Frame = 0;
 
-    WindowSpecification windowSpecification;
-    windowSpecification.Title = "Project the Chronicler";
-    windowSpecification.Width = 1280;
-    windowSpecification.Height = 720;
+	WindowSpecification specification{};
+  specification.Title = "Project the Chronicler";
+  specification.Width = 1280;
+  specification.Height = 720;
 
-    m_Window = new Window(windowSpecification);
+  m_Window = new Window(specification);
 
 	m_EntityManager = new EntityManager();
 	m_EntityManager->Initialize();

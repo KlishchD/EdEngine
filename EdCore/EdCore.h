@@ -71,6 +71,8 @@ typedef uintptr_t uptr;
 typedef char c8;
 typedef wchar_t c16;
 
+typedef unsigned char uc8;
+
 using cstr8 = c8*;
 using cstr16 = c16*;
 using ccstr8 = const c8*;

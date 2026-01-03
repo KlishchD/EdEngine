@@ -351,3 +351,14 @@ const ContentPath& Files::GetDefaultScenePath()
 
     return path;
 }
+
+const ContentPath& Files::GetEditorIconPath()
+{
+  static ContentPath path = []() {
+    ContentPath result;
+    result.Append("Editor\\Icons\\Logo.ico");
+    return result;
+  }();
+
+  return path;
+}

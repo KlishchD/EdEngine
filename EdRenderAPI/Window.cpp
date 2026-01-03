@@ -1,6 +1,8 @@
 #include "EdRenderApiPrivate.h"
 #include "Window.h"
 
+#include "../EdEngine/Helpers/stb_image.h"
+
 glm::f64vec2 m_MouseDragPreviousPosition;
 i32 m_DragState = 0;
 
@@ -214,6 +216,23 @@ Window::Window(WindowSpecification specification) : m_Width(specification.Width)
 	{
 		glfwTerminate();
 		ED_ASSERT(0, "Failed to initialize GLFW")
+	}
+
+	if (specification.Icon.IsValid() && specification.Icon.IsFile())
+	{
+		i32 width, height, channels;
+		uc8* data = stbi_load(specification.Icon.Get(), &width, &height, &channels, 0);
+
+		ED_LOG(Window, info, "Icon [{}] [{}x{}] loaded.", specification.Icon.Get(), width, height);
+
+		GLFWimage icon;
+		icon.width = width;
+		icon.height = height;
+		icon.pixels = data;
+
+		glfwSetWindowIcon(m_NativeWindow, 1, &icon);
+
+		stbi_image_free(data);
 	}
 
 	glfwMakeContextCurrent(m_NativeWindow);
