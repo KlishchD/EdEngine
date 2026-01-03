@@ -2,7 +2,7 @@
 
 #pragma comment(lib, "glfw3_mt.lib")
 
-#include "EdCore.h"
+#include "EdTelemetry.h"
 #include "RenderTypes.h"
 
 #define ALLOW_PSO_RECREATION 1

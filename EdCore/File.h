@@ -107,4 +107,6 @@ namespace Files
     const ContentPath& GetShadersPath();
     const ContentPath& GetDefaultScenePath();
     const ContentPath& GetEditorIconPath();
+
+    const Path& GetShadersReportPath();
 }

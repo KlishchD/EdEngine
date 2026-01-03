@@ -121,7 +121,22 @@ bool Shader::Compile(const Array<ccstr8>& defines, bool debug, cstr8 message)
 
     D3D::Check(result->GetOutput(DXC_OUT_OBJECT, __uuidof(IDxcBlob), reinterpret_cast<void**>(&m_NativeHandle), nullptr));
 
-    ED_LOG(Shader, info, "Compiled shader [{}]", m_Path.Get());
+    if (g_telemetry.shaders_reporting_enabled())
+    {
+      shader_descripor descriptor;
+      descriptor.append(m_Path.Get());
+      descriptor.append(" : ");
+
+      for (const ccstr16 argument : arguments)
+      {
+        descriptor.append(Strings::Convert(argument, true));
+        descriptor.push_back(' ');
+      }
+
+      g_telemetry.report_shader(descriptor);
+    }
+
+    ED_LOG(Shader, info, "Compiled shader [{}].", m_Path.Get());
 
     return true;
 }

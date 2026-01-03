@@ -29,6 +29,11 @@
         "Platform": "W"
       },
       {
+        "Name": "ED_TELEMETRY",
+        "Value": "1",
+        "Platform": "W"
+      },
+      {
         "Name": "SPDLOG_COMPILED_LIB",
         "Value": ""
       },
@@ -125,9 +130,15 @@
       "PrecompileHeader": "EdCore\\EdCore.h"
     },
     {
+      "Name": "EdTelemetry",
+      "Sources": [ "EdTelemetry" ],
+      "Dependencies": [ "EdCore" ],
+      "PrecompiledHeader":  "EdTelemetry\\EdTelemetry.h"
+    },
+    {
       "Name": "EdRenderAPI",
       "Sources": [ "EdRenderAPI" ],
-      "Dependencies": [ "EdCore", "GLFW" ],
+      "Dependencies": [ "EdTelemetry", "GLFW" ],
       "PrecompileHeader": "EdRenderApi\\EdRenderApiPrivate.h"
     },
     {

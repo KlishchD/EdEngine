@@ -303,6 +303,11 @@ void Editor::Update(f32 deltaSeconds)
             RenderingContext::Get().RequestShadersReloading();
         }
 
+        if (ImGui::Button("Dump"))
+        {
+          g_telemetry.dump_shaders(Files::GetShadersReportPath());
+        }
+
         const Array<ccstr8>& entries = RenderingContext::Get().GetShadersCompilationResults();
         if (entries.IsEmpty())
         {
