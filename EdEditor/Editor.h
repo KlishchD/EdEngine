@@ -35,7 +35,7 @@ public:
     f32 GetCameraSpeed() const { return m_Camera.CameraSpeed; }
     void SetCameraSpeed(f32 speed) { m_Camera.CameraSpeed = speed; }
 
-    glm::vec2 GetCameraRotationSpeed() const { m_Camera.CameraRotationSpeed; }
+    glm::vec2 GetCameraRotationSpeed() const { return m_Camera.CameraRotationSpeed; }
     void SetCameraRotationSpeed(glm::vec2 speed) { m_Camera.CameraRotationSpeed = speed; }
 
     void SetSelectedAsset(Asset* asset) { m_SelectedAsset = asset; }

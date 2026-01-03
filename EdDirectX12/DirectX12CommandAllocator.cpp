@@ -1,5 +1,9 @@
 #include "EdDirectX12.h"
 
+//#pragma warning "dfsf"
+
+//kai;
+
 CommandAllocator::CommandAllocator(CommandListType type)
 {
     D3D::Check(g_Device->CreateCommandAllocator(DirectX12Types::ConvertCommandListType(type), __uuidof(ID3D12CommandAllocator), reinterpret_cast<void**>(&m_NativeHandle)));

@@ -147,7 +147,7 @@ public:
         return (T*)m_NativeHandle;
     }
 
-    __forceinline uptr GetNativeHandle() const { m_NativeHandle; }
+    __forceinline uptr GetNativeHandle() const { return m_NativeHandle; }
 
     ~CommandList();
 protected:

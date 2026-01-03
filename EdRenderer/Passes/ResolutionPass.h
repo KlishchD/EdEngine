@@ -10,7 +10,7 @@ public:
 
     virtual void Initialize(RenderGraph* graph) override;
 
-    virtual void GetWaitSignals(ccstr8** names, u32& count);
+    virtual void GetWaitSignals(ccstr8** names, u32& count) override;
 
     virtual void Execute(CommandList* list, Resource* buffer, u64 offset) override;
 protected:

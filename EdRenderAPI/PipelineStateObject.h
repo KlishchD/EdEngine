@@ -84,7 +84,7 @@ public:
     GraphicsPipelineStateObjectBuilder& SetShaderProgram(const ContentPath& path, ShaderType types);
     __forceinline GraphicsPipelineStateObjectBuilder& SetShaderProgram(ShaderProgram* program) { m_Program = program; return *this; }
 
-    GraphicsPipelineStateObjectBuilder& AddShaderDefine(ccstr8 define) { m_Program->AddDefine(define); }
+    GraphicsPipelineStateObjectBuilder& AddShaderDefine(ccstr8 define) { m_Program->AddDefine(define); return *this; }
 
     __forceinline GraphicsPipelineStateObjectBuilder& SetIndependentBlending(bool enabled) { m_IndependentBlending = enabled; return *this; }
 
@@ -208,7 +208,7 @@ public:
         return (T*)m_NativeHandle;
     }
 
-    __forceinline uptr GetNativeHandle() const { m_NativeHandle; }
+    __forceinline uptr GetNativeHandle() const { return m_NativeHandle; }
 
     ~PipelineStateObject();
 protected:

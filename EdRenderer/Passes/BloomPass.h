@@ -11,7 +11,7 @@ public:
 
     virtual void Initialize(RenderGraph* graph) override;
 
-    virtual void GetWaitSignals(ccstr8** names, u32& count);
+    virtual void GetWaitSignals(ccstr8** names, u32& count) override;
 
     virtual CommandListType GetCommandQueueType() override { return CommandListType::Compute; }
 

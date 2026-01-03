@@ -107,7 +107,7 @@ bool Shader::Compile(const Array<ccstr8>& defines, bool debug, cstr8 message)
         
         if (message)
         {
-            strcpy(message, log.c_str());
+            memcpy(message, log.c_str(), log.size());
         }
 
         return false;

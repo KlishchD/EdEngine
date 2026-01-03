@@ -26,7 +26,7 @@ public:
         return reinterpret_cast<T*>(m_NativeHandle);
     }
 
-    __forceinline uptr GetNativeHandle() const { m_NativeHandle; }
+    __forceinline uptr GetNativeHandle() const { return m_NativeHandle; }
 
     ~DescriptorHeap();
 protected:
