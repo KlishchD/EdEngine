@@ -60,7 +60,7 @@ void ContentBrowserWidget::ContentItems()
                     ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, { 5.0f, 5.0f });
                     if (ImGui::ImageButton(path.Get(), m_DirectoryIcon->TextureView.GPUHandlePtr(), buttonSize))
                     {
-                        m_CurrentFolder = path.Content();
+                        m_CurrentFolder = path;
                     }
                     ImGui::Text(path.GetFileName());
                     ImGui::PopStyleVar();
@@ -70,7 +70,7 @@ void ContentBrowserWidget::ContentItems()
                     if (TextureAsset* icon = GetTextureByExtension(path.GetExtension())) {
                         ImGui::TableNextColumn();
 
-                        Asset* asset = AssetManager::Get().GetAsset(path.Content());
+                        Asset* asset = AssetManager::Get().GetAsset(path);
                         if (asset && asset->AssetType == TextureAsset::Type && asset->HasData)
                         {
                             icon = static_cast<TextureAsset*>(asset->Data);
@@ -78,7 +78,7 @@ void ContentBrowserWidget::ContentItems()
 
                         if (ImGui::ImageButton(path.Get(), icon->TextureView.GPUHandlePtr(), buttonSize))
                         {
-                            Asset* asset = AssetManager::Get().GetAsset(path.Content());
+                            Asset* asset = AssetManager::Get().GetAsset(path);
                             Editor::Get().SetSelectedAsset(asset);
                         }
                         ImGui::Text(path.GetFileName());
@@ -98,7 +98,7 @@ void ContentBrowserWidget::DirectoryStructure(const Path& path)
     {
         if (ImGui::IsItemClicked() || ImGui::IsItemToggledOpen())
         {
-            m_CurrentFolder = path.Content();
+            m_CurrentFolder = path;
         }
 
         DirectoryStructureInternal(path.GetAllPathsTemporary(false));
@@ -118,7 +118,7 @@ void ContentBrowserWidget::DirectoryStructureInternal(const TemporaryArray<Path>
             {
                 if (ImGui::IsItemClicked() || ImGui::IsItemToggledOpen())
                 {
-                    m_CurrentFolder = path.Content();
+                    m_CurrentFolder = path;
                 }
                 
                 DirectoryStructureInternal(path.GetAllPathsTemporary(false));

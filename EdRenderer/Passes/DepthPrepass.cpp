@@ -15,7 +15,7 @@ void DepthPrepass::Initialize(RenderGraph* graph)
     {
         GraphicsPipelineStateObjectBuilder builder;
         builder.SetRootSignature(m_Renderer->GetRootSignature())
-            .SetShaderProgram(ContentPath("Shaders\\hlsl\\DepthPrepass.h"), static_cast<ShaderType>(ST_Vertex | ST_Pixel))
+            .SetShaderProgram("DepthPrepass.h", static_cast<ShaderType>(ST_Vertex | ST_Pixel))
             .SetDepthStencil(true, false)
             .SetDepthFormat(PixelFormat::Depth)
             .SetDepthFunction(ComparisonFunction::Greater)

@@ -60,9 +60,29 @@ void Engine::RenderFrame()
 	m_Renderer->RenderFrame(renderScene, m_DeltaSeconds);
 }
 
-void Engine::Initialize()
+void Engine::Initialize(u32 argc, ccstr8* argvs)
 {
 	ED_LOG(Engine, info, "Started initializing.");
+
+	for (u32 index = 0; index < argc; ++index)
+	{
+		ED_LOG(Engine, info, "CLI entry: [{}].", argvs[index]);
+
+		if (index + 1 < argc)
+		{
+			if (strcmp(argvs[index], "-resources_path") == 0)
+			{
+				m_ResourcesPath = argvs[index + 1];
+			}
+			else if (strcmp(argvs[index], "-shaders_path") == 0)
+			{
+				m_ShadersPath = argvs[index + 1];
+			}
+		}
+	}
+
+	ED_ASSERT(m_ResourcesPath.IsValid() && m_ResourcesPath.IsDirectory(), "Resoruces path was not provided.");
+	ED_ASSERT(m_ShadersPath.IsValid() && m_ShadersPath.IsDirectory(), "Shaders path was not provided.");
 
 	m_Frame = 0;
 
@@ -168,4 +188,14 @@ Engine::~Engine()
 		Stop();
 		Deinitialize();
 	}
+}
+
+const Path& Files::GetContentPath()
+{
+  return Engine::Get().GetResourcesPath();
+}
+
+const Path& Files::GetShadersPath()
+{
+  return Engine::Get().GetShadersPath();
 }

@@ -22,7 +22,7 @@ void ShaderProgram::AttachShader(Shader* shader)
     m_AttachedShaders.Add(shader);
 }
 
-void ShaderProgram::AttachShader(const ContentPath& path, ShaderType type)
+void ShaderProgram::AttachShader(const ShaderPath& path, ShaderType type)
 {
     Shader* shader = RenderingContext::Get().CreateShader(path, type);
     AttachShader(shader);

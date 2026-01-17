@@ -125,7 +125,7 @@ void GBufferPass::Initialize(RenderGraph* graph)
     {
         GraphicsPipelineStateObjectBuilder builder;
         builder.SetRootSignature(m_Renderer->GetRootSignature())
-            .SetShaderProgram(ContentPath("Shaders\\hlsl\\GBuffer.h"), static_cast<ShaderType>(ST_Vertex | ST_Pixel))
+            .SetShaderProgram("GBuffer.h", static_cast<ShaderType>(ST_Vertex | ST_Pixel))
             .SetDepthStencil(true, false)
             .SetDepthFormat(PixelFormat::Depth)
             .SetDepthFunction(ComparisonFunction::GreaterEqual)

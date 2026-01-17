@@ -1,6 +1,6 @@
 {
   "Name": "EdEngine",
-  "Global": {
+  "Globals": {
     "Defines": [
       {
         "Name": "WINDOWS_PLATFORM",
@@ -58,6 +58,16 @@
       {
         "Name": "C++",
         "Value": "20"
+      },
+      {
+        "Name": "GenerateDebugInformation",
+        "Value": "1",
+        "Targets": "D"
+      },
+      {
+        "Name": "GenerateSymbolsDatabase",
+        "Value": "1",
+        "Targets": "D"
       }
     ]
   },
@@ -127,7 +137,13 @@
       "Name": "EdCore",
       "Sources": [ "EdCore" ],
       "Dependencies": [ "SpdLog", "GLM" ],
-      "PrecompileHeader": "EdCore\\EdCore.h"
+      "PrecompileHeader": "EdCore\\EdCore.h",
+      "Options": [
+        {
+          "Name": "DisableWarnings",
+          "Value": "0"
+        }
+      ]
     },
     {
       "Name": "EdTelemetry",

@@ -80,8 +80,8 @@ public:
 
     __forceinline GraphicsPipelineStateObjectBuilder& SetRootSignature(RootSignature* signature) { m_RootSignature = signature; return *this; }
 
-    GraphicsPipelineStateObjectBuilder& SetShaderProgram(const ContentPath& vertex, const ContentPath& pixel);
-    GraphicsPipelineStateObjectBuilder& SetShaderProgram(const ContentPath& path, ShaderType types);
+    GraphicsPipelineStateObjectBuilder& SetShaderProgram(const ShaderPath& vertex, const ShaderPath& pixel);
+    GraphicsPipelineStateObjectBuilder& SetShaderProgram(const ShaderPath& path, ShaderType types);
     __forceinline GraphicsPipelineStateObjectBuilder& SetShaderProgram(ShaderProgram* program) { m_Program = program; return *this; }
 
     GraphicsPipelineStateObjectBuilder& AddShaderDefine(ccstr8 define) { m_Program->AddDefine(define); return *this; }

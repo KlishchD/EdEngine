@@ -3,7 +3,7 @@
 class Shader final {
     friend class RenderingContext;
 public:
-    Shader(ShaderType type, const ContentPath& filepath);
+    Shader(ShaderType type, const ShaderPath& filepath);
 
     ShaderType GetType() const { return m_Type; }
 
@@ -25,5 +25,5 @@ public:
 protected:
     uptr m_NativeHandle;
     ShaderType m_Type;
-    ContentPath m_Path;
+    ShaderPath m_Path;
 };

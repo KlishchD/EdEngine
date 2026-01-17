@@ -37,7 +37,7 @@ void SSAOPass::Initialize(RenderGraph* graph)
     std::string noiseTextureDimensionsStr = std::to_string(SSAO_NOISE_TEXTURE_DIMENSIONS);
 
     {
-        ShaderProgram* program = m_Context->CreateShaderProgram(ContentPath("Shaders\\hlsl\\SSAOBase.h"), ST_Compute);
+        ShaderProgram* program = m_Context->CreateShaderProgram("SSAOBase.h", ST_Compute);
         program->AddDefine(Strings::Concat(32, "SSAO_TILE_SIZE=", tileSizeStr.c_str()));
         program->AddDefine(Strings::Concat(32, "SSAO_MAX_SAMPLES_COUNT=", maxSampleCountStr.c_str()));
         program->AddDefine(Strings::Concat(64, "noiseTextureDimensionsStr=", noiseTextureDimensionsStr.c_str()));
@@ -47,7 +47,7 @@ void SSAOPass::Initialize(RenderGraph* graph)
     }
 
     {
-        ShaderProgram* program = m_Context->CreateShaderProgram(ContentPath("Shaders\\hlsl\\SSAOBlur.h"), ST_Compute);
+        ShaderProgram* program = m_Context->CreateShaderProgram("SSAOBlur.h", ST_Compute);
         program->AddDefine(Strings::Concat(32, "SSAO_TILE_SIZE=", tileSizeStr.c_str()));
         program->AddDefine(Strings::Concat(32, "SSAO_MAX_SAMPLES_COUNT=", maxSampleCountStr.c_str()));
         program->AddDefine(Strings::Concat(32, "noiseTextureDimensionsStr=", noiseTextureDimensionsStr.c_str()));

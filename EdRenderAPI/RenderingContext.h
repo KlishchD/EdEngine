@@ -104,16 +104,16 @@ public:
 	void FreeUAVTarget(ResourceView& view);
 	void FreeUAVTargets(Array<ResourceView>& views);
 
-	Shader* CreateShader(const ContentPath& path, ShaderType type);
+	Shader* CreateShader(const ShaderPath& path, ShaderType type);
 
 	ShaderProgram* CreateShaderProgram();
-	ShaderProgram* CreateShaderProgram(const ContentPath& path, ShaderType types);
-	ShaderProgram* CreateShaderProgram(const ContentPath& vertex, const ContentPath& pixel);
+	ShaderProgram* CreateShaderProgram(const ShaderPath& path, ShaderType types);
+	ShaderProgram* CreateShaderProgram(const ShaderPath& vertex, const ShaderPath& pixel);
 
 	RootSignature* CreateRootSignature(const RootSignatureBuilder& builder);
 	PipelineStateObject* CreatePipelineStateObject(ccstr8 name, const GraphicsPipelineStateObjectBuilder& builder);
 	PipelineStateObject* CreatePipelineStateObject(ccstr8 name, RootSignature* signature, ShaderProgram* program);
-	PipelineStateObject* CreatePipelineStateObject(ccstr8 name, RootSignature* signature, const ContentPath& path);
+	PipelineStateObject* CreatePipelineStateObject(ccstr8 name, RootSignature* signature, const ShaderPath& shader);
 
     void PreFrameUpdate();
     void PostFrameUpdate();

@@ -9,7 +9,7 @@ i32 main(i32 argc, c8* argv[])
     Engine& engine = Engine::Create();
 
     engine.Start();
-    engine.Initialize();
+    engine.Initialize(argc, argv);
 
     {
         Editor editor;

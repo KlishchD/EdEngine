@@ -21,7 +21,7 @@ public:
     void Start();
     void Stop();
 
-    void Initialize();
+    void Initialize(u32 argc, c8** argvs);
     void Deinitialize();
     
     bool IsRunning();
@@ -40,13 +40,19 @@ public:
 #ifdef ED_EDITOR
     void OverrideCameraForNextFrame(const CameraElement& element);
 #endif
+
+    const Path& GetResourcesPath() const { return m_ResourcesPath; }
+    const Path& GetShadersPath() const { return m_ShadersPath; }
+
     ~Engine();
 protected:
-	void PushPostUpdate(f32 DeltaTime);
+	  void PushPostUpdate(f32 DeltaTime);
 
     void RenderFrame();
-
 protected:
+    Path m_ResourcesPath;
+    Path m_ShadersPath;
+
     EntityManager* m_EntityManager;
     AssetManager* m_AssetManager;
     Window* m_Window;

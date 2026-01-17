@@ -28,7 +28,7 @@ void LightingPass::Initialize(RenderGraph* graph)
     {
         GraphicsPipelineStateObjectBuilder builder;
         builder.SetRootSignature(m_Renderer->GetRootSignature())
-            .SetShaderProgram("Shaders\\hlsl\\BaseLighting.h", static_cast<ShaderType>(ST_Vertex | ST_Pixel))
+            .SetShaderProgram("BaseLighting.h", static_cast<ShaderType>(ST_Vertex | ST_Pixel))
             .AddInputElement("Position", 0, PixelFormat::RG32F)
             .AddRenderTarget().SetFormat(PixelFormat::RGBA16F);
 
@@ -39,7 +39,7 @@ void LightingPass::Initialize(RenderGraph* graph)
     {
         std::string type = std::to_string(i + 1);
 
-        ShaderProgram* program = m_Context->CreateShaderProgram("Shaders\\hlsl\\LightsLighting.h", static_cast<ShaderType>(ST_Vertex | ST_Pixel));
+        ShaderProgram* program = m_Context->CreateShaderProgram("LightsLighting.h", static_cast<ShaderType>(ST_Vertex | ST_Pixel));
         program->AddDefine(Strings::Concat(32, "LIGHT_TYPE=", type.c_str()));
 
         GraphicsPipelineStateObjectBuilder builder;

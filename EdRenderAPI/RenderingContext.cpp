@@ -171,14 +171,14 @@ void RenderingContext::FreeUAVTargets(Array<ResourceView>& views)
     }
 }
 
-Shader* RenderingContext::CreateShader(const ContentPath& path, ShaderType type)
+Shader* RenderingContext::CreateShader(const ShaderPath& path, ShaderType type)
 {
     Shader* shader = new Shader(type, path);
     m_Shaders.Add(shader);
     return shader;
 }
 
-ShaderProgram* RenderingContext::CreateShaderProgram(const ContentPath& vertex, const ContentPath& pixel)
+ShaderProgram* RenderingContext::CreateShaderProgram(const ShaderPath& vertex, const ShaderPath& pixel)
 {
     ShaderProgram* program = CreateShaderProgram();
     program->AttachShader(vertex, ST_Vertex);
@@ -193,7 +193,7 @@ ShaderProgram* RenderingContext::CreateShaderProgram()
     return program;
 }
 
-ShaderProgram* RenderingContext::CreateShaderProgram(const ContentPath& path, ShaderType types)
+ShaderProgram* RenderingContext::CreateShaderProgram(const ShaderPath& path, ShaderType types)
 {
     ShaderProgram* program = CreateShaderProgram();
 
@@ -230,10 +230,10 @@ PipelineStateObject* RenderingContext::CreatePipelineStateObject(ccstr8 name, Ro
     return pso;
 }
 
-PipelineStateObject* RenderingContext::CreatePipelineStateObject(ccstr8 name, RootSignature* signature, const ContentPath& path)
+PipelineStateObject* RenderingContext::CreatePipelineStateObject(ccstr8 name, RootSignature* signature, const ShaderPath& shader)
 {
     ShaderProgram* program = CreateShaderProgram();
-    program->AttachShader(path, ST_Compute);
+    program->AttachShader(shader, ST_Compute);
 
     PipelineStateObject* pso = new PipelineStateObject(name, signature, program);
     m_PSOs.Add(pso);

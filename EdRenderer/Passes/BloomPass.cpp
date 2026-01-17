@@ -26,7 +26,7 @@ void BloomPass::Initialize(RenderGraph* graph)
         std::string mipStr = std::to_string(mip).c_str();
         ccstr8 name = Strings::Concat(32, "BloomDownscale_", mipStr.c_str());
 
-        ShaderProgram* program = m_Context->CreateShaderProgram(ContentPath("Shaders\\hlsl\\BloomDownscale.h"), ST_Compute);
+        ShaderProgram* program = m_Context->CreateShaderProgram("BloomDownscale.h", ST_Compute);
         program->AddDefine(Strings::Concat(32, "BLOOM_MIPS_COUNT=", mipsCountStr.c_str()));
         program->AddDefine(Strings::Concat(32, "BLOOM_MIP_LEVEL=", mipStr.c_str()));
         program->AddDefine(Strings::Concat(32, "BLOOM_TILE_SIZE=", tileSizeStr.c_str()));
@@ -39,7 +39,7 @@ void BloomPass::Initialize(RenderGraph* graph)
         std::string mipStr = std::to_string(mip).c_str();
         ccstr8 name = Strings::Concat(32, "BloomUpscale_", mipStr.c_str());
 
-        ShaderProgram* program = m_Context->CreateShaderProgram(ContentPath("Shaders\\hlsl\\BloomUpscale.h"), ST_Compute);
+        ShaderProgram* program = m_Context->CreateShaderProgram("BloomUpscale.h", ST_Compute);
         program->AddDefine(Strings::Concat(32, "BLOOM_MIPS_COUNT=", mipsCountStr.c_str()));
         program->AddDefine(Strings::Concat(32, "BLOOM_MIP_LEVEL=", mipStr.c_str()));
         program->AddDefine(Strings::Concat(32, "BLOOM_TILE_SIZE=", tileSizeStr.c_str()));

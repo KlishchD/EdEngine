@@ -17,7 +17,7 @@ void ResolutionPass::Initialize(RenderGraph* graph)
     {
         GraphicsPipelineStateObjectBuilder builder;
         builder.SetRootSignature(m_Renderer->GetRootSignature())
-            .SetShaderProgram("Shaders\\hlsl\\Resolution.h", static_cast<ShaderType>(ST_Vertex | ST_Pixel))
+            .SetShaderProgram("Resolution.h", static_cast<ShaderType>(ST_Vertex | ST_Pixel))
             .AddInputElement("Position", 0, PixelFormat::RG32F)
             .AddRenderTarget().SetFormat(PixelFormat::RGBA8F);
 

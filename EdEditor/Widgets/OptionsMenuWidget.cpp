@@ -33,7 +33,7 @@ void OptionsMenuWidget::Tick(f32 DeltaTime)
 
                 if (scene.IsValid())
                 {
-                    AssetHelper::ImportScene(scene, save.Content(), save.GetFileName(), true, true);
+                    AssetHelper::ImportScene(scene, save, save.GetFileName(), true, true);
                 }
                 else
                 {
@@ -101,7 +101,7 @@ void OptionsMenuWidget::Tick(f32 DeltaTime)
 
             if (ImGui::MenuItem("Save as"))
             {
-                ContentPath path = PlatformHelper::SaveFileWindow(Files::SceneAssetExtension, *Engine::Get().GetWindow(), "Save scene.", Files::SceneAssetExtension).Content();
+                ContentPath path = PlatformHelper::SaveFileWindow(Files::SceneAssetExtension, *Engine::Get().GetWindow(), "Save scene.", Files::SceneAssetExtension);
 
                 if (path.IsFile())
                 {
@@ -115,7 +115,7 @@ void OptionsMenuWidget::Tick(f32 DeltaTime)
 
             if (ImGui::MenuItem("Load as"))
             {
-                ContentPath path = PlatformHelper::OpenFileWindow(Files::FullSceneAssetExtension, *Engine::Get().GetWindow(), "Save scene.").Content();
+                ContentPath path = PlatformHelper::OpenFileWindow(Files::FullSceneAssetExtension, *Engine::Get().GetWindow(), "Save scene.");
 
                 if (path.IsValid() && path.IsFile())
                 {

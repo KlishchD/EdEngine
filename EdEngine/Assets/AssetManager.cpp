@@ -27,8 +27,8 @@ void AssetManager::Initialize()
 
         if (type != AssetHelper::InvalidAssetTypeId)
         {
-            Asset* asset = CreateAsset(type, "None", path.Content(), "None");
-            asset->FilePath.FromAbsolutePath(path.Get());
+            Asset* asset = CreateAsset(type, "None", path, "None");
+            asset->FilePath = path;
             LoadAsset(asset, false);
         }
     }

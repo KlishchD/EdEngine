@@ -27,7 +27,7 @@ struct IncludeHandler : public IDxcIncludeHandler
     virtual ULONG STDMETHODCALLTYPE Release(void) override { return 0; }
 };
 
-Shader::Shader(ShaderType type, const ContentPath& filepath) : m_NativeHandle(0), m_Type(type), m_Path(filepath)
+Shader::Shader(ShaderType type, const ShaderPath& filepath) : m_NativeHandle(0), m_Type(type), m_Path(filepath)
 {
 
 }

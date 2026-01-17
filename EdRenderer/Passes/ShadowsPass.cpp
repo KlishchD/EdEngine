@@ -14,7 +14,7 @@ void ShadowsPass::Initialize(RenderGraph* graph)
     {
         GraphicsPipelineStateObjectBuilder builder;
         builder.SetRootSignature(m_Renderer->GetRootSignature())
-            .SetShaderProgram("Shaders\\hlsl\\LocalShadows.h", static_cast<ShaderType>(ST_Vertex | ST_Geometry | ST_Pixel))
+            .SetShaderProgram("LocalShadows.h", static_cast<ShaderType>(ST_Vertex | ST_Geometry | ST_Pixel))
             .SetDepthStencil(true, false)
             .SetDepthFormat(PixelFormat::Depth)
             .SetDepthFunction(ComparisonFunction::Greater)

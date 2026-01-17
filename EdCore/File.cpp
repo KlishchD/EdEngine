@@ -25,14 +25,13 @@ Path::Path(const Path& path) : m_Path(path.Get())
 {
 }
 
+Path::Path(Path&& path) : m_Path(std::move(path.m_Path))
+{
+}
+
 void Path::Serialize(Archive<>& archive)
 {
     archive & m_Path;
-}
-
-ContentPath Path::Content() const
-{
-    return ContentPath(std::filesystem::relative(m_Path, Files::GetContentPath().Get()).string().c_str());
 }
 
 Path& Path::Append(ccstr8 subpath)
@@ -278,70 +277,19 @@ bool Path::operator==(const Path& other) const
     return std::filesystem::equivalent(m_Path, other.m_Path, error);
 }
 
-ContentPath::ContentPath() : Path(Files::GetContentPath())
-{
-
-}
-
-ContentPath::ContentPath(ccstr8 subpath) : Path(Files::GetContentPath())
-{
-    ED_ASSERT(subpath, "Subpath for content path must be not null.");
-    Append(subpath);
-}
-
-ContentPath::ContentPath(const ContentPath& path)
-{
-    m_Path = path.m_Path;
-}
-
-ContentPath::ContentPath(ContentPath&& path)
-{
-    m_Path = std::move(path.m_Path);
-}
-
-ContentPath& ContentPath::FromAbsolutePath(ccstr8 path)
-{
-    m_Path = path;
-    return *this;
-}
-
-ContentPath& ContentPath::operator=(const ContentPath& path)
-{
-    m_Path = path.m_Path;
-    return *this;
-}
-
-ContentPath& ContentPath::operator=(ContentPath&& path)
-{
-    m_Path = std::move(path.m_Path);
-    return *this;
-}
-
-const Path& Files::GetContentPath()
-{
-    static Path path = RESOURCES_PATH;
-    return path;
-}
-
-const ContentPath& Files::GetPlayRecordingsPath()
+const Path& Files::GetPlayRecordingsPath()
 {
     static ContentPath path = PlayRecordingsFolderName;
     return path;
 }
 
-const ContentPath& Files::GetEditorLayoutPath()
+const Path& Files::GetEditorLayoutPath()
 {
     static ContentPath path = EditorLayoutFilename;
     return path;
 }
 
-const ContentPath& Files::GetShadersPath()
-{
-    static ContentPath path = ShadersFolderName;
-    return path;
-}
-
-const ContentPath& Files::GetDefaultScenePath()
+const Path& Files::GetDefaultScenePath()
 {
     static ContentPath path = []() {
         ContentPath result = ScenesFolderName;
@@ -352,7 +300,7 @@ const ContentPath& Files::GetDefaultScenePath()
     return path;
 }
 
-const ContentPath& Files::GetEditorIconPath()
+const Path& Files::GetEditorIconPath()
 {
   static ContentPath path = []() {
     ContentPath result;

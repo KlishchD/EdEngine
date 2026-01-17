@@ -1,8 +1,5 @@
 #pragma once
 
-class Path;
-class ContentPath;
-
 class Path
 {
 public:
@@ -10,13 +7,12 @@ public:
     Path(ccstr16 path);
     Path(ccstr8 path);
     Path(const Path& path);
+    Path(Path&& path);
 
     Path& operator=(const Path& path);
     Path& operator=(Path&& path);
 
     void Serialize(Archive<>& archive);
-
-    ContentPath Content() const;
 
     Path& Append(Path relative);
     Path& Append(ccstr8 subpath);
@@ -55,29 +51,16 @@ public:
 
     bool operator==(const Path& other) const;
     bool operator!=(const Path& other) const;
+
+    virtual ~Path() = default;
 protected:
     // TODO: Make custom string class and use it here.
     std::string m_Path;
 };
 
-class ContentPath : public Path
-{
-public:
-    ContentPath();
-    ContentPath(ccstr8 subpath);
-
-    ContentPath(const ContentPath& path);
-    ContentPath(ContentPath&& path);
-
-    ContentPath& operator=(const ContentPath& path);
-    ContentPath& operator=(ContentPath&& path);
-
-    ContentPath& FromAbsolutePath(ccstr8 path);
-};
-
 namespace Files
 {
-    // TODO: Move all pathes here.
+    // TODO: Move all paths here.
 
     constexpr ccstr8 ContentFolderName = "Resources";
     constexpr ccstr8 PlayRecordingsFolderName = "PlayRecordings";
@@ -102,11 +85,54 @@ namespace Files
     constexpr ccstr8 SceneAssetExtension = "edscene";
 
     const Path& GetContentPath();
-    const ContentPath& GetPlayRecordingsPath();
-    const ContentPath& GetEditorLayoutPath();
-    const ContentPath& GetShadersPath();
-    const ContentPath& GetDefaultScenePath();
-    const ContentPath& GetEditorIconPath();
+    const Path& GetPlayRecordingsPath();
+    const Path& GetEditorLayoutPath();
+    const Path& GetShadersPath();
+    const Path& GetDefaultScenePath();
+    const Path& GetEditorIconPath();
 
     const Path& GetShadersReportPath();
 }
+
+template <typename PathSourceType>
+class Subpath : public Path
+{
+public:
+  Subpath() : Path(PathSourceType()()) {}
+  Subpath(ccstr8 subpath) : Path(PathSourceType()())
+  {
+    ED_ASSERT(subpath, "Relative path for subpath must be not null.");
+    Path::Append(subpath);
+  }
+
+  Subpath(const Path& path) : Path(path) { }
+  Subpath(const Subpath& path) : Path(path) { }
+
+  Subpath(Path&& path) : Path(std::move(path)) { }
+  Subpath(Subpath&& path) : Path(std::move(path)) { }
+
+  Subpath& operator=(const Path& path) { Path::operator=(path); return *this; }
+  Subpath& operator=(const Subpath& path) { Path::operator=(path); return *this; }
+
+  Subpath& operator=(Path&& path) { return Path::operator=(std::move(path)); }
+  Subpath& operator=(Subpath&& path) { return Path::operator=(std::move(path)); }
+};
+
+struct ContentPathSource
+{
+  ccstr8 operator()() const
+  {
+    return Files::GetContentPath().Get();
+  }
+};
+
+struct ShadersPathSource
+{
+  ccstr8 operator()() const
+  {
+    return Files::GetShadersPath().Get();
+  }
+};
+
+using ContentPath = Subpath<ContentPathSource>;
+using ShaderPath = Subpath<ShadersPathSource>;

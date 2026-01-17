@@ -8,7 +8,7 @@ public:
     ShaderProgram();
 
     void AttachShader(Shader* shader);
-    void AttachShader(const ContentPath& path, ShaderType type);
+    void AttachShader(const ShaderPath& path, ShaderType type);
     
     bool Compile(bool debug, cstr8 message);
     void AddDefine(ccstr8 define);
