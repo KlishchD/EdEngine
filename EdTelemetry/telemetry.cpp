@@ -1,27 +1,71 @@
 #include "EdTelemetry.h"
 
+bool shader_data::operator==(const shader_data& other) const
+{
+  if (path != other.path) return false;
+
+  const bool arguments_count_match = arguments.GetSize() == other.arguments.GetSize();
+  if (!arguments_count_match) return false;
+
+  for (std::size_t index{ 0 }; index < other.arguments.GetSize(); ++index)
+  {
+    const auto& argument = arguments[index];
+    const auto& other_argument = other.arguments[index];
+    if (argument != other_argument) return false;
+  }
+
+  return true;
+}
+
 bool telemetry::shaders_reporting_enabled() const
 {
   return ED_TELEMETRY == 1;
 }
 
-void telemetry::report_shader(const std::string& descriptor)
+void telemetry::report_shader(const ShaderPath& path, const TemporaryArray<ccstr16>& arguments)
 {
 #if ED_TELEMETRY == 1
-  shaders.insert(descriptor);
+  shader_data shader;
+  shader.path = path.Get();
+
+  for (const auto& argument : arguments)
+  {
+    shader.arguments.Add(Strings::Convert(argument, true));
+  }
+
+  const bool is_duplcate = shaders.contains(shader);
+  if (is_duplcate) return;
+
+  shaders.insert(std::move(shader));
+  ED_LOG(telemetry, info, "Reported [{}] {} - {}.", shaders.size(), path.Get(), shader.arguments.GetSize());
 #endif
 }
 
 void telemetry::dump_shaders(const Path& path)
 {
 #if ED_TELEMETRY == 1
-  ED_LOG(Telemetry, info, "Dumping shaders [{}] to [{}].", shaders.size(), path.Get());
-
-  std::ofstream file(path.Get(), std::ios_base::out);
-
-  for (const auto& descriptor : shaders)
+  if (path.IsValid())
   {
-    file << descriptor << "\n";
+    ED_LOG(telemetry, info, "Previous shaders report detected, cleaning up.");
+    path.Remove();
   }
+
+  ED_LOG(telemetry, info, "Gathering shaders to dump in [{}].", path.Get());
+
+  estd::json result;
+
+  for (const auto& shader : shaders)
+  {
+    estd::json local_result;
+    local_result["Name"] = shader.path;
+    for (const auto& argument : shader.arguments)
+    {
+      local_result["Arguments"].push_back(argument);
+    }
+
+    result.push_back(std::move(local_result));
+  }
+
+  estd::write_json(path.Get(), result);
 #endif
 }

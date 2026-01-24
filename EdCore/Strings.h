@@ -14,6 +14,7 @@ namespace Strings
     ccstr8 Convert(ccstr16 str, bool temporary);
     ccstr16 Convert(ccstr8 str, bool temporary);
 
+    cstr8 Append(cstr8 destination, ccstr8 a1);
     cstr8 Concat(cstr8 destination, ccstr8 a1);
     cstr8 Concat(cstr8 destination, ccstr8 a1, ccstr8 a2);
     cstr8 Concat(cstr8 destination, ccstr8 a1, ccstr8 a2, ccstr8 a3);

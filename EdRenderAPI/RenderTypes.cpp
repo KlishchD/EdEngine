@@ -95,42 +95,6 @@ u32 RenderTypes::ConvertShaderDataTypeSize(ShaderDataType type)
     }
 }
 
-ccstr16 RenderTypes::ConvertShaderEntrypoint(ShaderType type)
-{
-	switch (type)
-	{
-	case ST_Vertex:   return L"VSMain";
-	case ST_Geometry: return L"GSMain";
-	case ST_Pixel:    return L"PSMain";
-	case ST_Domain:   return L"DSMain";
-	case ST_Hull:     return L"HSMain";
-	case ST_Compute:  return L"CSMain";
-    case ST_None:
-    default:
-		ED_ASSERT(0, "Entry function is not supported.");
-	}
-
-	return L"None";
-}
-
-ccstr16 RenderTypes::ConvertShaderTarget(ShaderType type)
-{
-	switch (type)
-	{
-	case ST_Vertex:   return L"vs_6_6";
-	case ST_Geometry: return L"gs_6_6";
-	case ST_Pixel:    return L"ps_6_6";
-	case ST_Domain:   return L"ds_6_6";
-	case ST_Hull:     return L"hs_6_6";
-	case ST_Compute:  return L"cs_6_6";
-    case ST_None:
-	default:
-		ED_ASSERT(0, "Shader target is not supported.");
-	}
-
-	return L"None";
-}
-
 f32 RenderTypes::ConvertRenderTargetSizePolicy(RenderTargetSizePolicy policy)
 {
 	switch (policy)

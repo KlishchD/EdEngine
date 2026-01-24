@@ -44,6 +44,8 @@ public:
     Array<Pair<ccstr8, u32>> GetAllFolders() const;
     TemporaryArray<Pair<ccstr8, u32>> GetAllFoldersTemporary() const;
 
+    void Remove() const;
+
     bool IsRelative() const;
     bool IsAbsolute() const;
 
@@ -116,6 +118,14 @@ public:
 
   Subpath& operator=(Path&& path) { return Path::operator=(std::move(path)); }
   Subpath& operator=(Subpath&& path) { return Path::operator=(std::move(path)); }
+
+  Subpath& operator=(ccstr8 subpath)
+  {
+    ED_ASSERT(subpath, "Relative path for subpath must be not null.");
+    Path::operator=(PathSourceType()());
+    Path::Append(subpath);
+    return *this;
+  }
 };
 
 struct ContentPathSource

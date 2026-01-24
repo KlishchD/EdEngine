@@ -57,7 +57,7 @@
     "Options": [
       {
         "Name": "C++",
-        "Value": "20"
+        "Value": "Latest"
       },
       {
         "Name": "GenerateDebugInformation",
@@ -73,12 +73,9 @@
   },
   "Projects": [
     {
-      "Name": "EdEditor",
-      "Sources": [ "EdEditor" ],
-      "Dependencies": [ "EdEngine", "ImGui" ],
-      "PrecompileHeader": "EdEditor\\EdEditor.h",
-      "ArtifactType": "Executable",
-      "Resources": "Resources\\Editor\\resources.res"
+      "Name": "ESTD",
+      "Sources": [ "Dependencies\\ESTD\\estd" ],
+      "Includes": [ "Dependencies\\ESTD\\Dependencies\\json\\include", "Dependencies\\ESTD" ]
     },
     {
       "Name": "DxcShaderCompiler",
@@ -136,7 +133,7 @@
     {
       "Name": "EdCore",
       "Sources": [ "EdCore" ],
-      "Dependencies": [ "SpdLog", "GLM" ],
+      "Dependencies": [ "SpdLog", "GLM", "ESTD" ],
       "PrecompileHeader": "EdCore\\EdCore.h",
       "Options": [
         {
@@ -149,18 +146,24 @@
       "Name": "EdTelemetry",
       "Sources": [ "EdTelemetry" ],
       "Dependencies": [ "EdCore" ],
-      "PrecompiledHeader":  "EdTelemetry\\EdTelemetry.h"
+      "PrecompiledHeader": "EdTelemetry\\EdTelemetry.h"
+    },
+    {
+      "Name": "EdShadersCompiler",
+      "Sources": [ "EdShadersCompiler" ],
+      "Dependencies": [ "EdCore", "EdTelemetry", "DxcShaderCompiler", "DxcShaderSigner" ],
+      "PrecompiledHeader": "EdShadersCompiler\\EdShadersCompiler.h"
     },
     {
       "Name": "EdRenderAPI",
       "Sources": [ "EdRenderAPI" ],
-      "Dependencies": [ "EdTelemetry", "GLFW" ],
+      "Dependencies": [ "GLFW", "EdShadersCompiler" ],
       "PrecompileHeader": "EdRenderApi\\EdRenderApiPrivate.h"
     },
     {
       "Name": "EdDirectX12",
       "Sources": [ "EdDirectX12" ],
-      "Dependencies": [ "EdRenderAPI", "DxcShaderCompiler", "DxcShaderSigner" ],
+      "Dependencies": [ "EdRenderAPI" ],
       "PrecompileHeader": "EdDirectX12\\EdDirectX12.h"
     },
     {
@@ -174,6 +177,14 @@
       "Sources": [ "EdEngine" ],
       "Dependencies": [ "EdRenderer", "Assimp" ],
       "PrecompileHeader": "EdEngine\\EdEngine.h"
+    },
+    {
+      "Name": "EdEditor",
+      "Sources": [ "EdEditor" ],
+      "Dependencies": [ "EdEngine", "ImGui" ],
+      "PrecompileHeader": "EdEditor\\EdEditor.h",
+      "ArtifactType": "Executable",
+      "Resources": "Resources\\Editor\\resources.res"
     }
   ],
   "Builds": [

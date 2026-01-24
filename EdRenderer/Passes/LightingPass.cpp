@@ -28,29 +28,31 @@ void LightingPass::Initialize(RenderGraph* graph)
     {
         GraphicsPipelineStateObjectBuilder builder;
         builder.SetRootSignature(m_Renderer->GetRootSignature())
-            .SetShaderProgram("BaseLighting.h", static_cast<ShaderType>(ST_Vertex | ST_Pixel))
+            .SetShader("BaseLighting.h")
             .AddInputElement("Position", 0, PixelFormat::RG32F)
             .AddRenderTarget().SetFormat(PixelFormat::RGBA16F);
 
         m_BaseLightingPSO = RenderingContext::Get().CreatePipelineStateObject("BaseLighting", builder);
     }
 
+    ccstr8 psoNames[2] = {
+      "POINT_LIGHT_TYPE",
+      "SPOT_LIGHT_TYPE"
+    };
+
     for (u32 i = 0; i < 2; ++i)
     {
-        std::string type = std::to_string(i + 1);
-
-        ShaderProgram* program = m_Context->CreateShaderProgram("LightsLighting.h", static_cast<ShaderType>(ST_Vertex | ST_Pixel));
-        program->AddDefine(Strings::Concat(32, "LIGHT_TYPE=", type.c_str()));
-
         GraphicsPipelineStateObjectBuilder builder;
         builder.SetRootSignature(m_Renderer->GetRootSignature())
-            .SetShaderProgram(program)
+            .SetShader("LightsLighting.h")
+            .AddShaderDefine("LIGHT_TYPE", i + 1)
             .AddInputElement("Position", 0, PixelFormat::RGB32F)
             .SetCullFace(PrimitiveCullingMode::Front)
             .SetDepthClip(false)
             .AddRenderTarget().SetColorBlend(BlendFactor::One, BlendFactor::One, BlendOperation::Add).SetFormat(PixelFormat::RGBA16F);
 
-        m_LightsPSO[i] = m_Context->CreatePipelineStateObject(Strings::Concat(32, "Lights_", type.c_str()), builder);
+        ccstr8 name = Strings::Concat(32, "Lights_", psoNames[i]);
+        m_LightsPSO[i] = m_Context->CreatePipelineStateObject(name, builder);
     }
 
     {

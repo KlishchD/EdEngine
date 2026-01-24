@@ -21,7 +21,7 @@ public:
     void Start();
     void Stop();
 
-    void Initialize(u32 argc, c8** argvs);
+    void Initialize(u32 argc, ccstr8* argvs);
     void Deinitialize();
     
     bool IsRunning();

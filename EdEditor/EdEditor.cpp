@@ -4,7 +4,7 @@
 #   include "PlayRecorder.h"
 #endif
 
-i32 main(i32 argc, c8* argv[])
+i32 main(i32 argc, ccstr8* argv)
 {
     Engine& engine = Engine::Create();
 

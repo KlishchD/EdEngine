@@ -25,12 +25,12 @@ void MipMappingPass::Initialize(RenderGraph* graph)
 
             cstr8 name = Strings::Concat(32, "MipMapping_", modeStr.c_str(), "_", mipStr.c_str());
 
-            ShaderProgram* program = m_Context->CreateShaderProgram("MipMapping.h", ST_Compute);
-            program->AddDefine(tiles);
-            program->AddDefine(Strings::Concat(32, "DOWSCALING_MODE=", modeStr.c_str()));
-            program->AddDefine(Strings::Concat(32, "MIP_COUNT=", mipStr.c_str()));
-
-            m_AlbedoPSO[mode][mips] = m_Context->CreatePipelineStateObject(name, m_Renderer->GetRootSignature(), program);
+            ComputePipelineStateObjectBuilder builder;
+            builder.SetRootSignature(m_Renderer->GetRootSignature())
+              .SetShader("MipMapping.h")
+              .AddShaderDefine("DOWSCALING_MODE", mode)
+              .AddShaderDefine("MIP_COUNT", mips);
+            m_AlbedoPSO[mode][mips] = m_Context->CreatePipelineStateObject(name, builder);
         }
     }
 }

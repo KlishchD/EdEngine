@@ -2,7 +2,7 @@
 
 #pragma comment(lib, "glfw3_mt.lib")
 
-#include "EdTelemetry.h"
+#include "EdShadersCompiler.h"
 #include "RenderTypes.h"
 
 #define ALLOW_PSO_RECREATION 1
@@ -11,10 +11,10 @@
     #define ALLOW_PSO_RECREATION 0
 #endif 
 
-#if RELEASE_BUILD == 1 
-    #undef ALLOW_PSO_RECREATION
-    #define ALLOW_PSO_RECREATION 0
-#endif
+// #if RELEASE_BUILD == 1
+//     #undef ALLOW_PSO_RECREATION
+//     #define ALLOW_PSO_RECREATION 0
+// #endif
 
 #if ALLOW_PSO_RECREATION == 1
     FREE_LIST_ALLOCATOR(PSODescriptionsAllocator, Memory::BytesToMB)

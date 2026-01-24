@@ -22,3 +22,6 @@
 [submodule "freetype"]
 	path = Dependencies/freetype
 	url = https://github.com/freetype/freetype
+[submodule "Dependencies/ESTD"]
+	path = Dependencies/ESTD
+	url = https://github.com/KlishchD/ESTD

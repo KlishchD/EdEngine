@@ -238,6 +238,12 @@ TemporaryArray<Pair<ccstr8, u32>> Path::GetAllFoldersTemporary() const
     return GetAllFoldersInternal<TemporaryArray<Pair<ccstr8, u32>>>(m_Path);
 }
 
+void Path::Remove() const
+{
+  ED_ASSERT(IsValid(), "Can no delete non-existing file [{}].", m_Path.c_str());
+  std::filesystem::remove(m_Path);
+}
+
 bool Path::IsRelative() const
 {
     return std::filesystem::path(m_Path).is_relative();
@@ -316,7 +322,7 @@ const Path& Files::GetShadersReportPath()
   static Path path = []() {
     Path result = GetContentPath();
     result.Pop();
-    result.Append("Reports\\shaders.txt");
+    result.Append("Reports\\shaders.json");
     return result;
   }();
 

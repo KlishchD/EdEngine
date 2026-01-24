@@ -26,11 +26,14 @@ void BloomPass::Initialize(RenderGraph* graph)
         std::string mipStr = std::to_string(mip).c_str();
         ccstr8 name = Strings::Concat(32, "BloomDownscale_", mipStr.c_str());
 
-        ShaderProgram* program = m_Context->CreateShaderProgram("BloomDownscale.h", ST_Compute);
-        program->AddDefine(Strings::Concat(32, "BLOOM_MIPS_COUNT=", mipsCountStr.c_str()));
-        program->AddDefine(Strings::Concat(32, "BLOOM_MIP_LEVEL=", mipStr.c_str()));
-        program->AddDefine(Strings::Concat(32, "BLOOM_TILE_SIZE=", tileSizeStr.c_str()));
-        m_DownscalePSO[mip] = m_Context->CreatePipelineStateObject(name, m_Renderer->GetRootSignature(), program);
+        ComputePipelineStateObjectBuilder builder;
+        builder.SetRootSignature(m_Renderer->GetRootSignature())
+          .SetShader("BloomDownscale.h")
+          .AddShaderDefine("BLOOM_MIPS_COUNT", BloomMipsCount)
+          .AddShaderDefine("BLOOM_MIP_LEVEL", mip)
+          .AddShaderDefine("BLOOM_TILE_SIZE", BLOOM_TILE_SIZE);
+
+        m_DownscalePSO[mip] = m_Context->CreatePipelineStateObject(name, builder);
 
     }
 
@@ -39,11 +42,14 @@ void BloomPass::Initialize(RenderGraph* graph)
         std::string mipStr = std::to_string(mip).c_str();
         ccstr8 name = Strings::Concat(32, "BloomUpscale_", mipStr.c_str());
 
-        ShaderProgram* program = m_Context->CreateShaderProgram("BloomUpscale.h", ST_Compute);
-        program->AddDefine(Strings::Concat(32, "BLOOM_MIPS_COUNT=", mipsCountStr.c_str()));
-        program->AddDefine(Strings::Concat(32, "BLOOM_MIP_LEVEL=", mipStr.c_str()));
-        program->AddDefine(Strings::Concat(32, "BLOOM_TILE_SIZE=", tileSizeStr.c_str()));
-        m_UpscalePSO[mip] = m_Context->CreatePipelineStateObject(name, m_Renderer->GetRootSignature(), program);
+        ComputePipelineStateObjectBuilder builder;
+        builder.SetRootSignature(m_Renderer->GetRootSignature())
+          .SetShader("BloomUpscale.h")
+          .AddShaderDefine("BLOOM_MIPS_COUNT", BloomMipsCount)
+          .AddShaderDefine("BLOOM_MIP_LEVEL", mip)
+          .AddShaderDefine("BLOOM_TILE_SIZE", BLOOM_TILE_SIZE);
+
+        m_UpscalePSO[mip] = m_Context->CreatePipelineStateObject(name, builder);
     }
 }
 

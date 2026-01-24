@@ -9,7 +9,6 @@
 
 #pragma comment(lib, "dxgi.lib")
 #pragma comment(lib, "d3d12.lib")
-#pragma comment(lib, "dxcompiler.lib")
 
 #ifndef NOMINMAX
     #define NOMINMAX  // prevent windows redefining min/max
@@ -26,7 +25,6 @@
 
 #include <dxgi1_6.h>
 #include <d3d12.h>
-#include <dxcapi.h>
 #include <wrl/client.h>
 #include <system_error>
 

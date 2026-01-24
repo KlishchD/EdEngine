@@ -31,5 +31,8 @@ float4 PSMain(float4 position : SV_Position) : SV_Target0
     color = ACESFilm(color);
     color = pow(color, 1.0f / Gamma);
 
+    color.r = 0.2f;
+    color.g = 0.3f;
+
     return float4(color, 1.0f);
 }

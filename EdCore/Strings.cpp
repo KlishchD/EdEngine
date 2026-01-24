@@ -46,6 +46,13 @@ ccstr16 Strings::Convert(ccstr8 str, i32 size, bool temporary)
     return result;
 }
 
+cstr8 Strings::Append(cstr8 destination, ccstr8 a1)
+{
+  u32 length = strnlen(a1, 1024);
+  Concat(destination, a1);
+  return destination + length;
+}
+
 ccstr8 Strings::Convert(ccstr16 str, i32 size, bool temporary)
 {
     if (size <= 0)

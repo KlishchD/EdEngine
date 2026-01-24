@@ -179,18 +179,6 @@ enum class ShaderDataType : u8
 	Float4,
 };
 
-enum ShaderType : u8
-{
-	ST_None = 0,
-	ST_Vertex = (1 << 1),
-	ST_Geometry = (1 << 2),
-	ST_Pixel = (1 << 3),
-    ST_Domain = (1 << 4),
-    ST_Hull = (1 << 5),
-	ST_Compute = (1 << 6),
-    ST_Count = 7
-};
-
 enum class DepthTestFunction : u8
 {
 	One,
@@ -381,9 +369,6 @@ public:
 
     static u32 ConvertShaderDataTypeCount(ShaderDataType type);
     static u32 ConvertShaderDataTypeSize(ShaderDataType type);
-
-    static ccstr16 ConvertShaderEntrypoint(ShaderType type);
-    static ccstr16 ConvertShaderTarget(ShaderType type);
 
     static f32 ConvertRenderTargetSizePolicy(RenderTargetSizePolicy policy);
 
