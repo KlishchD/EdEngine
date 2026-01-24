@@ -14,65 +14,65 @@ class Window;
 class Engine
 {
 public:
-    static Engine& Create();
-    static Engine& Get();
-    static void Delete();
+  static Engine& Create();
+  static Engine& Get();
+  static void Delete();
 
-    void Start();
-    void Stop();
+  void Start();
+  void Stop();
 
-    void Initialize(u32 argc, ccstr8* argvs);
-    void Deinitialize();
-    
-    bool IsRunning();
-    
-    void Update();
+  void Initialize(u32 argc, ccstr8* argvs);
+  void Deinitialize();
 
-    void SubscribeToPostUpdate(std::function<void(f32)> response);
+  bool IsRunning();
 
-    Window* GetWindow() const { return m_Window; }
-    Renderer* GetRenderer() const { return m_Renderer; }
+  void Update();
 
-    f32 GetDeltaSeconds() const;
+  void SubscribeToPostUpdate(std::function<void(f32)> response);
 
-    u32 GetFrame() const { return m_Frame; }
+  Window* GetWindow() const { return m_Window; }
+  Renderer* GetRenderer() const { return m_Renderer; }
 
-#ifdef ED_EDITOR
-    void OverrideCameraForNextFrame(const CameraElement& element);
-#endif
+  f32 GetDeltaSeconds() const;
 
-    const Path& GetResourcesPath() const { return m_ResourcesPath; }
-    const Path& GetShadersPath() const { return m_ShadersPath; }
-
-    ~Engine();
-protected:
-	  void PushPostUpdate(f32 DeltaTime);
-
-    void RenderFrame();
-protected:
-    Path m_ResourcesPath;
-    Path m_ShadersPath;
-
-    EntityManager* m_EntityManager;
-    AssetManager* m_AssetManager;
-    Window* m_Window;
-    Renderer* m_Renderer;
-    InputManager* m_InputManager;
-
-    TimePoint m_PreviousFrameTime = Clock::now();
-    f32 m_DeltaSeconds;
-
-    std::vector<std::function<void(f32)>> m_PostUpdateSubscribers;
-
-    bool m_IsRunning = true;
-
-    u32 m_Frame;
+  u32 GetFrame() const { return m_Frame; }
 
 #ifdef ED_EDITOR
-    bool m_IsCameraOverrideActive;
-    CameraElement m_CameraOverride;
+  void OverrideCameraForNextFrame(const CameraElement& element);
 #endif
 
-    Engine() = default;
+  const Path& GetResourcesPath() const { return m_ResourcesPath; }
+  const Path& GetShadersPath() const { return m_ShadersPath; }
+
+  ~Engine();
+protected:
+  void PushPostUpdate(f32 DeltaTime);
+
+  void RenderFrame();
+protected:
+  Path m_ResourcesPath;
+  Path m_ShadersPath;
+
+  EntityManager* m_EntityManager;
+  AssetManager* m_AssetManager;
+  Window* m_Window;
+  Renderer* m_Renderer;
+  InputManager* m_InputManager;
+
+  TimePoint m_PreviousFrameTime = Clock::now();
+  f32 m_DeltaSeconds;
+
+  std::vector<std::function<void(f32)>> m_PostUpdateSubscribers;
+
+  bool m_IsRunning = true;
+
+  u32 m_Frame;
+
+#ifdef ED_EDITOR
+  bool m_IsCameraOverrideActive;
+  CameraElement m_CameraOverride;
+#endif
+
+  Engine() = default;
 };
 
