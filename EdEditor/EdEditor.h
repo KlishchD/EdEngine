@@ -3,13 +3,10 @@
 #pragma comment(lib, "EdCore.lib")
 #pragma comment(lib, "EdRenderAPI.lib")
 
-#define OpenGLAPI 1
 #define DirectX12API 2
 #define RenderAPI DirectX12API
 
-#if RenderAPI == OpenGLAPI
-    #pragma comment(lib, "EdOpenGL.lib")
-#elif RenderAPI == DirectX12API
+#if RenderAPI == DirectX12API
     #pragma comment(lib, "EdDirectX12.lib")
 #else
     #error Suplied render API is not supported.

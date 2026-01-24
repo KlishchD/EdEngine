@@ -8,85 +8,88 @@ struct Asset;
 class Editor
 {
 public:
-    Editor();
+  Editor();
 
-    static inline Editor& Get()
-    {
-        ED_ASSERT(s_Editor, "Editor was not yet created.");
-        return *s_Editor;
-    }
+  static inline Editor& Get()
+  {
+    ED_ASSERT(s_Editor, "Editor was not yet created.");
+    return *s_Editor;
+  }
 
-    void Initialize(Engine* engine);
-    void Deinitialize();
+  void Initialize(Engine* engine);
+  void Deinitialize();
 
-    void Update(f32 deltaSeconds);
+  void Update(f32 deltaSeconds);
 
-    void SetUpInputs(Engine* engine);
-    
-    void SetSelectedEntity(Entity* entity) { m_SelectedEntity = entity; }
-    Entity* GetSelectedEntity() const { return m_SelectedEntity; }
+  void SetUpInputs(Engine* engine);
 
-    inline void SetFeatureParametersLogic(std::function<void()> func) { m_FeatureParametersLogic = func; }
-    inline std::function<void()> GetFeatureParametersLogic() const { return m_FeatureParametersLogic; }
+  void SetSelectedEntity(Entity* entity) { m_SelectedEntity = entity; }
+  Entity* GetSelectedEntity() const { return m_SelectedEntity; }
 
-    const EditorCamera& GetCamera() const { return m_Camera; }
-    EditorCamera& GetCamera() { return m_Camera; }
+  inline void SetFeatureParametersLogic(std::function<void()> func) { m_FeatureParametersLogic = func; }
+  inline std::function<void()> GetFeatureParametersLogic() const { return m_FeatureParametersLogic; }
 
-    f32 GetCameraSpeed() const { return m_Camera.CameraSpeed; }
-    void SetCameraSpeed(f32 speed) { m_Camera.CameraSpeed = speed; }
+  const EditorCamera& GetCamera() const { return m_Camera; }
+  EditorCamera& GetCamera() { return m_Camera; }
 
-    glm::vec2 GetCameraRotationSpeed() const { return m_Camera.CameraRotationSpeed; }
-    void SetCameraRotationSpeed(glm::vec2 speed) { m_Camera.CameraRotationSpeed = speed; }
+  f32 GetCameraSpeed() const { return m_Camera.CameraSpeed; }
+  void SetCameraSpeed(f32 speed) { m_Camera.CameraSpeed = speed; }
 
-    void SetSelectedAsset(Asset* asset) { m_SelectedAsset = asset; }
-    Asset* GetSelectedAsset() const { return m_SelectedAsset; }
+  glm::vec2 GetCameraRotationSpeed() const { return m_Camera.CameraRotationSpeed; }
+  void SetCameraRotationSpeed(glm::vec2 speed) { m_Camera.CameraRotationSpeed = speed; }
 
-    void SetViewportIsActive(bool state) { m_IsViewportActive = state; }
-    bool IsViewportActive() const { return m_IsViewportActive; }
+  void SetSelectedAsset(Asset* asset) { m_SelectedAsset = asset; }
+  Asset* GetSelectedAsset() const { return m_SelectedAsset; }
 
-    template<typename T>
-    T* CreateWidget()
-    {
-        // TODO: Add widget pool? and reuse it)
-        T* widget = new T();
-        widget->Initialize();
-        m_Widgets.Add(widget);
-        return widget;
-    }
+  void SetViewportIsActive(bool state) { m_IsViewportActive = state; }
+  bool IsViewportActive() const { return m_IsViewportActive; }
 
-    virtual ~Editor();
+  void LoadLayout(const ContentPath& layout);
+  void SaveLayout(const ContentPath& layout) const;
+
+  template<typename T>
+  T* CreateWidget()
+  {
+    // TODO: Add widget pool? and reuse it)
+    T* widget = new T();
+    widget->Initialize();
+    m_Widgets.Add(widget);
+    return widget;
+  }
+
+  virtual ~Editor();
 protected:
-	void UpdateMousePosition(f32 DeltaTime);
+  void UpdateMousePosition(f32 DeltaTime);
 
-    void BeginUIFrame();
-    void EndUIFrame();
+  void BeginUIFrame();
+  void EndUIFrame();
 
-    static inline void StaticUpdate(f32 deltaTime)
-    {
-        Get().Update(deltaTime);
-    }
+  static inline void StaticUpdate(f32 deltaTime)
+  {
+    Get().Update(deltaTime);
+  }
 protected:
-    static inline Editor* s_Editor = nullptr;
-    
-    EditorCamera m_Camera;
+  static inline Editor* s_Editor = nullptr;
 
-    glm::vec2 m_MousePosition = glm::vec2(0.0f);
+  EditorCamera m_Camera;
 
-    bool m_IsLeftMouseButtonClicked = false;
-    bool m_IsRightMouseButtonClicked = false;
+  glm::vec2 m_MousePosition = glm::vec2(0.0f);
 
-    Texture* m_LightIcon = nullptr;
-    Asset* m_SelectedAsset = nullptr;
-    
-    Entity* m_SelectedEntity = nullptr;
+  bool m_IsLeftMouseButtonClicked = false;
+  bool m_IsRightMouseButtonClicked = false;
 
-    glm::i32vec2 m_ViewportSize = { 1.0f, 1.0f };
-    bool m_IsViewportActive = false;
+  Texture* m_LightIcon = nullptr;
+  Asset* m_SelectedAsset = nullptr;
 
-    Window* m_Window = nullptr;
-    Engine* m_Engine = nullptr;
+  Entity* m_SelectedEntity = nullptr;
 
-    Array<Widget*> m_Widgets;
+  glm::i32vec2 m_ViewportSize = { 1.0f, 1.0f };
+  bool m_IsViewportActive = false;
 
-    std::function<void()> m_FeatureParametersLogic;
+  Window* m_Window = nullptr;
+  Engine* m_Engine = nullptr;
+
+  Array<Widget*> m_Widgets;
+
+  std::function<void()> m_FeatureParametersLogic;
 };

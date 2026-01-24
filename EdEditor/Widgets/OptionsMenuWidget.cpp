@@ -7,192 +7,176 @@
 
 void OptionsMenuWidget::Initialize()
 {
-    Widget::Initialize();
-    
-    m_Icon = AssetHelper::ImportOrLoadTexture(ContentPath("Editor\\icons\\light.png"), "Editor\\icons\\", TextureAsset::Albedo, "EngineIcon", PixelFormat::RGBA8F, 5);
+  Widget::Initialize();
+
+  m_Icon = AssetHelper::ImportOrLoadTexture(ContentPath("Editor\\icons\\light.png"), "Editor\\icons\\", TextureAsset::Albedo, "EngineIcon", PixelFormat::RGBA8F, 5);
 }
 
 void OptionsMenuWidget::Tick(f32 DeltaTime)
 {
-    Widget::Tick(DeltaTime);
+  Widget::Tick(DeltaTime);
 
-    ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, { 0, 10 });
+  ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, { 0, 10 });
 
-    if (ImGui::BeginMainMenuBar())
+  if (ImGui::BeginMainMenuBar())
+  {
+    Engine::Get().GetWindow()->SetDragging(ImGui::IsWindowHovered());
+
+    ImGui::Image(m_Icon->TextureView.GPUHandlePtr(), ImVec2(ImGui::GetWindowHeight(), ImGui::GetWindowHeight()), ImVec2(0, 0), ImVec2(1, 1), ImVec4(0.14f, 0.14f, 0.14f, 1.00f), ImVec4(1, 1, 1, 1));
+
+    if (ImGui::BeginMenu("File"))
     {
-        Engine::Get().GetWindow()->SetDragging(ImGui::IsWindowHovered());
+      if (ImGui::MenuItem("Import Scene"))
+      {
+        Path scene = PlatformHelper::OpenFileWindow(".fbx|.obj", *Engine::Get().GetWindow(), "Select scene to import.");
+        Path save = PlatformHelper::SaveFileWindow(".edprefab", *Engine::Get().GetWindow(), "Select save destination.", Files::PrefabAssetExtension);
 
-        ImGui::Image(m_Icon->TextureView.GPUHandlePtr(), ImVec2(ImGui::GetWindowHeight(), ImGui::GetWindowHeight()), ImVec2(0, 0), ImVec2(1, 1), ImVec4(0.14f, 0.14f, 0.14f, 1.00f), ImVec4(1, 1, 1, 1));
-
-        if (ImGui::BeginMenu("File"))
+        if (scene.IsValid())
         {
-            if (ImGui::MenuItem("Import Scene"))
-            {
-                Path scene = PlatformHelper::OpenFileWindow(".fbx|.obj", *Engine::Get().GetWindow(), "Select scene to import.");
-                Path save = PlatformHelper::SaveFileWindow(".edprefab", *Engine::Get().GetWindow(), "Select save destination.", Files::PrefabAssetExtension);
-
-                if (scene.IsValid())
-                {
-                    AssetHelper::ImportScene(scene, save, save.GetFileName(), true, true);
-                }
-                else
-                {
-                    ED_LOG(OptionsMenuWidget, err, "Invalid path {}", scene.Get());
-                }
-            }
-
-            ImGui::EndMenu();
+          AssetHelper::ImportScene(scene, save, save.GetFileName(), true, true);
         }
-
-        if (ImGui::BeginMenu("Layout"))
+        else
         {
-            if (ImGui::MenuItem("Save"))
-            {
-                ImGui::SaveIniSettingsToDisk(Files::GetEditorLayoutPath());
-            }
-
-            if (ImGui::MenuItem("Load"))
-            {
-                ImGui::LoadIniSettingsFromDisk(Files::GetEditorLayoutPath());
-            }
-
-            if (ImGui::MenuItem("Save as"))
-            {
-                Path path = PlatformHelper::SaveFileWindow(".ini", *Engine::Get().GetWindow(), "Save layout.", ".ini");
-                
-                if (path.IsFile()) // Needs better validation than this
-                {
-                    ImGui::SaveIniSettingsToDisk(path.Get());
-                }
-                else
-                {
-                    ED_LOG(OptionsMenuWidget, err, "Invalid path {}", path.Get());
-                }
-            }
-
-            if (ImGui::MenuItem("Load as"))
-            {
-                Path path = PlatformHelper::OpenFileWindow(".ini", *Engine::Get().GetWindow(), "Load layout.");
-                
-                if (path.IsValid() && path.IsFile())
-                {
-                    ImGui::LoadIniSettingsFromDisk(path.Get());
-                }
-                else
-                {
-                    ED_LOG(OptionsMenuWidget, err, "Invalid path {}", path.Get());
-                }
-            }
-
-            ImGui::EndMenu();
+          ED_LOG(OptionsMenuWidget, err, "Invalid path {}", scene.Get());
         }
+      }
 
-        if (ImGui::BeginMenu("Scene"))
-        {
-            if (ImGui::MenuItem("Save", nullptr, nullptr, EntityManager::Get().GetLoadedScenePath() != Files::GetDefaultScenePath()))
-            {
-                EntityManager::Get().SaveScene();
-            }
-
-            if (ImGui::MenuItem("Load"))
-            {
-                EntityManager::Get().LoadScene();
-            }
-
-            if (ImGui::MenuItem("Save as"))
-            {
-                ContentPath path = PlatformHelper::SaveFileWindow(Files::SceneAssetExtension, *Engine::Get().GetWindow(), "Save scene.", Files::SceneAssetExtension);
-
-                if (path.IsFile())
-                {
-                    EntityManager::Get().SaveScene(path);
-                }
-                else
-                {
-                    ED_LOG(Options, err, "Scene save path is incorrect '{}'", path.Get());
-                }
-            }
-
-            if (ImGui::MenuItem("Load as"))
-            {
-                ContentPath path = PlatformHelper::OpenFileWindow(Files::FullSceneAssetExtension, *Engine::Get().GetWindow(), "Save scene.");
-
-                if (path.IsValid() && path.IsFile())
-                {
-                    EntityManager::Get().LoadScene(path);
-                }
-                else
-                {
-                    ED_LOG(Options, err, "Scene save path is incorrect '{}'", path.Get());
-                }
-            }
-
-            ImGui::EndMenu();
-        }
-
-        ImGui::EndMainMenuBar();
+      ImGui::EndMenu();
     }
-      
-    ImGui::PopStyleVar();
 
-//    if (m_StaticMeshImportPopupIsOpened) StaticMeshImportPopup();
-//    if (m_TextureImportPopupIsOpened) TextureImportPopup();
-//
-//    ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, { 0, 10 });
-//
-//    if (ImGui::BeginMainMenuBar())
-//    {
-//        if (ImGui::IsMouseDoubleClicked(0))
-//        {
-//		    	ED_LOG(Widget, info, "Double cliked")
-//		    }
-//
-//        if (ImGui::ImageButton("Options", m_Icon->GetID(), ImVec2(ImGui::GetWindowHeight(), ImGui::GetWindowHeight()), ImVec2(0, 1), ImVec2(1, 0), ImVec4(0.14f, 0.14f, 0.14f, 1.00f), ImVec4(1, 1, 1, 1)))
-//        {
-//
-//        }
-//
-//        if (ImGui::BeginMenu("File"))
-//        {
-//            if (ImGui::MenuItem("Import mesh"))
-//            {
-//                m_StaticMeshImportParameters = std::make_shared<StaticMeshImportParameters>();
-//                m_StaticMeshImportParameters->Path = PlatformHelper::OpenFileWindow("Model\0", *m_Window, "Model");
-//                m_StaticMeshImportPopupIsOpened = true;
-//            }
-//    
-//            if (ImGui::MenuItem("Import texture"))
-//            {
-//                m_TextureImportParameters = std::make_shared<Texture2DImportParameters>();
-//                m_TextureImportParameters->Format = PixelFormat::SRGBA8F;
-//                m_TextureImportParameters->Path = PlatformHelper::OpenFileWindow("Texture\0", *m_Window, "Texture");
-//                m_TextureImportPopupIsOpened = true;
-//            }
-//
-//            if (ImGui::MenuItem("Create Material"))
-//            {
-//                std::string materialPath = PlatformHelper::OpenFileWindow("Material\0", *m_Window, "Material");
-//
-//                m_AssetManager->CreateAsset<Material>(AssetType::Material, materialPath);
-//            }
-//            
-//            ImGui::EndMenu();
-//        }
-//
-//        if (ImGui::BeginMenu("Scene"))
-//        {
-//            if (ImGui::MenuItem("Add actor"))
-//            {
-//                m_Engine->GetLoadedScene()->CreateActor<Actor>("New Actor");
-//            }
-//            
-//            ImGui::EndMenu();
-//        }
-//        
-//        ImGui::EndMainMenuBar();
-//    }
-//
-//	ImGui::PopStyleVar();
+    if (ImGui::BeginMenu("Layout"))
+    {
+      if (ImGui::MenuItem("Save"))
+      {
+        Editor::Get().SaveLayout(Files::GetEditorLayoutPath());
+      }
+
+      if (ImGui::MenuItem("Load"))
+      {
+        Editor::Get().LoadLayout(Files::GetEditorLayoutPath());
+      }
+
+      if (ImGui::MenuItem("Save as"))
+      {
+        Path path = PlatformHelper::SaveFileWindow(".ini", *Engine::Get().GetWindow(), "Save layout.", ".ini");
+        Editor::Get().SaveLayout(path);
+      }
+
+      if (ImGui::MenuItem("Load as"))
+      {
+        Path path = PlatformHelper::OpenFileWindow(".ini", *Engine::Get().GetWindow(), "Load layout.");
+        Editor::Get().LoadLayout(path);
+      }
+
+      ImGui::EndMenu();
+    }
+
+    if (ImGui::BeginMenu("Scene"))
+    {
+      if (ImGui::MenuItem("Save", nullptr, nullptr, EntityManager::Get().GetLoadedScenePath() != Files::GetDefaultScenePath()))
+      {
+        EntityManager::Get().SaveScene();
+      }
+
+      if (ImGui::MenuItem("Load"))
+      {
+        EntityManager::Get().LoadScene();
+      }
+
+      if (ImGui::MenuItem("Save as"))
+      {
+        ContentPath path = PlatformHelper::SaveFileWindow(Files::SceneAssetExtension, *Engine::Get().GetWindow(), "Save scene.", Files::SceneAssetExtension);
+
+        if (path.IsFile())
+        {
+          EntityManager::Get().SaveScene(path);
+        }
+        else
+        {
+          ED_LOG(Options, err, "Scene save path is incorrect '{}'", path.Get());
+        }
+      }
+
+      if (ImGui::MenuItem("Load as"))
+      {
+        ContentPath path = PlatformHelper::OpenFileWindow(Files::FullSceneAssetExtension, *Engine::Get().GetWindow(), "Save scene.");
+
+        if (path.IsValid() && path.IsFile())
+        {
+          EntityManager::Get().LoadScene(path);
+        }
+        else
+        {
+          ED_LOG(Options, err, "Scene save path is incorrect '{}'", path.Get());
+        }
+      }
+
+      ImGui::EndMenu();
+    }
+
+    ImGui::EndMainMenuBar();
+  }
+
+  ImGui::PopStyleVar();
+
+  //    if (m_StaticMeshImportPopupIsOpened) StaticMeshImportPopup();
+  //    if (m_TextureImportPopupIsOpened) TextureImportPopup();
+  //
+  //    ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, { 0, 10 });
+  //
+  //    if (ImGui::BeginMainMenuBar())
+  //    {
+  //        if (ImGui::IsMouseDoubleClicked(0))
+  //        {
+  //		    	ED_LOG(Widget, info, "Double cliked")
+  //		    }
+  //
+  //        if (ImGui::ImageButton("Options", m_Icon->GetID(), ImVec2(ImGui::GetWindowHeight(), ImGui::GetWindowHeight()), ImVec2(0, 1), ImVec2(1, 0), ImVec4(0.14f, 0.14f, 0.14f, 1.00f), ImVec4(1, 1, 1, 1)))
+  //        {
+  //
+  //        }
+  //
+  //        if (ImGui::BeginMenu("File"))
+  //        {
+  //            if (ImGui::MenuItem("Import mesh"))
+  //            {
+  //                m_StaticMeshImportParameters = std::make_shared<StaticMeshImportParameters>();
+  //                m_StaticMeshImportParameters->Path = PlatformHelper::OpenFileWindow("Model\0", *m_Window, "Model");
+  //                m_StaticMeshImportPopupIsOpened = true;
+  //            }
+  //    
+  //            if (ImGui::MenuItem("Import texture"))
+  //            {
+  //                m_TextureImportParameters = std::make_shared<Texture2DImportParameters>();
+  //                m_TextureImportParameters->Format = PixelFormat::SRGBA8F;
+  //                m_TextureImportParameters->Path = PlatformHelper::OpenFileWindow("Texture\0", *m_Window, "Texture");
+  //                m_TextureImportPopupIsOpened = true;
+  //            }
+  //
+  //            if (ImGui::MenuItem("Create Material"))
+  //            {
+  //                std::string materialPath = PlatformHelper::OpenFileWindow("Material\0", *m_Window, "Material");
+  //
+  //                m_AssetManager->CreateAsset<Material>(AssetType::Material, materialPath);
+  //            }
+  //            
+  //            ImGui::EndMenu();
+  //        }
+  //
+  //        if (ImGui::BeginMenu("Scene"))
+  //        {
+  //            if (ImGui::MenuItem("Add actor"))
+  //            {
+  //                m_Engine->GetLoadedScene()->CreateActor<Actor>("New Actor");
+  //            }
+  //            
+  //            ImGui::EndMenu();
+  //        }
+  //        
+  //        ImGui::EndMainMenuBar();
+  //    }
+  //
+  //	ImGui::PopStyleVar();
 }
 // 
 // void OptionsMenuWidget::StaticMeshImportPopup()
