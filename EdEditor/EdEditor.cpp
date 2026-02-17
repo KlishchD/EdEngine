@@ -4,31 +4,31 @@
 #   include "PlayRecorder.h"
 #endif
 
-i32 main(i32 argc, ccstr8* argv)
+i32 main(i32 arguments_count, ccstr8* arguments)
 {
-    Engine& engine = Engine::Create();
+  Engine& engine = Engine::Create();
 
-    engine.Start();
-    engine.Initialize(argc, argv);
+  engine.Start();
+  engine.Initialize(arguments_count, arguments);
 
+  {
+    Editor editor;
+
+    editor.Initialize(&engine);
+
+    #if ENABLE_ED_TEST == 1
+      engine.CreateManager<PlayRecorder>();
+    #endif
+
+    while (engine.IsRunning())
     {
-        Editor editor;
-
-        editor.Initialize(&engine);
-
-#if ENABLE_ED_TEST == 1
-        engine.CreateManager<PlayRecorder>();
-#endif
-
-        while (engine.IsRunning())
-        {
-            engine.Update();
-        }
+      engine.Update();
     }
+  }
 
-    engine.Deinitialize();
+  engine.Deinitialize();
 
-    Engine::Delete();
+  Engine::Delete();
 
-    return 0;
+  return 0;
 }

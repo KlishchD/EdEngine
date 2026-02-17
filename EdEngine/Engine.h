@@ -21,7 +21,7 @@ public:
   void Start();
   void Stop();
 
-  void Initialize(u32 argc, ccstr8* argvs);
+  void Initialize(u32 arguments_count, ccstr8* arguments);
   void Deinitialize();
 
   bool IsRunning();
@@ -72,6 +72,8 @@ protected:
   bool m_IsCameraOverrideActive;
   CameraElement m_CameraOverride;
 #endif
+
+  estd::console::console m_Console;
 
   Engine() = default;
 };

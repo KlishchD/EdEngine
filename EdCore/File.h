@@ -30,6 +30,8 @@ public:
     ccstr8 GetFileName() const;
     ccstr8 GetFullFileName() const;
 
+    const estd::stack_string_512* GetPtr() const { return &m_Path; }
+    estd::stack_string_512* GetPtr() { return &m_Path; }
     ccstr8 Get() const { return m_Path.c_str(); }
     u32 GetSize() const { return m_Path.size(); }
 
@@ -56,8 +58,7 @@ public:
 
     virtual ~Path() = default;
 protected:
-    // TODO: Make custom string class and use it here.
-    std::string m_Path;
+    estd::stack_string_512 m_Path;
 };
 
 namespace Files

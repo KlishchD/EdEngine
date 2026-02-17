@@ -53,6 +53,17 @@
 #include <cstddef>
 #include <thread>
 
+#pragma message("I don't really like that I need to include them for some to work (even though I need them all for my engine).")
+#include "estd/exceptions.h"
+#include "estd/strings.h"
+#include "estd/shell.h"
+#include "estd/threading.h"
+#include "estd/memory.h"
+#include "estd/json.h"
+#include "estd/hasing.h"
+#include "estd/platform.h"
+#include "estd/console/console.h"
+
 typedef void* HANDLE;
 
 typedef int8_t i8;
@@ -153,13 +164,3 @@ constexpr inline f64 pi()
 }
 
 #include "Strings.h"
-
-#pragma message("I don't really like that I need to include them for some to work (even though I need them all for my engine).")
-#include "estd/exceptions.h"
-#include "estd/strings.h"
-#include "estd/shell.h"
-#include "estd/threading.h"
-#include "estd/memory.h"
-#include "estd/json.h"
-#include "estd/hasing.h"
-#include "estd/platform.h"

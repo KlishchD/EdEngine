@@ -60,29 +60,26 @@ void Engine::RenderFrame()
   m_Renderer->RenderFrame(renderScene, m_DeltaSeconds);
 }
 
-void Engine::Initialize(u32 argc, ccstr8* argvs)
+void Engine::Initialize(u32 arguments_count, ccstr8* arguments)
 {
   ED_LOG(Engine, info, "Started initializing.");
 
-  for (u32 index = 0; index < argc; ++index)
-  {
-    ED_LOG(Engine, info, "CLI entry: [{}].", argvs[index]);
+  using path_parameter = estd::console::path_parameter;
 
-    if (index + 1 < argc)
-    {
-      if (strcmp(argvs[index], "-resources_path") == 0)
-      {
-        m_ResourcesPath = argvs[index + 1];
-      }
-      else if (strcmp(argvs[index], "-shaders_path") == 0)
-      {
-        m_ShadersPath = argvs[index + 1];
-      }
-    }
-  }
+  estd::stack_string_512 shaders_path;
+  m_Console.add_parameter<path_parameter>("-shaders_path", m_ShadersPath.GetPtr())
+    .set_help("Set shaders source directory.")
+    .set_mandatory(true)
+    .set_directory(true);
 
-  ED_ASSERT(m_ResourcesPath.IsValid() && m_ResourcesPath.IsDirectory(), "Resoruces path was not provided.");
-  ED_ASSERT(m_ShadersPath.IsValid() && m_ShadersPath.IsDirectory(), "Shaders path was not provided.");
+  estd::stack_string_512 resources_path;
+  m_Console.add_parameter<path_parameter>("-resources_path", m_ResourcesPath.GetPtr())
+    .set_help("Set resources source directory.")
+    .set_mandatory(true)
+    .set_directory(true);
+
+  m_Console.parse(arguments_count, arguments);
+  m_Console.verify_mandatory();
 
   m_Frame = 0;
 

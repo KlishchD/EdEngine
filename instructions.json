@@ -1,5 +1,8 @@
 {
   "Name": "EdEngine",
+  "Modifiers": [
+
+  ],
   "Globals": {
     "Defines": [
       {
