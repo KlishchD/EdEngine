@@ -202,68 +202,6 @@ void Editor::Initialize(Engine* engine)
   LoadLayout(Files::GetEditorLayoutPath());
 }
 
-namespace Console
-{
-  template <typename T> requires(std::is_arithmetic_v<T>)
-    constexpr ImGuiDataType_ GetImGuiType()
-  {
-    if constexpr (std::is_same_v<T, i32>)
-    {
-      return ImGuiDataType_::ImGuiDataType_S32;
-    }
-
-    if constexpr (std::is_same_v<T, u32>)
-    {
-      return ImGuiDataType_::ImGuiDataType_U32;
-    }
-
-    if constexpr (std::is_same_v<T, i64>)
-    {
-      return ImGuiDataType_::ImGuiDataType_S64;
-    }
-
-    if constexpr (std::is_same_v<T, u64>)
-    {
-      return ImGuiDataType_::ImGuiDataType_U64;
-    }
-
-    if constexpr (std::is_same_v<T, f32>)
-    {
-      return ImGuiDataType_::ImGuiDataType_Float;
-    }
-
-    if constexpr (std::is_same_v<T, f64>)
-    {
-      return ImGuiDataType_::ImGuiDataType_Double;
-    }
-  }
-
-  template <typename T>
-  void EditorControls(Variable* variable)
-  {
-    T value = GetValue<T>(variable);
-    T min = GetMin<T>(variable);
-    T max = GetMax<T>(variable);
-    if (ImGui::SliderScalar(variable->Name, GetImGuiType<T>(), &value, &min, &max))
-    {
-      SetValue<T>(variable, value);
-    }
-  }
-
-  void EditorControls(Variable* variable)
-  {
-    switch (variable->Type)
-    {
-    case Types::Int: EditorControls<i32>(variable); break;
-    case Types::UInt: EditorControls<u32>(variable); break;
-    case Types::Float: EditorControls<f32>(variable); break;
-    case Types::Double: EditorControls<f64>(variable); break;
-    default:
-      break;
-    }
-  }
-}
-
 void Editor::Update(f32 deltaSeconds)
 {
   UpdateMousePosition(deltaSeconds);
@@ -321,14 +259,18 @@ void Editor::Update(f32 deltaSeconds)
 
   if (ImGui::Begin("Console"))
   {
-    for (Console::Command* command : Console::GetRegisty().Commands)
+    for (auto& [name, parameter] : console::get_console().get_parameters())
     {
-      ImGui::Text("Command: %s", command->Name);
-    }
+      if (parameter->get_type() == "f32")
+      {
+        auto* casted = reinterpret_cast<estd::console::float_parameter*>(parameter);
 
-    for (Console::Variable* variable : Console::GetRegisty().Variables)
-    {
-      Console::EditorControls(variable);
+        f32 value = casted->get_value();
+        if (ImGui::SliderFloat(name.c_str(), &value, casted->get_min(), casted->get_max()))
+        {
+          casted->set_value(value);
+        }
+      }
     }
   }
   ImGui::End();

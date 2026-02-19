@@ -4,11 +4,10 @@
 
 #define BLOOM_TILE_SIZE 16
 
-DEFINE_ARIPHMETIC_VARIABLE(r_BloomStrength, 0.7f, 0.0f, 2.0f)
+static auto& r_bloom_strength = console::create_f32("r_bloom_strength", 0.85f, 0.0f, 2.0f);
 
 BloomPass::BloomPass() : RenderPass("BloomPass")
 {
-
 }
 
 void BloomPass::Initialize(RenderGraph* graph)
@@ -85,9 +84,8 @@ void BloomPass::Execute(CommandList* list, Resource* buffer, u64 offset)
     for (i32 mip = BloomMipsCount - 2; mip >= 0; --mip)
     {
         list->SetPipelineState(m_UpscalePSO[mip]);
-    
-        static f32 BloomUpscaleStrength = 0.85f; // TODO: Move after adding commands
-        list->SetComputeRootConstant(12, 1, 0, reinterpret_cast<u32*>(&BloomUpscaleStrength));
+
+        list->SetComputeRootConstant(12, 1, 0, reinterpret_cast<u32*>(&r_bloom_strength()));
     
         u32 width = std::max<u32>(1, size.x >> (mip + 1));
         u32 height = std::max<u32>(1, size.y >> (mip + 1));

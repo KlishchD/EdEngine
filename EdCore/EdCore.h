@@ -164,3 +164,4 @@ constexpr inline f64 pi()
 }
 
 #include "Strings.h"
+#include "Console.h"

@@ -30,8 +30,8 @@ public:
     ccstr8 GetFileName() const;
     ccstr8 GetFullFileName() const;
 
-    const estd::stack_string_512* GetPtr() const { return &m_Path; }
-    estd::stack_string_512* GetPtr() { return &m_Path; }
+    const estd::path_string* GetPtr() const { return &m_Path; }
+    estd::path_string* GetPtr() { return &m_Path; }
     ccstr8 Get() const { return m_Path.c_str(); }
     u32 GetSize() const { return m_Path.size(); }
 
@@ -56,9 +56,14 @@ public:
     bool operator==(const Path& other) const;
     bool operator!=(const Path& other) const;
 
+    operator estd::path() const
+    {
+      return estd::path{ m_Path };
+    }
+
     virtual ~Path() = default;
 protected:
-    estd::stack_string_512 m_Path;
+    estd::path_string m_Path;
 };
 
 namespace Files

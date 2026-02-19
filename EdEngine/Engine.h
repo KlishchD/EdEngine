@@ -41,8 +41,8 @@ public:
   void OverrideCameraForNextFrame(const CameraElement& element);
 #endif
 
-  const Path& GetResourcesPath() const { return m_ResourcesPath; }
-  const Path& GetShadersPath() const { return m_ShadersPath; }
+  const estd::path& get_resources_path() const { return resources_path; }
+  const estd::path& get_shaders_path() const { return shaders_path; }
 
   ~Engine();
 protected:
@@ -50,8 +50,9 @@ protected:
 
   void RenderFrame();
 protected:
-  Path m_ResourcesPath;
-  Path m_ShadersPath;
+  estd::path resources_path;
+  estd::path shaders_path;
+  estd::path config_path;
 
   EntityManager* m_EntityManager;
   AssetManager* m_AssetManager;
@@ -72,8 +73,6 @@ protected:
   bool m_IsCameraOverrideActive;
   CameraElement m_CameraOverride;
 #endif
-
-  estd::console::console m_Console;
 
   Engine() = default;
 };

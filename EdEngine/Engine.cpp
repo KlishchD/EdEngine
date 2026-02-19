@@ -5,6 +5,9 @@
 
 Engine* engine = nullptr;
 
+static auto& initial_window_width = console::create_u32("-window_width", 1080, 100, 16384);
+static auto& initial_window_height = console::create_u32("-window_height", 720, 100, 16384);
+
 Engine& Engine::Create()
 {
   if (!engine)
@@ -66,27 +69,62 @@ void Engine::Initialize(u32 arguments_count, ccstr8* arguments)
 
   using path_parameter = estd::console::path_parameter;
 
-  estd::stack_string_512 shaders_path;
-  m_Console.add_parameter<path_parameter>("-shaders_path", m_ShadersPath.GetPtr())
-    .set_help("Set shaders source directory.")
-    .set_mandatory(true)
-    .set_directory(true);
+  estd::path resolved_config_path;
 
-  estd::stack_string_512 resources_path;
-  m_Console.add_parameter<path_parameter>("-resources_path", m_ResourcesPath.GetPtr())
+  auto& config_path_parameter = console::get_console().add_parameter<path_parameter>("-config_path", &config_path.get())
+    .set_help("Set configuration path.")
+    .set_mandatory(false)
+    .set_file(true);
+
+  auto& resources_path_parameter = console::get_console().add_parameter<path_parameter>("-resources_path", &resources_path.get())
     .set_help("Set resources source directory.")
     .set_mandatory(true)
     .set_directory(true);
 
-  m_Console.parse(arguments_count, arguments);
-  m_Console.verify_mandatory();
+  auto& shader_path_parameter = console::get_console().add_parameter<path_parameter>("-shaders_path", &shaders_path.get())
+    .set_help("Set shaders source directory.")
+    .set_mandatory(true)
+    .set_directory(true);
+
+  console::get_console().parse(arguments_count, arguments, "-config_path");
+
+  if (config_path_parameter.was_processed())
+  {
+    ED_LOG(Engine, info, "-config_path=[{}].", config_path_parameter.get_value().c_str());
+    resolved_config_path = config_path_parameter.get_value();
+  }
+  else
+  {
+    console::get_console().parse(arguments_count, arguments, "-resources_path");
+
+    if (resources_path_parameter.was_processed())
+    {
+      ED_LOG(Engine, info, "-resources_path=[{}].", resources_path_parameter.get_value().c_str());
+      resolved_config_path = resources_path_parameter.get_value();
+      resolved_config_path.append("config.json");
+    }
+    else
+    {
+      estd::assert_condition(false, "-config_path or -resoruce_path must be provided to resolve configuration.");
+    }
+  }
+
+  ED_LOG(Engine, info, "Resolved config path: [{}].", resolved_config_path.c_str());
+  config_path = resolved_config_path.c_str();
+
+  console::load(resolved_config_path);
+
+  // Arguments from CLI have higher priority and so ability to overwrite config.
+  console::get_console().parse(arguments_count, arguments);
+
+  console::get_console().verify_mandatory();
 
   m_Frame = 0;
 
   WindowSpecification specification{};
   specification.Title = "Project the Chronicler";
-  specification.Width = 1280;
-  specification.Height = 720;
+  specification.Width = initial_window_width();
+  specification.Height = initial_window_height();
 
   m_Window = new Window(specification);
 
@@ -107,6 +145,8 @@ void Engine::Initialize(u32 arguments_count, ccstr8* arguments)
 
 void Engine::Deinitialize()
 {
+  console::save(config_path);
+
   m_InputManager->Deinitialize();
   delete m_InputManager;
   m_InputManager = nullptr;
@@ -189,10 +229,12 @@ Engine::~Engine()
 
 const Path& Files::GetContentPath()
 {
-  return Engine::Get().GetResourcesPath();
+  static Path path = Engine::Get().get_resources_path().c_str();
+  return path;
 }
 
 const Path& Files::GetShadersPath()
 {
-  return Engine::Get().GetShadersPath();
+  static Path path = Engine::Get().get_shaders_path().c_str();
+  return path;
 }
