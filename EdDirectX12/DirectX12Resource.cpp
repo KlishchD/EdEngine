@@ -73,4 +73,6 @@ Resource::~Resource()
     {
         GetNativeHandle<ID3D12Resource>()->Release();
     }
+
+    m_NativeHandle = 0;
 }
