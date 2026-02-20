@@ -81,13 +81,13 @@ void ShadowsPass::GatherCustomShaderParameters(void* memory)
         const StaticMeshElement& element = scene.StaticMeshes[i];
 
         glm::mat4 matrix = element.WorldTransform->GetMatrix();
-        memory = PutValue(memory, glm::value_ptr(matrix), sizeof(glm::mat4));
+        memory = PutValue(memory, glm::value_ptr(matrix), 16);
     }
 
     const u32 padding = meshCount % 4;
     if (padding != 0)
     {
-        memory = OffsetBuffer<glm::mat4>(memory, 4 - padding);
+        memory = OffsetBuffer<void, glm::mat4>(memory, 4 - padding);
     }
 
     u32 points = 0;
@@ -112,7 +112,7 @@ void ShadowsPass::GatherCustomShaderParameters(void* memory)
             u32 direction = i / 2;
             glm::mat4 view = glm::lookAt(element.Position, element.Position + glm::globalDirections[direction] * sign, direction == 1 ? glm::right : glm::up);
             glm::mat4 projectionView = projection * view;
-            memory = PutValue(memory, glm::value_ptr(projectionView), sizeof(glm::mat4));
+            memory = PutValue(memory, glm::value_ptr(projectionView), 16);
         }
 
         ++points;
@@ -132,7 +132,7 @@ void ShadowsPass::GatherCustomShaderParameters(void* memory)
         }
 
         glm::mat4 transform = element.CalculateShadowTransform();
-        memory = PutValue(memory, glm::value_ptr(transform), sizeof(glm::mat4));
+        memory = PutValue(memory, glm::value_ptr(transform), 16);
 
         ++spots;
     }

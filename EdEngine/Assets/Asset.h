@@ -2,35 +2,37 @@
 
 struct Asset
 {
-    Asset();
+  using name_type = std::string;
 
-    std::string Name;
-    Path OriginPath;
-    ContentPath FilePath;
+  Asset();
 
-    void* Data;
+  name_type Name;
+  Path OriginPath;
+  Path FilePath;
 
-    u64 Id;
+  void* Data;
 
-    u16 AssetType;
-    u16 FrameDataWasUnclaimed;
-    u16 DataClaims;
+  u64 Id;
 
-    bool HasData;
-    bool IsDirty;
-    bool LoadData;
+  u16 AssetType;
+  u16 FrameDataWasUnclaimed;
+  u16 DataClaims;
 
-    template <typename T>
-    T* GetData() const
-    {
-        return static_cast<T*>(Data);
-    }
+  bool HasData;
+  bool IsDirty;
+  bool LoadData;
 
-    bool ShouldSerializeData(AssetArchive& archive) const;
-    void Serialize(AssetArchive& archive);
-    void SerializeData(AssetArchive& archive);
+  template <typename T>
+  T* GetData() const
+  {
+    return static_cast<T*>(Data);
+  }
 
-    bool IsDataClaimed();
-    void ClaimData();
-    void UnclaimData();
+  bool ShouldSerializeData(AssetArchive& archive) const;
+  void Serialize(AssetArchive& archive);
+  void SerializeData(AssetArchive& archive);
+
+  bool IsDataClaimed();
+  void ClaimData();
+  void UnclaimData();
 };

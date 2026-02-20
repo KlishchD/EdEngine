@@ -295,17 +295,6 @@ const Path& Files::GetEditorLayoutPath()
   return path;
 }
 
-const Path& Files::GetDefaultScenePath()
-{
-  static ContentPath path = []() {
-    ContentPath result = ScenesFolderName;
-    result.Append(DefaultSceneFilename);
-    return result;
-    }();
-
-  return path;
-}
-
 const Path& Files::GetEditorIconPath()
 {
   static ContentPath path = []() {

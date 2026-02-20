@@ -283,7 +283,7 @@ struct compilation_results
   ~compilation_results()
   {
     clear();
-    delete buffer;
+    //delete buffer;
   }
 };
 

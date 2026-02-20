@@ -63,7 +63,7 @@ void IconPass::GatherCustomShaderParameters(void* memory)
         parmeters.Location = element.Location;
         parmeters.UniformScale = element.UniformScale;
 
-        memory = OffsetBuffer<IconParameters>(memory, 1);
+        memory = OffsetBuffer<void, IconParameters>(memory, 1);
     }
 }
 

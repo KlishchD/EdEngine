@@ -126,21 +126,23 @@ inline u32 Tile(u32 value, u32 size)
     return (value + size - 1) / size;
 }
 
-inline void* PutValue(void* buffer, void* value, u32 size)
+template <typename buffer_type, typename value_type>
+inline buffer_type* PutValue(buffer_type* buffer, const value_type* value, u32 count)
 {
-    memcpy(buffer, value, size);
-    return reinterpret_cast<void*>(reinterpret_cast<u8*>(buffer) + size);
+  const u32 size = sizeof(value_type) * count;
+  memcpy(buffer, value, size);
+  return reinterpret_cast<buffer_type*>(reinterpret_cast<u8*>(buffer) + size);
 }
 
-template <typename T>
-inline void* PutValue(void* buffer, const T& value)
+template <typename buffer_type, typename value_type>
+inline buffer_type* PutValue(buffer_type* buffer, const value_type& value)
 {
-    memcpy(buffer, &value, sizeof(T));
-    return reinterpret_cast<void*>(reinterpret_cast<u8*>(buffer) + sizeof(T));
+  memcpy(buffer, &value, sizeof(value_type));
+  return reinterpret_cast<buffer_type*>(reinterpret_cast<u8*>(buffer) + sizeof(value_type));
 }
 
-template <typename T = u8>
-inline void* OffsetBuffer(void* buffer, u32 count)
+template <typename buffer_type, typename value_type = u8>
+inline buffer_type* OffsetBuffer(buffer_type* buffer, u32 count)
 {
-    return reinterpret_cast<void*>(reinterpret_cast<u8*>(buffer) + sizeof(T) * count);
+  return reinterpret_cast<buffer_type*>(reinterpret_cast<u8*>(buffer) + sizeof(value_type) * count);
 }

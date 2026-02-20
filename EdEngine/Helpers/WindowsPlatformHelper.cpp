@@ -2,50 +2,80 @@
 #include "Helpers/PlatformHelper.h"
 #include <Windows.h>
 
-Path PlatformHelper::OpenFileWindow(const c8* filter, Window& window, const c8* title, const c8* extension)
+Path PlatformHelper::OpenFileWindow(const char* filter, Window& window, const char* base_path, const char* title, const char* extension)
 {
-    OPENFILENAMEA ofn;
+  OPENFILENAMEA descriptor;
+  ZeroMemory(&descriptor, sizeof(OPENFILENAMEA));
 
-    ZeroMemory(&ofn, sizeof(OPENFILENAMEA));
+  descriptor.lStructSize = sizeof(descriptor);
+  descriptor.hwndOwner = (HWND)window.GetPlatformNativeWindow();
+  descriptor.hInstance = 0;
 
-    ofn.lStructSize = sizeof(OPENFILENAMEA);
-    ofn.hwndOwner = (HWND)window.GetPlatformNativeWindow();
-    
-    c8 filepath[512];
-    ofn.lpstrFile = filepath;
-    ofn.lpstrFile[0] = '\0';    
-    ofn.nMaxFile = sizeof(filepath);
+  char filter_safe[512]{};
+  std::strcpy(filter_safe, filter);
+  descriptor.lpstrFilter = filter_safe;
 
-    ofn.nFilterIndex = 1;
-    ofn.lpstrFilter = filter;
+  descriptor.lpstrCustomFilter = nullptr;
+  descriptor.nMaxCustFilter = 0;
 
-    ofn.lpstrDefExt = extension;
+  descriptor.nFilterIndex = 1;
 
-    ofn.lpstrTitle = title;
+  char buffer[256]{};
+  descriptor.lpstrFile = buffer;
+  descriptor.nMaxFile = 256;
 
-    return GetOpenFileNameA(&ofn) == TRUE ? filepath : "";
+  descriptor.lpstrFileTitle = nullptr;
+  descriptor.nMaxFileTitle = 0;
+
+  descriptor.lpstrInitialDir = base_path;
+  descriptor.lpstrTitle = title;
+
+  descriptor.Flags = OFN_ENABLESIZING | OFN_FILEMUSTEXIST;
+  descriptor.nFileOffset = 0;
+  descriptor.nFileExtension = 0;
+  descriptor.lpstrDefExt = extension;
+  descriptor.lCustData = 0;
+  descriptor.lpfnHook = 0;
+  descriptor.lpTemplateName = 0;
+
+  return GetOpenFileNameA(&descriptor) == TRUE ? buffer : "";
 }
 
-Path PlatformHelper::SaveFileWindow(const c8* filter, Window& window, const c8* title, const c8* extension)
+Path PlatformHelper::SaveFileWindow(const char* filter, Window& window, const char* base_path, const char* title, const char* extension)
 {
-    OPENFILENAMEA ofn;
+  OPENFILENAMEA descriptor;
+  ZeroMemory(&descriptor, sizeof(OPENFILENAMEA));
 
-    ZeroMemory(&ofn, sizeof(OPENFILENAMEA));
+  descriptor.lStructSize = sizeof(descriptor);
+  descriptor.hwndOwner = (HWND)window.GetPlatformNativeWindow();
+  descriptor.hInstance = 0;
 
-    ofn.lStructSize = sizeof(OPENFILENAMEA);
-	ofn.hwndOwner = (HWND)window.GetPlatformNativeWindow();
+  char filter_safe[512]{};
+  std::strcpy(filter_safe, filter);
+  descriptor.lpstrFilter = filter_safe;
 
-    c8 filepath[512];
-    ofn.lpstrFile = filepath;
-    ofn.lpstrFile[0] = '\0';    
-    ofn.nMaxFile = sizeof(filepath);
+  descriptor.lpstrCustomFilter = nullptr;
+  descriptor.nMaxCustFilter = 0;
 
-    ofn.nFilterIndex = 1;
-    ofn.lpstrFilter = filter;
+  descriptor.nFilterIndex = 1;
 
-    ofn.lpstrDefExt = extension;
+  char buffer[256]{};
+  descriptor.lpstrFile = buffer;
+  descriptor.nMaxFile = 256;
 
-    ofn.lpstrTitle = title;
+  descriptor.lpstrFileTitle = nullptr;
+  descriptor.nMaxFileTitle = 0;
 
-    return GetSaveFileNameA(&ofn) == TRUE ? filepath : "";
+  descriptor.lpstrInitialDir = base_path;
+  descriptor.lpstrTitle = title;
+
+  descriptor.Flags = OFN_ENABLESIZING | OFN_OVERWRITEPROMPT;
+  descriptor.nFileOffset = 0;
+  descriptor.nFileExtension = 0;
+  descriptor.lpstrDefExt = extension;
+  descriptor.lCustData = 0;
+  descriptor.lpfnHook = 0;
+  descriptor.lpTemplateName = 0;
+
+  return GetSaveFileNameA(&descriptor) == TRUE ? buffer : "";
 }

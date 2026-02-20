@@ -115,13 +115,17 @@ public:
 
     void Update(f32 DeltaSeconds);
 
-    void SaveScene();
-    void SaveScene(const ContentPath& path);
-    
-    void LoadScene();
-    void LoadScene(const ContentPath& path);
+  bool load_default_scene();
+  bool load_initial_scene();
 
-    const ContentPath& GetLoadedScenePath() const { return m_LoadedScenePath; }
+  bool resave_scene();
+  bool reload_scene();
+
+  bool load_scene(const estd::path& path);
+  bool save_scene(const estd::path& path);
+
+  const estd::path& get_loaded_scene_path() const { return loaded_scene_path; }
+  bool is_default_scene_open() const;
 
     // TODO: In future check if there is a need to create a variation of these method for multiple entities at once
 
@@ -185,15 +189,16 @@ protected:
 
     void ResolveAssetDependenciesOnLoad(void* feature, u32 type);
 
-    void UnloadScene();
+    bool unload_scene();
 
     static inline EntityManager* s_Manager;
 
     EntityManager();
     friend class Engine;
 protected:
-    ContentPath m_LoadedScenePath;
-    bool m_SceneLoaded;
+  estd::stack_string_128 scene_name;
+  estd::path loaded_scene_path;
+  bool is_scene_loaded;
 
     PoolAllocator<Entity, MaxEntitiesCount> m_Entites;
     PoolAllocator<StaticFeature, MaxStaticEntitiesCount> m_StaticFeatures;

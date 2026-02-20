@@ -3,6 +3,8 @@
 #include "Helpers/AssetHelper.h"
 #include "Helpers/FilesHelper.h"
 
+static auto& a_allow_automatic_unloading = console::create_bool("a_allow_automatic_unloading", false);
+
 AssetManager::AssetManager() : m_Assets("AssetsBase"), m_StaticMeshes("StaticMeshAssets"), m_Materials("MaterialsAssets"), m_Textures("TextureAssets"), m_Prefabs("PrefabAssets")
 {
     ED_ASSERT(!s_Manager, "Only one asset manager can exist at once.");
@@ -46,21 +48,7 @@ void AssetManager::Deinitialize()
 
 void AssetManager::Update(f32 deltaSeconds)
 {
-    // TODO: Make it more clever, we do not need to iterate all of the assets but some of them
-    // and not all of them at one frame.
-
-    const u32 frame = Engine::Get().GetFrame();
-
-    constexpr u32 arbitraryFrameRangeSafeForAssetUnloading = 256;
-    for (Asset* asset : m_Assets)
-    {
-        const bool hasFreeableData = asset->HasData && !asset->IsDirty;
-        const bool isAllowedToFree = !asset->IsDataClaimed() && asset->FrameDataWasUnclaimed + arbitraryFrameRangeSafeForAssetUnloading < frame;
-        if (hasFreeableData && isAllowedToFree)
-        {
-            UnloadAsset(asset);
-        }
-    }
+  automatic_unloading_update();
 }
 
 Asset* AssetManager::CreateAsset(u8 type, ccstr8 name, const ContentPath& path, const Path& origin)
@@ -129,11 +117,11 @@ Asset* AssetManager::LoadAsset(Asset* asset, bool full)
         return asset;
     }
 
-    ED_LOG(AssetManager, info, "Loading asset path [{}] full load [{}].", asset->FilePath.Get(), full);
+    ED_LOG(AssetManager, info, "Loading asset path [{}] full load [{}].", asset->FilePath.c_str(), full);
 
     asset->LoadData = full;
 
-    AssetArchive archive(asset->FilePath, SerializationMode::Read);
+    AssetArchive archive(asset->FilePath.c_str(), SerializationMode::Read);
 
     archive & *asset;
 
@@ -150,7 +138,7 @@ Asset* AssetManager::LoadAsset(Asset* asset, bool full)
     asset->LoadData = false;
     asset->IsDirty = false;
 
-    ED_LOG(AssetManager, info, "Loaded asset [{}] name [{}].", asset->Id, asset->Name);
+    ED_LOG(AssetManager, info, "Loaded asset [{}] name [{}].", asset->Id, asset->Name.c_str());
 
     return asset;
 }
@@ -185,7 +173,7 @@ Asset* AssetManager::LoadAsset(u64 id)
 
 void AssetManager::UnloadAsset(Asset* asset)
 {
-    ED_LOG(AssetManager, info, "Unloading asset name [{}] path [{}].", asset->Name, std::string(asset->FilePath.Get()));
+    ED_LOG(AssetManager, info, "Unloading asset name [{}] path [{}].", asset->Name.c_str(), asset->FilePath.c_str());
 
     switch (asset->AssetType)
     {
@@ -202,9 +190,9 @@ void AssetManager::SaveAsset(Asset* asset)
 {
     if (asset->IsDirty)
     {
-        ED_LOG(AssetManager, info, "Saving asset [{}] [{}] [{}] [{}]", asset->Id, asset->Name, asset->FilePath.Get(), asset->OriginPath.Get());
+        ED_LOG(AssetManager, info, "Saving asset [{}] [{}] [{}] [{}]", asset->Id, asset->Name.c_str(), asset->FilePath.c_str(), asset->OriginPath.c_str());
 
-        AssetArchive archive(asset->FilePath, SerializationMode::Write);
+        AssetArchive archive(asset->FilePath.c_str(), SerializationMode::Write);
         archive & *asset;
 
         switch (asset->AssetType)
@@ -245,4 +233,25 @@ Asset* AssetManager::FindAsset(u64 id) const
     }
 
     return nullptr;
+}
+
+void AssetManager::automatic_unloading_update()
+{
+  if (!a_allow_automatic_unloading()) return;
+
+  // TODO: Make it more clever, we do not need to iterate all of the assets but some of them
+  // and not all of them at one frame.
+
+  const u32 frame = Engine::Get().GetFrame();
+
+  constexpr u32 arbitraryFrameRangeSafeForAssetUnloading = 256;
+  for (Asset* asset : m_Assets)
+  {
+    const bool hasFreeableData = asset->HasData && !asset->IsDirty;
+    const bool isAllowedToFree = !asset->IsDataClaimed() && asset->FrameDataWasUnclaimed + arbitraryFrameRangeSafeForAssetUnloading < frame;
+    if (hasFreeableData && isAllowedToFree)
+    {
+      UnloadAsset(asset);
+    }
+  }
 }

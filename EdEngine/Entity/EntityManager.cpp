@@ -5,8 +5,22 @@
 #include "Helpers/FilesHelper.h"
 #include "RenderScene.h"
 
-EntityManager::EntityManager() : m_LoadedScenePath(Files::GetDefaultScenePath()), m_Entites("Entities"), m_StaticFeatures("StaticFeatures"), m_MovableFeatures("MovableFeatures"), m_StaticMeshFeatures("StaticMeshFeatures"),
-    m_PointLightFeatures("PointLightFeatures"), m_SpotLightsFeatures("SpotLightFeatures"), m_DirectionalLightsFeatures("DirectionalLightsFeature"), m_CamerasFeatures("CameraFeatures"), m_Prefabs("Prefabs")
+static auto& e_default_scene = console::create_path("e_default_scene", "Resources\\Scenes\\Default.edscene", true, false, true);
+static auto& e_initial_scene = console::create_path("e_initial_scene", "Resources\\Scenes\\Default.edscene", true, false, true);
+
+EntityManager::EntityManager()
+  : scene_name("None"),
+  loaded_scene_path(),
+  is_scene_loaded(false),
+  m_Entites("Entities"),
+  m_StaticFeatures("StaticFeatures"),
+  m_MovableFeatures("MovableFeatures"),
+  m_StaticMeshFeatures("StaticMeshFeatures"),
+  m_PointLightFeatures("PointLightFeatures"),
+  m_SpotLightsFeatures("SpotLightFeatures"),
+  m_DirectionalLightsFeatures("DirectionalLightsFeature"),
+  m_CamerasFeatures("CameraFeatures"),
+  m_Prefabs("Prefabs")
 {
     ED_ASSERT(!s_Manager, "There could only be one entity manager."); // TODO: could be use full to make multiple of the for some kind of level division or some kind of world parition system.
     s_Manager = this;
@@ -14,13 +28,10 @@ EntityManager::EntityManager() : m_LoadedScenePath(Files::GetDefaultScenePath())
 
 void EntityManager::Initialize()
 {
-    // Ensure empty scene always exists.
-    SaveScene();
 }
 
 void EntityManager::Deinitialize()
 {
-    
 }
 
 void EntityManager::Update(f32 DeltaSeconds)
@@ -159,53 +170,6 @@ void EntityManager::ResolveAssetDependenciesOnLoad(void* feature, u32 type)
     }
 }
 
-void EntityManager::UnloadScene()
-{
-    m_Entites.Clear();
-    m_StaticFeatures.Clear();
-    m_MovableFeatures.Clear();
-    m_StaticMeshFeatures.Clear();
-    m_PointLightFeatures.Clear();
-    m_SpotLightsFeatures.Clear();
-    m_DirectionalLightsFeatures.Clear();
-    m_CamerasFeatures.Clear();
-
-    m_SceneLoaded = false;
-}
-
-void EntityManager::SaveScene(const ContentPath& path)
-{
-    Archive archive(path, SerializationMode::Write);
-    
-    Serialize(archive);
-
-    m_LoadedScenePath = path;
-}
-
-void EntityManager::SaveScene()
-{
-    SaveScene(m_LoadedScenePath);
-}
-
-void EntityManager::LoadScene(const ContentPath& path)
-{
-    if (m_SceneLoaded)
-    {
-        UnloadScene();
-    }
-
-    Archive archive(path, SerializationMode::Read);
-    Serialize(archive);
-
-    m_LoadedScenePath = path;
-    m_SceneLoaded = true;
-}
-
-void EntityManager::LoadScene()
-{
-    LoadScene(m_LoadedScenePath);
-}
-
 template <typename T>
 void AddFeatureToPrefab(T* feature, u32 type, Prefab* prefab)
 {
@@ -229,7 +193,7 @@ Prefab* EntityManager::CreatePrefab(PrefabAsset* asset)
 {
     Prefab* prefab = m_Prefabs.Allocate();
 
-    const std::string& name = asset->BaseAsset->Name;
+    const auto& name = asset->BaseAsset->Name;
     strncpy(prefab->Name, name.c_str(), std::min<u32>(name.size(), MaxFeatureNameSize));
 
     Archive archive(asset->Buffer, SerializationMode::Read);
@@ -512,7 +476,7 @@ StaticMeshFeature* EntityManager::AttachStaticMeshFeature(Entity* entity, Static
     StaticMeshFeature* feature = m_StaticMeshFeatures.Allocate();
     if (mesh)
     {
-        std::string name = mesh->BaseAsset->Name;
+        const auto& name = mesh->BaseAsset->Name;
         strncpy(feature->Name, name.c_str(), std::min<u32>(name.size() , MaxPrefabCount));
         mesh->BaseAsset->ClaimData();
     }
@@ -862,4 +826,86 @@ void* EntityManager::AllocateFeature(u32 type)
     }
 
     return nullptr;
+}
+
+bool EntityManager::is_default_scene_open() const
+{
+  return loaded_scene_path == e_default_scene();
+}
+
+bool EntityManager::load_default_scene()
+{
+  return load_scene(e_default_scene());
+}
+
+bool EntityManager::load_initial_scene()
+{
+  return load_scene(e_initial_scene());
+}
+
+bool EntityManager::resave_scene()
+{
+  return save_scene(loaded_scene_path);
+}
+
+bool EntityManager::reload_scene()
+{
+  return load_scene(loaded_scene_path);
+}
+
+bool EntityManager::save_scene(const estd::path& path)
+{
+  if (is_scene_loaded)
+  {
+    ED_LOG(EntityManager, err, "Can not save a scene that is not loaded to [{}].", path.c_str());
+    return false;
+  }
+
+  ED_LOG(EntityManager, info, "Saving scene [{}] to [{}].", scene_name.c_str(), path.c_str());
+
+  Archive archive(path.c_str(), SerializationMode::Write);
+  Serialize(archive);
+
+  loaded_scene_path = path;
+
+  return true;
+}
+
+bool EntityManager::load_scene(const estd::path& path)
+{
+  ED_LOG(EntityManager, info, "Loading scene from [{}].", path.c_str());
+
+  if (is_scene_loaded)
+  {
+    const bool succseeded = unload_scene();
+    if (!succseeded) return false;
+  }
+
+  Archive archive(path.c_str(), SerializationMode::Read);
+  Serialize(archive);
+
+  loaded_scene_path = path;
+  is_scene_loaded = true;
+
+  return true;
+}
+
+bool EntityManager::unload_scene()
+{
+  if (!is_scene_loaded) return true;
+
+  ED_LOG(EntityManager, info, "Unloading scene [{}] [{}].", scene_name.c_str(), loaded_scene_path.c_str());
+
+  m_Entites.Clear();
+  m_StaticFeatures.Clear();
+  m_MovableFeatures.Clear();
+  m_StaticMeshFeatures.Clear();
+  m_PointLightFeatures.Clear();
+  m_SpotLightsFeatures.Clear();
+  m_DirectionalLightsFeatures.Clear();
+  m_CamerasFeatures.Clear();
+
+  is_scene_loaded = false;
+
+  return true;
 }

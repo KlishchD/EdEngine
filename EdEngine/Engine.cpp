@@ -140,6 +140,8 @@ void Engine::Initialize(u32 arguments_count, ccstr8* arguments)
   m_InputManager = new InputManager();
   m_InputManager->Initialize();
 
+  m_EntityManager->load_initial_scene();
+
   ED_LOG(Engine, info, "Finished initializing.")
 }
 

@@ -85,7 +85,7 @@ void SSAOPass::GatherCustomShaderParameters(void* memory)
 
   for (u32 index = 0; index < SSAO_MAX_SAMPLES_COUNT; ++index)
   {
-    memory = PutValue(memory, &samples[0], sizeof(glm::vec3) * SSAO_MAX_SAMPLES_COUNT);
+    memory = PutValue(memory, &samples[0], SSAO_MAX_SAMPLES_COUNT);
     memory = PutValue(memory, 0.0f); // Paddings (
   }
 }

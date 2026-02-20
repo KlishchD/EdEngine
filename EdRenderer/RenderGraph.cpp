@@ -703,20 +703,20 @@ void RenderGraph::GatherCommonShaderParameters(void* memory)
     const Camera& camera = m_Renderer->GetCamera();
 
     glm::mat4 view = camera.GetView();
-    memory = PutValue(memory, glm::value_ptr(view), sizeof(glm::mat4));
+    memory = PutValue(memory, glm::value_ptr(view), 16);
 
     glm::mat4 projection = camera.GetProjection();
-    memory = PutValue(memory, glm::value_ptr(projection), sizeof(glm::mat4));
+    memory = PutValue(memory, glm::value_ptr(projection), 16);
 
     glm::mat4 projectionView = camera.GetProjectionView();
-    memory = PutValue(memory, glm::value_ptr(projectionView), sizeof(glm::mat4));
+    memory = PutValue(memory, glm::value_ptr(projectionView), 16);
 
-    glm::mat4 inverseProjectionView = glm::inverse(projectionView);
-    memory = PutValue(memory, glm::value_ptr(inverseProjectionView), sizeof(glm::mat4));
+    glm::mat4 inverseProjectionView = glm::transpose(projectionView);
+    memory = PutValue(memory, glm::value_ptr(inverseProjectionView), 16);
 
     Window* window = m_Context->GetWindow();
-    memory = PutValue<u32>(memory, window->GetWidth());
-    memory = PutValue<u32>(memory, window->GetHeight());
-    memory = PutValue<f32>(memory, 1.0f / window->GetWidth());
-    memory = PutValue<f32>(memory, 1.0f / window->GetHeight());
+    memory = PutValue(memory, window->GetWidth());
+    memory = PutValue(memory, window->GetHeight());
+    memory = PutValue(memory, 1.0f / window->GetWidth());
+    memory = PutValue(memory, 1.0f / window->GetHeight());
 }

@@ -5,6 +5,6 @@
 class PlatformHelper
 {
 public:
-    static Path OpenFileWindow(const c8* filter, Window& window, const c8* title = nullptr, const c8* extension = nullptr);
-    static Path SaveFileWindow(const c8* filter, Window& window, const c8* title = nullptr, const c8* extension = nullptr);
+    static Path OpenFileWindow(const char* filter, Window& window, const char* base_path = nullptr, const char* title = nullptr, const char* extension = nullptr);
+    static Path SaveFileWindow(const char* filter, Window& window, const char* base_path = nullptr, const char* title = nullptr, const char* extension = nullptr);
 };

@@ -7,6 +7,15 @@ estd::console::console& console::get_console()
   return instance;
 }
 
+estd::console::path_parameter& console::create_path(const char* name, const char* default_value, bool exists, bool directory, bool file)
+{
+  return get_console()
+    .add_parameter<estd::console::inline_path_parameter>(name, default_value)
+    .set_exists(exists)
+    .set_directory(directory)
+    .set_file(file);
+}
+
 estd::console::float_parameter& console::create_f32(const char* name, f32 default_value, f32 min, f32 max)
 {
   return get_console()
@@ -19,6 +28,11 @@ estd::console::unsigned_integer_parameter& console::create_u32(const char* name,
   return get_console()
     .add_parameter<estd::console::inline_unsigned_integer_parameter>(name, default_value)
     .set_range(min, max);
+}
+
+estd::console::bool_parameter& console::create_bool(const char* name, bool default_value)
+{
+  return get_console().add_parameter<estd::console::inline_bool_parameter>(name, default_value);
 }
 
 bool console::save(const estd::path& destination)

@@ -1,5 +1,6 @@
 ﻿#pragma once
 
+#pragma message("Caching!!!!")
 class Camera
 {
 public:

@@ -2,7 +2,18 @@
 #include "Asset.h"
 #include "Helpers/AssetHelper.h"
 
-Asset::Asset() : Data(nullptr), Id(AssetHelper::GenerateAssetID()), DataClaims(0), AssetType(AssetHelper::InvalidAssetTypeId), HasData(false), IsDirty(false), LoadData(false)
+Asset::Asset()
+  : Name{ "DefaultAsset" },
+  OriginPath{},
+  FilePath{},
+  Data(nullptr),
+  Id(AssetHelper::GenerateAssetID()),
+  AssetType(AssetHelper::InvalidAssetTypeId),
+  FrameDataWasUnclaimed(Engine::Get().GetFrame()),
+  DataClaims(0),
+  HasData(false),
+  IsDirty(false),
+  LoadData(false)
 {
 
 }

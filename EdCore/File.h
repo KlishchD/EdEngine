@@ -32,6 +32,7 @@ public:
 
     const estd::path_string* GetPtr() const { return &m_Path; }
     estd::path_string* GetPtr() { return &m_Path; }
+    ccstr8 c_str() const { return m_Path.c_str(); }
     ccstr8 Get() const { return m_Path.c_str(); }
     u32 GetSize() const { return m_Path.size(); }
 
@@ -96,7 +97,6 @@ namespace Files
     const Path& GetPlayRecordingsPath();
     const Path& GetEditorLayoutPath();
     const Path& GetShadersPath();
-    const Path& GetDefaultScenePath();
     const Path& GetEditorIconPath();
 
     const Path& GetShadersReportPath();

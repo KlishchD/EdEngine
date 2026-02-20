@@ -28,8 +28,8 @@ void OptionsMenuWidget::Tick(f32 DeltaTime)
     {
       if (ImGui::MenuItem("Import Scene"))
       {
-        Path scene = PlatformHelper::OpenFileWindow(".fbx|.obj", *Engine::Get().GetWindow(), "Select scene to import.");
-        Path save = PlatformHelper::SaveFileWindow(".edprefab", *Engine::Get().GetWindow(), "Select save destination.", Files::PrefabAssetExtension);
+        Path scene = PlatformHelper::OpenFileWindow("Scenes\0.fbx|.obj", *Engine::Get().GetWindow(), Files::GetContentPath().Get(), "Select scene to import.");
+        Path save = PlatformHelper::SaveFileWindow("Prefabs\0.edprefab", *Engine::Get().GetWindow(), Files::GetContentPath().Get(), "Select save destination.", Files::PrefabAssetExtension);
 
         if (scene.IsValid())
         {
@@ -58,13 +58,13 @@ void OptionsMenuWidget::Tick(f32 DeltaTime)
 
       if (ImGui::MenuItem("Save as"))
       {
-        Path path = PlatformHelper::SaveFileWindow(".ini", *Engine::Get().GetWindow(), "Save layout.", ".ini");
+        Path path = PlatformHelper::SaveFileWindow(".ini", *Engine::Get().GetWindow(), nullptr, "Save layout.", ".ini");
         Editor::Get().SaveLayout(path);
       }
 
       if (ImGui::MenuItem("Load as"))
       {
-        Path path = PlatformHelper::OpenFileWindow(".ini", *Engine::Get().GetWindow(), "Load layout.");
+        Path path = PlatformHelper::OpenFileWindow(".ini", *Engine::Get().GetWindow(), nullptr, "Load layout.");
         Editor::Get().LoadLayout(path);
       }
 
@@ -73,23 +73,23 @@ void OptionsMenuWidget::Tick(f32 DeltaTime)
 
     if (ImGui::BeginMenu("Scene"))
     {
-      if (ImGui::MenuItem("Save", nullptr, nullptr, EntityManager::Get().GetLoadedScenePath() != Files::GetDefaultScenePath()))
+      if (ImGui::MenuItem("Resave", nullptr, nullptr, !EntityManager::Get().is_default_scene_open()))
       {
-        EntityManager::Get().SaveScene();
+        EntityManager::Get().resave_scene();
       }
 
-      if (ImGui::MenuItem("Load"))
+      if (ImGui::MenuItem("Reload"))
       {
-        EntityManager::Get().LoadScene();
+        EntityManager::Get().reload_scene();
       }
 
       if (ImGui::MenuItem("Save as"))
       {
-        ContentPath path = PlatformHelper::SaveFileWindow(Files::SceneAssetExtension, *Engine::Get().GetWindow(), "Save scene.", Files::SceneAssetExtension);
+        ContentPath path = PlatformHelper::SaveFileWindow(Files::SceneAssetExtension, *Engine::Get().GetWindow(), nullptr, "Save scene.", Files::SceneAssetExtension);
 
         if (path.IsFile())
         {
-          EntityManager::Get().SaveScene(path);
+          EntityManager::Get().save_scene(path);
         }
         else
         {
@@ -99,11 +99,11 @@ void OptionsMenuWidget::Tick(f32 DeltaTime)
 
       if (ImGui::MenuItem("Load as"))
       {
-        ContentPath path = PlatformHelper::OpenFileWindow(Files::FullSceneAssetExtension, *Engine::Get().GetWindow(), "Save scene.");
+        ContentPath path = PlatformHelper::OpenFileWindow(Files::FullSceneAssetExtension, *Engine::Get().GetWindow(), nullptr, "Save scene.");
 
         if (path.IsValid() && path.IsFile())
         {
-          EntityManager::Get().LoadScene(path);
+          EntityManager::Get().load_scene(path);
         }
         else
         {
