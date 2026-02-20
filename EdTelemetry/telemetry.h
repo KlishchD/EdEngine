@@ -2,7 +2,7 @@
 
 struct shader_data
 {
-  estd::stack_string_512 path;
+  estd::path path;
   Array<estd::stack_string_512> arguments;
 
   bool operator==(const shader_data& other) const;
@@ -32,9 +32,9 @@ class telemetry
 {
 public:
   bool shaders_reporting_enabled() const;
-  void report_shader(const ShaderPath& path, const TemporaryArray<ccstr16>& arguments);
+  void report_shader(const estd::path& path, const TemporaryArray<ccstr16>& arguments);
 
-  void dump_shaders(const Path& path);
+  void dump_shaders(const estd::path& path);
 private:
   std::unordered_set<shader_data> shaders;
 };

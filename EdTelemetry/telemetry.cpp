@@ -22,11 +22,11 @@ bool telemetry::shaders_reporting_enabled() const
   return ED_TELEMETRY == 1;
 }
 
-void telemetry::report_shader(const ShaderPath& path, const TemporaryArray<ccstr16>& arguments)
+void telemetry::report_shader(const estd::path& path, const TemporaryArray<ccstr16>& arguments)
 {
 #if ED_TELEMETRY == 1
   shader_data shader;
-  shader.path = path.Get();
+  shader.path = path;
 
   for (const auto& argument : arguments)
   {
@@ -37,27 +37,27 @@ void telemetry::report_shader(const ShaderPath& path, const TemporaryArray<ccstr
   if (is_duplcate) return;
 
   shaders.insert(std::move(shader));
-  ED_LOG(telemetry, info, "Reported [{}] {} - {}.", shaders.size(), path.Get(), shader.arguments.GetSize());
+  ED_LOG(telemetry, info, "Reported [{}] {} - {}.", shaders.size(), path.c_str(), shader.arguments.GetSize());
 #endif
 }
 
-void telemetry::dump_shaders(const Path& path)
+void telemetry::dump_shaders(const estd::path& path)
 {
 #if ED_TELEMETRY == 1
-  if (path.IsValid())
+  if (path.exists())
   {
     ED_LOG(telemetry, info, "Previous shaders report detected, cleaning up.");
-    path.Remove();
+    path.remove();
   }
 
-  ED_LOG(telemetry, info, "Gathering shaders to dump in [{}].", path.Get());
+  ED_LOG(telemetry, info, "Gathering shaders to dump in [{}].", path.c_str());
 
   estd::json result;
 
   for (const auto& shader : shaders)
   {
     estd::json local_result;
-    local_result["Name"] = shader.path;
+    local_result["Name"] = shader.path.c_str();
     for (const auto& argument : shader.arguments)
     {
       local_result["Arguments"].push_back(argument);
@@ -66,6 +66,6 @@ void telemetry::dump_shaders(const Path& path)
     result.push_back(std::move(local_result));
   }
 
-  estd::write_json(path.Get(), result);
+  estd::write_json(path, result);
 #endif
 }
