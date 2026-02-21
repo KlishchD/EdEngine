@@ -4,6 +4,7 @@
 
 #include "EdShadersCompiler.h"
 #include "RenderTypes.h"
+#include "formats.h"
 
 #define ALLOW_PSO_RECREATION 1
 
