@@ -483,8 +483,6 @@ void RenderingContext::UploadRequestProcessor::Copy(CommandList* list)
 
     Resource* destination = view->Viewed;
 
-    list->Transition(destination, ResourceState::CopyDestination);
-
     switch (destination->GetType())
     {
     case Resource::BufferType:
@@ -501,8 +499,6 @@ void RenderingContext::UploadRequestProcessor::Copy(CommandList* list)
       ED_ASSERT(0, "Unsupported upload request destination resource type.")
         break;
     }
-
-    list->Transition(destination, ResourceState::Common);
 
     view->Uploaded = 1;
 
