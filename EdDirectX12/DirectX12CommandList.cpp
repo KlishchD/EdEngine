@@ -461,6 +461,11 @@ void CommandList::SetRenderTargets(const ResourceView& target, const ResourceVie
     GetList()->OMSetRenderTargets(target.Viewed ? 1 : 0, target.Viewed ? &nativeTarget : nullptr, false, depth.Viewed ? &depthHandle : nullptr);
 }
 
+void CommandList::DiscardResource(const ResourceView& view)
+{
+  GetList()->DiscardResource(view.Viewed->GetNativeHandle<ID3D12Resource>(), nullptr);
+}
+
 void CommandList::ClearDepthTarget(const ResourceView& view, f32 depth)
 {
     GetList()->ClearDepthStencilView({ view.CPUHandle }, D3D12_CLEAR_FLAG_DEPTH, depth, 0, 0, nullptr);

@@ -198,6 +198,12 @@ void GBufferPass::Execute(CommandList* list, Resource* buffer, u64 offset)
 
     list->Transition(targets, ResourceState::RenderTarget);
 
+  // https://www.gamedev.net/forums/topic/684708-why-call-discardresource/
+  for (const auto& target_view : targets)
+  {
+    list->DiscardResource(target_view);
+  }
+
     list->Transition(m_Context->GetGeometryVertexPool(), ResourceState::VertexAndConstantBuffer);
     list->Transition(m_Context->GetGeometryIndexPool(), ResourceState::IndexBuffer);
 

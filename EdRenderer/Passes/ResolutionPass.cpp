@@ -39,6 +39,7 @@ void ResolutionPass::Execute(CommandList* list, Resource* buffer, u64 offset)
     list->Transition(m_Boom->GetResource(), ResourceState::ShaderRead);
 
     list->SetRenderTargets(m_Scene->GetView(), ResourceView());
+  list->DiscardResource(m_Scene->GetView());
     list->SetPrimitiveTopology(PrimitiveTopology::TriangleList);
     
     list->SetPipelineState(m_PSO);

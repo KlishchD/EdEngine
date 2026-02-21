@@ -117,6 +117,7 @@ public:
     void ClearDepthTarget(const ResourceView& view, u8 stencil);
     void ClearDepthTarget(const ResourceView& view, f32 depth, u8 stencil);
 
+    void DiscardResource(const ResourceView& view);
     void ClearRenderTarget(const ResourceView& view, glm::vec4 color);
     
     void ClearUAV(const ResourceView& view, glm::vec4 value);

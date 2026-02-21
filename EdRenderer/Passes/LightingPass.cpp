@@ -187,6 +187,7 @@ void LightingPass::Execute(CommandList* list, Resource* buffer, u64 offset)
     list->Transition(m_Depth->GetView(), ResourceState::DepthRead);
 
     list->Transition(m_Lighting->GetView(), ResourceState::RenderTarget);
+    list->DiscardResource(m_Lighting->GetView());
     list->SetRenderTargets(m_Lighting->GetView(), {});
 
     list->SetPipelineState(m_BaseLightingPSO);
