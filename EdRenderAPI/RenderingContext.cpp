@@ -69,7 +69,7 @@ void RenderingContext::FreeModel(ResourceView& vertexBufferView, ResourceView& i
   indexBufferView = ResourceView();
 }
 
-void RenderingContext::UploadTextureDeferred(u8* data, u32 width, u32 height, u32 mips, PixelFormat format, ResourceView& view, ResourceState state, ccstr8 name, i32 nameSize)
+void RenderingContext::UploadTextureDeferred(u8* data, u32 width, u32 height, u32 mips, PixelFormat format, ResourceView& view, ResourceState state, ccstr8 name)
 {
   UploadRequest request;
   request.Destiantion = &view;
@@ -82,12 +82,12 @@ void RenderingContext::UploadTextureDeferred(u8* data, u32 width, u32 height, u3
   request.State = state;
   m_UploadRequests[UD_TexturePool].Add(request);
 
-  Resource* resource = m_TexturesHeap->CreateResource(RF_None, ResourceState::ShaderRead, format, width, height, mips, name, nameSize);
+  Resource* resource = m_TexturesHeap->CreateResource(RF_None, ResourceState::ShaderRead, format, width, height, mips, name);
 
   view = m_SRVHeap->CreateView(DescriptorHeapType::SRV, resource);
 }
 
-void RenderingContext::UploadTextureImediate(u8* Data, u32 width, u32 height, u32 mips, PixelFormat format, ResourceView& view, ResourceState state, ccstr8 name, i32 nameSize)
+void RenderingContext::UploadTextureImediate(u8* Data, u32 width, u32 height, u32 mips, PixelFormat format, ResourceView& view, ResourceState state, ccstr8 name)
 {
   ED_ASSERT(0, "RenderingContext::UploadTextureImediate is not implemented.");
 }
@@ -100,27 +100,27 @@ void RenderingContext::FreeTexture(ResourceView& view)
   view = ResourceView();
 }
 
-ResourceView RenderingContext::CreateRenderTarget(RenderTargetSizePolicy policy, PixelFormat format, ccstr8 name, i32 nameSize)
+ResourceView RenderingContext::CreateRenderTarget(RenderTargetSizePolicy policy, PixelFormat format, ccstr8 name)
 {
   f32 scaler = RenderTypes::ConvertRenderTargetSizePolicy(policy);
   u32 width = static_cast<u32>(m_Window->GetWidth() * scaler);
   u32 height = static_cast<u32>(m_Window->GetHeight() * scaler);
 
-  return CreateRenderTarget(width, height, format, name, nameSize);
+  return CreateRenderTarget(width, height, format, name);
 }
 
-ResourceView RenderingContext::CreateRenderTarget(u32 width, u32 height, PixelFormat format, ccstr8 name, i32 nameSize)
+ResourceView RenderingContext::CreateRenderTarget(u32 width, u32 height, PixelFormat format, ccstr8 name)
 {
   ResourceView view;
 
   if (format == PixelFormat::Depth || format == PixelFormat::DepthStencil)
   {
-    Resource* target = m_RenderTargetsHeap->CreateResource(RF_AllowDepthStencil, ResourceState::DepthWrite, format, width, height, name, nameSize);
+    Resource* target = m_RenderTargetsHeap->CreateResource(RF_AllowDepthStencil, ResourceState::DepthWrite, format, width, height, name);
     view = m_DSVHeap->CreateView(DescriptorHeapType::DSV, target);
   }
   else
   {
-    Resource* target = m_RenderTargetsHeap->CreateResource(RF_AllowRenderTarget, ResourceState::RenderTarget, format, width, height, name, nameSize);
+    Resource* target = m_RenderTargetsHeap->CreateResource(RF_AllowRenderTarget, ResourceState::RenderTarget, format, width, height, name);
     view = m_RTVHeap->CreateView(DescriptorHeapType::RTV, target);
   }
 
@@ -135,18 +135,18 @@ void RenderingContext::FreeRenderTarget(ResourceView& view)
   view = ResourceView();
 }
 
-Array<ResourceView> RenderingContext::CreateUAVTarget(RenderTargetSizePolicy policy, u32 mips, PixelFormat format, ccstr8 name, i32 nameSize)
+Array<ResourceView> RenderingContext::CreateUAVTarget(RenderTargetSizePolicy policy, u32 mips, PixelFormat format, ccstr8 name)
 {
   f32 scaler = RenderTypes::ConvertRenderTargetSizePolicy(policy);
   u32 width = static_cast<u32>(m_Window->GetWidth() * scaler);
   u32 height = static_cast<u32>(m_Window->GetHeight() * scaler);
 
-  return CreateUAVTarget(width, height, mips, format, name, nameSize);
+  return CreateUAVTarget(width, height, mips, format, name);
 }
 
-Array<ResourceView> RenderingContext::CreateUAVTarget(u32 width, u32 height, u32 mips, PixelFormat format, ccstr8 name, i32 nameSize)
+Array<ResourceView> RenderingContext::CreateUAVTarget(u32 width, u32 height, u32 mips, PixelFormat format, ccstr8 name)
 {
-  Resource* target = m_UAVTargetsHeap->CreateResource(RF_AllowUnorderedAccess, ResourceState::UnorderedAccess, format, width, height, mips, name, nameSize);
+  Resource* target = m_UAVTargetsHeap->CreateResource(RF_AllowUnorderedAccess, ResourceState::UnorderedAccess, format, width, height, mips, name);
 
   Array<ResourceView> views;
   for (u32 i = 0; i < mips; ++i)
@@ -265,9 +265,9 @@ void RenderingContext::Present()
   m_SwapChain->Present();
 }
 
-CommandList* RenderingContext::CreateCommandList(CommandListType type, ccstr8 name, i32 size)
+CommandList* RenderingContext::CreateCommandList(CommandListType type, ccstr8 name)
 {
-  CommandList* list = new CommandList(type, name, size);
+  CommandList* list = new CommandList(type, name);
   m_Lists.Add(list);
   return list;
 }

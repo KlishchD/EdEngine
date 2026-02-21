@@ -2,7 +2,7 @@
 
 #define GetList() GetNativeHandle<ID3D12GraphicsCommandList1>()
 
-CommandList::CommandList(CommandListType type, ccstr8 name, i32 size) : m_Type(type)
+CommandList::CommandList(CommandListType type, ccstr8 name) : m_Type(type)
 {
     m_Allocator = new CommandAllocator(type);
 
@@ -13,7 +13,7 @@ CommandList::CommandList(CommandListType type, ccstr8 name, i32 size) : m_Type(t
         __uuidof(ID3D12GraphicsCommandList1), 
         reinterpret_cast<void**>(&m_NativeHandle)));
 
-    SetDebugName(name, size);
+    SetDebugName(name);
 
     GetList()->Close();
 }

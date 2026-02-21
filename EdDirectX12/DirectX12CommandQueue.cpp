@@ -3,7 +3,7 @@
 #define GetQueue() reinterpret_cast<ID3D12CommandQueue*>(m_NativeHandle)
 #define GetFence() reinterpret_cast<ID3D12Fence*>(m_FenceNativeHandle)
 
-CommandQueue::CommandQueue(CommandListType type, bool hightPriority, ccstr8 name, i32 size)
+CommandQueue::CommandQueue(CommandListType type, bool hightPriority, ccstr8 name)
 {
     D3D12_COMMAND_QUEUE_DESC description;
     description.Type = DirectX12Types::ConvertCommandListType(type);
@@ -12,12 +12,12 @@ CommandQueue::CommandQueue(CommandListType type, bool hightPriority, ccstr8 name
     description.NodeMask = 0;
     D3D::Check(g_Device->CreateCommandQueue(&description, __uuidof(ID3D12CommandQueue), reinterpret_cast<void**>(&m_NativeHandle)));
 
-    SetDebugName(name, size);
+    SetDebugName(name);
 
     D3D::Check(g_Device->CreateFence(0, D3D12_FENCE_FLAG_NONE, __uuidof(ID3D12Fence), reinterpret_cast<void**>(&m_FenceNativeHandle)));
     m_Handle = CreateEvent(nullptr, false, false, TEXT("Fence"));
 
-    SetObjectDebugName<ID3D12Fence>(GetFence(), name, size);
+    SetObjectDebugName<ID3D12Fence>(GetFence(), name);
 }
 
 NAME_METHODS_TEMPLATE(CommandQueue, ID3D12CommandQueue)

@@ -17,8 +17,8 @@ public:
     void Recreate(const GraphicsPipelineStateObjectBuilder& builder);
     void Recreate(const ComputePipelineStateObjectBuilder& builder);
 
-    void SetDebugName(ccstr8 name, i32 size = -1);
-    void GetDebugName(ccstr8& name, i32& size);
+    void SetDebugName(ccstr8 name);
+    void GetDebugName(ccstr8& name);
 
     Type GetType() const { return m_Type; }
 

@@ -9,11 +9,11 @@ public:
         TextureType
     };
 
-    Resource(ResourceFlags flags, ResourceState state, uptr handle, PixelFormat format, u32 width, u32 height, u32 depth, u32 mips, ccstr8 name = "DefaultResourceName", i32 nameSize = -1);
-    Resource(ResourceFlags flags, ResourceState state, uptr handle, u32 count, u64 itemSize, ccstr8 name = "DefaultResourceName", i32 nameSize = -1);
+    Resource(ResourceFlags flags, ResourceState state, uptr handle, PixelFormat format, u32 width, u32 height, u32 depth, u32 mips, ccstr8 name = "DefaultResourceName");
+    Resource(ResourceFlags flags, ResourceState state, uptr handle, u32 count, u64 itemSize, ccstr8 name = "DefaultResourceName");
 
-    void SetDebugName(ccstr8 name, i32 size = -1);
-    void GetDebugName(ccstr8& name, i32& size);
+    void SetDebugName(ccstr8 name);
+    void GetDebugName(ccstr8& name);
 
     bool Map(u32 subresource, u64 begin, u64 end, void** data);
     void Unmap(u32 subresource, u64 begin, u64 end);

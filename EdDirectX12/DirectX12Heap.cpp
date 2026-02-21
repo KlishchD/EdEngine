@@ -2,7 +2,7 @@
 
 #define GetHeap() GetNativeHandle<ID3D12Heap>()
 
-Heap::Heap(HeapType type, HeapFlags flags, u64 size, u32 alignment, bool resident, ccstr8 name, i32 nameSize) : m_Size(size), m_Offset(0), m_Alignment(alignment), m_Resident(resident)
+Heap::Heap(HeapType type, HeapFlags flags, u64 size, u32 alignment, bool resident, ccstr8 name) : m_Size(size), m_Offset(0), m_Alignment(alignment), m_Resident(resident)
 {
     D3D12_HEAP_DESC description;
     description.SizeInBytes = size;
@@ -16,7 +16,7 @@ Heap::Heap(HeapType type, HeapFlags flags, u64 size, u32 alignment, bool residen
 
     D3D::Check(g_Device->CreateHeap(&description, __uuidof(ID3D12Heap), reinterpret_cast<void**>(&m_NativeHandle)));
 
-    SetDebugName(name, nameSize);
+    SetDebugName(name);
 
     if (resident)
     {
@@ -29,7 +29,7 @@ Heap::Heap(HeapType type, HeapFlags flags, u64 size, u32 alignment, bool residen
 
 NAME_METHODS_TEMPLATE(Heap, ID3D12Heap)
 
-Resource* Heap::CreateResource(ResourceFlags flags, ResourceState state, PixelFormat format, u32 width, u32 height, u32 depth, u32 mips, ccstr8 name, i32 nameSize)
+Resource* Heap::CreateResource(ResourceFlags flags, ResourceState state, PixelFormat format, u32 width, u32 height, u32 depth, u32 mips, ccstr8 name)
 {
     u64 size = width * height * RenderTypes::GetPixelSize(format);
     u64 totalSize = 0;
@@ -64,7 +64,7 @@ Resource* Heap::CreateResource(ResourceFlags flags, ResourceState state, PixelFo
     uptr resourceHandle;
     D3D::Check(g_Device->CreatePlacedResource(GetHeap(), m_Offset, &description, DirectX12Types::ConvertResourceState(state), flags & RF_AllowDepthStencil ? &clearValue : nullptr, __uuidof(ID3D12Resource), reinterpret_cast<void**>(&resourceHandle)));
 
-    Resource* resource = new Resource(flags, state, resourceHandle, format, width, height, depth, mips, name, nameSize);
+    Resource* resource = new Resource(flags, state, resourceHandle, format, width, height, depth, mips, name);
 
     if (m_Resident)
     {
@@ -78,17 +78,17 @@ Resource* Heap::CreateResource(ResourceFlags flags, ResourceState state, PixelFo
     return resource;
 }
 
-Resource* Heap::CreateResource(ResourceFlags flags, ResourceState state, PixelFormat format, u32 width, u32 height, ccstr8 name, i32 nameSize)
+Resource* Heap::CreateResource(ResourceFlags flags, ResourceState state, PixelFormat format, u32 width, u32 height, ccstr8 name)
 {
-    return CreateResource(flags, state, format, width, height, 1, 1, name, nameSize);
+    return CreateResource(flags, state, format, width, height, 1, 1, name);
 }
 
-Resource* Heap::CreateResource(ResourceFlags flags, ResourceState state, PixelFormat format, u32 width, u32 height, u32 mips, ccstr8 name, i32 nameSize)
+Resource* Heap::CreateResource(ResourceFlags flags, ResourceState state, PixelFormat format, u32 width, u32 height, u32 mips, ccstr8 name)
 {
-    return CreateResource(flags, state, format, width, height, 1, mips, name, nameSize);
+    return CreateResource(flags, state, format, width, height, 1, mips, name);
 }
 
-Resource* Heap::CreateResource(ResourceFlags flags, ResourceState state, u32 count, u64 itemSize, ccstr8 name, i32 nameSize)
+Resource* Heap::CreateResource(ResourceFlags flags, ResourceState state, u32 count, u64 itemSize, ccstr8 name)
 {
     u32 size = count * itemSize;
 
@@ -111,7 +111,7 @@ Resource* Heap::CreateResource(ResourceFlags flags, ResourceState state, u32 cou
     D3D::Check(g_Device->CreatePlacedResource(GetHeap(), m_Offset, &description, DirectX12Types::ConvertResourceState(state), nullptr, __uuidof(ID3D12Resource), reinterpret_cast<void**>(&resourceHandle)));
 
 
-    Resource* resource = new Resource(flags, state, resourceHandle, count, itemSize, name, nameSize);
+    Resource* resource = new Resource(flags, state, resourceHandle, count, itemSize, name);
     
     if (m_Resident)
     {

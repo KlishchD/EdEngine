@@ -2,7 +2,7 @@
 
 #define GetHeap() GetNativeHandle<ID3D12DescriptorHeap>()
 
-DescriptorHeap::DescriptorHeap(DescriptorHeapType type, u32 count, bool shaderVisible, ccstr8 name, i32 nameSize) : m_Mask(count), m_Type(type), m_Count(count), m_ShaderVisible(shaderVisible)
+DescriptorHeap::DescriptorHeap(DescriptorHeapType type, u32 count, bool shaderVisible, ccstr8 name) : m_Mask(count), m_Type(type), m_Count(count), m_ShaderVisible(shaderVisible)
 {
     ED_ASSERT(type != DescriptorHeapType::Sampler, "Sampler heap is not supported.");
  
@@ -16,7 +16,7 @@ DescriptorHeap::DescriptorHeap(DescriptorHeapType type, u32 count, bool shaderVi
     m_StartLocation = shaderVisible ? GetHeap()->GetGPUDescriptorHandleForHeapStart().ptr : 0;
     m_DescriptorSize = g_Device->GetDescriptorHandleIncrementSize(DirectX12Types::ConvertDescriptorHeapType(m_Type));
 
-    SetDebugName(name, nameSize);
+    SetDebugName(name);
 }
 
 NAME_METHODS_TEMPLATE(DescriptorHeap, ID3D12DescriptorHeap)

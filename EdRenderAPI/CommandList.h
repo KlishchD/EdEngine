@@ -7,10 +7,10 @@ class CommandAllocator;
 
 class CommandList {
 public:
-    CommandList(CommandListType type, ccstr8 name = "DefaultCommandListName", i32 size = -1);
+    CommandList(CommandListType type, ccstr8 name = "DefaultCommandListName");
 
-    void SetDebugName(ccstr8 name, i32 size = -1);
-    void GetDebugName(ccstr8& name, i32& size);
+    void SetDebugName(ccstr8 name);
+    void GetDebugName(ccstr8& name);
 
     void SetDepthBounds(f32 min, f32 max);
 

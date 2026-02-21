@@ -1,26 +1,26 @@
 #pragma once
 
-#define D3D_DEBUG 0
+#define D3D_DEBUG 1
 #define D3D_FORCE_EVENTS_OFF 0
 
 #if D3D_DEBUG
-    #pragma comment(lib, "dxguid.lib")
+#pragma comment(lib, "dxguid.lib")
 #endif
 
 #pragma comment(lib, "dxgi.lib")
 #pragma comment(lib, "d3d12.lib")
 
 #ifndef NOMINMAX
-    #define NOMINMAX  // prevent windows redefining min/max
+#define NOMINMAX  // prevent windows redefining min/max
 #endif
 
 #ifndef WIN32_LEAN_AND_MEAN
-    #define WIN32_LEAN_AND_MEAN
+#define WIN32_LEAN_AND_MEAN
 #endif
 
 #if D3D_DEBUG
-    #include "dxgidebug.h"
-    #include "d3d12sdklayers.h"
+#include "dxgidebug.h"
+#include "d3d12sdklayers.h"
 #endif
 
 #include <dxgi1_6.h>
@@ -33,32 +33,26 @@
 #include "DirectX12Types.h"
 
 #if RELEASE_BUILD
-    #undef D3D_DEBUG
-    #define D3D_DEBUG 0
+#undef D3D_DEBUG
+#define D3D_DEBUG 0
 #endif
 
 template <typename T>
-static void SetObjectDebugName(T* object, ccstr8 name, i32 size)
+static void SetObjectDebugName(T* object, ccstr8 name)
 {
-    if (size == -1)
-    {
-        size = strnlen(name, 1024);
-    }
-
-    object->SetName(Strings::Convert(name, true));
+  object->SetName(Strings::Convert(name, true));
 }
 
 template <typename T>
-static void GetObjectDebugName(T* object, ccstr8& name, i32& size)
+static void GetObjectDebugName(T* object, ccstr8& name)
 {
-    ED_ASSERT(0, "Method is not supported by the API.");
-    name = "Not supported by API :(";
-    size = strlen(name);
+  ED_ASSERT(0, "Method is not supported by the API.");
+  name = "Not supported by API :(";
 }
 
 #define NAME_METHODS_TEMPLATE(clazz, apiClazz) \
-    void clazz::SetDebugName(ccstr8 name, i32 size) { SetObjectDebugName(GetNativeHandle<apiClazz>(), name, size); } \
-    void clazz::GetDebugName(ccstr8& name, i32& size) { GetObjectDebugName(GetNativeHandle<apiClazz>(), name, size); }
+    void clazz::SetDebugName(ccstr8 name) { SetObjectDebugName(GetNativeHandle<apiClazz>(), name); } \
+    void clazz::GetDebugName(ccstr8& name) { GetObjectDebugName(GetNativeHandle<apiClazz>(), name); }
 
 //#include "Helpers/D3D12Helper.h"
 
@@ -68,10 +62,10 @@ inline Microsoft::WRL::ComPtr<ID3D12Device1> g_Device;
 
 namespace D3D
 {
-    static void Check(HRESULT result)
-    {
-        ED_ASSERT(SUCCEEDED(result), "D3D12 error: {}", std::system_category().message(result));
-    }
+  static void Check(HRESULT result)
+  {
+    ED_ASSERT(SUCCEEDED(result), "D3D12 error: {}", std::system_category().message(result));
+  }
 
   static void Callback(D3D12_MESSAGE_CATEGORY category, D3D12_MESSAGE_SEVERITY severity, D3D12_MESSAGE_ID id, LPCSTR description, void* context)
   {
@@ -1072,4 +1066,4 @@ namespace D3D
 
     ED_LOG2(DirectX12, converted_severity, "[{}][{}] {}", category_name, message_id, description);
   }
-}   
+}

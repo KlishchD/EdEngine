@@ -3,10 +3,10 @@
 class DescriptorHeap
 {
 public:
-    DescriptorHeap(DescriptorHeapType type, u32 count, bool shaderVisible, ccstr8 name = "DefaultDescriptorHeapName", i32 nameSize = -1);
+    DescriptorHeap(DescriptorHeapType type, u32 count, bool shaderVisible, ccstr8 name = "DefaultDescriptorHeapName");
 
-    void SetDebugName(ccstr8 name, i32 size = -1);
-    void GetDebugName(ccstr8& name, i32& size);
+    void SetDebugName(ccstr8 name);
+    void GetDebugName(ccstr8& name);
 
     ResourceView CreateView(DescriptorHeapType type, Resource* resource, u32 mip);
     ResourceView CreateView(DescriptorHeapType type, Resource* resource);

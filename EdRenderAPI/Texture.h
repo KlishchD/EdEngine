@@ -6,8 +6,8 @@ class Texture final
 {
     friend class RenderingContext;
 public:
-    void SetDebugName(ccstr8 name, i32 size = -1);
-    void GetDebugName(ccstr8& name, i32& size);
+    void SetDebugName(ccstr8 name);
+    void GetDebugName(ccstr8& name);
 
     void SetData(TextureData* inData, bool resize);
     void SetData(void* inData);

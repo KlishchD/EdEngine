@@ -90,16 +90,16 @@ public:
 	void UploadModelImediate(void* vertices, u32 vertexSize, u32 vertexCount, ResourceView& vertexBufferView, u32* indices, u32 indexCount, ResourceView& indexBufferView);
 	void FreeModel(ResourceView& vertexBufferView, ResourceView& indexBufferView);
 
-	void UploadTextureDeferred(u8* data, u32 width, u32 height, u32 mips, PixelFormat format, ResourceView& view, ResourceState state, ccstr8 name = "DefaultTextureName", i32 nameSize = -1);
-	void UploadTextureImediate(u8* data, u32 width, u32 height, u32 mips, PixelFormat format, ResourceView& view, ResourceState state, ccstr8 name = "DefaultTextureName", i32 nameSize = -1);
+	void UploadTextureDeferred(u8* data, u32 width, u32 height, u32 mips, PixelFormat format, ResourceView& view, ResourceState state, ccstr8 name = "DefaultTextureName");
+	void UploadTextureImediate(u8* data, u32 width, u32 height, u32 mips, PixelFormat format, ResourceView& view, ResourceState state, ccstr8 name = "DefaultTextureName");
 	void FreeTexture(ResourceView& view);
 
-	ResourceView CreateRenderTarget(RenderTargetSizePolicy policy, PixelFormat format, ccstr8 name = "DefaultRenderTargetName", i32 nameSize = -1);
-	ResourceView CreateRenderTarget(u32 width, u32 height, PixelFormat format, ccstr8 name = "DefaultRenderTargetName", i32 nameSize = -1);
+	ResourceView CreateRenderTarget(RenderTargetSizePolicy policy, PixelFormat format, ccstr8 name);
+	ResourceView CreateRenderTarget(u32 width, u32 height, PixelFormat format, ccstr8 name);
 	void FreeRenderTarget(ResourceView& view);
 
-	Array<ResourceView> CreateUAVTarget(RenderTargetSizePolicy policy, u32 mips, PixelFormat format, ccstr8 name = "DefaultRenderTargetName", i32 nameSize = -1);
-	Array<ResourceView> CreateUAVTarget(u32 width, u32 height, u32 mips, PixelFormat format, ccstr8 name = "DefaultRenderTargetName", i32 nameSize = -1);
+	Array<ResourceView> CreateUAVTarget(RenderTargetSizePolicy policy, u32 mips, PixelFormat format, ccstr8 name = "DefaultRenderTargetName");
+	Array<ResourceView> CreateUAVTarget(u32 width, u32 height, u32 mips, PixelFormat format, ccstr8 name = "DefaultRenderTargetName");
 	void FreeUAVTarget(ResourceView& view);
 	void FreeUAVTargets(Array<ResourceView>& views);
 
@@ -120,7 +120,7 @@ public:
 	DescriptorHeap* GetRTVHeap() const { return m_RTVHeap; }
 	DescriptorHeap* GetDSVHeap() const { return m_DSVHeap; }
 
-	CommandList* CreateCommandList(CommandListType type, ccstr8 name = "DefaultCommandListName", i32 size = -1);
+	CommandList* CreateCommandList(CommandListType type, ccstr8 name = "DefaultCommandListName");
 
 	CommandList* GetCopyCommandList() const { return m_CopyCommandList; }
 	CommandList* GetGraphicsCommandList() const { return m_GraphicsCommandList; }
