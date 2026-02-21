@@ -548,9 +548,9 @@ void RenderGraph::SetupState(RenderPass* pass, CommandList* list)
 
     list->Transition(m_ConstantBuffer, ResourceState::VertexAndConstantBuffer);
 
-    list->SetRootSignature(m_Renderer->GetRootSignature(), list->GetType() == CommandListType::Compute);
-
     list->SetDescriptorHeap(m_Context->GetSRVHeap());
+
+    list->SetRootSignature(m_Renderer->GetRootSignature(), list->GetType() == CommandListType::Compute);
 
     switch (list->GetType())
     {
