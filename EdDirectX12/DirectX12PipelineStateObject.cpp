@@ -2,13 +2,21 @@
 
 #define GetPSO() reinterpret_cast<ID3D12PipelineState*>(m_NativeHandle)
 
-PipelineStateObject::PipelineStateObject(ccstr8 name, const GraphicsPipelineStateObjectBuilder& builder) : m_NativeHandle(0), m_Name(name), m_Type(Graphics), m_VertexStride(0)
+PipelineStateObject::PipelineStateObject(ccstr8 name, const GraphicsPipelineStateObjectBuilder& builder)
+  : m_NativeHandle(0),
+  m_Name(name),
+  m_Type(Graphics),
+  m_VertexStride(0)
 {
   Recreate(builder);
   SetDebugName(name);
 }
 
-PipelineStateObject::PipelineStateObject(ccstr8 name, const ComputePipelineStateObjectBuilder& bulilder) : m_NativeHandle(0), m_Name(name), m_Type(Compute), m_VertexStride(0)
+PipelineStateObject::PipelineStateObject(ccstr8 name, const ComputePipelineStateObjectBuilder& bulilder)
+  : m_NativeHandle(0),
+  m_Name(name),
+  m_Type(Compute),
+  m_VertexStride(0)
 {
   Recreate(bulilder);
   SetDebugName(name);
@@ -18,6 +26,13 @@ void PipelineStateObject::Recreate(const GraphicsPipelineStateObjectBuilder& bui
 {
   ED_ASSERT(builder.m_RootSignature, "Root signature must be set.");
   ED_ASSERT(builder.m_ShaderSource != ShaderSource::None, "Shader program must be set.");
+
+  if (m_NativeHandle)
+  {
+    GetNativeHandle<ID3D12PipelineState>()->Release();
+    m_NativeHandle = 0;
+    m_VertexStride = 0;
+  }
 
   const shader_collection* selected = nullptr;
   shader_collection compiled;
@@ -168,6 +183,12 @@ void PipelineStateObject::Recreate(const ComputePipelineStateObjectBuilder& buil
 {
   ED_ASSERT(builder.m_RootSignature, "Root signature must be provided for PSO.");
   ED_ASSERT(builder.m_ShaderSource != ShaderSource::None, "Shader program must be set.");
+
+  if (m_NativeHandle)
+  {
+    GetNativeHandle<ID3D12PipelineState>()->Release();
+    m_NativeHandle = 0;
+  }
 
   shader_collection compiled;
 
