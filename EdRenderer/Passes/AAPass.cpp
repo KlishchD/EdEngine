@@ -75,8 +75,8 @@ void AAPass::Initialize(RenderGraph* graph)
 {
     RenderPass::Initialize(graph);
 
-    m_HistoryA = m_Graph->CreateRenderTarget("TAA.HisoryA", PixelFormat::RGBA16F, RenderTargetSizePolicy::Full);
-    m_HistoryB = m_Graph->CreateRenderTarget("TAA.HisoryB", PixelFormat::RGBA16F, RenderTargetSizePolicy::Full);
+    m_HistoryA = m_Graph->CreateRenderTarget("TAA.HisoryA", PixelFormat::RGBA16F, RenderTargetSizePolicy::Full, true);
+    m_HistoryB = m_Graph->CreateRenderTarget("TAA.HisoryB", PixelFormat::RGBA16F, RenderTargetSizePolicy::Full, true);
 
     {
         //GraphicsPipelineStateObjectBuilder builder;

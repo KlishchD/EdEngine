@@ -10,7 +10,7 @@ void ResolutionPass::Initialize(RenderGraph* graph)
 {
     RenderPass::Initialize(graph);
 
-    m_Scene = graph->CreateRenderTarget("Scene", PixelFormat::RGBA8F, RenderTargetSizePolicy::Full);
+  m_Scene = graph->CreateRenderTarget("Scene", PixelFormat::RGBA8F, RenderTargetSizePolicy::Full, true);
     m_Lighting = graph->GetRenderTarget("Lighting");
     m_Boom = graph->GetUAVTarget("Bloom");
 

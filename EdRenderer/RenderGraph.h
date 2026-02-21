@@ -177,8 +177,8 @@ class RenderGraph
 public:
     constexpr static inline u32 CBVAlignment = 256;
 public:
-    RenderTarget* CreateRenderTarget(ccstr8 name, PixelFormat format, RenderTargetSizePolicy sizePolicy);
-    RenderTarget* CreateRenderTarget(ccstr8 name, PixelFormat format, u32 width, u32 height);
+    RenderTarget* CreateRenderTarget(ccstr8 name, PixelFormat format, RenderTargetSizePolicy sizePolicy, bool enable_uav);
+    RenderTarget* CreateRenderTarget(ccstr8 name, PixelFormat format, u32 width, u32 height, bool enable_uav);
 
     UAVTarget* CreateUAVTarget(ccstr8 name, PixelFormat format, RenderTargetSizePolicy sizePolicty);
     UAVTarget* CreateUAVTarget(ccstr8 name, PixelFormat format, RenderTargetSizePolicy sizePolicty, u32 mips);

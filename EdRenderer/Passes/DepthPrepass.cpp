@@ -10,7 +10,7 @@ void DepthPrepass::Initialize(RenderGraph* graph)
 {
     RenderPass::Initialize(graph);
 
-    m_Depth = graph->CreateRenderTarget("GBuffer.Depth", PixelFormat::Depth, RenderTargetSizePolicy::Full);
+    m_Depth = graph->CreateRenderTarget("GBuffer.Depth", PixelFormat::Depth, RenderTargetSizePolicy::Full, false);
 
     {
         GraphicsPipelineStateObjectBuilder builder;

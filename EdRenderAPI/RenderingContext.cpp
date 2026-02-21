@@ -100,28 +100,39 @@ void RenderingContext::FreeTexture(ResourceView& view)
   view = ResourceView();
 }
 
-ResourceView RenderingContext::CreateRenderTarget(RenderTargetSizePolicy policy, PixelFormat format, ccstr8 name)
+ResourceView RenderingContext::CreateRenderTarget(RenderTargetSizePolicy policy, PixelFormat format, ccstr8 name, bool enable_uav)
 {
   f32 scaler = RenderTypes::ConvertRenderTargetSizePolicy(policy);
   u32 width = static_cast<u32>(m_Window->GetWidth() * scaler);
   u32 height = static_cast<u32>(m_Window->GetHeight() * scaler);
 
-  return CreateRenderTarget(width, height, format, name);
+  return CreateRenderTarget(width, height, format, name, enable_uav);
 }
 
-ResourceView RenderingContext::CreateRenderTarget(u32 width, u32 height, PixelFormat format, ccstr8 name)
+ResourceView RenderingContext::CreateRenderTarget(u32 width, u32 height, PixelFormat format, ccstr8 name, bool enable_uav)
 {
   ResourceView view;
 
-  if (format == PixelFormat::Depth || format == PixelFormat::DepthStencil)
+  if (formats::is_depth_format(format))
   {
+    ED_ASSERT(!enable_uav, "UAVs are not supported for the depth target [{}].", name ? name : "None");
+
     Resource* target = m_RenderTargetsHeap->CreateResource(RF_AllowDepthStencil, ResourceState::DepthWrite, format, width, height, name);
     view = m_DSVHeap->CreateView(DescriptorHeapType::DSV, target);
   }
   else
   {
-    Resource* target = m_RenderTargetsHeap->CreateResource(RF_AllowRenderTarget, ResourceState::RenderTarget, format, width, height, name);
-    view = m_RTVHeap->CreateView(DescriptorHeapType::RTV, target);
+    if (enable_uav)
+    {
+      ResourceFlags flags = ResourceFlags(RF_AllowRenderTarget | RF_AllowUnorderedAccess);
+      Resource* target = m_UAVTargetsHeap->CreateResource(flags, ResourceState::RenderTarget, format, width, height, name);
+      view = m_RTVHeap->CreateView(DescriptorHeapType::RTV, target);
+    }
+    else
+    {
+      Resource* target = m_RenderTargetsHeap->CreateResource(RF_AllowRenderTarget, ResourceState::RenderTarget, format, width, height, name);
+      view = m_RTVHeap->CreateView(DescriptorHeapType::RTV, target);
+    }
   }
 
   return view;

@@ -18,7 +18,7 @@ void LightingPass::Initialize(RenderGraph* graph)
 {
     RenderPass::Initialize(graph);
 
-    m_Lighting = graph->CreateRenderTarget("Lighting", PixelFormat::RGBA16F, RenderTargetSizePolicy::Full);
+    m_Lighting = graph->CreateRenderTarget("Lighting", PixelFormat::RGBA16F, RenderTargetSizePolicy::Full, false);
     m_Albedo = graph->GetRenderTarget("GBuffer.Albedo");
     m_Material = graph->GetRenderTarget("GBuffer.Material");
     m_Depth = graph->GetRenderTarget("GBuffer.Depth");

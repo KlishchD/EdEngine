@@ -116,10 +116,10 @@ void GBufferPass::Initialize(RenderGraph* graph)
 {
     RenderPass::Initialize(graph);
 
-    m_Albedo = graph->CreateRenderTarget("GBuffer.Albedo", PixelFormat::RGBA16F, RenderTargetSizePolicy::Full);
-    m_Normal = graph->CreateRenderTarget("GBuffer.Normal", PixelFormat::RGBA16F, RenderTargetSizePolicy::Full);
-    m_Material = graph->CreateRenderTarget("GBuffer.Material", PixelFormat::RGBA16F, RenderTargetSizePolicy::Full);
-    m_Velocity = graph->CreateRenderTarget("GBuffer.Velocity", PixelFormat::RG16F, RenderTargetSizePolicy::Full);
+  m_Albedo = graph->CreateRenderTarget("GBuffer.Albedo", PixelFormat::RGBA16F, RenderTargetSizePolicy::Full, false);
+  m_Normal = graph->CreateRenderTarget("GBuffer.Normal", PixelFormat::RGBA16F, RenderTargetSizePolicy::Full, false);
+  m_Material = graph->CreateRenderTarget("GBuffer.Material", PixelFormat::RGBA16F, RenderTargetSizePolicy::Full, false);
+  m_Velocity = graph->CreateRenderTarget("GBuffer.Velocity", PixelFormat::RG16F, RenderTargetSizePolicy::Full, false);
     m_Depth = graph->GetRenderTarget("GBuffer.Depth");
 
     {

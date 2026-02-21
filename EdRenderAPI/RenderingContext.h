@@ -94,8 +94,8 @@ public:
 	void UploadTextureImediate(u8* data, u32 width, u32 height, u32 mips, PixelFormat format, ResourceView& view, ResourceState state, ccstr8 name = "DefaultTextureName");
 	void FreeTexture(ResourceView& view);
 
-	ResourceView CreateRenderTarget(RenderTargetSizePolicy policy, PixelFormat format, ccstr8 name);
-	ResourceView CreateRenderTarget(u32 width, u32 height, PixelFormat format, ccstr8 name);
+	ResourceView CreateRenderTarget(RenderTargetSizePolicy policy, PixelFormat format, ccstr8 name, bool enable_uav);
+	ResourceView CreateRenderTarget(u32 width, u32 height, PixelFormat format, ccstr8 name, bool enable_uav);
 	void FreeRenderTarget(ResourceView& view);
 
 	Array<ResourceView> CreateUAVTarget(RenderTargetSizePolicy policy, u32 mips, PixelFormat format, ccstr8 name = "DefaultRenderTargetName");

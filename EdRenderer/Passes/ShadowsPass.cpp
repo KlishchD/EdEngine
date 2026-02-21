@@ -9,7 +9,7 @@ void ShadowsPass::Initialize(RenderGraph* graph)
 {
     RenderPass::Initialize(graph);
 
-    m_LocalShadowMaps = graph->CreateRenderTarget("LocalShadowMaps", PixelFormat::Depth, LOCAL_SHADOW_MAPS_DIMENTIONS, LOCAL_SHADOW_MAPS_DIMENTIONS);
+    m_LocalShadowMaps = graph->CreateRenderTarget("LocalShadowMaps", PixelFormat::Depth, LOCAL_SHADOW_MAPS_DIMENTIONS, LOCAL_SHADOW_MAPS_DIMENTIONS, false);
 
     {
         GraphicsPipelineStateObjectBuilder builder;

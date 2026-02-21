@@ -393,7 +393,7 @@
 // 	Readers.push_back(reader);
 // }
 
-RenderTarget* RenderGraph::CreateRenderTarget(ccstr8 name, PixelFormat format, RenderTargetSizePolicy sizePolicy)
+RenderTarget* RenderGraph::CreateRenderTarget(ccstr8 name, PixelFormat format, RenderTargetSizePolicy sizePolicy, bool enable_uav)
 {
 #if DEBUG_BUILD || DEVELOPMENT_BUILD
     for (RenderTarget* target : m_RenderTargets)
@@ -402,12 +402,12 @@ RenderTarget* RenderGraph::CreateRenderTarget(ccstr8 name, PixelFormat format, R
     }
 #endif
 
-    RenderTarget* target = new RenderTarget(name, format, sizePolicy);
+    RenderTarget* target = new RenderTarget(name, format, sizePolicy, enable_uav);
     m_RenderTargets.Add(target);
     return target;
 }
 
-RenderTarget* RenderGraph::CreateRenderTarget(ccstr8 name, PixelFormat format, u32 width, u32 height)
+RenderTarget* RenderGraph::CreateRenderTarget(ccstr8 name, PixelFormat format, u32 width, u32 height, bool enable_uav)
 {
 #if DEBUG_BUILD || DEVELOPMENT_BUILD
     for (RenderTarget* target : m_RenderTargets)
@@ -416,7 +416,7 @@ RenderTarget* RenderGraph::CreateRenderTarget(ccstr8 name, PixelFormat format, u
     }
 #endif
 
-    RenderTarget* target = new RenderTarget(name, format, width, height);
+    RenderTarget* target = new RenderTarget(name, format, width, height, enable_uav);
     m_RenderTargets.Add(target);
     return target;
 }
