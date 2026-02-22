@@ -62,6 +62,37 @@ inline ccstr8 get_shader_name(shader_type type)
   return "None";
 }
 
+inline estd::stack_string_128 get_preaty_shader_names(shader_type types)
+{
+  estd::stack_string_128 result;
+
+  const u32 mask = static_cast<u32>(types);
+
+  constexpr u32 begin_index = static_cast<u32>(shader_type::none);
+  constexpr u32 end_index = static_cast<u32>(shader_type::count);
+  for (u32 index = begin_index; index < end_index; ++index)
+  {
+    const u32 type_mask = 1 << index;
+    const bool matches = mask & type_mask;
+    if (!matches) continue;
+
+    if (result.size())
+    {
+      result.append(" | ");
+    }
+
+    const auto type = static_cast<shader_type>(type_mask);
+    result.append(get_shader_name(type));
+  }
+
+  if (result.empty())
+  {
+    result.append("None");
+  }
+
+  return result;
+}
+
 struct shader_define
 {
   ccstr8 name;
@@ -72,7 +103,7 @@ using shader_defines = Array<shader_define>;
 
 struct shader_description
 {
-  ShaderPath source;
+  estd::path source;
   shader_defines defines;
 
   void append_define(ccstr8 name, ccstr8 value)
@@ -295,10 +326,18 @@ public:
     debug,
   };
 
-  virtual void add_include(const Path& path) = 0;
+  void set_source_path(const estd::path& path)
+  {
+    shader_source = path;
+    add_include(path);
+  }
+
+  virtual void add_include(const estd::path& path) = 0;
   virtual shader_collection compile(const shader_description& description, compile_options options, compilation_results& results) = 0;
 
   virtual ~shader_compiler() = default;
 protected:
   shader_type detect_avaliable_shaders(ccstr8 code) const;
+protected:
+  estd::path shader_source;
 };

@@ -96,10 +96,7 @@ namespace Files
     const Path& GetContentPath();
     const Path& GetPlayRecordingsPath();
     const Path& GetEditorLayoutPath();
-    const Path& GetShadersPath();
     const Path& GetEditorIconPath();
-
-    const Path& GetShadersReportPath();
 }
 
 template <typename PathSourceType>
@@ -142,13 +139,4 @@ struct ContentPathSource
   }
 };
 
-struct ShadersPathSource
-{
-  ccstr8 operator()() const
-  {
-    return Files::GetShadersPath().Get();
-  }
-};
-
 using ContentPath = Subpath<ContentPathSource>;
-using ShaderPath = Subpath<ShadersPathSource>;

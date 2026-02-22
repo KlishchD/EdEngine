@@ -305,15 +305,3 @@ const Path& Files::GetEditorIconPath()
 
   return path;
 }
-
-const Path& Files::GetShadersReportPath()
-{
-  static Path path = []() {
-    Path result = GetContentPath();
-    result.Pop();
-    result.Append("Reports\\shaders.json");
-    return result;
-    }();
-
-  return path;
-}

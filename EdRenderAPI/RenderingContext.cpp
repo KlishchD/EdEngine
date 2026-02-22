@@ -4,6 +4,9 @@
 #pragma message("Render backend dependency!")
 #include "DirectXShaderCompiler.h"
 
+static auto& r_shaders_path = console::create_mandatory_path("r_shaders_path", "EdShaders", true, true, false);
+static auto& r_bridges_path = console::create_mandatory_path("r_bridges_path", "EdBridge", true, true, false);
+
 void CustomResourceAllocator::Initialize(Resource* resource)
 {
   m_Resource = resource;
@@ -406,7 +409,8 @@ void RenderingContext::Initialize(Window* window)
 
 #pragma message("Render backend dependency!")
   m_ShaderCompiler = new directx_shader_compiler();
-  m_ShaderCompiler->add_include(Files::GetShadersPath());
+  m_ShaderCompiler->set_source_path(r_shaders_path());
+  m_ShaderCompiler->add_include(r_bridges_path());
 }
 
 void RenderingContext::Deinitialize()

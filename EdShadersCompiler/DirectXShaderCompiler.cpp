@@ -29,19 +29,27 @@ directx_shader_compiler::directx_shader_compiler()
     check(utils->CreateDefaultIncludeHandler(&handler));
 }
 
-void directx_shader_compiler::add_include(const Path& path)
+void directx_shader_compiler::add_include(const estd::path& path)
 {
   includes.Add(path);
 }
 
 shader_collection directx_shader_compiler::compile(const shader_description& description, compile_options options, compilation_results& results)
 {
+  estd::path path = description.source;
+  if (path.is_relative())
+  {
+    path.set_base(inherited::shader_source);
+  }
+
+  ED_LOG(directx_shader_compiler, info, "Compiling source [{}].", path.c_str());
+
   shader_collection collection;
 
   std::string source;
 
   {
-    std::fstream file(description.source.Get());
+    std::fstream file(path.c_str());
     std::string line;
     while (std::getline(file, line))
     {
@@ -50,9 +58,8 @@ shader_collection directx_shader_compiler::compile(const shader_description& des
     }
   }
 
-  u32 types_mask = static_cast<u32>(detect_avaliable_shaders(source.c_str()));
-
-  ED_LOG(directx_shader_compiler, info, "[{}] - {}", description.source.Get(), types_mask);
+  const shader_type types = detect_avaliable_shaders(source.c_str());
+  ED_LOG(directx_shader_compiler, info, "Types detected [{}].", get_preaty_shader_names(types));
 
   DxcBuffer buffer;
   buffer.Ptr = source.data();
@@ -65,6 +72,7 @@ shader_collection directx_shader_compiler::compile(const shader_description& des
   Microsoft::WRL::ComPtr<IDxcBlob> blob;
   Microsoft::WRL::ComPtr<IDxcBlobUtf8> errors;
 
+  const u32 types_mask = static_cast<u32>(types);
   constexpr u32 types_count = static_cast<u32>(shader_type::count);
   for (u32 index = 0; index < types_count; ++index)
   {
@@ -104,7 +112,7 @@ shader_collection directx_shader_compiler::compile(const shader_description& des
     for (const auto& path : includes)
     {
       arguments.Add(L"-I");
-      arguments.Add(Strings::Convert(path.Get(), true));
+      arguments.Add(Strings::Convert(path.c_str(), true));
     }
 
     for (const auto& define : description.defines)
@@ -132,11 +140,11 @@ shader_collection directx_shader_compiler::compile(const shader_description& des
     check(result->GetOutput(DXC_OUT_OBJECT, IID_PPV_ARGS(&blob), nullptr));
     collection.set_copy(type, blob->GetBufferPointer(), blob->GetBufferSize());
 
-    ED_LOG(directx_shader_compiler, info, "Compiled {} of {}.", get_shader_name(type), description.source.Get());
+    ED_LOG(directx_shader_compiler, info, "Compiled {} of {}.", get_shader_name(type), path.c_str());
 
     if (g_telemetry.shaders_reporting_enabled())
     {
-      g_telemetry.report_shader(description.source, arguments);
+      g_telemetry.report_shader(path, arguments);
     }
   }
 

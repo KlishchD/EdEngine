@@ -34,7 +34,8 @@ public:
   bool shaders_reporting_enabled() const;
   void report_shader(const estd::path& path, const TemporaryArray<ccstr16>& arguments);
 
-  void dump_shaders(const estd::path& path);
+  void report_shaders();
+  void report_shaders_custom(const estd::path& path);
 private:
   std::unordered_set<shader_data> shaders;
 };

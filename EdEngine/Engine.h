@@ -42,7 +42,6 @@ public:
 #endif
 
   const estd::path& get_resources_path() const { return resources_path; }
-  const estd::path& get_shaders_path() const { return shaders_path; }
 
   ~Engine();
 protected:
@@ -51,7 +50,6 @@ protected:
   void RenderFrame();
 protected:
   estd::path resources_path;
-  estd::path shaders_path;
   estd::path config_path;
 
   EntityManager* m_EntityManager;

@@ -36,7 +36,7 @@ public:
     return *reinterpret_cast<ChildType*>(this);
   }
 
-  __forceinline ChildType& SetShader(const ShaderPath& path)
+  __forceinline ChildType& SetShader(const estd::path& path)
   {
     ED_ASSERT(m_ShaderSource == ShaderSource::None, "Can not change shader source.");
     m_ShaderDescription.source = path;

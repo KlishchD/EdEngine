@@ -81,11 +81,6 @@ void Engine::Initialize(u32 arguments_count, ccstr8* arguments)
     .set_mandatory(true)
     .set_directory(true);
 
-  auto& shader_path_parameter = console::get_console().add_parameter<path_parameter>("-shaders_path", &shaders_path.get())
-    .set_help("Set shaders source directory.")
-    .set_mandatory(true)
-    .set_directory(true);
-
   console::get_console().parse(arguments_count, arguments, "-config_path");
 
   if (config_path_parameter.was_processed())
@@ -232,11 +227,5 @@ Engine::~Engine()
 const Path& Files::GetContentPath()
 {
   static Path path = Engine::Get().get_resources_path().c_str();
-  return path;
-}
-
-const Path& Files::GetShadersPath()
-{
-  static Path path = Engine::Get().get_shaders_path().c_str();
   return path;
 }

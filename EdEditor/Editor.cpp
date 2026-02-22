@@ -232,9 +232,9 @@ void Editor::Update(f32 deltaSeconds)
       RenderingContext::Get().RequestShadersReloading();
     }
 
-    if (ImGui::Button("Dump"))
+    if (ImGui::Button("Report"))
     {
-      g_telemetry.dump_shaders(Files::GetShadersReportPath());
+      g_telemetry.report_shaders();
     }
 
     const Array<ccstr8>& entries = RenderingContext::Get().GetShadersCompilationResults();

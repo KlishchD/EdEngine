@@ -16,6 +16,11 @@ estd::console::path_parameter& console::create_path(const char* name, const char
     .set_file(file);
 }
 
+estd::console::path_parameter& console::create_mandatory_path(const char* name, const char* default_value, bool exists, bool directory, bool file)
+{
+  return create_path(name, default_value, exists, directory, file).set_mandatory(true);
+}
+
 estd::console::float_parameter& console::create_f32(const char* name, f32 default_value, f32 min, f32 max)
 {
   return get_console()

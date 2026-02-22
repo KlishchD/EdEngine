@@ -1,5 +1,7 @@
 #include "EdTelemetry.h"
 
+static auto& t_shaders_reporting_path = console::create_path("t_shaders_reporting_path", "Resources\\Reports\\shaders.json", false, false, true).set_mandatory(ED_TELEMETRY == 1);
+
 bool shader_data::operator==(const shader_data& other) const
 {
   if (path != other.path) return false;
@@ -41,7 +43,12 @@ void telemetry::report_shader(const estd::path& path, const TemporaryArray<ccstr
 #endif
 }
 
-void telemetry::dump_shaders(const estd::path& path)
+void telemetry::report_shaders()
+{
+  report_shaders_custom(t_shaders_reporting_path());
+}
+
+void telemetry::report_shaders_custom(const estd::path& path)
 {
 #if ED_TELEMETRY == 1
   if (path.exists())
