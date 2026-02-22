@@ -271,6 +271,18 @@ void Editor::Update(f32 deltaSeconds)
           casted->set_value(value);
         }
       }
+      else if (parameter->get_type() == "u32")
+      {
+        auto* casted = reinterpret_cast<estd::console::unsigned_integer_parameter*>(parameter);
+
+        u32 value = casted->get_value();
+        u32 min = casted->get_min();
+        u32 max = casted->get_max();
+        if (ImGui::SliderScalar(name.c_str(), ImGuiDataType_U32, &value, &min, &max))
+        {
+          casted->set_value(value);
+        }
+      }
     }
   }
   ImGui::End();
