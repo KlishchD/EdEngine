@@ -103,7 +103,7 @@ public:
 	void FreeUAVTarget(ResourceView& view);
 	void FreeUAVTargets(Array<ResourceView>& views);
 
-	bool CompileShader(const shader_description& description, shader_collection& result);
+	bool CompileShader(const shaders::description& description, shaders::collection& result);
 
 	RootSignature* CreateRootSignature(const RootSignatureBuilder& builder);
 	PipelineStateObject* CreatePipelineStateObject(ccstr8 name, const GraphicsPipelineStateObjectBuilder& builder);

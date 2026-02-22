@@ -20,7 +20,7 @@ public:
     return *reinterpret_cast<ChildType*>(this);
   }
 
-  __forceinline ChildType& SetShader(const shader_collection& collection)
+  __forceinline ChildType& SetShader(const shaders::collection& collection)
   {
     ED_ASSERT(m_ShaderSource == ShaderSource::None, "Can not change shader source.");
     m_ShaderCollection = collection;
@@ -28,7 +28,7 @@ public:
     return *reinterpret_cast<ChildType*>(this);
   }
 
-  __forceinline ChildType& SetShader(shader_collection&& collection)
+  __forceinline ChildType& SetShader(shaders::collection&& collection)
   {
     ED_ASSERT(m_ShaderSource == ShaderSource::None, "Can not change shader source.");
     m_ShaderCollection = std::move(collection);
@@ -54,8 +54,8 @@ public:
 protected:
   RootSignature* m_RootSignature = nullptr;
 
-  shader_collection m_ShaderCollection = {};
-  shader_description m_ShaderDescription = {};
+  shaders::collection m_ShaderCollection = {};
+  shaders::description m_ShaderDescription = {};
   ShaderSource m_ShaderSource = ShaderSource::None;
 };
 

@@ -34,8 +34,8 @@ void PipelineStateObject::Recreate(const GraphicsPipelineStateObjectBuilder& bui
     m_VertexStride = 0;
   }
 
-  const shader_collection* selected = nullptr;
-  shader_collection compiled;
+  const shaders::collection* selected = nullptr;
+  shaders::collection compiled;
 
   if (builder.m_ShaderSource == ShaderSource::Path)
   {
@@ -190,9 +190,9 @@ void PipelineStateObject::Recreate(const ComputePipelineStateObjectBuilder& buil
     m_NativeHandle = 0;
   }
 
-  shader_collection compiled;
+  shaders::collection compiled;
 
-  const shader_collection* selected = nullptr;
+  const shaders::collection* selected = nullptr;
 
   if (builder.m_ShaderSource == ShaderSource::Path)
   {

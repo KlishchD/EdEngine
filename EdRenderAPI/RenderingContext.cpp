@@ -188,7 +188,7 @@ void RenderingContext::FreeUAVTargets(Array<ResourceView>& views)
   }
 }
 
-bool RenderingContext::CompileShader(const shader_description& description, shader_collection& result)
+bool RenderingContext::CompileShader(const shaders::description& description, shaders::collection& result)
 {
   const u32 errors_count = m_ShaderCompilationResults.markers.GetSize();
 

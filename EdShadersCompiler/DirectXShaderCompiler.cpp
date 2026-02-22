@@ -1,20 +1,23 @@
 #include "DirectXShaderCompiler.h"
 
-ccstr16 get_shader_target(shader_type type)
+namespace shaders
 {
-  switch (type)
+  ccstr16 get_target(types type)
   {
-  case shader_type::vertex: return L"vs_6_6";
-  case shader_type::hull: return L"gs_6_6";
-  case shader_type::domain: return L"ds_6_6";
-  case shader_type::geometry: return L"gs_6_6";
-  case shader_type::pixel: return L"ps_6_6";
-  case shader_type::compute: return L"cs_6_6";
-  case shader_type::count:
-  default: ED_ASSERT(0, "Shader type [{}] has no target.", static_cast<u32>(type));
-  }
+    switch (type)
+    {
+    case vertex: return L"vs_6_6";
+    case hull: return L"gs_6_6";
+    case domain: return L"ds_6_6";
+    case geometry: return L"gs_6_6";
+    case pixel: return L"ps_6_6";
+    case compute: return L"cs_6_6";
+    case count:
+    default: ED_ASSERT(0, "Shader type [{}] has no target.", static_cast<u32>(type));
+    }
 
-  return L"None";
+    return L"None";
+  }
 }
 
 void check(HRESULT result)
@@ -34,7 +37,7 @@ void directx_shader_compiler::add_include(const estd::path& path)
   includes.Add(path);
 }
 
-shader_collection directx_shader_compiler::compile(const shader_description& description, compile_options options, compilation_results& results)
+shaders::collection directx_shader_compiler::compile(const shaders::description& description, compile_options options, compilation_results& results)
 {
   estd::path path = description.source;
   if (path.is_relative())
@@ -44,7 +47,7 @@ shader_collection directx_shader_compiler::compile(const shader_description& des
 
   ED_LOG(directx_shader_compiler, info, "Compiling source [{}].", path.c_str());
 
-  shader_collection collection;
+  shaders::collection collection;
 
   std::string source;
 
@@ -58,8 +61,8 @@ shader_collection directx_shader_compiler::compile(const shader_description& des
     }
   }
 
-  const shader_type types = detect_avaliable_shaders(source.c_str());
-  ED_LOG(directx_shader_compiler, info, "Types detected [{}].", get_preaty_shader_names(types));
+  const shaders::types types = detect_avaliable_shaders(source.c_str());
+  ED_LOG(directx_shader_compiler, info, "Types detected [{}].", shaders::get_preaty_names(types));
 
   DxcBuffer buffer;
   buffer.Ptr = source.data();
@@ -72,18 +75,17 @@ shader_collection directx_shader_compiler::compile(const shader_description& des
   Microsoft::WRL::ComPtr<IDxcBlob> blob;
   Microsoft::WRL::ComPtr<IDxcBlobUtf8> errors;
 
-  const u32 types_mask = static_cast<u32>(types);
-  constexpr u32 types_count = static_cast<u32>(shader_type::count);
-  for (u32 index = 0; index < types_count; ++index)
+  const auto types_mask = static_cast<u32>(types);
+  for (u32 index = shaders::none; index < shaders::count; ++index)
   {
     const u32 type_mask = 1 << index;
     const bool matches = types_mask & type_mask;
     if (!matches) continue;
 
-    const shader_type type = static_cast<shader_type>(type_mask);
+    const auto type = static_cast<shaders::types>(type_mask);
 
-    ccstr16 entrypoint = get_shader_entry_wide(type);
-    ccstr16 target = get_shader_target(type);
+    ccstr16 entrypoint = shaders::get_entry_wide(type);
+    ccstr16 target = shaders::get_target(type);
 
     TemporaryArray<ccstr16> arguments;
 
@@ -140,7 +142,7 @@ shader_collection directx_shader_compiler::compile(const shader_description& des
     check(result->GetOutput(DXC_OUT_OBJECT, IID_PPV_ARGS(&blob), nullptr));
     collection.set_copy(type, blob->GetBufferPointer(), blob->GetBufferSize());
 
-    ED_LOG(directx_shader_compiler, info, "Compiled {} of {}.", get_shader_name(type), path.c_str());
+    ED_LOG(directx_shader_compiler, info, "Compiled {} of {}.", shaders::get_name(type), path.c_str());
 
     if (g_telemetry.shaders_reporting_enabled())
     {
