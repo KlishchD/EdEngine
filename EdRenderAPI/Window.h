@@ -29,6 +29,7 @@ public:
     inline bool IsDraggingEnabled() const { return m_DraggingEnabled; }
 
     std::string GetTitle() const;
+    glm::u32vec2 GetSize() const;
     u32 GetWidth() const;
     u32 GetHeight() const;
     
