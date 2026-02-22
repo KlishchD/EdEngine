@@ -544,37 +544,37 @@ CommandQueue* RenderGraph::SelectQueue(RenderPass* pass, CommandList* list)
 
 void RenderGraph::SetupState(RenderPass* pass, CommandList* list)
 {
-    list->Reset();
+  list->Reset();
 
-    list->Transition(m_ConstantBuffer, ResourceState::VertexAndConstantBuffer);
+  list->Transition(m_ConstantBuffer, ResourceState::VertexAndConstantBuffer);
 
-    list->SetDescriptorHeap(m_Context->GetSRVHeap());
+  list->SetDescriptorHeap(m_Context->GetSRVHeap());
 
-    list->SetRootSignature(m_Renderer->GetRootSignature(), list->GetType() == CommandListType::Compute);
+  // For simplicity sake I set up all possible paths that could be used.
+  // In the future it could be refactored to delegate it, or even could
+  // be controlled by some parameters during pass creation.
 
-    switch (list->GetType())
-    {
-    case CommandListType::Direct:
-    {
-        list->SetGraphicsConstantBufferView(0, m_ConstantBuffer);
-        list->SetGraphicsRootDescriptorTable(4, m_Context->GetSRVHeap()->GetStartLocation());
-        list->SetGraphicsRootDescriptorTable(5, m_Context->GetSRVHeap()->GetStartLocation());
-        list->SetGraphicsRootDescriptorTable(6, m_Context->GetSRVHeap()->GetStartLocation());
-        list->SetGraphicsRootDescriptorTable(7, m_Context->GetSRVHeap()->GetStartLocation());
-        break;
-    }
-    case CommandListType::Compute:
-    {
-        list->SetComputeConstantBufferView(0, m_ConstantBuffer);
-        list->SetComputeRootDescriptorTable(4, m_Context->GetSRVHeap()->GetStartLocation());
-        list->SetComputeRootDescriptorTable(5, m_Context->GetSRVHeap()->GetStartLocation());
-        list->SetComputeRootDescriptorTable(6, m_Context->GetSRVHeap()->GetStartLocation());
-        list->SetComputeRootDescriptorTable(7, m_Context->GetSRVHeap()->GetStartLocation());
-        break;
-    }
-    default:
-        break;
-    }
+  const bool is_graphics_needed = list->GetType() == CommandListType::Direct;
+  if (is_graphics_needed)
+  {
+    list->SetRootSignature(m_Renderer->GetRootSignature(), false);
+    list->SetGraphicsConstantBufferView(0, m_ConstantBuffer);
+    list->SetGraphicsRootDescriptorTable(4, m_Context->GetSRVHeap()->GetStartLocation());
+    list->SetGraphicsRootDescriptorTable(5, m_Context->GetSRVHeap()->GetStartLocation());
+    list->SetGraphicsRootDescriptorTable(6, m_Context->GetSRVHeap()->GetStartLocation());
+    list->SetGraphicsRootDescriptorTable(7, m_Context->GetSRVHeap()->GetStartLocation());
+  }
+
+  const bool is_compute_needed = list->GetType() == CommandListType::Direct || list->GetType() == CommandListType::Compute;
+  if (is_compute_needed)
+  {
+    list->SetRootSignature(m_Renderer->GetRootSignature(), true);
+    list->SetComputeConstantBufferView(0, m_ConstantBuffer);
+    list->SetComputeRootDescriptorTable(4, m_Context->GetSRVHeap()->GetStartLocation());
+    list->SetComputeRootDescriptorTable(5, m_Context->GetSRVHeap()->GetStartLocation());
+    list->SetComputeRootDescriptorTable(6, m_Context->GetSRVHeap()->GetStartLocation());
+    list->SetComputeRootDescriptorTable(7, m_Context->GetSRVHeap()->GetStartLocation());
+  }
 }
 
 void RenderGraph::RecordCommands(RenderPass* pass, CommandList* list)

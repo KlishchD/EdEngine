@@ -202,7 +202,6 @@ public:
     void Gather();
     void Execute();
 protected:
-
     void GatherCommonShaderParameters(void* memory);
     
     const FenceSignal* FindSignal(ccstr8 name);
