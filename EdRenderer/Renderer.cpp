@@ -36,48 +36,48 @@ void Renderer::Initialize(Window* window)
 	m_Context = new RenderingContext();
 	m_Context->Initialize(window);
 
-    {
-        RootSignatureBuilder builder;
-        builder.AddParameter(DescriptorHeapType::CBV, 0, 0, SVF_All);
-        builder.AddParameter(DescriptorHeapType::CBV, 1, 0, SVF_All);
-        builder.AddParameter(DescriptorHeapType::CBV, 2, 0, SVF_All);
-        builder.AddParameter(DescriptorHeapType::CBV, 3, 0, SVF_All);
-        
+	{
+		RootSignatureBuilder builder;
+		builder.AddParameter(DescriptorHeapType::CBV, 0, 0, SVF_All);
+		builder.AddParameter(DescriptorHeapType::CBV, 1, 0, SVF_All);
+		builder.AddParameter(DescriptorHeapType::CBV, 2, 0, SVF_All);
+		builder.AddParameter(DescriptorHeapType::CBV, 3, 0, SVF_All);
+
 		builder.AddParameter(0, 0, DescriptorRangeType::SRV, 1024, 0, SVF_All);
 		builder.AddParameter(0, 1, DescriptorRangeType::SRV, 1024, 0, SVF_All);
-        builder.AddParameter(0, 2, DescriptorRangeType::SRV, 1024, 0, SVF_All);
-        builder.AddParameter(0, 3, DescriptorRangeType::SRV, 1024, 0, SVF_All);
+		builder.AddParameter(0, 2, DescriptorRangeType::SRV, 1024, 0, SVF_All);
+		builder.AddParameter(0, 3, DescriptorRangeType::SRV, 1024, 0, SVF_All);
 
-        builder.AddParameter(0, 0, DescriptorRangeType::UAV, 1, 0, SVF_All);
-        builder.AddParameter(1, 0, DescriptorRangeType::UAV, 1, 0, SVF_All);
-        builder.AddParameter(2, 0, DescriptorRangeType::UAV, 1, 0, SVF_All);
-        builder.AddParameter(3, 0, DescriptorRangeType::UAV, 1024, 0, SVF_All);
-		
+		builder.AddParameter(0, 0, DescriptorRangeType::UAV, 1, 0, SVF_All);
+		builder.AddParameter(1, 0, DescriptorRangeType::UAV, 1, 0, SVF_All);
+		builder.AddParameter(2, 0, DescriptorRangeType::UAV, 1, 0, SVF_All);
+		builder.AddParameter(3, 0, DescriptorRangeType::UAV, 1024, 0, SVF_All);
+
 		builder.AddParameter(0, 1, 20, SVF_All);
 
 		for (u32 wrap = 0; wrap < static_cast<u32>(WrapMode::Count); ++wrap)
 		{
 			WrapMode casted = static_cast<WrapMode>(wrap);
-			builder.AddStaticSampler(0, wrap, FilteringMode::Trilinear, casted, casted, casted, 1,  ComparisonFunction::LessEqual, SVF_All);
-			builder.AddStaticSampler(1, wrap, FilteringMode::Bilinear,  casted, casted, casted, 1,  ComparisonFunction::LessEqual, SVF_All);
-			builder.AddStaticSampler(2, wrap, FilteringMode::Point,     casted, casted, casted, 1,  ComparisonFunction::LessEqual, SVF_All);
-			builder.AddStaticSampler(3, wrap, FilteringMode::Aniso,     casted, casted, casted, 16, ComparisonFunction::LessEqual, SVF_All);
+			builder.AddStaticSampler(0, wrap, FilteringMode::Trilinear, casted, casted, casted, 1, ComparisonFunction::LessEqual, SVF_All);
+			builder.AddStaticSampler(1, wrap, FilteringMode::Bilinear, casted, casted, casted, 1, ComparisonFunction::LessEqual, SVF_All);
+			builder.AddStaticSampler(2, wrap, FilteringMode::Point, casted, casted, casted, 1, ComparisonFunction::LessEqual, SVF_All);
+			builder.AddStaticSampler(3, wrap, FilteringMode::Aniso, casted, casted, casted, 16, ComparisonFunction::LessEqual, SVF_All);
 		}
 
-        builder.AddFlags(RSF_AllowInputAssembler);
-        builder.AddFlags(RSF_CBV_SRV_UAV_HEAP_DirectlyIndexed);
-        m_RootSignature = m_Context->CreateRootSignature(builder);
-    }
+		builder.AddFlags(RSF_AllowInputAssembler);
+		builder.AddFlags(RSF_CBV_SRV_UAV_HEAP_DirectlyIndexed);
+		m_RootSignature = m_Context->CreateRootSignature(builder);
+	}
 
 	// Querying it early, so that there would not be a frame delay first time it is used.
 	RenderingHelper::GetWhiteTexture();
 
 	{
-        static f32 vertices[] = {
-            -1.0f, -1.0f,
-            -1.0f,  3.0f,
-             3.0f, -1.0f,
-        };
+		static f32 vertices[] = {
+				-1.0f, -1.0f,
+				-1.0f,  3.0f,
+				 3.0f, -1.0f,
+		};
 
 		static u32 indices[] = { 0, 1, 2 };
 
@@ -86,23 +86,23 @@ void Renderer::Initialize(Window* window)
 
 	/*
 
-        PipelineStateObject::GraphicsPipelineStateObjectBuilder builder;
+				PipelineStateObject::GraphicsPipelineStateObjectBuilder builder;
 
-        ShaderProgram* program = new ShaderProgram();
-        Shader* vertex = new Shader(ST_Vertex, );
-        Shader* pixel = new Shader(ST_Pixel, "shaders\\Icon.hlsl");
-        program->AttachShader(vertex);
-        program->AttachShader(pixel);
+				ShaderProgram* program = new ShaderProgram();
+				Shader* vertex = new Shader(ST_Vertex, );
+				Shader* pixel = new Shader(ST_Pixel, "shaders\\Icon.hlsl");
+				program->AttachShader(vertex);
+				program->AttachShader(pixel);
 
-        builder.SetShaderProgram("shaders\\Icon.hlsl", static_cast<ShaderType>(ST_Vertex | ST_Pixel));
-        builder.AddInputElement("Position", 0, PixelFormat::RG32F, 0);
-        builder.AddInputElement("TextureCoord", 1, PixelFormat::RG32F, 0);
+				builder.SetShaderProgram("shaders\\Icon.hlsl", static_cast<ShaderType>(ST_Vertex | ST_Pixel));
+				builder.AddInputElement("Position", 0, PixelFormat::RG32F, 0);
+				builder.AddInputElement("TextureCoord", 1, PixelFormat::RG32F, 0);
 
-        builder.AddRenderTarget()
-            .SetColorBlend(BlendFactor::SourceAlpha, BlendFactor::InvertedSourceAlpha, BlendOperation::Add);
+				builder.AddRenderTarget()
+						.SetColorBlend(BlendFactor::SourceAlpha, BlendFactor::InvertedSourceAlpha, BlendOperation::Add);
 
 
-        m_QuadPSO = new PipelineStateObject();
+				m_QuadPSO = new PipelineStateObject();
 	*/
 
 	//{
@@ -147,12 +147,13 @@ void Renderer::Initialize(Window* window)
 
 	m_Graph->AddRenderPass<DepthPrepass>();
 	m_Graph->AddRenderPass<GBufferPass>();
-    m_Graph->AddRenderPass<SSAOPass>();
-    m_Graph->AddRenderPass<ShadowsPass>();
-    m_Graph->AddRenderPass<MipMappingPass>();
-    m_Graph->AddRenderPass<LightingPass>();
-    m_Graph->AddRenderPass<BloomPass>();
-    m_Graph->AddRenderPass<ResolutionPass>();
+	m_Graph->AddRenderPass<SSAOPass>();
+	m_Graph->AddRenderPass<ShadowsPass>();
+	m_Graph->AddRenderPass<MipMappingPass>();
+	m_Graph->AddRenderPass<LightingPass>();
+	m_Graph->AddRenderPass<BloomPass>();
+	m_Graph->AddRenderPass<ResolutionPass>();
+	m_Graph->AddRenderPass<visualization_pass>();
 
 	m_Graph->InitializePasses();
 
@@ -164,8 +165,8 @@ void Renderer::Initialize(Window* window)
 
 void Renderer::Deinitialize()
 {
-//	delete m_Graph;
-//	m_Graph = nullptr;
+	//	delete m_Graph;
+	//	m_Graph = nullptr;
 
 	m_Context->Wait();
 
@@ -212,9 +213,9 @@ void Renderer::RenderFrame(const RenderScene& scene, f32 deltaSeconds)
 	// Execute stage.
 	m_Graph->Execute();
 
-    m_Context->Wait();
+	m_Context->Wait();
 
-    RenderingContext::Get().Present();
+	RenderingContext::Get().Present();
 
 	m_bIsViewportSizeDirty = false;
 
@@ -252,7 +253,7 @@ void Renderer::SetSSAOEnabled(bool enabled)
 
 bool Renderer::IsSSAOEnabled() const
 {
-    return m_bSSAOEnabled;
+	return m_bSSAOEnabled;
 }
 
 void Renderer::SetBloomEnabled(bool enabled)
