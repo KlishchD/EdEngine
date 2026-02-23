@@ -501,25 +501,6 @@ void CommandList::ExecuteIndirect()
     ED_ASSERT(0, "Not yet implemented !!!");
 }
 
-void populate_transitions(CommandListType type, Resource* resource, ResourceState after, TemporaryArray<D3D12_RESOURCE_BARRIER>& barriers)
-{
-  for (u32 subresource_index = 0; subresource_index < resource->GetSubresourcesCount(); ++subresource_index)
-  {
-    ResourceState current = resource->GetState(type, subresource_index);
-    if (current == after) continue;
-
-    auto& barrier = barriers.Add();
-    barrier.Type = D3D12_RESOURCE_BARRIER_TYPE_TRANSITION;
-    barrier.Flags = D3D12_RESOURCE_BARRIER_FLAG_NONE;
-    barrier.Transition.pResource = resource->GetNativeHandle<ID3D12Resource>();
-    barrier.Transition.Subresource = subresource_index;
-    barrier.Transition.StateBefore = DirectX12Types::ConvertResourceState(current);
-    barrier.Transition.StateAfter = DirectX12Types::ConvertResourceState(after);
-
-    resource->SetState(type, subresource_index, after);
-  }
-}
-
 void CommandList::Transition(ResourceView** views, u32 count, ResourceState after)
 {
   if (!count) return;
@@ -533,7 +514,7 @@ void CommandList::Transition(ResourceView** views, u32 count, ResourceState afte
     const auto* view = views[i];
     if (view && *view)
     {
-      populate_transitions(m_Type, view->Viewed, after, barriers);
+      transitions::populate(m_Type, view->Viewed, after, barriers);
     }
   }
 
@@ -556,7 +537,7 @@ void CommandList::Transition(Resource** resources, u32 count, ResourceState afte
     auto* resource = resources[i];
     if (resource)
     {
-      populate_transitions(m_Type, resource, after, barriers);
+      transitions::populate(m_Type, resource, after, barriers);
     }
   }
 
@@ -579,7 +560,7 @@ void CommandList::Transition(ResourceView* views, u32 count, ResourceState after
     const auto& view = views[i];
     if (view)
     {
-      populate_transitions(m_Type, view.Viewed, after, barriers);
+      transitions::populate(m_Type, view.Viewed, after, barriers);
     }
   }
 
@@ -600,7 +581,7 @@ void CommandList::Transition(Resource* resources, u32 count, ResourceState after
   for (u32 i = 0; i < count; ++i)
   {
     auto& resource = resources[i];
-    populate_transitions(m_Type, &resource, after, barriers);
+    transitions::populate(m_Type, &resource, after, barriers);
   }
 
   if (barriers.GetSize())

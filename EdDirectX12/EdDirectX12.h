@@ -1067,3 +1067,25 @@ namespace D3D
     ED_LOG2(DirectX12, converted_severity, "[{}][{}] {}", category_name, message_id, description);
   }
 }
+
+namespace transitions
+{
+  inline void populate(CommandListType type, Resource* resource, ResourceState after, TemporaryArray<D3D12_RESOURCE_BARRIER>& barriers)
+  {
+    for (u32 subresource_index = 0; subresource_index < resource->GetSubresourcesCount(); ++subresource_index)
+    {
+      ResourceState current = resource->GetState(type, subresource_index);
+      if (current == after) continue;
+
+      auto& barrier = barriers.Add();
+      barrier.Type = D3D12_RESOURCE_BARRIER_TYPE_TRANSITION;
+      barrier.Flags = D3D12_RESOURCE_BARRIER_FLAG_NONE;
+      barrier.Transition.pResource = resource->GetNativeHandle<ID3D12Resource>();
+      barrier.Transition.Subresource = subresource_index;
+      barrier.Transition.StateBefore = DirectX12Types::ConvertResourceState(current);
+      barrier.Transition.StateAfter = DirectX12Types::ConvertResourceState(after);
+
+      resource->SetState(type, subresource_index, after);
+    }
+  }
+}
