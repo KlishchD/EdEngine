@@ -99,10 +99,12 @@ void SSAOPass::Execute(CommandList* list, Resource* buffer, u64 offset)
   list->SetComputeRootDescriptorTable(8, m_CurrentSSAO->GetView().GPUHandle);
   list->SetComputeRootDescriptorTable(9, m_HistorySSAO->GetView().GPUHandle);
 
-  TemporaryArray<Resource*> transitions;
-  transitions.Add(m_CurrentSSAO->GetView().Viewed);
-  transitions.Add(m_HistorySSAO->GetView().Viewed);
-  list->Transition(transitions, ResourceState::UnorderedAccess);
+  ResourceView targets[] = {
+    m_CurrentSSAO->GetView(),
+    m_HistorySSAO->GetView()
+  };
+
+  list->Transition(targets, ResourceState::UnorderedAccess);
 
   Window* window = m_Context->GetWindow();
   u32 width = window->GetWidth();
@@ -114,5 +116,5 @@ void SSAOPass::Execute(CommandList* list, Resource* buffer, u64 offset)
   list->SetPipelineState(m_BlurPSO);
   list->Dispatch(Tile(width, SSAO_TILE_SIZE), Tile(height, SSAO_TILE_SIZE), 1);
 
-  list->Transition(transitions, ResourceState::Common);
+  list->Transition(targets, ResourceState::Common);
 }

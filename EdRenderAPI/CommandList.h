@@ -110,7 +110,7 @@ public:
     void SetIndexBuffer(const ResourceView& view);
     void SetVertexBuffer(const ResourceView& view, u32 slot, u32 stride);
 
-    void SetRenderTargets(const TemporaryArray<ResourceView>& targets, const ResourceView& depth);
+    void SetRenderTargets(const ResourceView* target, u32 count, const ResourceView& depth);
     void SetRenderTargets(const ResourceView& target, const ResourceView& depth);
 
     void ClearDepthTarget(const ResourceView& view, f32 depth);
@@ -125,11 +125,26 @@ public:
 
     void ExecuteIndirect();
 
-    void Transition(const TemporaryArray<Resource*>& resources, ResourceState after);
-    void Transition(const TemporaryArray<ResourceView>& views, ResourceState after);
-    
+    template <u32 count>
+    void Transition(Resource* (&resources)[count], ResourceState after)
+    {
+      Transition(resources, count, after);
+    }
+
+    template <u32 count>
+    void Transition(ResourceView (&views)[count], ResourceState after)
+    {
+      Transition(views, count, after);
+    }
+
+    void Transition(ResourceView** views, u32 count, ResourceState after);
+    void Transition(Resource** resoruces, u32 count, ResourceState after);
+
+    void Transition(ResourceView* views, u32 count, ResourceState after);
+    void Transition(Resource* resoruces, u32 count, ResourceState after);
+
     void Transition(Resource* resource, ResourceState after);
-    void Transition(const ResourceView& view, ResourceState after);
+    void Transition(ResourceView& view, ResourceState after);
 
     void UAVBarrier(Resource* resource);
 

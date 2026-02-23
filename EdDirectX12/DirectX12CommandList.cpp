@@ -430,11 +430,11 @@ void CommandList::SetVertexBuffer(const ResourceView& view, u32 slot, u32 stride
     GetList()->IASetVertexBuffers(slot, 1, &viewDescription);
 }
 
-void CommandList::SetRenderTargets(const TemporaryArray<ResourceView>& targets, const ResourceView& depth)
+void CommandList::SetRenderTargets(const ResourceView* targets, u32 count, const ResourceView& depth)
 {
-    D3D12_CPU_DESCRIPTOR_HANDLE* nativeTargets = Memory::Get().RequestDynamicMemory<D3D12_CPU_DESCRIPTOR_HANDLE>(targets.GetSize(), 1, "RenderTargetsHandles");
+    D3D12_CPU_DESCRIPTOR_HANDLE* nativeTargets = Memory::Get().RequestDynamicMemory<D3D12_CPU_DESCRIPTOR_HANDLE>(count, 1, "RenderTargetsHandles");
 
-    for (u32 i = 0; i < targets.GetSize(); ++i)
+    for (u32 i = 0; i < count; ++i)
     {
         ED_ASSERT(targets[i].Viewed->GetState(m_Type, 0) == ResourceState::RenderTarget, "Expected target to be in render target state.");
         nativeTargets[i] = { targets[i].CPUHandle };
@@ -445,11 +445,11 @@ void CommandList::SetRenderTargets(const TemporaryArray<ResourceView>& targets, 
         ED_ASSERT(depth.Viewed->GetState(m_Type, 0) == ResourceState::DepthWrite, "Expected depth target to be in depth write state.");
 
         D3D12_CPU_DESCRIPTOR_HANDLE depthHandle = { depth.CPUHandle };
-        GetList()->OMSetRenderTargets(targets.GetSize(), nativeTargets, false, &depthHandle);
+        GetList()->OMSetRenderTargets(count, nativeTargets, false, &depthHandle);
     }
     else
     {
-        GetList()->OMSetRenderTargets(targets.GetSize(), nativeTargets, false, nullptr);
+        GetList()->OMSetRenderTargets(count, nativeTargets, false, nullptr);
     }
 }
 
@@ -501,95 +501,123 @@ void CommandList::ExecuteIndirect()
     ED_ASSERT(0, "Not yet implemented !!!");
 }
 
-void CommandList::Transition(const TemporaryArray<Resource*>& resources, ResourceState after)
+void populate_transitions(CommandListType type, Resource* resource, ResourceState after, TemporaryArray<D3D12_RESOURCE_BARRIER>& barriers)
 {
-    ED_ASSERT(resources.GetSize(), "Must transition at least one target.");
+  for (u32 subresource_index = 0; subresource_index < resource->GetSubresourcesCount(); ++subresource_index)
+  {
+    ResourceState current = resource->GetState(type, subresource_index);
+    if (current == after) continue;
 
-    u32 count = 0;
+    auto& barrier = barriers.Add();
+    barrier.Type = D3D12_RESOURCE_BARRIER_TYPE_TRANSITION;
+    barrier.Flags = D3D12_RESOURCE_BARRIER_FLAG_NONE;
+    barrier.Transition.pResource = resource->GetNativeHandle<ID3D12Resource>();
+    barrier.Transition.Subresource = subresource_index;
+    barrier.Transition.StateBefore = DirectX12Types::ConvertResourceState(current);
+    barrier.Transition.StateAfter = DirectX12Types::ConvertResourceState(after);
 
-    for (u32 i = 0; i < resources.GetSize(); ++i)
-    {
-        ED_ASSERT(resources[i], "Can not transition nullptr resoruce.");
-        count += resources[i]->GetSubresourcesCount();
-    }
-
-    D3D12_RESOURCE_BARRIER* barriers = Memory::Get().RequestDynamicMemory<D3D12_RESOURCE_BARRIER>(count, 1, "D3D12Barriers");
-
-    u32 offset = 0;
-    for (u32 i = 0; i < resources.GetSize(); ++i)
-    {
-        for (u32 j = 0; j < resources[i]->GetSubresourcesCount(); ++j)
-        {
-            if (resources[i]->GetState(m_Type, j) == after)
-            {
-                continue;
-            }
-
-            barriers[offset].Type = D3D12_RESOURCE_BARRIER_TYPE_TRANSITION;
-            barriers[offset].Flags = D3D12_RESOURCE_BARRIER_FLAG_NONE;
-            barriers[offset].Transition.pResource = resources[i]->GetNativeHandle<ID3D12Resource>();
-            barriers[offset].Transition.Subresource = j;
-            barriers[offset].Transition.StateBefore = DirectX12Types::ConvertResourceState(resources[i]->GetState(m_Type, j));
-            barriers[offset].Transition.StateAfter = DirectX12Types::ConvertResourceState(after);
-            resources[i]->SetState(m_Type, j, after);
-
-            ++offset;
-        }
-    }
-
-    if (offset > 0)
-    {
-        GetList()->ResourceBarrier(offset, barriers);
-    }
+    resource->SetState(type, subresource_index, after);
+  }
 }
 
-void CommandList::Transition(const TemporaryArray<ResourceView>& views, ResourceState after)
+void CommandList::Transition(ResourceView** views, u32 count, ResourceState after)
 {
-    TemporaryArray<Resource*> resources(views.GetSize());
+  if (!count) return;
 
-    for (u32 i = 0; i < views.GetSize(); ++i)
+  ED_ASSERT(views, "Transition expectes non-null views to be provided.");
+
+  TemporaryArray<D3D12_RESOURCE_BARRIER> barriers;
+
+  for (u32 i = 0; i < count; ++i)
+  {
+    const auto* view = views[i];
+    if (view && *view)
     {
-        resources.Add(views[i].Viewed);
+      populate_transitions(m_Type, view->Viewed, after, barriers);
     }
+  }
 
-    Transition(resources, after);
+  if (barriers.GetSize())
+  {
+    GetList()->ResourceBarrier(barriers.GetSize(), barriers.Get());
+  }
+}
+
+void CommandList::Transition(Resource** resources, u32 count, ResourceState after)
+{
+  if (!count) return;
+
+  ED_ASSERT(resources, "Transition expectes non-null resources to be provided.");
+
+  TemporaryArray<D3D12_RESOURCE_BARRIER> barriers;
+
+  for (u32 i = 0; i < count; ++i)
+  {
+    auto* resource = resources[i];
+    if (resource)
+    {
+      populate_transitions(m_Type, resource, after, barriers);
+    }
+  }
+
+  if (barriers.GetSize())
+  {
+    GetList()->ResourceBarrier(barriers.GetSize(), barriers.Get());
+  }
+}
+
+void CommandList::Transition(ResourceView* views, u32 count, ResourceState after)
+{
+  if (!count) return;
+
+  ED_ASSERT(views, "Transition expectes non-null views to be provided.");
+
+  TemporaryArray<D3D12_RESOURCE_BARRIER> barriers;
+
+  for (u32 i = 0; i < count; ++i)
+  {
+    const auto& view = views[i];
+    if (view)
+    {
+      populate_transitions(m_Type, view.Viewed, after, barriers);
+    }
+  }
+
+  if (barriers.GetSize())
+  {
+    GetList()->ResourceBarrier(barriers.GetSize(), barriers.Get());
+  }
+}
+
+void CommandList::Transition(Resource* resources, u32 count, ResourceState after)
+{
+  if (!count) return;
+
+  ED_ASSERT(resources, "Transition expectes non-null resources to be provided.");
+
+  TemporaryArray<D3D12_RESOURCE_BARRIER> barriers;
+
+  for (u32 i = 0; i < count; ++i)
+  {
+    auto& resource = resources[i];
+    populate_transitions(m_Type, &resource, after, barriers);
+  }
+
+  if (barriers.GetSize())
+  {
+    GetList()->ResourceBarrier(barriers.GetSize(), barriers.Get());
+  }
 }
 
 void CommandList::Transition(Resource* resource, ResourceState after)
 {
-    ED_ASSERT(resource, "Can not transition nullptr resoruce.");
-
-    u32 subresourcesCount = resource->GetSubresourcesCount();
-    D3D12_RESOURCE_BARRIER* barriers = Memory::Get().RequestDynamicMemory<D3D12_RESOURCE_BARRIER>(subresourcesCount, 1, "D3D12Barriers");
-
-    u32 count = 0;
-    for (u32 i = 0; i < resource->GetSubresourcesCount(); ++i)
-    {
-        if (resource->GetState(m_Type, i) == after)
-        {
-            continue;
-        }
-
-        barriers[i].Type = D3D12_RESOURCE_BARRIER_TYPE_TRANSITION;
-        barriers[i].Flags = D3D12_RESOURCE_BARRIER_FLAG_NONE;
-        barriers[i].Transition.pResource = resource->GetNativeHandle<ID3D12Resource>();
-        barriers[i].Transition.Subresource = i;
-        barriers[i].Transition.StateBefore = DirectX12Types::ConvertResourceState(resource->GetState(m_Type, i));
-        barriers[i].Transition.StateAfter = DirectX12Types::ConvertResourceState(after);
-        resource->SetState(m_Type, i, after);
-
-        ++count;
-    }
-
-    if (count > 0)
-    {
-        GetList()->ResourceBarrier(count, barriers);
-    }
+  Transition(&resource, 1, after);
 }
 
-void CommandList::Transition(const ResourceView& view, ResourceState after)
+void CommandList::Transition(ResourceView& view, ResourceState after)
 {
-    Transition(view.Viewed, after);
+  ResourceView* view_ptr = &view;
+  Transition(&view_ptr, 1, after);
 }
 
 void CommandList::UAVBarrier(Resource* resource)

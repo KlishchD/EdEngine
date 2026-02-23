@@ -323,7 +323,7 @@ ResourceView Renderer::GetDisplayTarget() const
 	return RenderingContext::Get().GetDisplayBufferSRV();
 }
 
-void Renderer::RequestMipMapping(const ResourceView& view, MipMappingMode mode, u32 mips)
+void Renderer::RequestMipMapping(ResourceView& view, MipMappingMode mode, u32 mips)
 {
 	ED_ASSERT(view.Viewed, "Can not create mips for invalid resource.");
 	ED_ASSERT(mips <= 5, "Can not create more than 5 mips.");

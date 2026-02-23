@@ -8,8 +8,14 @@ public:
 
     ccstr8 GetName() const { return m_Name; }
     const ResourceView& GetView() const { return m_View; }
+    ResourceView& GetView() { return m_View; }
+
     const ResourceView& GetSRV() const { return m_SRV; }
+    ResourceView& GetSRV() { return m_SRV; }
+
     const ResourceView& GetUAV() const { return m_UAV; }
+    ResourceView& GetUAV() { return m_UAV; }
+
     RenderTargetSizePolicy GetSizePolicy() const { return m_SizePolicy; }
 
     ~RenderTarget();

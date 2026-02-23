@@ -178,12 +178,15 @@ void LightingPass::GatherCustomShaderParameters(void* memory)
 
 void LightingPass::Execute(CommandList* list, Resource* buffer, u64 offset)
 {
-    TemporaryArray<Resource*> transitions;
-    transitions.Add(m_Albedo->GetSRV().Viewed);
-    transitions.Add(m_Material->GetSRV().Viewed);
-    transitions.Add(m_ShadowMaps->GetSRV().Viewed);
-    transitions.Add(m_SSAO->GetSRV().Viewed);
-    list->Transition(transitions, ResourceState::ShaderRead);
+    ResourceView sources[] =
+    {
+      m_Albedo->GetSRV(),
+      m_Material->GetSRV(),
+      m_ShadowMaps->GetSRV(),
+      m_SSAO->GetSRV()
+    };
+
+    list->Transition(sources, ResourceState::PixelShaderResource);
     list->Transition(m_Depth->GetView(), ResourceState::DepthRead);
 
     list->Transition(m_Lighting->GetView(), ResourceState::RenderTarget);

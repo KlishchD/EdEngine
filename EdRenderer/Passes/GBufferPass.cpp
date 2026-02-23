@@ -114,89 +114,91 @@ GBufferPass::GBufferPass() : RenderPass("GBufferPass")
 
 void GBufferPass::Initialize(RenderGraph* graph)
 {
-    RenderPass::Initialize(graph);
+  RenderPass::Initialize(graph);
 
   m_Albedo = graph->CreateRenderTarget("GBuffer.Albedo", PixelFormat::RGBA16F, RenderTargetSizePolicy::Full, false);
   m_Normal = graph->CreateRenderTarget("GBuffer.Normal", PixelFormat::RGBA16F, RenderTargetSizePolicy::Full, false);
   m_Material = graph->CreateRenderTarget("GBuffer.Material", PixelFormat::RGBA16F, RenderTargetSizePolicy::Full, false);
   m_Velocity = graph->CreateRenderTarget("GBuffer.Velocity", PixelFormat::RG16F, RenderTargetSizePolicy::Full, false);
-    m_Depth = graph->GetRenderTarget("GBuffer.Depth");
+  m_Depth = graph->GetRenderTarget("GBuffer.Depth");
 
-    {
-        GraphicsPipelineStateObjectBuilder builder;
-        builder.SetRootSignature(m_Renderer->GetRootSignature())
-            .SetShader("GBuffer.h")
-            .SetDepthStencil(true, false)
-            .SetDepthFormat(PixelFormat::Depth)
-            .SetDepthFunction(ComparisonFunction::GreaterEqual)
-            .AddInputElement("Position", 0, PixelFormat::RGB32F)
-            .AddInputElement("Color", 0, PixelFormat::RGBA32F)
-            .AddInputElement("UVs", 0, PixelFormat::RGB32F)
-            .AddInputElement("Normals", 0, PixelFormat::RGB32F)
-            .AddInputElement("Tangents", 0, PixelFormat::RGB32F)
-            .AddInputElement("Bitangent", 0, PixelFormat::RGB32F);
+  {
+    GraphicsPipelineStateObjectBuilder builder;
+    builder.SetRootSignature(m_Renderer->GetRootSignature())
+      .SetShader("GBuffer.h")
+      .SetDepthStencil(true, false)
+      .SetDepthFormat(PixelFormat::Depth)
+      .SetDepthFunction(ComparisonFunction::GreaterEqual)
+      .AddInputElement("Position", 0, PixelFormat::RGB32F)
+      .AddInputElement("Color", 0, PixelFormat::RGBA32F)
+      .AddInputElement("UVs", 0, PixelFormat::RGB32F)
+      .AddInputElement("Normals", 0, PixelFormat::RGB32F)
+      .AddInputElement("Tangents", 0, PixelFormat::RGB32F)
+      .AddInputElement("Bitangent", 0, PixelFormat::RGB32F);
 
-        builder.AddRenderTarget().SetFormat(PixelFormat::RGBA16F).SetColorBlend(BlendFactor::One, BlendFactor::Zero, BlendOperation::Add);
-        builder.AddRenderTarget().SetFormat(PixelFormat::RGBA16F);
-        builder.AddRenderTarget().SetFormat(PixelFormat::RGBA16F);
-        builder.AddRenderTarget().SetFormat(PixelFormat::RG16F);
-        
-        
-        m_PSO = m_Context->CreatePipelineStateObject("GBufferBase", builder);
-    }
+    builder.AddRenderTarget().SetFormat(PixelFormat::RGBA16F).SetColorBlend(BlendFactor::One, BlendFactor::Zero, BlendOperation::Add);
+    builder.AddRenderTarget().SetFormat(PixelFormat::RGBA16F);
+    builder.AddRenderTarget().SetFormat(PixelFormat::RGBA16F);
+    builder.AddRenderTarget().SetFormat(PixelFormat::RG16F);
+
+
+    m_PSO = m_Context->CreatePipelineStateObject("GBufferBase", builder);
+  }
 }
 
 u32 GBufferPass::GetCustomShaderParametersStructSize()
 {
-    const RenderScene& scene = m_Renderer->GetScene();
-    const u32 meshCount = scene.StaticMeshes.GetSize();
-    return meshCount * sizeof(ObjectParameters);
+  const RenderScene& scene = m_Renderer->GetScene();
+  const u32 meshCount = scene.StaticMeshes.GetSize();
+  return meshCount * sizeof(ObjectParameters);
 }
 
 void GBufferPass::GatherCustomShaderParameters(void* memory)
 {
-    const RenderScene& scene = m_Renderer->GetScene();
-    const u32 meshCount = scene.StaticMeshes.GetSize();
+  const RenderScene& scene = m_Renderer->GetScene();
+  const u32 meshCount = scene.StaticMeshes.GetSize();
 
-    if (meshCount == 0)
-    {
-        return;
-    }
+  if (meshCount == 0)
+  {
+    return;
+  }
 
-    ObjectParameters* data = reinterpret_cast<ObjectParameters*>(memory);
+  ObjectParameters* data = reinterpret_cast<ObjectParameters*>(memory);
 
-    DescriptorHeap* srvHeap = m_Context->GetSRVHeap();
-    for (u32 index = 0; index < meshCount; ++index)
-    {
-        const StaticMeshElement& element = scene.StaticMeshes[index];
+  DescriptorHeap* srvHeap = m_Context->GetSRVHeap();
+  for (u32 index = 0; index < meshCount; ++index)
+  {
+    const StaticMeshElement& element = scene.StaticMeshes[index];
 
-        ObjectParameters& parameters = data[index];
+    ObjectParameters& parameters = data[index];
 
-        glm::mat4 worldMatrix = element.WorldTransform->GetMatrix();
-        memcpy(parameters.WorldTransform, glm::value_ptr(worldMatrix), sizeof(f32) * 16);
+    glm::mat4 worldMatrix = element.WorldTransform->GetMatrix();
+    memcpy(parameters.WorldTransform, glm::value_ptr(worldMatrix), sizeof(f32) * 16);
 
-        glm::mat4 previousWorldMatrix = element.PreviousWorldTransform->GetMatrix();
-        memcpy(parameters.PreviousWorldTransfom, glm::value_ptr(previousWorldMatrix), sizeof(f32) * 16);
-    }
+    glm::mat4 previousWorldMatrix = element.PreviousWorldTransform->GetMatrix();
+    memcpy(parameters.PreviousWorldTransfom, glm::value_ptr(previousWorldMatrix), sizeof(f32) * 16);
+  }
 }
 
 void GBufferPass::Execute(CommandList* list, Resource* buffer, u64 offset)
 {
-    const RenderScene& scene = m_Renderer->GetScene();
-    const u32 meshCount = scene.StaticMeshes.GetSize();
+  const RenderScene& scene = m_Renderer->GetScene();
+  const u32 meshCount = scene.StaticMeshes.GetSize();
 
-    if (meshCount == 0)
-    {
-        return;
-    }
+  if (meshCount == 0)
+  {
+    return;
+  }
 
-    TemporaryArray<ResourceView> targets;
-    targets.Add(m_Albedo->GetView());
-    targets.Add(m_Normal->GetView());
-    targets.Add(m_Material->GetView());
-    targets.Add(m_Velocity->GetView());
+  ResourceView targets[] =
+  {
+    m_Albedo->GetView(),
+    m_Normal->GetView(),
+    m_Material->GetView(),
+    m_Velocity->GetView()
+  };
 
-    list->Transition(targets, ResourceState::RenderTarget);
+  list->Transition(targets, ResourceState::RenderTarget);
 
   // https://www.gamedev.net/forums/topic/684708-why-call-discardresource/
   for (const auto& target_view : targets)
@@ -204,36 +206,36 @@ void GBufferPass::Execute(CommandList* list, Resource* buffer, u64 offset)
     list->DiscardResource(target_view);
   }
 
-    list->Transition(m_Context->GetGeometryVertexPool(), ResourceState::VertexAndConstantBuffer);
-    list->Transition(m_Context->GetGeometryIndexPool(), ResourceState::IndexBuffer);
+  list->Transition(m_Context->GetGeometryVertexPool(), ResourceState::VertexAndConstantBuffer);
+  list->Transition(m_Context->GetGeometryIndexPool(), ResourceState::IndexBuffer);
 
-    list->SetRenderTargets(targets, m_Depth->GetView());
-    list->SetPrimitiveTopology(PrimitiveTopology::TriangleList);
+  list->SetRenderTargets(targets, std::size(targets), m_Depth->GetView());
+  list->SetPrimitiveTopology(PrimitiveTopology::TriangleList);
 
-    list->SetPipelineState(m_PSO);
-    
-    Window* window = m_Context->GetWindow();
-    list->SetViewport({ 0.0f, 0.0f }, { window->GetWidth(), window->GetHeight() }, { 0.0f, 1.0f });
-    list->SetScissor({ 0.0f, 0.0f }, { window->GetWidth(), window->GetHeight() });
+  list->SetPipelineState(m_PSO);
 
-    list->SetGraphicsConstantBufferView(1, buffer, offset);
+  Window* window = m_Context->GetWindow();
+  list->SetViewport({ 0.0f, 0.0f }, { window->GetWidth(), window->GetHeight() }, { 0.0f, 1.0f });
+  list->SetScissor({ 0.0f, 0.0f }, { window->GetWidth(), window->GetHeight() });
 
-    for (u32 index = 0; index < meshCount; ++index)
-    {
-        const StaticMeshElement& element = scene.StaticMeshes[index];
+  list->SetGraphicsConstantBufferView(1, buffer, offset);
 
-        u32 constants[20];
-        element.PackRootParameters(constants);
-        constants[16] = index;
+  for (u32 index = 0; index < meshCount; ++index)
+  {
+    const StaticMeshElement& element = scene.StaticMeshes[index];
 
-        list->SetGraphicsRootConstants(12, 20, 0, constants);
+    u32 constants[20];
+    element.PackRootParameters(constants);
+    constants[16] = index;
 
-        list->SetVertexBuffer(element.VertexBufferView, 0, m_PSO->GetVertexStride());
-        list->SetIndexBuffer(element.IndexBufferView);
+    list->SetGraphicsRootConstants(12, 20, 0, constants);
 
-        list->DrawIndexed(0, element.IndexBufferView.Size / sizeof(u32), 0);
-    }
+    list->SetVertexBuffer(element.VertexBufferView, 0, m_PSO->GetVertexStride());
+    list->SetIndexBuffer(element.IndexBufferView);
 
-    list->Transition(targets, ResourceState::ShaderRead);
-    list->Transition(m_Depth->GetView(), ResourceState::DepthRead);
+    list->DrawIndexed(0, element.IndexBufferView.Size / sizeof(u32), 0);
+  }
+
+  list->Transition(targets, ResourceState::ShaderRead);
+  list->Transition(m_Depth->GetView(), ResourceState::DepthRead);
 }

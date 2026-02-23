@@ -44,7 +44,7 @@ void MipMappingPass::Execute(CommandList* list, Resource* buffer, u64 offset)
     list->SetComputeRootDescriptorTable(11, m_TemporaryStorage->GetView(0).GPUHandle);
 
     u32 lastMipCount = -1;
-    for (const MipMappingRequest& request : requests)
+    for (MipMappingRequest& request : requests)
     {
         u32 mode = static_cast<u32>(request.Mode);
         u32 mips = request.Mips;
@@ -53,6 +53,7 @@ void MipMappingPass::Execute(CommandList* list, Resource* buffer, u64 offset)
         {
             list->SetPipelineState(m_AlbedoPSO[mode][mips - 1]);
         }
+
 
         list->SetComputeRootDescriptorTable(4, request.View.GPUHandle);
         list->Transition(storage, ResourceState::UnorderedAccess);

@@ -72,7 +72,7 @@ protected:
 
 	struct TransitionRequest
 	{
-		const ResourceView* View;
+		ResourceView* View;
 		ResourceState State;
 	};
 
@@ -140,7 +140,7 @@ public:
 	Resource* GetGeometryVertexPool() const { return m_GeometryVertexPool.GetResource(); }
 	Resource* GetGeometryIndexPool() const { return m_GeometryIndexPool.GetResource(); }
 
-	void RequsetDefferedTransition(const ResourceView& view, ResourceState state);
+	void RequsetDefferedTransition(ResourceView& view, ResourceState state);
 
 	void Wait();
 

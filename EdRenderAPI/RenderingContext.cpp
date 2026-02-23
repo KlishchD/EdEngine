@@ -347,7 +347,7 @@ void RenderingContext::ProcessUploads()
     requests.Clear();
   }
 
-  for (const TransitionRequest& request : m_TransitionRequests)
+  for (TransitionRequest& request : m_TransitionRequests)
   {
     m_GraphicsCommandList->Transition(*request.View, request.State);
   }
@@ -538,7 +538,7 @@ ResourceView RenderingContext::GetDisplayBufferSRV() const
   return m_DisplayBuffersSRVs[m_SwapChain->GetActiveBackBufferIndex()];
 }
 
-void RenderingContext::RequsetDefferedTransition(const ResourceView& view, ResourceState state)
+void RenderingContext::RequsetDefferedTransition(ResourceView& view, ResourceState state)
 {
   TransitionRequest& request = m_TransitionRequests.Add();
   request.View = &view;

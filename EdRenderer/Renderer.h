@@ -87,7 +87,7 @@ public:
 
     RootSignature* GetRootSignature() const { return m_RootSignature; }
 
-    void RequestMipMapping(const ResourceView& view, MipMappingMode mode, u32 mips);
+    void RequestMipMapping(ResourceView& view, MipMappingMode mode, u32 mips);
     Array<MipMappingRequest>& GetMipMappingRequests() { return m_Requests; }
 protected:
     friend class Engine;
