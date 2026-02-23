@@ -1,7 +1,7 @@
 #include "EdCore.h"
 #include "Memory.h"
 
-Memory::Memory()
+Memory::Memory() : mutex()
 {
     m_Heap = (u8*)malloc(HeapSize);
 
@@ -11,6 +11,8 @@ Memory::Memory()
 
 void Memory::OnNewFrame()
 {
+  std::lock_guard _(mutex);
+
     for (u32 i = 0; i < m_DeallocationRequests.size();)
     {
         DeallocationRequest& request = m_DeallocationRequests[i];
@@ -39,6 +41,8 @@ void* Memory::RequestStaticMemory(u64 bytes, u32 alignment, ccstr8 debugName)
 {
     if (bytes == 0) return nullptr;
 
+    std::lock_guard _(mutex);
+
     m_StaticDataPointer = Align(m_StaticDataPointer - bytes - alignment, alignment);
 
     ED_ASSERT(m_DynamicDataPointer < m_StaticDataPointer, "Heap size was exceeded.");
@@ -53,6 +57,8 @@ void* Memory::RequestStaticMemory(u64 bytes, u32 alignment, ccstr8 debugName)
 void* Memory::RequestDynamicMemory(u64 bytes, u32 alignment, ccstr8 debugName)
 {
     if (bytes == 0) return nullptr;
+
+    std::lock_guard _(mutex);
 
     u8* slot = m_DynamicDataPointer;
     
@@ -90,7 +96,7 @@ void* Memory::RequestMemory(u32 size, bool temporary, bool clear)
 
 void* Memory::RequestMemory(const void* buffer, u32 bufferSize, u32 size, bool temporary, bool clear)
 {
-    ED_ASSERT(bufferSize <= size, "Destnation buffer can not be bigger than origin buffer.");
+  ED_ASSERT(bufferSize <= size, "Destination buffer can not be bigger than origin buffer.");
 
     void* result = RequestMemory(size, temporary, clear);
 
@@ -106,6 +112,8 @@ void Memory::AddDeallocation(FreeListAllocator* allocator, void** data, u32 size
     request.Data = reinterpret_cast<u8**>(data);
     request.Size = size;
     request.Predicate = predicate;
+
+    std::lock_guard _(mutex);
     m_DeallocationRequests.push_back(request);
 }
 

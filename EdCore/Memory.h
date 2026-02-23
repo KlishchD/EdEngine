@@ -84,6 +84,8 @@ protected:
     friend class Engine;
 
 protected:
+  std::mutex mutex;
+
     u8* m_Heap;
 
     u8* m_StaticDataPointer;
