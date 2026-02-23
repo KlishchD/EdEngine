@@ -35,6 +35,20 @@ estd::console::unsigned_integer_parameter& console::create_u32(const char* name,
     .set_range(min, max);
 }
 
+bool console::set_u32(const char* name, u32 value)
+{
+  auto& parameters = get_console().get_parameters();
+  auto parameter_it = parameters.find(name);
+
+  if (parameter_it != parameters.end())
+  {
+    auto* parameter = reinterpret_cast<estd::console::unsigned_integer_parameter*>(parameter_it->second);
+    return parameter->set_value(value);
+  }
+
+  return false;
+}
+
 estd::console::bool_parameter& console::create_bool(const char* name, bool default_value)
 {
   return get_console().add_parameter<estd::console::inline_bool_parameter>(name, default_value);
