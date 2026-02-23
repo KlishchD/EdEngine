@@ -21,7 +21,13 @@
 #include "Passes/GrayscalePass.h"
 #include "Passes/Editor/IconsPass.h"
 
+#include "visualization.h"
+#include "Passes/visualization_pass.h"
+
 #include "RenderScene.h"
+
+
+static auto& r_visualization_mode = console::create_u32("r_visualization_mode", visualization::none, visualization::none, visualization::max);
 
 void Renderer::Initialize(Window* window)
 {
@@ -179,6 +185,13 @@ void Renderer::PreFrameUpdate()
 void Renderer::RenderFrame(const RenderScene& scene, f32 deltaSeconds)
 {
 	m_Scene = &scene;
+
+	{
+		auto& parameters = visualization::parameters;
+
+		parameters.mode = static_cast<visualization::modes>(r_visualization_mode());
+		parameters.custom_target = ResourceView();
+	}
 
 #if DEBUG_BUILD == 1 || DEVELOPMENT_BUILD == 1
 	m_Stats.Reset();

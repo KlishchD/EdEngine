@@ -172,6 +172,7 @@
     {
       "Name": "EdRenderer",
       "Sources": [ "EdRenderer" ],
+      "Includes":  [ "EdBridge" ],
       "Dependencies": [ "EdDirectX12" ],
       "PrecompileHeader": "EdRenderer\\EdRendererPrivate.h"
     },

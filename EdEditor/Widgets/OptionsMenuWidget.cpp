@@ -5,6 +5,8 @@
 #include "Helpers/AssetHelper.h"
 #include "Helpers/PlatformHelper.h"
 
+#include "visualization.h"
+
 void OptionsMenuWidget::Initialize()
 {
   Widget::Initialize();
@@ -108,6 +110,32 @@ void OptionsMenuWidget::Tick(f32 DeltaTime)
         else
         {
           ED_LOG(Options, err, "Scene save path is incorrect '{}'", path.Get());
+        }
+      }
+
+      ImGui::EndMenu();
+    }
+
+    struct visualization_option_description
+    {
+      const char* name;
+      visualization::modes mode;
+    };
+
+    visualization_option_description visualization_options[] =
+    {
+      { "Game", visualization::modes::none },
+      { "GBuffer Albedo", visualization::gbuffer_albedo },
+      { "GBuffer Normals", visualization::gbuffer_normals },
+    };
+
+    if (ImGui::BeginMenu("Visualization"))
+    {
+      for (const auto& option : visualization_options)
+      {
+        if (ImGui::MenuItem(option.name, nullptr, false))
+        {
+          console::set_u32("r_visualization_mode", static_cast<u32>(option.mode));
         }
       }
 
